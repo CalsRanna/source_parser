@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../model/rule.dart';
 import '../../state/source.dart';
 import '../../widget/bordered_card.dart';
+import '../../widget/debug_button.dart';
 import '../../widget/rule_tile.dart';
 
 class BookSourceContentConfiguration extends StatelessWidget {
@@ -11,9 +12,8 @@ class BookSourceContentConfiguration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('正文配置')),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(actions: const [DebugButton()], title: const Text('正文配置')),
+      body: ListView(
         children: [
           BorderedCard(
             title: '基础',
@@ -21,12 +21,22 @@ class BookSourceContentConfiguration extends StatelessWidget {
               children: [
                 Watcher(
                   (context, ref, _) => RuleTile(
-                    bordered: false,
                     title: '正文规则',
                     value: ref.watch(contentRuleCreator)?.content,
                     onChange: (value) => ref.update<ContentRule?>(
                       contentRuleCreator,
                       (rule) => rule?.copyWith(content: value),
+                    ),
+                  ),
+                ),
+                Watcher(
+                  (context, ref, _) => RuleTile(
+                    bordered: false,
+                    title: '下一页URL规则',
+                    value: ref.watch(contentRuleCreator)?.pagination,
+                    onChange: (value) => ref.update<ContentRule?>(
+                      contentRuleCreator,
+                      (rule) => rule?.copyWith(pagination: value),
                     ),
                   ),
                 ),
@@ -37,16 +47,6 @@ class BookSourceContentConfiguration extends StatelessWidget {
             title: '配置',
             child: Column(
               children: [
-                Watcher(
-                  (context, ref, _) => RuleTile(
-                    title: '正文下一页URL规则',
-                    value: ref.watch(contentRuleCreator)?.pagination,
-                    onChange: (value) => ref.update<ContentRule?>(
-                      contentRuleCreator,
-                      (rule) => rule?.copyWith(pagination: value),
-                    ),
-                  ),
-                ),
                 Watcher(
                   (context, ref, _) => RuleTile(
                     title: '网页脚本',

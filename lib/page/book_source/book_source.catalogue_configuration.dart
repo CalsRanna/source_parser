@@ -13,8 +13,7 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('目录配置')),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: ListView(
         children: [
           BorderedCard(
             title: '配置',

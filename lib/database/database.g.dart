@@ -61,6 +61,8 @@ class _$AppDatabase extends AppDatabase {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
+  BookDao? _bookDaoInstance;
+
   BookSourceDao? _bookSourceDaoInstance;
 
   RuleDao? _ruleDaoInstance;
@@ -84,7 +86,9 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `book_sources` (`charset` TEXT, `comment` TEXT, `enabled` INTEGER NOT NULL, `explore_enabled` INTEGER, `explore_url` TEXT, `group` TEXT NOT NULL, `header` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT, `login_url` TEXT, `name` TEXT NOT NULL, `order` INTEGER NOT NULL, `response_time` INTEGER, `search_url` TEXT, `type` INTEGER NOT NULL, `update_at` INTEGER, `url` TEXT NOT NULL, `url_pattern` TEXT, `weight` INTEGER NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `books` (`id` INTEGER, `author` TEXT, `cover` TEXT, `category` TEXT, `introduction` TEXT, `name` TEXT, `url` TEXT, `catalogue_url` TEXT, `status` TEXT, `words` TEXT, `latest_chapter` TEXT, `sourceId` INTEGER, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `book_sources` (`charset` TEXT NOT NULL, `comment` TEXT, `enabled` INTEGER NOT NULL, `explore_enabled` INTEGER NOT NULL, `explore_url` TEXT, `group` TEXT NOT NULL, `header` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT, `login_url` TEXT, `name` TEXT NOT NULL, `order` INTEGER NOT NULL, `response_time` INTEGER, `search_url` TEXT, `type` INTEGER NOT NULL, `update_at` INTEGER, `url` TEXT NOT NULL, `url_pattern` TEXT, `weight` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `rules` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `source_id` INTEGER, `value` TEXT)');
 
@@ -92,6 +96,11 @@ class _$AppDatabase extends AppDatabase {
       },
     );
     return sqfliteDatabaseFactory.openDatabase(path, options: databaseOptions);
+  }
+
+  @override
+  BookDao get bookDao {
+    return _bookDaoInstance ??= _$BookDao(database, changeListener);
   }
 
   @override
@@ -105,6 +114,35 @@ class _$AppDatabase extends AppDatabase {
   }
 }
 
+class _$BookDao extends BookDao {
+  _$BookDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  @override
+  Future<List<Book>> getAllBooks() async {
+    return _queryAdapter.queryList('select * from books',
+        mapper: (Map<String, Object?> row) => Book(
+            id: row['id'] as int?,
+            author: row['author'] as String?,
+            category: row['category'] as String?,
+            cover: row['cover'] as String?,
+            introduction: row['introduction'] as String?,
+            name: row['name'] as String?,
+            url: row['url'] as String?,
+            catalogueUrl: row['catalogue_url'] as String?,
+            status: row['status'] as String?,
+            words: row['words'] as String?,
+            latestChapter: row['latest_chapter'] as String?,
+            sourceId: row['sourceId'] as int?));
+  }
+}
+
 class _$BookSourceDao extends BookSourceDao {
   _$BookSourceDao(this.database, this.changeListener)
       : _queryAdapter = QueryAdapter(database),
@@ -115,9 +153,7 @@ class _$BookSourceDao extends BookSourceDao {
                   'charset': item.charset,
                   'comment': item.comment,
                   'enabled': item.enabled ? 1 : 0,
-                  'explore_enabled': item.exploreEnabled == null
-                      ? null
-                      : (item.exploreEnabled! ? 1 : 0),
+                  'explore_enabled': item.exploreEnabled ? 1 : 0,
                   'explore_url': item.exploreUrl,
                   'group': item.group,
                   'header': item.header,
@@ -141,9 +177,7 @@ class _$BookSourceDao extends BookSourceDao {
                   'charset': item.charset,
                   'comment': item.comment,
                   'enabled': item.enabled ? 1 : 0,
-                  'explore_enabled': item.exploreEnabled == null
-                      ? null
-                      : (item.exploreEnabled! ? 1 : 0),
+                  'explore_enabled': item.exploreEnabled ? 1 : 0,
                   'explore_url': item.exploreUrl,
                   'group': item.group,
                   'header': item.header,
@@ -167,9 +201,7 @@ class _$BookSourceDao extends BookSourceDao {
                   'charset': item.charset,
                   'comment': item.comment,
                   'enabled': item.enabled ? 1 : 0,
-                  'explore_enabled': item.exploreEnabled == null
-                      ? null
-                      : (item.exploreEnabled! ? 1 : 0),
+                  'explore_enabled': item.exploreEnabled ? 1 : 0,
                   'explore_url': item.exploreUrl,
                   'group': item.group,
                   'header': item.header,
@@ -202,12 +234,10 @@ class _$BookSourceDao extends BookSourceDao {
   Future<BookSource?> getBookSource(int id) async {
     return _queryAdapter.query('select * from book_sources where id=?1',
         mapper: (Map<String, Object?> row) => BookSource(
-            row['charset'] as String?,
+            row['charset'] as String,
             row['comment'] as String?,
             (row['enabled'] as int) != 0,
-            row['explore_enabled'] == null
-                ? null
-                : (row['explore_enabled'] as int) != 0,
+            (row['explore_enabled'] as int) != 0,
             row['explore_url'] as String?,
             row['group'] as String,
             row['header'] as String?,
@@ -229,12 +259,10 @@ class _$BookSourceDao extends BookSourceDao {
   Future<BookSource?> findBookSourceByName(String name) async {
     return _queryAdapter.query('select * from book_sources where name=?1',
         mapper: (Map<String, Object?> row) => BookSource(
-            row['charset'] as String?,
+            row['charset'] as String,
             row['comment'] as String?,
             (row['enabled'] as int) != 0,
-            row['explore_enabled'] == null
-                ? null
-                : (row['explore_enabled'] as int) != 0,
+            (row['explore_enabled'] as int) != 0,
             row['explore_url'] as String?,
             row['group'] as String,
             row['header'] as String?,
@@ -256,12 +284,10 @@ class _$BookSourceDao extends BookSourceDao {
   Future<BookSource?> findBookSourceByUrl(String url) async {
     return _queryAdapter.query('select * from book_sources where url like %?1%',
         mapper: (Map<String, Object?> row) => BookSource(
-            row['charset'] as String?,
+            row['charset'] as String,
             row['comment'] as String?,
             (row['enabled'] as int) != 0,
-            row['explore_enabled'] == null
-                ? null
-                : (row['explore_enabled'] as int) != 0,
+            (row['explore_enabled'] as int) != 0,
             row['explore_url'] as String?,
             row['group'] as String,
             row['header'] as String?,
@@ -284,12 +310,10 @@ class _$BookSourceDao extends BookSourceDao {
     return _queryAdapter.query(
         'select * from book_sources where explore_enabled=1 order by weight asc limit 1',
         mapper: (Map<String, Object?> row) => BookSource(
-            row['charset'] as String?,
+            row['charset'] as String,
             row['comment'] as String?,
             (row['enabled'] as int) != 0,
-            row['explore_enabled'] == null
-                ? null
-                : (row['explore_enabled'] as int) != 0,
+            (row['explore_enabled'] as int) != 0,
             row['explore_url'] as String?,
             row['group'] as String,
             row['header'] as String?,
@@ -310,12 +334,10 @@ class _$BookSourceDao extends BookSourceDao {
   Future<List<BookSource>> getAllBookSources() async {
     return _queryAdapter.queryList('SELECT * FROM book_sources',
         mapper: (Map<String, Object?> row) => BookSource(
-            row['charset'] as String?,
+            row['charset'] as String,
             row['comment'] as String?,
             (row['enabled'] as int) != 0,
-            row['explore_enabled'] == null
-                ? null
-                : (row['explore_enabled'] as int) != 0,
+            (row['explore_enabled'] as int) != 0,
             row['explore_url'] as String?,
             row['group'] as String,
             row['header'] as String?,
@@ -337,12 +359,10 @@ class _$BookSourceDao extends BookSourceDao {
     return _queryAdapter.queryList(
         'select * from book_sources where explore_enabled=1 order by weight asc',
         mapper: (Map<String, Object?> row) => BookSource(
-            row['charset'] as String?,
+            row['charset'] as String,
             row['comment'] as String?,
             (row['enabled'] as int) != 0,
-            row['explore_enabled'] == null
-                ? null
-                : (row['explore_enabled'] as int) != 0,
+            (row['explore_enabled'] as int) != 0,
             row['explore_url'] as String?,
             row['group'] as String,
             row['header'] as String?,
@@ -364,12 +384,10 @@ class _$BookSourceDao extends BookSourceDao {
     return _queryAdapter.queryList(
         'select * from book_sources where enabled=1 order by weight asc',
         mapper: (Map<String, Object?> row) => BookSource(
-            row['charset'] as String?,
+            row['charset'] as String,
             row['comment'] as String?,
             (row['enabled'] as int) != 0,
-            row['explore_enabled'] == null
-                ? null
-                : (row['explore_enabled'] as int) != 0,
+            (row['explore_enabled'] as int) != 0,
             row['explore_url'] as String?,
             row['group'] as String,
             row['header'] as String?,

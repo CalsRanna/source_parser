@@ -1,8 +1,8 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:source_parser/widget/debug_button.dart';
 
-import '../../entity/book_source.dart';
+import '../../model/book_source.dart';
 import '../../model/rule.dart';
 import '../../state/source.dart';
 import '../../widget/bordered_card.dart';
@@ -15,18 +15,10 @@ class BookSourceSearchConfiguration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () {
-              context.push('/book-source/debug');
-            },
-            icon: const Icon(Icons.bug_report_outlined),
-          ),
-        ],
+        actions: const [DebugButton()],
         title: const Text('搜索配置'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: ListView(
         children: [
           BorderedCard(
             title: '基础',
@@ -34,8 +26,8 @@ class BookSourceSearchConfiguration extends StatelessWidget {
               children: [
                 Watcher(
                   (context, ref, _) => RuleTile(
-                    title: '搜索地址规则',
-                    value: ref.watch(bookSourceCreator)?.searchUrl,
+                    title: '搜索URL',
+                    value: ref.watch(bookSourceCreator).searchUrl,
                     onChange: (value) => ref.update<BookSource?>(
                       bookSourceCreator,
                       (source) => source?.copyWith(searchUrl: value),
@@ -62,7 +54,6 @@ class BookSourceSearchConfiguration extends StatelessWidget {
               children: [
                 Watcher(
                   (context, ref, _) => RuleTile(
-                    bordered: false,
                     title: '书籍列表规则',
                     value: ref.watch(searchRuleCreator)?.books,
                     onChange: (value) => ref.update<SearchRule?>(
@@ -73,7 +64,6 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                 ),
                 Watcher(
                   (context, ref, _) => RuleTile(
-                    bordered: false,
                     title: '书名规则',
                     value: ref.watch(searchRuleCreator)?.name,
                     onChange: (value) => ref.update<SearchRule?>(
@@ -84,7 +74,6 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                 ),
                 Watcher(
                   (context, ref, _) => RuleTile(
-                    bordered: false,
                     title: '作者规则',
                     value: ref.watch(searchRuleCreator)?.author,
                     onChange: (value) => ref.update<SearchRule?>(
@@ -95,7 +84,6 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                 ),
                 Watcher(
                   (context, ref, _) => RuleTile(
-                    bordered: false,
                     title: '分类规则',
                     value: ref.watch(searchRuleCreator)?.category,
                     onChange: (value) => ref.update<SearchRule?>(
@@ -106,12 +94,41 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                 ),
                 Watcher(
                   (context, ref, _) => RuleTile(
-                    bordered: false,
                     title: '字数规则',
                     value: ref.watch(searchRuleCreator)?.words,
                     onChange: (value) => ref.update<SearchRule?>(
                       searchRuleCreator,
                       (rule) => rule?.copyWith(words: value),
+                    ),
+                  ),
+                ),
+                Watcher(
+                  (context, ref, _) => RuleTile(
+                    title: '简介规则',
+                    value: ref.watch(searchRuleCreator)?.introduction,
+                    onChange: (value) => ref.update<SearchRule?>(
+                      searchRuleCreator,
+                      (rule) => rule?.copyWith(introduction: value),
+                    ),
+                  ),
+                ),
+                Watcher(
+                  (context, ref, _) => RuleTile(
+                    title: '封面规则',
+                    value: ref.watch(searchRuleCreator)?.cover,
+                    onChange: (value) => ref.update<SearchRule?>(
+                      searchRuleCreator,
+                      (rule) => rule?.copyWith(cover: value),
+                    ),
+                  ),
+                ),
+                Watcher(
+                  (context, ref, _) => RuleTile(
+                    title: '详情URL规则',
+                    value: ref.watch(searchRuleCreator)?.url,
+                    onChange: (value) => ref.update<SearchRule?>(
+                      searchRuleCreator,
+                      (rule) => rule?.copyWith(url: value),
                     ),
                   ),
                 ),
@@ -123,39 +140,6 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                     onChange: (value) => ref.update<SearchRule?>(
                       searchRuleCreator,
                       (rule) => rule?.copyWith(latestChapter: value),
-                    ),
-                  ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
-                    bordered: false,
-                    title: '简介规则',
-                    value: ref.watch(searchRuleCreator)?.introduction,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(introduction: value),
-                    ),
-                  ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
-                    bordered: false,
-                    title: '封面规则',
-                    value: ref.watch(searchRuleCreator)?.cover,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(cover: value),
-                    ),
-                  ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
-                    bordered: false,
-                    title: '详情URL规则',
-                    value: ref.watch(searchRuleCreator)?.url,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(url: value),
                     ),
                   ),
                 ),

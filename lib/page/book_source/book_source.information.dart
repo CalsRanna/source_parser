@@ -2,37 +2,47 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:source_parser/widget/debug_button.dart';
 
 import '../../database/database.dart';
-import '../../entity/book_source.dart';
-import '../../entity/rule.dart';
+import '../../model/book_source.dart';
+import '../../model/rule.dart';
 import '../../state/global.dart';
 import '../../state/source.dart';
-import '../../widget/action_button.dart';
 import '../../widget/bordered_card.dart';
 import '../../widget/message.dart';
 import '../../widget/rule_tile.dart';
 
-class BookSourceInformation extends StatelessWidget {
-  BookSourceInformation({Key? key, this.id}) : super(key: key);
+class BookSourceInformation extends StatefulWidget {
+  const BookSourceInformation({Key? key}) : super(key: key);
 
-  final int? id;
+  @override
+  State<BookSourceInformation> createState() {
+    return _BookSourceInformationState();
+  }
+}
 
-  final List<String> types = ['文本', '图片', '音频', '视频'];
+class _BookSourceInformationState extends State<BookSourceInformation> {
+  late BookSource source;
+  @override
+  void didChangeDependencies() {
+    source = context.ref.read(bookSourceCreator);
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
+    // const List<String> types = ['文本', '图片', '音频', '视频'];
     return Scaffold(
       appBar: AppBar(
         actions: [
-          Watcher(
-            (context, ref, _) => ActionButton(
-              text: '保存',
-              onTap: () => storeBookSource(context, ref),
-            ),
-          )
+          const DebugButton(),
+          IconButton(
+            onPressed: () => storeBookSource(context),
+            icon: const Icon(Icons.check_outlined),
+          ),
         ],
-        title: Text(id != null ? '编辑源' : '新建源'),
+        title: Text(source.id != null ? '编辑书源' : '新建书源'),
       ),
       body: ListView(
         children: [
@@ -40,52 +50,45 @@ class BookSourceInformation extends StatelessWidget {
             title: '基本信息',
             child: Column(
               children: [
-                Watcher(
-                  (context, ref, _) => RuleTile(
-                    title: '书源名称',
-                    value: ref.watch(bookSourceCreator)?.name,
-                    onChange: (value) => ref.update<BookSource?>(
-                      bookSourceCreator,
-                      (source) => source?.copyWith(name: value),
-                    ),
-                  ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
-                    title: '网址',
-                    value: ref.watch(bookSourceCreator)?.url,
-                    onChange: (value) => ref.update<BookSource?>(
-                      bookSourceCreator,
-                      (source) => source?.copyWith(url: value),
-                    ),
-                  ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
-                    title: '类型',
-                    trailing:
-                        Text(types[ref.watch(bookSourceCreator)?.type ?? 0]),
-                    onTap: () => updateType(context, ref),
-                  ),
-                ),
                 RuleTile(
-                  title: '高级配置',
+                  title: '名称',
+                  value: source.name,
+                  onChange: (value) {
+                    setState(() => source.name = value);
+                    context.ref.set(bookSourceCreator, source);
+                  },
+                ),
+                Watcher(
+                  (context, ref, _) => RuleTile(
+                    bordered: false,
+                    title: '网址',
+                    value: source.url,
+                    onChange: (value) {
+                      setState(() => source.url = value);
+                      context.ref.set(bookSourceCreator, source);
+                    },
+                  ),
+                ),
+                // Watcher(
+                //   (context, ref, _) => RuleTile(
+                //     title: '类型',
+                //     trailing:
+                //         Text(types[source.type ?? 0]),
+                //     onTap: () => updateType(context, ref),
+                //   ),
+                // ),
+              ],
+            ),
+          ),
+          BorderedCard(
+            title: '高级信息',
+            child: Column(
+              children: [
+                RuleTile(
+                  bordered: false,
+                  title: '高级',
                   onTap: () => navigate(context, 'advanced-configuration'),
                 ),
-                InkWell(
-                  onTap: () => debugSource(context),
-                  child: Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                    width: double.infinity,
-                    child: Text(
-                      '调试',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                )
               ],
             ),
           ),
@@ -97,18 +100,6 @@ class BookSourceInformation extends StatelessWidget {
                   title: '搜索',
                   onTap: () => navigate(context, 'search-configuration'),
                 ),
-                RuleTile(
-                  bordered: false,
-                  title: '发现',
-                  onTap: () => navigate(context, 'explore-configuration'),
-                ),
-              ],
-            ),
-          ),
-          BorderedCard(
-            title: '内容配置',
-            child: Column(
-              children: [
                 RuleTile(
                   title: '详情',
                   onTap: () => navigate(context, 'information-configuration'),
@@ -125,35 +116,57 @@ class BookSourceInformation extends StatelessWidget {
               ],
             ),
           ),
+          BorderedCard(
+            title: '内容配置',
+            child: Column(
+              children: [
+                RuleTile(
+                  bordered: false,
+                  title: '发现',
+                  onTap: () => navigate(context, 'explore-configuration'),
+                ),
+              ],
+            ),
+          ),
+          Watcher((context, ref, _) {
+            if (source.id != null) {
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: const Text('删除', style: TextStyle(color: Colors.red)),
+                ),
+              );
+            } else {
+              return const SizedBox();
+            }
+          })
         ],
       ),
     );
   }
 
-  void storeBookSource(BuildContext context, Ref ref) async {
-    final database = ref.read(databaseCreator);
+  void storeBookSource(BuildContext context) async {
+    final ref = context.ref;
+    final database = ref.read(databaseEmitter.asyncData).data;
     final source = ref.read(bookSourceCreator);
     final searchRule = ref.read(searchRuleCreator);
     final exploreRule = ref.read(exploreRuleCreator);
     final informationRule = ref.read(informationRuleCreator);
     final catalogueRule = ref.read(catalogueRuleCreator);
     final contentRule = ref.read(contentRuleCreator);
-    if (source == null) {
-      Message.of(context).show('书源不能为空');
+    var messager = Message.of(context);
+    if (source.id == null) {
+      await database?.bookSourceDao.insertBookSource(source);
     } else {
-      var messager = Message.of(context);
-      if (id == null) {
-        await database?.bookSourceDao.insertBookSource(source);
-      } else {
-        await database?.bookSourceDao.updateBookSource(source);
-      }
-      storeRule(database!, source, searchRule!.toJson());
-      storeRule(database, source, exploreRule!.toJson());
-      storeRule(database, source, informationRule!.toJson());
-      storeRule(database, source, catalogueRule!.toJson());
-      storeRule(database, source, contentRule!.toJson());
-      messager.show('书源保存成功');
+      await database?.bookSourceDao.updateBookSource(source);
     }
+    storeRule(database!, source, searchRule!.toJson());
+    storeRule(database, source, exploreRule!.toJson());
+    storeRule(database, source, informationRule!.toJson());
+    storeRule(database, source, catalogueRule!.toJson());
+    storeRule(database, source, contentRule!.toJson());
+    messager.show('书源保存成功');
   }
 
   void storeRule(
@@ -164,7 +177,7 @@ class BookSourceInformation extends StatelessWidget {
     final sourceDao = database.bookSourceDao;
     final ruleDao = database.ruleDao;
     final keys = rule.keys.toList();
-    if (id == null) {
+    if (source.id == null) {
       var record = await sourceDao.findBookSourceByName(source.name);
       if (record != null) {
         for (var i = 0; i < keys.length; i++) {
@@ -177,19 +190,20 @@ class BookSourceInformation extends StatelessWidget {
       }
     } else {
       for (var i = 0; i < keys.length; i++) {
-        final record = await ruleDao.getRuleByNameAndSourceId(keys[i], id!);
+        final record =
+            await ruleDao.getRuleByNameAndSourceId(keys[i], source.id!);
         if (record != null) {
           await ruleDao.updateRule(Rule.bean(
             id: record.id,
             name: keys[i],
             value: rule[keys[i]],
-            sourceId: id,
+            sourceId: source.id,
           ));
         } else {
           await ruleDao.insertRule(Rule.bean(
             name: keys[i],
             value: rule[keys[i]],
-            sourceId: id,
+            sourceId: source.id,
           ));
         }
       }

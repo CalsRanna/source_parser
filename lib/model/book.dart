@@ -1,3 +1,6 @@
+import 'package:floor/floor.dart';
+
+@Entity(tableName: 'books')
 class Book {
   Book({
     this.id,
@@ -14,6 +17,7 @@ class Book {
     this.sourceId,
   });
 
+  @PrimaryKey()
   int? id;
   String? author;
   String? cover;
@@ -21,9 +25,11 @@ class Book {
   String? introduction;
   String? name;
   String? url;
+  @ColumnInfo(name: 'catalogue_url')
   String? catalogueUrl;
   String? status;
   String? words;
+  @ColumnInfo(name: 'latest_chapter')
   String? latestChapter;
   int? sourceId;
 

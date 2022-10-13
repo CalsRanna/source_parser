@@ -10,7 +10,7 @@ class BorderedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var header = Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Text(
         title ?? '',
         style: const TextStyle(color: Colors.grey),
@@ -28,7 +28,7 @@ class BorderedCard extends StatelessWidget {
             ),
             color: Colors.white,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: child,
         ),
       ],

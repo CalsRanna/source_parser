@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../entity/book.dart';
+import '../../model/book.dart';
 import '../../state/book.dart';
 import '../../state/global.dart';
 import '../../util/parser.dart';
@@ -27,10 +27,11 @@ class _BookInformationState extends State<BookInformation> {
   }
 
   void fetchInformation() async {
-    var database = context.ref.watch(databaseCreator);
+    var database = context.ref.watch(databaseEmitter.asyncData).data;
     var book = context.ref.watch(bookCreator);
-    final cacheDirectory = context.ref.read(cacheDirectoryCreator);
-    final folder = Directory(cacheDirectory);
+    final cacheDirectory =
+        context.ref.read(cacheDirectoryEmitter.asyncData).data;
+    final folder = Directory(cacheDirectory!);
 
     var result = await Parser.fetch(database!, book!, folder);
     result.listen((book) {

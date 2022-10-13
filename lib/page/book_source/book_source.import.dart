@@ -1,28 +1,29 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../provider/book_source.dart';
-import '../../provider/global.dart';
-import '../../util/importer.dart';
-
-class BookSourceImport extends ConsumerWidget {
-  BookSourceImport({Key? key, required this.by}) : super(key: key);
+class BookSourceImport extends StatefulWidget {
+  const BookSourceImport({Key? key, required this.by}) : super(key: key);
 
   final String by;
 
-  final Map<String, String> titles = {
-    'internet': '网络导入',
-    'locale': '本地导入',
-    'qr-code': '二维码导入',
-  };
+  @override
+  State<BookSourceImport> createState() {
+    return _BookSourceImportState();
+  }
+}
+
+class _BookSourceImportState extends State<BookSourceImport> {
+  // static const Map<String, String> titles = {
+  //   'internet': '网络导入',
+  //   'locale': '本地导入',
+  //   'qr-code': '二维码导入',
+  // };
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     Widget body = const _InternetImport();
-    if (by == 'locale') {
+    if (widget.by == 'locale') {
       body = const _LocalImport();
-    } else if (by == 'qr-code') {
+    } else if (widget.by == 'qr-code') {
       body = const _QrCodeImport();
     }
 
@@ -30,12 +31,19 @@ class BookSourceImport extends ConsumerWidget {
   }
 }
 
-class _InternetImport extends ConsumerWidget {
+class _InternetImport extends StatefulWidget {
   const _InternetImport({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var loading = ref.watch(bookSourceState.select((value) => value.importing));
+  State<StatefulWidget> createState() {
+    return _InternetImportState();
+  }
+}
+
+class _InternetImportState extends State<_InternetImport> {
+  bool loading = false;
+  @override
+  Widget build(BuildContext context) {
     var controller = TextEditingController();
 
     Widget body = const Center(child: CircularProgressIndicator());
@@ -59,12 +67,10 @@ class _InternetImport extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          InkWell(
-            onTap: () => handleTap(context, ref, controller.text),
-            child: const Center(
-              child: Text('完成'),
-            ),
-          )
+          IconButton(
+            onPressed: () => handleTap(context, controller.text),
+            icon: const Icon(Icons.check_outlined),
+          ),
         ],
         title: const Text('网络导入'),
       ),
@@ -72,49 +78,49 @@ class _InternetImport extends ConsumerWidget {
     );
   }
 
-  void handleTap(BuildContext context, WidgetRef ref, String url) async {
-    ref.read(bookSourceState.notifier).updateImporting(true);
+  void handleTap(BuildContext context, String url) async {
+    // // ref.read(bookSourceState.notifier).updateImporting(true);
 
-    var database = ref.watch(globalState.select((value) => value.database))!;
+    // var database = ref.watch(globalState.select((value) => value.database))!;
 
-    var naviagator = Navigator.of(context);
-    try {
-      var count = await SourceImporter().internet(database, url);
+    // var naviagator = Navigator.of(context);
+    // try {
+    //   var count = await SourceImporter().internet(database, url);
 
-      // compute 只能传递值，不能传递引用
+    //   // compute 只能传递值，不能传递引用
 
-      // var count = await compute(SourceImporter.internet, url);
+    //   // var count = await compute(SourceImporter.internet, url);
 
-      var importedSources = await database.bookSourceDao.getAllBookSources();
-      ref.read(bookSourceState.notifier).updateBookSources(importedSources);
-      ref.read(bookSourceState.notifier).updateImporting(false);
+    //   var importedSources = await database.bookSourceDao.getAllBookSources();
+    //   ref.read(bookSourceState.notifier).updateBookSources(importedSources);
+    //   ref.read(bookSourceState.notifier).updateImporting(false);
 
-      naviagator.pop(count);
-    } catch (e) {
-      ref.read(bookSourceState.notifier).updateImporting(false);
-      var error = e as DioError;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        behavior: SnackBarBehavior.floating,
-        content: Text(error.message),
-        duration: const Duration(seconds: 3),
-      ));
-    }
+    //   naviagator.pop(count);
+    // } catch (e) {
+    //   ref.read(bookSourceState.notifier).updateImporting(false);
+    //   var error = e as DioError;
+    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //     backgroundColor: Theme.of(context).primaryColor,
+    //     behavior: SnackBarBehavior.floating,
+    //     content: Text(error.message),
+    //     duration: const Duration(seconds: 3),
+    //   ));
+    // }
   }
 }
 
-class _LocalImport extends ConsumerWidget {
+class _LocalImport extends StatelessWidget {
   const _LocalImport({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Container();
   }
 }
 
-class _QrCodeImport extends ConsumerWidget {
+class _QrCodeImport extends StatelessWidget {
   const _QrCodeImport({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Container();
   }
 }

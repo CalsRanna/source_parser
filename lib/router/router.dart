@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:source_parser/page/setting/reader_theme.dart';
 
 import '../page/book/book_information.dart';
 import '../page/book_source/book_source.advanced_configuration.dart';
@@ -17,7 +18,7 @@ import '../page/search/search.dart';
 import '../page/setting/about.dart';
 import '../page/setting/setting.dart';
 import '../page/setting/theme.dart';
-import '../page/shelf/shelf.dart';
+import '../page/book_shelf/book_shelf.dart';
 
 final router = GoRouter(routes: [
   GoRoute(path: '/', redirect: (state) => '/shelf'),
@@ -38,7 +39,7 @@ final router = GoRouter(routes: [
     path: '/book-source/content-configuration',
   ),
   GoRoute(
-    builder: (context, state) => BookSourceInformation(),
+    builder: (context, state) => const BookSourceInformation(),
     path: '/book-source/create',
   ),
   GoRoute(
@@ -58,10 +59,7 @@ final router = GoRouter(routes: [
     path: '/book-source/information-configuration',
   ),
   GoRoute(
-    builder: (context, state) {
-      var id = int.parse(state.params['id']!);
-      return BookSourceInformation(id: id);
-    },
+    builder: (context, state) => const BookSourceInformation(),
     path: '/book-source/information/:id',
   ),
   GoRoute(
@@ -93,9 +91,13 @@ final router = GoRouter(routes: [
     path: '/setting/theme',
   ),
   GoRoute(
+    builder: (context, state) => const ReaderTheme(),
+    path: '/setting/reader-theme',
+  ),
+  GoRoute(
     pageBuilder: (context, state) => NoTransitionPage(
       key: state.pageKey,
-      child: const Shelf(),
+      child: const BookShelf(),
     ),
     path: '/shelf',
   ),

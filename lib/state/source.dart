@@ -1,13 +1,16 @@
 import 'package:creator/creator.dart';
 
-import '../entity/book_source.dart';
+import '../model/book_source.dart';
 import '../model/rule.dart';
 import 'global.dart';
 
-final bookSourceCreator = Creator<BookSource?>.value(null, name: 'bookSource');
+final bookSourceCreator = Creator<BookSource>.value(
+  BookSource.bean(),
+  name: 'bookSource',
+);
 
 final bookSourcesCreator = Emitter<List<BookSource>?>((ref, emit) async {
-  final database = ref.watch(databaseCreator);
+  final database = ref.watch(databaseEmitter.asyncData).data;
   final sources = await database?.bookSourceDao.getAllBookSources();
   emit(sources);
 }, name: 'bookSources');

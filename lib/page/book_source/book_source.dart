@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:creator/creator.dart';
@@ -8,11 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
-import 'package:source_parser/router/router.dart';
 import 'package:source_parser/util/generator.dart';
-import 'package:source_parser/util/importer.dart';
 
-import '../../entity/book_source.dart';
+import '../../model/book_source.dart';
 import '../../model/rule.dart';
 import '../../state/global.dart';
 import '../../state/source.dart';
@@ -29,7 +26,7 @@ class BookSourceList extends StatelessWidget {
     Icons.ios_share_outlined,
     Icons.fingerprint_outlined,
   ];
-  final labels = ['新建源', '本地导入', '网络导入', '二维码导入', '导出', '校验源'];
+  final labels = ['新建', '本地导入', '网络导入', '二维码导入', '导出', '校验'];
   final values = [
     'create',
     'import?by=locale',
@@ -65,7 +62,7 @@ class BookSourceList extends StatelessWidget {
             ),
           ),
         ],
-        title: const Text('源管理'),
+        title: const Text('书源管理'),
       ),
       body: Watcher((context, ref, _) {
         if (AsyncDataStatus.waiting ==
@@ -100,9 +97,9 @@ class BookSourceList extends StatelessWidget {
 
   void handleChange(BuildContext context, Ref ref, String? value) async {
     if (value == 'export') {
-      File file =
-          File(path.join(ref.read(cacheDirectoryCreator), 'sources.pbs'));
-      final database = ref.read(databaseCreator);
+      File file = File(path.join(
+          ref.read(cacheDirectoryEmitter.asyncData).data!, 'sources.pbs'));
+      final database = ref.read(databaseEmitter.asyncData).data;
       final json = await Generator.sourcesJson(database!);
       await file.writeAsBytes(json.codeUnits);
       Share.shareFiles([file.path], subject: 'sources.pbs');
@@ -110,8 +107,7 @@ class BookSourceList extends StatelessWidget {
       var result = await FilePicker.platform.pickFiles();
       if (result != null) {
         final file = File(result.files.single.path!);
-        final json = await file.readAsBytes();
-        print(String.fromCharCodes(json));
+        await file.readAsBytes();
       } else {}
     } else {
       ref.set(bookSourceCreator, BookSource.bean());
@@ -126,7 +122,7 @@ class BookSourceList extends StatelessWidget {
 
   void handleTap(BuildContext context, Ref ref, int id) async {
     var navigator = GoRouter.of(context);
-    var database = ref.watch(databaseCreator);
+    var database = ref.watch(databaseEmitter.asyncData).data;
     var source = await database?.bookSourceDao.getBookSource(id);
     var rules = await database?.ruleDao.getRulesBySourceId(id);
     ref.set(bookSourceCreator, source);

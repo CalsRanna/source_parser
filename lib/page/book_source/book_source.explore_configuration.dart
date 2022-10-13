@@ -1,10 +1,11 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 
-import '../../entity/book_source.dart';
+import '../../model/book_source.dart';
 import '../../model/rule.dart';
 import '../../state/source.dart';
 import '../../widget/bordered_card.dart';
+import '../../widget/debug_button.dart';
 import '../../widget/rule_tile.dart';
 
 class BookSourceExploreConfiguration extends StatelessWidget {
@@ -12,9 +13,8 @@ class BookSourceExploreConfiguration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('发现配置')),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(actions: const [DebugButton()], title: const Text('发现配置')),
+      body: ListView(
         children: [
           BorderedCard(
             title: '基础',
@@ -23,8 +23,8 @@ class BookSourceExploreConfiguration extends StatelessWidget {
                 Watcher(
                   (context, ref, _) => RuleTile(
                     bordered: false,
-                    title: '发现地址规则',
-                    value: ref.watch(bookSourceCreator)?.exploreUrl,
+                    title: 'URL规则',
+                    value: ref.watch(bookSourceCreator).exploreUrl,
                     onChange: (value) => ref.update<BookSource?>(
                       bookSourceCreator,
                       (source) => source?.copyWith(exploreUrl: value),

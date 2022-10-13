@@ -1,5 +1,5 @@
-import '../entity/book.dart';
-import '../entity/chapter.dart';
+import 'book.dart';
+import 'chapter.dart';
 
 class DebugResult {
   final String? searchResponse;

@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 
 import '../database/database.dart';
-import '../entity/book_source.dart';
-import '../entity/rule.dart';
+import '../model/book_source.dart';
+import '../model/rule.dart';
 
 final dio = Dio();
 
@@ -47,7 +47,7 @@ class SourceImporter {
 
       if (record != null) {
         bookSourceDao.updateBookSource(BookSource(
-          null,
+          'utf8',
           comment,
           enabled,
           exploreEnabled,
@@ -68,7 +68,7 @@ class SourceImporter {
         ));
       } else {
         await bookSourceDao.insertBookSource(BookSource(
-          null,
+          'utf8',
           comment,
           enabled,
           exploreEnabled,
@@ -108,27 +108,27 @@ class SourceImporter {
     return count;
   }
 
-  Map<String, String?> _parseSource(Map<String, dynamic> json) {
-    var source = <String, String?>{};
-    source['charset'] = json['charset'];
-    source['comment'] = json['comment'];
-    source['enabled'] = json['enabled'];
-    source['explore-enabled'] = json['exploreEnabled'];
-    source['explore-url'] = json['exploreUrl'];
-    source['group'] = json['group'];
-    source['header'] = json['header'];
-    source['login-url'] = json['loginUrl'];
-    source['name'] = json['name'];
-    source['order'] = json['order'];
-    source['response-time'] = json['responseTime'];
-    source['search-url'] = json['searchUrl'];
-    source['type'] = json['type'];
-    source['updated-at'] = json['updatedAt'];
-    source['url'] = json['url'];
-    source['url-pattern'] = json['urlPattern'];
-    source['weight'] = json['weight'];
-    return source;
-  }
+  // Map<String, String?> _parseSource(Map<String, dynamic> json) {
+  //   var source = <String, String?>{};
+  //   source['charset'] = json['charset'];
+  //   source['comment'] = json['comment'];
+  //   source['enabled'] = json['enabled'];
+  //   source['explore-enabled'] = json['exploreEnabled'];
+  //   source['explore-url'] = json['exploreUrl'];
+  //   source['group'] = json['group'];
+  //   source['header'] = json['header'];
+  //   source['login-url'] = json['loginUrl'];
+  //   source['name'] = json['name'];
+  //   source['order'] = json['order'];
+  //   source['response-time'] = json['responseTime'];
+  //   source['search-url'] = json['searchUrl'];
+  //   source['type'] = json['type'];
+  //   source['updated-at'] = json['updatedAt'];
+  //   source['url'] = json['url'];
+  //   source['url-pattern'] = json['urlPattern'];
+  //   source['weight'] = json['weight'];
+  //   return source;
+  // }
 
   Map<String, String?> _parseCatalogueRules(Map<String, dynamic> json) {
     var rules = <String, String?>{};

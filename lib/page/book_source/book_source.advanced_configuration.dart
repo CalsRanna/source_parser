@@ -1,20 +1,39 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 
-import '../../entity/book_source.dart';
+import '../../model/book_source.dart';
 import '../../state/source.dart';
 import '../../widget/bordered_card.dart';
+import '../../widget/debug_button.dart';
 import '../../widget/rule_tile.dart';
 
-class BookSourceAdvancedConfiguration extends StatelessWidget {
+class BookSourceAdvancedConfiguration extends StatefulWidget {
   const BookSourceAdvancedConfiguration({Key? key}) : super(key: key);
+
+  @override
+  State<BookSourceAdvancedConfiguration> createState() {
+    return _BookSourceAdvancedConfigurationState();
+  }
+}
+
+class _BookSourceAdvancedConfigurationState
+    extends State<BookSourceAdvancedConfiguration> {
+  late BookSource source;
+
+  @override
+  void didChangeDependencies() {
+    source = context.ref.read(bookSourceCreator);
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('高级配置')),
-      body: Watcher(
-        (context, ref, _) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return WillPopScope(
+      onWillPop: store,
+      child: Scaffold(
+        appBar:
+            AppBar(actions: const [DebugButton()], title: const Text('高级配置')),
+        body: ListView(
           children: [
             BorderedCard(
               title: '控制',
@@ -25,13 +44,13 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
                     trailing: SizedBox(
                       height: 14,
                       child: Switch.adaptive(
-                        value: ref.watch(bookSourceCreator)?.enabled ?? false,
-                        onChanged: (value) => ref.update<BookSource?>(
-                          bookSourceCreator,
-                          (source) => source?.copyWith(enabled: value),
-                        ),
+                        value: source.enabled,
+                        onChanged: (value) =>
+                            setState(() => source.enabled = value),
                       ),
                     ),
+                    onTap: () =>
+                        setState(() => source.enabled = !source.enabled),
                   ),
                   RuleTile(
                     bordered: false,
@@ -39,14 +58,13 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
                     trailing: SizedBox(
                       height: 14,
                       child: Switch.adaptive(
-                        value: ref.watch(bookSourceCreator)?.exploreEnabled ??
-                            false,
-                        onChanged: (value) => ref.update<BookSource?>(
-                          bookSourceCreator,
-                          (source) => source?.copyWith(exploreEnabled: value),
-                        ),
+                        value: source.exploreEnabled,
+                        onChanged: (value) =>
+                            setState(() => source.exploreEnabled = value),
                       ),
                     ),
+                    onTap: () => setState(
+                        () => source.exploreEnabled = !source.exploreEnabled),
                   ),
                 ],
               ),
@@ -57,52 +75,42 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
                 children: [
                   RuleTile(
                     title: '分组',
-                    value: ref.watch(bookSourceCreator)?.group,
-                    onChange: (value) => ref.update<BookSource?>(
-                      bookSourceCreator,
-                      (source) => source?.copyWith(group: value),
-                    ),
+                    value: source.group,
+                    onChange: (value) => setState(() => source.group = value),
                   ),
                   RuleTile(
                     title: '备注',
-                    value: ref.watch(bookSourceCreator)?.comment,
-                    onChange: (value) => ref.update<BookSource?>(
-                      bookSourceCreator,
-                      (source) => source?.copyWith(comment: value),
-                    ),
+                    value: source.comment,
+                    onChange: (value) => setState(() => source.comment = value),
                   ),
                   RuleTile(
                     title: '登陆URL',
-                    value: ref.watch(bookSourceCreator)?.loginUrl,
-                    onChange: (value) => ref.update<BookSource?>(
-                      bookSourceCreator,
-                      (source) => source?.copyWith(loginUrl: value),
-                    ),
+                    value: source.loginUrl,
+                    onChange: (value) =>
+                        setState(() => source.loginUrl = value),
                   ),
                   RuleTile(
                     title: '书籍URL正则',
-                    value: ref.watch(bookSourceCreator)?.urlPattern,
-                    onChange: (value) => ref.update<BookSource?>(
-                      bookSourceCreator,
-                      (source) => source?.copyWith(urlPattern: value),
-                    ),
+                    value: source.urlPattern,
+                    onChange: (value) =>
+                        setState(() => source.urlPattern = value),
                   ),
                   RuleTile(
                     title: '请求头',
-                    value: ref.watch(bookSourceCreator)?.header,
-                    onChange: (value) => ref.update<BookSource?>(
-                      bookSourceCreator,
-                      (source) => source?.copyWith(header: value),
-                    ),
+                    value: source.header,
+                    onChange: (value) => setState(() => source.header = value),
+                  ),
+                  RuleTile(
+                    title: '编码',
+                    value: source.charset,
+                    onChange: (value) => setState(() => source.charset = value),
+                    onTap: selectCharset,
                   ),
                   RuleTile(
                     bordered: false,
-                    title: '编码',
-                    value: ref.watch(bookSourceCreator)?.charset,
-                    onChange: (value) => ref.update<BookSource?>(
-                      bookSourceCreator,
-                      (source) => source?.copyWith(charset: value),
-                    ),
+                    title: '权重',
+                    value: source.weight.toString(),
+                    onChange: (value) => setState(() => source.weight = value),
                   ),
                 ],
               ),
@@ -111,5 +119,34 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> store() {
+    context.ref.set(bookSourceCreator, source);
+    return Future.value(true);
+  }
+
+  void selectCharset() {
+    const charsets = ['utf8', 'gbk'];
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SizedBox(
+        height: 56 * 2 + MediaQuery.of(context).padding.bottom,
+        child: Column(
+          children: List.generate(
+            charsets.length,
+            (index) => ListTile(
+              title: Text(charsets[index]),
+              onTap: () => confirmSelect(charsets[index]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void confirmSelect(String charset) {
+    setState(() => source.charset = charset);
+    Navigator.of(context).pop();
   }
 }

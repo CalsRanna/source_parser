@@ -8,9 +8,9 @@ import 'package:xpath_selector/xpath_selector.dart';
 import 'package:xpath_selector_html_parser/xpath_selector_html_parser.dart';
 
 import '../database/database.dart';
-import '../entity/book.dart';
-import '../entity/book_source.dart';
-import '../entity/chapter.dart';
+import '../model/book.dart';
+import '../model/book_source.dart';
+import '../model/chapter.dart';
 import '../model/debug.dart';
 import '../model/rule.dart';
 import '../util/get_by.dart';
@@ -84,7 +84,7 @@ class Parser {
       }
       url = url?.replaceAll('{{credential}}', credential) ?? '';
       var charset = CachedNetworkCharset.utf8;
-      if (source.charset != null && source.charset != 'utf8') {
+      if (source.charset != 'utf8') {
         charset = CachedNetworkCharset.gbk;
       }
       final response = await CachedNetwork(
@@ -162,7 +162,7 @@ class Parser {
       final send = message[4] as SendPort;
 
       var charset = CachedNetworkCharset.utf8;
-      if (source.charset != null && source.charset != 'utf8') {
+      if (source.charset != 'utf8') {
         charset = CachedNetworkCharset.gbk;
       }
       final response = await CachedNetwork(

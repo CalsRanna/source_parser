@@ -51,16 +51,18 @@ class Developer extends StatelessWidget {
 
   void handleConfirm(BuildContext context, Ref ref) async {
     var navigator = Navigator.of(context);
-    var database = ref.read(databaseCreator);
+    var database = ref.read(databaseEmitter.asyncData).data;
     await database?.bookSourceDao.emptyBookSources();
     await database?.ruleDao.emptyRules();
     navigator.pop();
   }
 
   void showSqliteViewer(BuildContext context, Ref ref) {
+    final file = ref.read(databaseFileEmitter.asyncData).data;
+    print(file);
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const DatabaseList()),
+      MaterialPageRoute(builder: (_) => DatabaseList(dbPath: file)),
     );
   }
 }

@@ -1,20 +1,20 @@
 import 'package:creator/creator.dart';
 
-import '../entity/book_source.dart';
-import '../entity/explore_module.dart';
-import '../entity/rule.dart';
+import '../model/book_source.dart';
+import '../model/explore_module.dart';
+import '../model/rule.dart';
 import 'global.dart';
 
-final exploreBookSourcesCreator = Emitter<List<BookSource>?>((ref, emit) async {
-  final database = ref.watch(databaseCreator);
+final exploreBookSourcesEmitter = Emitter<List<BookSource>?>((ref, emit) async {
+  final database = ref.watch(databaseEmitter.asyncData).data;
   final sources =
       await database?.bookSourceDao.getAllExploreEnabledBookSources();
   emit(sources);
 }, keepAlive: true, name: 'exploreBookSources');
 
-final exploreBookSourceCreator = Emitter<BookSource?>(
+final exploreBookSourceEmitter = Emitter<BookSource?>(
   (ref, emit) async {
-    final database = ref.watch(databaseCreator);
+    final database = ref.watch(databaseEmitter.asyncData).data;
     final bookSource =
         await database?.bookSourceDao.findFirstExploreEnabledBookSource();
     emit(bookSource);
@@ -23,10 +23,10 @@ final exploreBookSourceCreator = Emitter<BookSource?>(
   name: 'exploreBookSource',
 );
 
-final exploreRulesCreator = Emitter<List<Rule>?>(
+final exploreRulesEmitter = Emitter<List<Rule>?>(
   (ref, emit) async {
-    final database = ref.watch(databaseCreator);
-    final bookSource = await ref.watch(exploreBookSourceCreator);
+    final database = ref.watch(databaseEmitter.asyncData).data;
+    final bookSource = await ref.watch(exploreBookSourceEmitter);
     List<Rule>? rules;
     if (bookSource != null) {
       rules = await database?.ruleDao.getRulesBySourceId(bookSource.id!);
@@ -37,7 +37,7 @@ final exploreRulesCreator = Emitter<List<Rule>?>(
   name: 'exploreRules',
 );
 
-final exploreModulesState = Emitter<List<ExploreModule>>(
+final exploreModulesEmitter = Emitter<List<ExploreModule>>(
   (ref, emmit) async {
     // final bookSource = await ref.watch(exploreBookSourceCreator);
     // final rules = await ref.watch(exploreRulesCreator);

@@ -4,28 +4,36 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../entity/book.dart';
+import '../../model/book.dart';
 import '../../state/book.dart';
 import '../../state/global.dart';
 import '../../util/parser.dart';
 import '../../widget/book_list_tile.dart';
+import '../../widget/message.dart';
 
 class Search extends StatelessWidget {
   const Search({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    var cancel = Padding(
-      padding: const EdgeInsets.only(right: 16),
-      child: InkWell(
-        onTap: () => pop(context),
-        child: Center(
-          child: Text(
-            '取消',
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-          ),
-        ),
+    final cancel = TextButton(
+      onPressed: () => pop(context),
+      child: Text(
+        '取消',
+        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
       ),
     );
+    // var cancel = Padding(
+    //   padding: const EdgeInsets.only(right: 16),
+    //   child: InkWell(
+    //     onTap: () => pop(context),
+    //     child: Center(
+    //       child: Text(
+    //         '取消',
+    //         style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+    //       ),
+    //     ),
+    //   ),
+    // );
 
     // var visibleOfSearchHistories = state.searchHistories.isNotEmpty;
     // var chipsOfSearchHistory = <Widget>[];
@@ -114,9 +122,10 @@ class Search extends StatelessWidget {
       appBar: AppBar(
         actions: [cancel],
         centerTitle: false,
-        automaticallyImplyLeading: false,
+        leading: const SizedBox(),
+        leadingWidth: 16,
         title: _SearchInput(),
-        titleSpacing: 16,
+        titleSpacing: 0,
       ),
       body: Watcher((context, ref, _) {
         final books = ref.watch(searchBooksCreator);
@@ -136,9 +145,10 @@ class Search extends StatelessWidget {
   void search(BuildContext context, String credential) async {
     // ref.read(searchState.notifier).updateCredential(credential);
     // ref.read(searchState.notifier).updateShowSearchResult(true);
-    final database = context.ref.read(databaseCreator);
-    final cacheDirectory = context.ref.read(cacheDirectoryCreator);
-    final folder = Directory(cacheDirectory);
+    final database = context.ref.read(databaseEmitter.asyncData).data;
+    final cacheDirectory =
+        context.ref.read(cacheDirectoryEmitter.asyncData).data;
+    final folder = Directory(cacheDirectory!);
     try {
       var result = await Parser.search(database!, credential, folder);
       final books = <Book>[];
@@ -148,7 +158,7 @@ class Search extends StatelessWidget {
       });
       // result.isolate.kill();
     } catch (e) {
-      print(e);
+      Message.of(context).show(e.toString());
     }
   }
 }
@@ -193,9 +203,10 @@ class _SearchInput extends StatelessWidget {
 
   void search(BuildContext context) async {
     context.ref.set(searchBooksCreator, null);
-    final database = context.ref.read(databaseCreator);
-    final cacheDirectory = context.ref.read(cacheDirectoryCreator);
-    final folder = Directory(cacheDirectory);
+    final database = context.ref.read(databaseEmitter.asyncData).data;
+    final cacheDirectory =
+        context.ref.read(cacheDirectoryEmitter.asyncData).data;
+    final folder = Directory(cacheDirectory!);
     try {
       var result = await Parser.search(database!, controller.text, folder);
       final books = <Book>[];
@@ -204,7 +215,7 @@ class _SearchInput extends StatelessWidget {
         context.ref.set(searchBooksCreator, books);
       });
     } catch (e) {
-      print(e);
+      Message.of(context).show(e.toString());
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:creator/creator.dart';
+import 'package:source_parser/state/global.dart';
 
-import '../entity/book.dart';
+import '../model/book.dart';
 import '../util/parser.dart';
 
 final topSearchBooksCreator = Emitter<List<Book>>(
@@ -23,3 +24,12 @@ final bookCreator = Creator<Book?>.value(
 );
 
 final loadingOfBookCreator = Creator.value(true, name: 'loadingOfBookCreator');
+
+final shelfBooksEmitter = Emitter<List<Book>?>(
+  (ref, emit) async {
+    final database = ref.watch(databaseEmitter.asyncData).data;
+    final books = await database?.bookDao.getAllBooks();
+    emit(books);
+  },
+  name: 'shelfBooksEmitter',
+);

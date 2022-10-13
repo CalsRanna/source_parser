@@ -2,7 +2,7 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../entity/book.dart';
+import '../model/book.dart';
 import '../state/book.dart';
 import 'book_cover.dart';
 

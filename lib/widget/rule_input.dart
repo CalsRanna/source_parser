@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'action_button.dart';
-
 class RuleInput extends StatelessWidget {
   const RuleInput({
     Key? key,
@@ -22,11 +20,12 @@ class RuleInput extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          ActionButton(
-            text: '完成',
-            onTap: () => handleTap(navigator, controller),
+          IconButton(
+            onPressed: () => handleTap(navigator, controller),
+            icon: const Icon(Icons.check_outlined),
           )
         ],
+        leading: BackButton(onPressed: () => handleTap(navigator, controller)),
         title: Text(title),
       ),
       body: ListView(

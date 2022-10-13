@@ -18,6 +18,7 @@ class BookSourceDebug extends StatefulWidget {
 }
 
 class _BookSourceDebugState extends State<BookSourceDebug> {
+  String defaultCredential = '都市';
   bool loading = false;
   DebugResult? result;
 
@@ -44,9 +45,9 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
           : ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
-                const TextField(
+                TextField(
                   decoration: InputDecoration(
-                    hintText: '默认以关键字“网游”进行搜索调试',
+                    hintText: '默认以关键字“$defaultCredential”进行搜索调试',
                   ),
                 ),
                 Visibility(
@@ -122,7 +123,7 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
 
     try {
       var debug = await Parser().debug(
-        '网游',
+        defaultCredential,
         source,
         searchRule,
         informationRule,

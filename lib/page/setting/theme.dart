@@ -43,9 +43,11 @@ class _ThemeChanger extends StatelessWidget {
             ),
           ],
           content: Watcher(
-            (context, ref, _) => ColorPicker(
-              pickerColor: ref.watch(colorCreator),
-              onColorChanged: (color) => handleTap(ref, color),
+            (context, ref, _) => SingleChildScrollView(
+              child: ColorPicker(
+                pickerColor: ref.watch(colorCreator),
+                onColorChanged: (color) => handleTap(ref, color),
+              ),
             ),
           ),
           title: const Text('选择颜色'),

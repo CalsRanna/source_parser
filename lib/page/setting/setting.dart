@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widget/bottom_bar.dart';
 
-class Setting extends ConsumerWidget {
+class Setting extends StatelessWidget {
   const Setting({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -18,7 +17,7 @@ class Setting extends ConsumerWidget {
       // backgroundColor: Colors.grey[100],
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
+        child: ListView(
           children: [
             Card(
               child: Column(
@@ -47,7 +46,7 @@ class Setting extends ConsumerWidget {
                   ),
                   _SettingTile(
                     icon: Icons.format_color_text_outlined,
-                    route: '/setting/book-theme',
+                    route: '/setting/reader-theme',
                     title: '阅读主题',
                   ),
                 ],
@@ -57,32 +56,21 @@ class Setting extends ConsumerWidget {
             Card(
               child: Column(
                 children: const [
-                  _SettingTile(
-                    icon: Icons.share_outlined,
-                    route: '/setting/share',
-                    title: '分享',
-                  ),
-                  _SettingTile(
-                    icon: Icons.comment_outlined,
-                    route: '/setting/comment',
-                    title: '好评支持',
-                  ),
+                  // _SettingTile(
+                  //   icon: Icons.share_outlined,
+                  //   route: '/setting/share',
+                  //   title: '分享',
+                  // ),
+                  // _SettingTile(
+                  //   icon: Icons.comment_outlined,
+                  //   route: '/setting/comment',
+                  //   title: '好评支持',
+                  // ),
                   _SettingTile(
                     icon: Icons.error_outline,
                     route: '/setting/about',
                     title: '关于我们',
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              margin: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                children: const [
                   _SettingTile(
                     icon: Icons.developer_mode_outlined,
                     route: '/setting/developer',
@@ -94,7 +82,7 @@ class Setting extends ConsumerWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomBar(),
+      bottomNavigationBar: const BottomBar(),
     );
   }
 }

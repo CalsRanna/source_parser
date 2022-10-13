@@ -1,4 +1,4 @@
-import '../entity/rule.dart';
+import '../model/rule.dart';
 
 extension GetBy on List<Rule?> {
   String? getBy(String name) {

@@ -2,32 +2,32 @@ import 'package:floor/floor.dart';
 
 @Entity(tableName: 'book_sources')
 class BookSource {
-  final String? charset;
-  final String? comment;
-  final bool enabled;
+  String charset;
+  String? comment;
+  bool enabled;
   @ColumnInfo(name: 'explore_enabled')
-  final bool? exploreEnabled;
+  bool exploreEnabled;
   @ColumnInfo(name: 'explore_url')
-  final String? exploreUrl;
-  final String group;
-  final String? header;
+  String? exploreUrl;
+  String group;
+  String? header;
   @PrimaryKey(autoGenerate: true)
-  final int? id;
+  int? id;
   @ColumnInfo(name: 'login_url')
-  final String? loginUrl;
-  final String name;
-  final int order;
+  String? loginUrl;
+  String name;
+  int order;
   @ColumnInfo(name: 'response_time')
-  final int? responseTime;
+  int? responseTime;
   @ColumnInfo(name: 'search_url')
-  final String? searchUrl;
-  final int type;
+  String? searchUrl;
+  int type;
   @ColumnInfo(name: 'update_at')
-  final int? updatedAt;
-  final String url;
+  int? updatedAt;
+  String url;
   @ColumnInfo(name: 'url_pattern')
-  final String? urlPattern;
-  final int weight;
+  String? urlPattern;
+  int weight;
 
   BookSource(
     this.charset,
@@ -51,24 +51,24 @@ class BookSource {
   );
 
   BookSource.bean({
-    this.charset,
+    this.charset = 'utf8',
     this.comment,
     this.enabled = true,
-    this.exploreEnabled,
+    this.exploreEnabled = false,
     this.exploreUrl,
     this.group = '',
     this.header,
     this.id,
     this.loginUrl,
     this.name = '',
-    this.order = 1000,
+    this.order = 0,
     this.responseTime,
     this.searchUrl,
     this.type = 0,
     this.updatedAt,
     this.url = '',
     this.urlPattern,
-    this.weight = 0,
+    this.weight = 9999,
   });
 
   BookSource copyWith({
@@ -115,24 +115,29 @@ class BookSource {
 
   Map<String, dynamic> toJson() {
     return {
-      'source_charset': charset,
-      'source_comment': comment,
-      'source_enabled': enabled,
-      'source_explore_enabled': exploreEnabled,
-      'source_explore_url': exploreUrl,
-      'source_group': group,
-      'source_header': header,
-      'source_id': id,
-      'source_login_url': loginUrl,
-      'source_name': name,
-      'source_order': order,
-      'source_response_time': responseTime,
-      'source_search_url': searchUrl,
-      'source_type': type,
-      'source_updated_at': updatedAt,
-      'source_url': url,
-      'source_url_pattern': urlPattern,
-      'source_weight': weight,
+      'charset': charset,
+      'comment': comment,
+      'enabled': enabled,
+      'explore_enabled': exploreEnabled,
+      'explore_url': exploreUrl,
+      'group': group,
+      'header': header,
+      'id': id,
+      'login_url': loginUrl,
+      'name': name,
+      'order': order,
+      'response_time': responseTime,
+      'search_url': searchUrl,
+      'type': type,
+      'updated_at': updatedAt,
+      'url': url,
+      'url_pattern': urlPattern,
+      'weight': weight,
     };
+  }
+
+  @override
+  String toString() {
+    return toJson().toString();
   }
 }

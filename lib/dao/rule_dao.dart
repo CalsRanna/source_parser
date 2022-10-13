@@ -1,6 +1,6 @@
 import 'package:floor/floor.dart';
 
-import '../entity/rule.dart';
+import '../model/rule.dart';
 
 @dao
 abstract class RuleDao {
