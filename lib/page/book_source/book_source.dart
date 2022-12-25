@@ -102,7 +102,7 @@ class BookSourceList extends StatelessWidget {
       final database = ref.read(databaseEmitter.asyncData).data;
       final json = await Generator.sourcesJson(database!);
       await file.writeAsBytes(json.codeUnits);
-      Share.shareFiles([file.path], subject: 'sources.pbs');
+      // Share.shareXFiles([file.path], subject: 'sources.pbs');
     } else if (value == 'import?by=locale') {
       var result = await FilePicker.platform.pickFiles();
       if (result != null) {

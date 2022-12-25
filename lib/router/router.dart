@@ -21,7 +21,7 @@ import '../page/setting/theme.dart';
 import '../page/book_shelf/book_shelf.dart';
 
 final router = GoRouter(routes: [
-  GoRoute(path: '/', redirect: (state) => '/shelf'),
+  GoRoute(path: '/', redirect: (context, state) => '/shelf'),
   GoRoute(builder: (context, state) => BookSourceList(), path: '/book-source'),
   GoRoute(
       builder: (context, state) => const BookInformation(),
