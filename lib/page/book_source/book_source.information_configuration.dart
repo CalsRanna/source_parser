@@ -1,11 +1,10 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:source_parser/model/rule.dart';
+import 'package:source_parser/state/source.dart';
+import 'package:source_parser/widget/bordered_card.dart';
 import 'package:source_parser/widget/debug_button.dart';
-
-import '../../model/rule.dart';
-import '../../state/source.dart';
-import '../../widget/bordered_card.dart';
-import '../../widget/rule_tile.dart';
+import 'package:source_parser/widget/rule_tile.dart';
 
 class BookSourceInformationConfiguration extends StatelessWidget {
   const BookSourceInformationConfiguration({Key? key}) : super(key: key);

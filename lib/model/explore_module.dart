@@ -1,4 +1,4 @@
-import 'book.dart';
+import 'package:source_parser/model/book.dart';
 
 class ExploreModule {
   final String? title;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../widget/bottom_bar.dart';
+import 'package:source_parser/widget/bottom_bar.dart';
 
 class Setting extends StatelessWidget {
   const Setting({Key? key}) : super(key: key);

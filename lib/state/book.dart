@@ -1,8 +1,7 @@
 import 'package:creator/creator.dart';
+import 'package:source_parser/model/book.dart';
 import 'package:source_parser/state/global.dart';
-
-import '../model/book.dart';
-import '../util/parser.dart';
+import 'package:source_parser/util/parser.dart';
 
 final topSearchBooksCreator = Emitter<List<Book>>(
   (ref, emit) async {

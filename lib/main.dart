@@ -1,9 +1,8 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
-import 'router/router.dart';
-import 'state/global.dart';
+import 'package:source_parser/router/router.dart';
+import 'package:source_parser/state/global.dart';
 
 void main() async {
   await Hive.initFlutter();

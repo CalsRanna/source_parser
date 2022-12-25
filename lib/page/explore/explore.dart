@@ -1,9 +1,8 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import '../../state/explore.dart';
-import '../../widget/bottom_bar.dart';
+import 'package:source_parser/state/explore.dart';
+import 'package:source_parser/widget/bottom_bar.dart';
 
 class Explore extends StatelessWidget {
   const Explore({Key? key}) : super(key: key);

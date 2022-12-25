@@ -3,13 +3,12 @@ import 'dart:io';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../model/book.dart';
-import '../../state/book.dart';
-import '../../state/global.dart';
-import '../../util/parser.dart';
-import '../../widget/book_list_tile.dart';
-import '../../widget/message.dart';
+import 'package:source_parser/model/book.dart';
+import 'package:source_parser/state/book.dart';
+import 'package:source_parser/state/global.dart';
+import 'package:source_parser/util/parser.dart';
+import 'package:source_parser/widget/book_list_tile.dart';
+import 'package:source_parser/widget/message.dart';
 
 class Search extends StatelessWidget {
   const Search({Key? key}) : super(key: key);

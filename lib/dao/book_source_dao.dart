@@ -1,6 +1,5 @@
 import 'package:floor/floor.dart';
-
-import '../model/book_source.dart';
+import 'package:source_parser/model/book_source.dart';
 
 @dao
 abstract class BookSourceDao {

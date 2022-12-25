@@ -1,10 +1,9 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-
-import '../database/database.dart';
-import '../model/book_source.dart';
-import '../model/rule.dart';
+import 'package:source_parser/database/database.dart';
+import 'package:source_parser/model/book_source.dart';
+import 'package:source_parser/model/rule.dart';
 
 final dio = Dio();
 

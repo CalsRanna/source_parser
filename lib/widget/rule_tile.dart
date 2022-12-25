@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../util/plain_string.dart';
-import 'rule_input.dart';
+import 'package:source_parser/util/plain_string.dart';
+import 'package:source_parser/widget/rule_input.dart';
 
 class RuleTile extends StatelessWidget {
   const RuleTile({

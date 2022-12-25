@@ -3,18 +3,17 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:logger/logger.dart';
+import 'package:source_parser/database/database.dart';
+import 'package:source_parser/model/book.dart';
+import 'package:source_parser/model/book_source.dart';
+import 'package:source_parser/model/chapter.dart';
+import 'package:source_parser/model/debug.dart';
+import 'package:source_parser/model/rule.dart';
+import 'package:source_parser/util/cached_network.dart';
+import 'package:source_parser/util/get_by.dart';
 import 'package:universal_html/parsing.dart';
 import 'package:xpath_selector/xpath_selector.dart';
 import 'package:xpath_selector_html_parser/xpath_selector_html_parser.dart';
-
-import '../database/database.dart';
-import '../model/book.dart';
-import '../model/book_source.dart';
-import '../model/chapter.dart';
-import '../model/debug.dart';
-import '../model/rule.dart';
-import '../util/get_by.dart';
-import 'cached_network.dart';
 
 class Parser {
   static Future<List<Book>> topSearch() async {

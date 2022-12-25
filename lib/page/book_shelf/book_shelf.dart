@@ -3,10 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/state/book.dart';
-
-import '../../model/book.dart';
-import '../../widget/bottom_bar.dart';
-import '../../widget/shelf_item.dart';
+import 'package:source_parser/widget/bottom_bar.dart';
+import 'package:source_parser/widget/shelf_item.dart';
 
 class BookShelf extends StatelessWidget {
   const BookShelf({Key? key}) : super(key: key);

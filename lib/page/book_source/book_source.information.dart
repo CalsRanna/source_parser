@@ -2,16 +2,15 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:source_parser/database/database.dart';
+import 'package:source_parser/model/book_source.dart';
+import 'package:source_parser/model/rule.dart';
+import 'package:source_parser/state/global.dart';
+import 'package:source_parser/state/source.dart';
+import 'package:source_parser/widget/bordered_card.dart';
 import 'package:source_parser/widget/debug_button.dart';
-
-import '../../database/database.dart';
-import '../../model/book_source.dart';
-import '../../model/rule.dart';
-import '../../state/global.dart';
-import '../../state/source.dart';
-import '../../widget/bordered_card.dart';
-import '../../widget/message.dart';
-import '../../widget/rule_tile.dart';
+import 'package:source_parser/widget/message.dart';
+import 'package:source_parser/widget/rule_tile.dart';
 
 class BookSourceInformation extends StatefulWidget {
   const BookSourceInformation({Key? key}) : super(key: key);

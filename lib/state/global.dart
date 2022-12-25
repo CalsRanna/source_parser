@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-
-import '../database/database.dart';
+import 'package:source_parser/database/database.dart';
 
 final cacheDirectoryEmitter = Emitter<String>((ref, emit) async {
   final folder = await getTemporaryDirectory();

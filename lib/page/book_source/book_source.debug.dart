@@ -4,11 +4,10 @@ import 'package:creator/creator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-
-import '../../model/debug.dart';
-import '../../state/source.dart';
-import '../../util/parser.dart';
-import '../../widget/message.dart';
+import 'package:source_parser/model/debug.dart';
+import 'package:source_parser/state/source.dart';
+import 'package:source_parser/util/parser.dart';
+import 'package:source_parser/widget/message.dart';
 
 class BookSourceDebug extends StatefulWidget {
   const BookSourceDebug({Key? key}) : super(key: key);

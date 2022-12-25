@@ -2,8 +2,7 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:hive/hive.dart';
-
-import '../../state/global.dart';
+import 'package:source_parser/state/global.dart';
 
 class ThemeSetting extends StatelessWidget {
   const ThemeSetting({Key? key}) : super(key: key);

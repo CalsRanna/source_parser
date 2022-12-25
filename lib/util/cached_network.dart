@@ -2,8 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:gbk_codec/gbk_codec.dart';
-
-import 'cache_manager.dart';
+import 'package:source_parser/util/cache_manager.dart';
 
 class CachedNetwork {
   final String baseUrl;

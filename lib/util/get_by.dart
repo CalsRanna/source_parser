@@ -1,4 +1,4 @@
-import '../model/rule.dart';
+import 'package:source_parser/model/rule.dart';
 
 extension GetBy on List<Rule?> {
   String? getBy(String name) {

@@ -7,13 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
+import 'package:source_parser/model/book_source.dart';
+import 'package:source_parser/model/rule.dart';
+import 'package:source_parser/state/global.dart';
+import 'package:source_parser/state/source.dart';
 import 'package:source_parser/util/generator.dart';
-
-import '../../model/book_source.dart';
-import '../../model/rule.dart';
-import '../../state/global.dart';
-import '../../state/source.dart';
-import '../../util/get_by.dart';
+import 'package:source_parser/util/get_by.dart';
 
 class BookSourceList extends StatelessWidget {
   BookSourceList({Key? key}) : super(key: key);

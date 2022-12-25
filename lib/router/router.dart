@@ -1,24 +1,23 @@
 import 'package:go_router/go_router.dart';
+import 'package:source_parser/page/book/book_information.dart';
+import 'package:source_parser/page/book_shelf/book_shelf.dart';
+import 'package:source_parser/page/book_source/book_source.advanced_configuration.dart';
+import 'package:source_parser/page/book_source/book_source.catalogue_configuration.dart';
+import 'package:source_parser/page/book_source/book_source.content_configuration.dart';
+import 'package:source_parser/page/book_source/book_source.dart';
+import 'package:source_parser/page/book_source/book_source.debug.dart';
+import 'package:source_parser/page/book_source/book_source.explore_configuration.dart';
+import 'package:source_parser/page/book_source/book_source.import.dart';
+import 'package:source_parser/page/book_source/book_source.information.dart';
+import 'package:source_parser/page/book_source/book_source.information_configuration.dart';
+import 'package:source_parser/page/book_source/book_source.search_configuration.dart';
+import 'package:source_parser/page/developer/developer.dart';
+import 'package:source_parser/page/explore/explore.dart';
+import 'package:source_parser/page/search/search.dart';
+import 'package:source_parser/page/setting/about.dart';
 import 'package:source_parser/page/setting/reader_theme.dart';
-
-import '../page/book/book_information.dart';
-import '../page/book_source/book_source.advanced_configuration.dart';
-import '../page/book_source/book_source.catalogue_configuration.dart';
-import '../page/book_source/book_source.content_configuration.dart';
-import '../page/book_source/book_source.dart';
-import '../page/book_source/book_source.debug.dart';
-import '../page/book_source/book_source.explore_configuration.dart';
-import '../page/book_source/book_source.import.dart';
-import '../page/book_source/book_source.information.dart';
-import '../page/book_source/book_source.information_configuration.dart';
-import '../page/book_source/book_source.search_configuration.dart';
-import '../page/developer/developer.dart';
-import '../page/explore/explore.dart';
-import '../page/search/search.dart';
-import '../page/setting/about.dart';
-import '../page/setting/setting.dart';
-import '../page/setting/theme.dart';
-import '../page/book_shelf/book_shelf.dart';
+import 'package:source_parser/page/setting/setting.dart';
+import 'package:source_parser/page/setting/theme.dart';
 
 final router = GoRouter(routes: [
   GoRoute(path: '/', redirect: (context, state) => '/shelf'),

@@ -1,8 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../state/global.dart';
+import 'package:source_parser/state/global.dart';
 
 class BottomBar extends StatefulWidget {
   const BottomBar({Key? key}) : super(key: key);

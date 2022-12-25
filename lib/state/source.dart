@@ -1,8 +1,7 @@
 import 'package:creator/creator.dart';
-
-import '../model/book_source.dart';
-import '../model/rule.dart';
-import 'global.dart';
+import 'package:source_parser/model/book_source.dart';
+import 'package:source_parser/model/rule.dart';
+import 'package:source_parser/state/global.dart';
 
 final bookSourceCreator = Creator<BookSource>.value(
   BookSource.bean(),

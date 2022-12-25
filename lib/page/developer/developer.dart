@@ -1,8 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:source_parser/state/global.dart';
 import 'package:sqlite_viewer/sqlite_viewer.dart';
-
-import '../../state/global.dart';
 
 class Developer extends StatelessWidget {
   const Developer({Key? key}) : super(key: key);

@@ -1,9 +1,8 @@
 import 'package:creator/creator.dart';
-
-import '../model/book_source.dart';
-import '../model/explore_module.dart';
-import '../model/rule.dart';
-import 'global.dart';
+import 'package:source_parser/model/book_source.dart';
+import 'package:source_parser/model/explore_module.dart';
+import 'package:source_parser/model/rule.dart';
+import 'package:source_parser/state/global.dart';
 
 final exploreBookSourcesEmitter = Emitter<List<BookSource>?>((ref, emit) async {
   final database = ref.watch(databaseEmitter.asyncData).data;

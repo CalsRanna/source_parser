@@ -1,5 +1,5 @@
-import 'book.dart';
-import 'chapter.dart';
+import 'package:source_parser/model/book.dart';
+import 'package:source_parser/model/chapter.dart';
 
 class DebugResult {
   final String? searchResponse;

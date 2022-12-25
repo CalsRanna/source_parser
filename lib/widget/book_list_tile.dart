@@ -1,10 +1,9 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../model/book.dart';
-import '../state/book.dart';
-import 'book_cover.dart';
+import 'package:source_parser/model/book.dart';
+import 'package:source_parser/state/book.dart';
+import 'package:source_parser/widget/book_cover.dart';
 
 class BookListTile extends StatelessWidget {
   const BookListTile({Key? key, required this.book}) : super(key: key);
