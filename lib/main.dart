@@ -16,8 +16,7 @@ class SourceParser extends StatelessWidget {
   Widget build(BuildContext context) {
     return Watcher(
       (context, ref, _) => MaterialApp.router(
-        routeInformationParser: router.routeInformationParser,
-        routerDelegate: router.routerDelegate,
+        routerConfig: router,
         theme: ThemeData(
           useMaterial3: true,
           colorSchemeSeed: ref.watch(colorCreator),

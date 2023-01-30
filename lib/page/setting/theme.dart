@@ -60,7 +60,10 @@ class _ThemeChanger extends StatelessWidget {
         }
 
         return Container(
-          color: color,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: color,
+          ),
           padding: const EdgeInsets.all(16),
           child: DefaultTextStyle.merge(
             style: TextStyle(color: textColor),

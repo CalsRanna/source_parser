@@ -67,8 +67,11 @@ class _$AppDatabase extends AppDatabase {
 
   RuleDao? _ruleDaoInstance;
 
-  Future<sqflite.Database> open(String path, List<Migration> migrations,
-      [Callback? callback]) async {
+  Future<sqflite.Database> open(
+    String path,
+    List<Migration> migrations, [
+    Callback? callback,
+  ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
       version: 1,
       onConfigure: (database) async {
@@ -115,8 +118,10 @@ class _$AppDatabase extends AppDatabase {
 }
 
 class _$BookDao extends BookDao {
-  _$BookDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database);
+  _$BookDao(
+    this.database,
+    this.changeListener,
+  ) : _queryAdapter = QueryAdapter(database);
 
   final sqflite.DatabaseExecutor database;
 
@@ -144,8 +149,10 @@ class _$BookDao extends BookDao {
 }
 
 class _$BookSourceDao extends BookSourceDao {
-  _$BookSourceDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database),
+  _$BookSourceDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
         _bookSourceInsertionAdapter = InsertionAdapter(
             database,
             'book_sources',
@@ -428,8 +435,10 @@ class _$BookSourceDao extends BookSourceDao {
 }
 
 class _$RuleDao extends RuleDao {
-  _$RuleDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database),
+  _$RuleDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
         _ruleInsertionAdapter = InsertionAdapter(
             database,
             'rules',
@@ -484,7 +493,10 @@ class _$RuleDao extends RuleDao {
   }
 
   @override
-  Future<Rule?> getRuleByNameAndSourceId(String name, int sourceId) async {
+  Future<Rule?> getRuleByNameAndSourceId(
+    String name,
+    int sourceId,
+  ) async {
     return _queryAdapter.query(
         'select * from rules where name=?1 and source_id=?2',
         mapper: (Map<String, Object?> row) => Rule(
