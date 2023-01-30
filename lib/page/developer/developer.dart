@@ -1,3 +1,4 @@
+import 'package:cached_network/cached_network.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:source_parser/state/global.dart';
@@ -21,6 +22,15 @@ class Developer extends StatelessWidget {
             ListTile(
               title: const Text('清空数据库'),
               onTap: () => emptyDatabase(context, ref),
+            ),
+            ListTile(
+              title: const Text('缓存'),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey.withOpacity(0.5),
+                size: 16,
+              ),
+              onTap: () => showCacheViewer(context),
             ),
           ],
         ),
@@ -58,10 +68,15 @@ class Developer extends StatelessWidget {
 
   void showSqliteViewer(BuildContext context, Ref ref) {
     final file = ref.read(databaseFileEmitter.asyncData).data;
-    print(file);
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => DatabaseList(dbPath: file)),
+    );
+  }
+
+  void showCacheViewer(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const CacheView()),
     );
   }
 }

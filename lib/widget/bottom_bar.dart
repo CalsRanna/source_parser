@@ -1,4 +1,5 @@
 import 'package:creator/creator.dart';
+import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/state/global.dart';
@@ -14,29 +15,31 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   final routes = ['shelf', 'explore', 'setting'];
+
   @override
   Widget build(BuildContext context) {
-    const items = [
-      BottomNavigationBarItem(
+    const destinations = [
+      NavigationDestination(
         icon: Icon(Icons.menu_book_outlined),
         label: '书架',
       ),
-      BottomNavigationBarItem(
+      NavigationDestination(
         icon: Icon(Icons.explore_outlined),
         label: '发现',
       ),
-      BottomNavigationBarItem(
+      NavigationDestination(
         icon: Icon(Icons.person_outline),
         label: '我的',
       ),
     ];
 
-    return Watcher(
-      (context, ref, _) => BottomNavigationBar(
-        currentIndex: ref.watch(currentIndexCreator),
-        items: items,
-        onTap: (index) => handleTap(context, index),
+    return CreatorWatcher<int>(
+      builder: (context, index) => NavigationBar(
+        destinations: destinations,
+        selectedIndex: index,
+        onDestinationSelected: (value) => handleTap(context, value),
       ),
+      creator: currentIndexCreator,
     );
   }
 

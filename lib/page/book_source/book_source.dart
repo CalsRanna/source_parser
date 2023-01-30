@@ -51,16 +51,16 @@ class BookSourceList extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          Watcher(
-            (context, ref, _) => PopupMenuButton<String>(
-              icon: const Icon(CupertinoIcons.ellipsis_vertical),
-              itemBuilder: (context) => items,
-              offset: const Offset(0, 64),
-              onSelected: (value) => handleChange(context, ref, value),
-            ),
-          ),
-        ],
+        // actions: [
+        //   Watcher(
+        //     (context, ref, _) => PopupMenuButton<String>(
+        //       icon: const Icon(CupertinoIcons.ellipsis_vertical),
+        //       itemBuilder: (context) => items,
+        //       offset: const Offset(0, 64),
+        //       onSelected: (value) => handleChange(context, ref, value),
+        //     ),
+        //   ),
+        // ],
         title: const Text('书源管理'),
       ),
       body: Watcher((context, ref, _) {

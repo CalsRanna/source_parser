@@ -1,5 +1,7 @@
+import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:source_parser/state/global.dart';
 import 'package:source_parser/widget/bottom_bar.dart';
 
 class Setting extends StatelessWidget {
@@ -26,11 +28,11 @@ class Setting extends StatelessWidget {
                     route: '/book-source',
                     title: '书源管理',
                   ),
-                  _SettingTile(
-                    icon: Icons.find_replace_outlined,
-                    route: '/setting/image-source',
-                    title: '替换净化',
-                  ),
+                  // _SettingTile(
+                  //   icon: Icons.find_replace_outlined,
+                  //   route: '/setting/image-source',
+                  //   title: '替换净化',
+                  // ),
                 ],
               ),
             ),
@@ -54,7 +56,7 @@ class Setting extends StatelessWidget {
             const SizedBox(height: 16),
             Card(
               child: Column(
-                children: const [
+                children: [
                   // _SettingTile(
                   //   icon: Icons.share_outlined,
                   //   route: '/setting/share',
@@ -65,19 +67,24 @@ class Setting extends StatelessWidget {
                   //   route: '/setting/comment',
                   //   title: '好评支持',
                   // ),
-                  _SettingTile(
+                  const _SettingTile(
                     icon: Icons.error_outline,
                     route: '/setting/about',
                     title: '关于我们',
                   ),
-                  _SettingTile(
-                    icon: Icons.developer_mode_outlined,
-                    route: '/setting/developer',
-                    title: '开发者选项',
-                  ),
+                  CreatorWatcher<bool>(
+                    builder: (context, debugMode) => debugMode
+                        ? const _SettingTile(
+                            icon: Icons.developer_mode_outlined,
+                            route: '/setting/developer',
+                            title: '开发者选项',
+                          )
+                        : const SizedBox(),
+                    creator: debugModeCreator,
+                  )
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

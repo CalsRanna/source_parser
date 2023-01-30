@@ -45,3 +45,9 @@ final isarEmitter = Emitter<Isar>((ref, emit) async {
   final isar = await Isar.open([UserSchema, SettingSchema]);
   emit(isar);
 }, keepAlive: true, name: 'isarEmitter');
+
+final debugModeCreator = Creator.value(
+  false,
+  keepAlive: true,
+  name: 'debugModeCreator',
+);
