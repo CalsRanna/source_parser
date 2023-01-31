@@ -18,7 +18,7 @@ class _AboutState extends State<About> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('关于我们')),
+      appBar: AppBar(),
       body: Center(
         child: GestureDetector(
           onTap: () => handleTap(context),

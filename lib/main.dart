@@ -18,8 +18,10 @@ class SourceParser extends StatelessWidget {
       (context, ref, _) => MaterialApp.router(
         routerConfig: router,
         theme: ThemeData(
-          useMaterial3: true,
           colorSchemeSeed: ref.watch(colorCreator),
+          brightness:
+              ref.watch(darkModeCreator) ? Brightness.dark : Brightness.light,
+          useMaterial3: true,
         ),
         title: '元夕',
       ),

@@ -51,3 +51,5 @@ final debugModeCreator = Creator.value(
   keepAlive: true,
   name: 'debugModeCreator',
 );
+
+final darkModeCreator = Creator.value(false, name: 'darkModeCreator');

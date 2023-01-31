@@ -39,7 +39,7 @@ class Explore extends StatelessWidget {
           return const Center(child: CupertinoActivityIndicator());
         } else {
           if (modules.isEmpty) {
-            return const Center(child: Text('暂无内容'));
+            return const Center(child: Text('空空如也'));
           } else {
             return Text(modules.length.toString());
           }

@@ -36,6 +36,8 @@ class _BottomBarState extends State<BottomBar> {
     return CreatorWatcher<int>(
       builder: (context, index) => NavigationBar(
         destinations: destinations,
+        height: 56,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
         selectedIndex: index,
         onDestinationSelected: (value) => handleTap(context, value),
       ),

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:creator/creator.dart';
 import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -11,9 +14,17 @@ class Setting extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          CreatorWatcher<bool>(
+            builder: (context, darkMode) => IconButton(
+              icon: Icon(
+                darkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+              ),
+              onPressed: () => handlePress(context, darkMode),
+            ),
+            creator: darkModeCreator,
+          ),
           IconButton(icon: const Icon(Icons.help_outline), onPressed: () {}),
         ],
-        title: const Text('我的'),
       ),
       // backgroundColor: Colors.grey[100],
       body: Padding(
@@ -70,7 +81,7 @@ class Setting extends StatelessWidget {
                   const _SettingTile(
                     icon: Icons.error_outline,
                     route: '/setting/about',
-                    title: '关于我们',
+                    title: '关于元夕',
                   ),
                   CreatorWatcher<bool>(
                     builder: (context, debugMode) => debugMode
@@ -90,6 +101,10 @@ class Setting extends StatelessWidget {
       ),
       bottomNavigationBar: const BottomBar(),
     );
+  }
+
+  void handlePress(BuildContext context, bool value) {
+    context.ref.set(darkModeCreator, !value);
   }
 }
 

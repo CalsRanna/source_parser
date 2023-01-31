@@ -70,7 +70,7 @@ class BookSourceList extends StatelessWidget {
         } else {
           var sources = ref.watch(bookSourcesCreator.asyncData).data;
           if (sources == null || sources.isEmpty) {
-            return const Center(child: Text('暂无书源'));
+            return const Center(child: Text('空空如也'));
           } else {
             return ReorderableListView.builder(
               itemCount: sources.length,
