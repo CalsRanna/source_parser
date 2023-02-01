@@ -7,7 +7,6 @@ import 'package:source_parser/model/book_source.dart';
 import 'package:source_parser/model/rule.dart';
 import 'package:source_parser/state/global.dart';
 import 'package:source_parser/state/source.dart';
-import 'package:source_parser/widget/bordered_card.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/message.dart';
 import 'package:source_parser/widget/rule_tile.dart';
@@ -41,12 +40,20 @@ class _BookSourceInformationState extends State<BookSourceInformation> {
             icon: const Icon(Icons.check_outlined),
           ),
         ],
+        centerTitle: true,
         title: Text(source.id != null ? '编辑书源' : '新建书源'),
       ),
       body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          BorderedCard(
-            title: '基本信息',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Text(
+              '基本信息',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          Card(
             child: Column(
               children: [
                 RuleTile(
@@ -68,19 +75,17 @@ class _BookSourceInformationState extends State<BookSourceInformation> {
                     },
                   ),
                 ),
-                // Watcher(
-                //   (context, ref, _) => RuleTile(
-                //     title: '类型',
-                //     trailing:
-                //         Text(types[source.type ?? 0]),
-                //     onTap: () => updateType(context, ref),
-                //   ),
-                // ),
               ],
             ),
           ),
-          BorderedCard(
-            title: '高级信息',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Text(
+              '高级信息',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          Card(
             child: Column(
               children: [
                 RuleTile(
@@ -91,8 +96,14 @@ class _BookSourceInformationState extends State<BookSourceInformation> {
               ],
             ),
           ),
-          BorderedCard(
-            title: '查找配置',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Text(
+              '查找配置',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          Card(
             child: Column(
               children: [
                 RuleTile(
@@ -115,8 +126,14 @@ class _BookSourceInformationState extends State<BookSourceInformation> {
               ],
             ),
           ),
-          BorderedCard(
-            title: '内容配置',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Text(
+              '内容配置',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          Card(
             child: Column(
               children: [
                 RuleTile(

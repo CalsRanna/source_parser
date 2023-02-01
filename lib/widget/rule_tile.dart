@@ -22,45 +22,15 @@ class RuleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Decoration? decoration = BoxDecoration(
-      border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
-    );
-    if (bordered != null && bordered == false) {
-      decoration = null;
-    }
+    const icon = Icon(Icons.arrow_forward_ios_outlined);
 
-    var expanded = Expanded(
-      child: Text(
-        value?.plain() ?? '',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        textAlign: TextAlign.end,
+    return ListTile(
+      title: Text(title),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [Text(value?.plain() ?? ''), icon],
       ),
-    );
-
-    var icon = Icon(Icons.arrow_forward_ios_outlined, color: Colors.grey[300]);
-
-    return IconTheme.merge(
-      data: const IconThemeData(size: 14),
-      child: InkWell(
-        onTap: () => handleTap(context),
-        child: Container(
-          decoration: decoration,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(title),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [if (value != null) expanded, trailing ?? icon],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      onTap: () => handleTap(context),
     );
   }
 

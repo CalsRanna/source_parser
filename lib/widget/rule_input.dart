@@ -29,7 +29,7 @@ class RuleInput extends StatelessWidget {
         title: Text(title),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
           TextField(
             controller: controller,

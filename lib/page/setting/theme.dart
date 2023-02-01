@@ -14,19 +14,19 @@ class ThemeSetting extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          _ThemeChanger(),
+          const _ThemeChanger(),
           ListTile(
-            title: Text('夜间模式'),
+            title: const Text('夜间模式'),
             trailing: CreatorWatcher<bool>(
-              builder: (context, darkMode) => Switch.adaptive(
+              builder: (context, darkMode) => Switch(
                 value: darkMode,
                 onChanged: (value) => handleChange(context, value),
               ),
               creator: darkModeCreator,
             ),
           ),
-          SizedBox(height: 8),
-          _ColorSchemeCard(),
+          const SizedBox(height: 8),
+          const _ColorSchemeCard(),
         ],
       ),
     );
@@ -60,7 +60,7 @@ class _ThemeChanger extends StatelessWidget {
             (context, ref, _) => SingleChildScrollView(
               child: ColorPicker(
                 enableAlpha: false,
-                labelTypes: [],
+                labelTypes: const [],
                 pickerColor: ref.watch(colorCreator),
                 onColorChanged: (color) => handleTap(ref, color),
               ),

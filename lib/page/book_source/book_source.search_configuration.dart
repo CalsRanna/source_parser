@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:source_parser/model/book_source.dart';
 import 'package:source_parser/model/rule.dart';
 import 'package:source_parser/state/source.dart';
-import 'package:source_parser/widget/bordered_card.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
@@ -18,9 +17,16 @@ class BookSourceSearchConfiguration extends StatelessWidget {
         title: const Text('搜索配置'),
       ),
       body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          BorderedCard(
-            title: '基础',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Text(
+              '基础',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          Card(
             child: Column(
               children: [
                 Watcher(
@@ -47,8 +53,14 @@ class BookSourceSearchConfiguration extends StatelessWidget {
               ],
             ),
           ),
-          BorderedCard(
-            title: '配置',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Text(
+              '配置',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          Card(
             child: Column(
               children: [
                 Watcher(

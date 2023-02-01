@@ -2,7 +2,6 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:source_parser/model/book_source.dart';
 import 'package:source_parser/state/source.dart';
-import 'package:source_parser/widget/bordered_card.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
@@ -33,9 +32,16 @@ class _BookSourceAdvancedConfigurationState
         appBar:
             AppBar(actions: const [DebugButton()], title: const Text('高级配置')),
         body: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
-            BorderedCard(
-              title: '控制',
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              child: Text(
+                '控制',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            Card(
               child: Column(
                 children: [
                   RuleTile(
@@ -68,8 +74,14 @@ class _BookSourceAdvancedConfigurationState
                 ],
               ),
             ),
-            BorderedCard(
-              title: '配置',
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              child: Text(
+                '配置',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            Card(
               child: Column(
                 children: [
                   RuleTile(

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:creator/creator.dart';
 import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
@@ -122,8 +120,9 @@ class _SettingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var leading =
-        icon != null ? Icon(icon, color: Theme.of(context).primaryColor) : null;
+    var leading = icon != null
+        ? Icon(icon, color: Theme.of(context).colorScheme.primary)
+        : null;
 
     return ListTile(
       leading: leading,
