@@ -26,10 +26,11 @@ class RuleTile extends StatelessWidget {
 
     return ListTile(
       title: Text(title),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [Text(value?.plain() ?? ''), icon],
-      ),
+      trailing: trailing ??
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [Text(value?.plain() ?? ''), icon],
+          ),
       onTap: () => handleTap(context),
     );
   }

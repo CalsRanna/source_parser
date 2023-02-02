@@ -15,14 +15,9 @@ class BookSourceExploreConfiguration extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-            child: Text(
-              '基础',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ),
           Card(
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            elevation: 0,
             child: Column(
               children: [
                 Watcher(
@@ -39,14 +34,10 @@ class BookSourceExploreConfiguration extends StatelessWidget {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-            child: Text(
-              '配置',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ),
+          const SizedBox(height: 16),
           Card(
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            elevation: 0,
             child: Column(
               children: [
                 Watcher(

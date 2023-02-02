@@ -26,108 +26,96 @@ class _BookSourceAdvancedConfigurationState
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: store,
-      child: Scaffold(
-        appBar:
-            AppBar(actions: const [DebugButton()], title: const Text('高级配置')),
-        body: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              child: Text(
-                '控制',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            Card(
-              child: Column(
-                children: [
-                  RuleTile(
-                    title: '启用',
-                    trailing: SizedBox(
-                      height: 14,
-                      child: Switch.adaptive(
-                        value: source.enabled,
-                        onChanged: (value) =>
-                            setState(() => source.enabled = value),
-                      ),
+    return Scaffold(
+      appBar: AppBar(
+        actions: const [DebugButton()],
+        title: const Text('高级配置'),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: [
+          Card(
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            elevation: 0,
+            child: Column(
+              children: [
+                RuleTile(
+                  title: '启用',
+                  trailing: SizedBox(
+                    height: 14,
+                    child: Switch(
+                      value: source.enabled,
+                      onChanged: (value) =>
+                          setState(() => source.enabled = value),
                     ),
-                    onTap: () =>
-                        setState(() => source.enabled = !source.enabled),
                   ),
-                  RuleTile(
-                    bordered: false,
-                    title: '发现',
-                    trailing: SizedBox(
-                      height: 14,
-                      child: Switch.adaptive(
-                        value: source.exploreEnabled,
-                        onChanged: (value) =>
-                            setState(() => source.exploreEnabled = value),
-                      ),
+                  onTap: () => setState(() => source.enabled = !source.enabled),
+                ),
+                RuleTile(
+                  bordered: false,
+                  title: '发现',
+                  trailing: SizedBox(
+                    height: 14,
+                    child: Switch(
+                      value: source.exploreEnabled,
+                      onChanged: (value) =>
+                          setState(() => source.exploreEnabled = value),
                     ),
-                    onTap: () => setState(
-                        () => source.exploreEnabled = !source.exploreEnabled),
                   ),
-                ],
-              ),
+                  onTap: () => setState(
+                      () => source.exploreEnabled = !source.exploreEnabled),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              child: Text(
-                '配置',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            elevation: 0,
+            child: Column(
+              children: [
+                RuleTile(
+                  title: '分组',
+                  value: source.group,
+                  onChange: (value) => setState(() => source.group = value),
+                ),
+                RuleTile(
+                  title: '备注',
+                  value: source.comment,
+                  onChange: (value) => setState(() => source.comment = value),
+                ),
+                RuleTile(
+                  title: '登陆URL',
+                  value: source.loginUrl,
+                  onChange: (value) => setState(() => source.loginUrl = value),
+                ),
+                RuleTile(
+                  title: '书籍URL正则',
+                  value: source.urlPattern,
+                  onChange: (value) =>
+                      setState(() => source.urlPattern = value),
+                ),
+                RuleTile(
+                  title: '请求头',
+                  value: source.header,
+                  onChange: (value) => setState(() => source.header = value),
+                ),
+                RuleTile(
+                  title: '编码',
+                  value: source.charset,
+                  onChange: (value) => setState(() => source.charset = value),
+                  onTap: selectCharset,
+                ),
+                RuleTile(
+                  bordered: false,
+                  title: '权重',
+                  value: source.weight.toString(),
+                  onChange: (value) => setState(() => source.weight = value),
+                ),
+              ],
             ),
-            Card(
-              child: Column(
-                children: [
-                  RuleTile(
-                    title: '分组',
-                    value: source.group,
-                    onChange: (value) => setState(() => source.group = value),
-                  ),
-                  RuleTile(
-                    title: '备注',
-                    value: source.comment,
-                    onChange: (value) => setState(() => source.comment = value),
-                  ),
-                  RuleTile(
-                    title: '登陆URL',
-                    value: source.loginUrl,
-                    onChange: (value) =>
-                        setState(() => source.loginUrl = value),
-                  ),
-                  RuleTile(
-                    title: '书籍URL正则',
-                    value: source.urlPattern,
-                    onChange: (value) =>
-                        setState(() => source.urlPattern = value),
-                  ),
-                  RuleTile(
-                    title: '请求头',
-                    value: source.header,
-                    onChange: (value) => setState(() => source.header = value),
-                  ),
-                  RuleTile(
-                    title: '编码',
-                    value: source.charset,
-                    onChange: (value) => setState(() => source.charset = value),
-                    onTap: selectCharset,
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '权重',
-                    value: source.weight.toString(),
-                    onChange: (value) => setState(() => source.weight = value),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

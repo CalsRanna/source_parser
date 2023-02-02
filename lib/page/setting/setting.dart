@@ -25,77 +25,81 @@ class Setting extends StatelessWidget {
         ],
       ),
       // backgroundColor: Colors.grey[100],
-      body: Padding(
+      body: ListView(
         padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
-            Card(
-              child: Column(
-                children: const [
-                  _SettingTile(
-                    icon: Icons.library_books_outlined,
-                    route: '/book-source',
-                    title: '书源管理',
-                  ),
-                  // _SettingTile(
-                  //   icon: Icons.find_replace_outlined,
-                  //   route: '/setting/image-source',
-                  //   title: '替换净化',
-                  // ),
-                ],
-              ),
+        children: [
+          Card(
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            elevation: 0,
+            child: Column(
+              children: const [
+                _SettingTile(
+                  icon: Icons.library_books_outlined,
+                  route: '/book-source',
+                  title: '书源管理',
+                ),
+                // _SettingTile(
+                //   icon: Icons.find_replace_outlined,
+                //   route: '/setting/image-source',
+                //   title: '替换净化',
+                // ),
+              ],
             ),
-            const SizedBox(height: 16),
-            Card(
-              child: Column(
-                children: const [
-                  _SettingTile(
-                    icon: Icons.color_lens_outlined,
-                    route: '/setting/theme',
-                    title: '颜色主题',
-                  ),
-                  _SettingTile(
-                    icon: Icons.format_color_text_outlined,
-                    route: '/setting/reader-theme',
-                    title: '阅读主题',
-                  ),
-                ],
-              ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            elevation: 0,
+            child: Column(
+              children: const [
+                _SettingTile(
+                  icon: Icons.color_lens_outlined,
+                  route: '/setting/theme',
+                  title: '颜色主题',
+                ),
+                _SettingTile(
+                  icon: Icons.format_color_text_outlined,
+                  route: '/setting/reader-theme',
+                  title: '阅读主题',
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            Card(
-              child: Column(
-                children: [
-                  // _SettingTile(
-                  //   icon: Icons.share_outlined,
-                  //   route: '/setting/share',
-                  //   title: '分享',
-                  // ),
-                  // _SettingTile(
-                  //   icon: Icons.comment_outlined,
-                  //   route: '/setting/comment',
-                  //   title: '好评支持',
-                  // ),
-                  const _SettingTile(
-                    icon: Icons.error_outline,
-                    route: '/setting/about',
-                    title: '关于元夕',
-                  ),
-                  CreatorWatcher<bool>(
-                    builder: (context, debugMode) => debugMode
-                        ? const _SettingTile(
-                            icon: Icons.developer_mode_outlined,
-                            route: '/setting/developer',
-                            title: '开发者选项',
-                          )
-                        : const SizedBox(),
-                    creator: debugModeCreator,
-                  )
-                ],
-              ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            elevation: 0,
+            child: Column(
+              children: [
+                // _SettingTile(
+                //   icon: Icons.share_outlined,
+                //   route: '/setting/share',
+                //   title: '分享',
+                // ),
+                // _SettingTile(
+                //   icon: Icons.comment_outlined,
+                //   route: '/setting/comment',
+                //   title: '好评支持',
+                // ),
+                const _SettingTile(
+                  icon: Icons.error_outline,
+                  route: '/setting/about',
+                  title: '关于元夕',
+                ),
+                CreatorWatcher<bool>(
+                  builder: (context, debugMode) => debugMode
+                      ? const _SettingTile(
+                          icon: Icons.developer_mode_outlined,
+                          route: '/setting/developer',
+                          title: '开发者选项',
+                        )
+                      : const SizedBox(),
+                  creator: debugModeCreator,
+                )
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       bottomNavigationBar: const BottomBar(),
     );
