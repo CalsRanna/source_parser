@@ -77,7 +77,8 @@ class Search extends StatelessWidget {
                   var name = books[i].name ?? '';
                   children.add(ActionChip(
                     label: Text(name),
-                    shape: const StadiumBorder(),
+                    labelPadding: EdgeInsets.zero,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     onPressed: () => search(context, name),
                   ));
                 }
@@ -90,7 +91,8 @@ class Search extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('热门搜索'),
-                    Wrap(spacing: 16, children: children),
+                    const SizedBox(height: 8),
+                    Wrap(runSpacing: 8, spacing: 8, children: children),
                   ],
                 ),
               );
