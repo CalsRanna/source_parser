@@ -17,7 +17,6 @@ import 'package:source_parser/page/search/search.dart';
 import 'package:source_parser/page/setting/about.dart';
 import 'package:source_parser/page/setting/reader_theme.dart';
 import 'package:source_parser/page/setting/setting.dart';
-import 'package:source_parser/page/setting/theme.dart';
 
 final router = GoRouter(routes: [
   GoRoute(path: '/', redirect: (context, state) => '/shelf'),
@@ -84,10 +83,6 @@ final router = GoRouter(routes: [
   GoRoute(
     builder: (context, state) => const Developer(),
     path: '/setting/developer',
-  ),
-  GoRoute(
-    builder: (context, state) => const ThemeSetting(),
-    path: '/setting/theme',
   ),
   GoRoute(
     builder: (context, state) => const ReaderTheme(),

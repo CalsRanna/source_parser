@@ -173,14 +173,18 @@ class _SearchInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        color: Theme.of(context).colorScheme.surfaceVariant,
       ),
-      height: 30,
+      height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          const Icon(Icons.search, color: Colors.grey, size: 14),
+          Icon(
+            Icons.search,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            size: 24,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(

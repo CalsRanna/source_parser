@@ -22,7 +22,11 @@ class RuleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const icon = Icon(Icons.arrow_forward_ios_outlined);
+    var icon = Icon(
+      Icons.arrow_forward_ios_outlined,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+      size: 16,
+    );
 
     return ListTile(
       title: Text(title),

@@ -1,7 +1,9 @@
 import 'package:creator/creator.dart';
 import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
 import 'package:source_parser/state/global.dart';
 import 'package:source_parser/widget/bottom_bar.dart';
 
@@ -23,6 +25,8 @@ class Setting extends StatelessWidget {
           ),
           IconButton(icon: const Icon(Icons.help_outline), onPressed: () {}),
         ],
+        centerTitle: true,
+        title: const Text('我的'),
       ),
       // backgroundColor: Colors.grey[100],
       body: ListView(
@@ -51,13 +55,13 @@ class Setting extends StatelessWidget {
             color: Theme.of(context).colorScheme.surfaceVariant,
             elevation: 0,
             child: Column(
-              children: const [
+              children: [
                 _SettingTile(
                   icon: Icons.color_lens_outlined,
-                  route: '/setting/theme',
-                  title: '颜色主题',
+                  title: '主题种子',
+                  onTap: () => handleTap(context),
                 ),
-                _SettingTile(
+                const _SettingTile(
                   icon: Icons.format_color_text_outlined,
                   route: '/setting/reader-theme',
                   title: '阅读主题',
@@ -108,6 +112,28 @@ class Setting extends StatelessWidget {
   void handlePress(BuildContext context, bool value) {
     context.ref.set(darkModeCreator, !value);
   }
+
+  void handleTap(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      clipBehavior: Clip.hardEdge,
+      builder: (context) => CreatorWatcher<Color>(
+        builder: (context, color) => ColorPicker(
+          pickerColor: color,
+          labelTypes: const [],
+          enableAlpha: false,
+          colorPickerWidth: MediaQuery.of(context).size.width,
+          onColorChanged: (value) => handleColorChange(context, value),
+        ),
+        creator: colorCreator,
+      ),
+    );
+  }
+
+  void handleColorChange(BuildContext context, Color color) {
+    context.ref.set(colorCreator, color);
+    Hive.box('setting').put('theme', color.value);
+  }
 }
 
 class _SettingTile extends StatelessWidget {
@@ -116,11 +142,13 @@ class _SettingTile extends StatelessWidget {
     this.icon,
     this.route,
     required this.title,
+    this.onTap,
   }) : super(key: key);
 
   final IconData? icon;
   final String? route;
   final String title;
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +161,7 @@ class _SettingTile extends StatelessWidget {
       title: Text(title),
       trailing: Icon(
         Icons.arrow_forward_ios,
-        color: Colors.grey.withOpacity(0.5),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         size: 16,
       ),
       onTap: () => handleTap(context),
@@ -143,6 +171,8 @@ class _SettingTile extends StatelessWidget {
   void handleTap(BuildContext context) {
     if (route != null) {
       context.push(route!);
+    } else {
+      onTap?.call();
     }
   }
 }

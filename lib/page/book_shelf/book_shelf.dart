@@ -22,6 +22,8 @@ class BookShelf extends StatelessWidget {
             icon: const Icon(CupertinoIcons.ellipsis_vertical),
           ),
         ],
+        centerTitle: true,
+        title: const Text('书架'),
       ),
       body: Watcher(
         (context, ref, _) {

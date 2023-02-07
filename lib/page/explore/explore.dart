@@ -31,6 +31,7 @@ class Explore extends StatelessWidget {
             );
           })),
         ],
+        centerTitle: true,
         title: const Text('发现'),
       ),
       body: Watcher(((context, ref, child) {
