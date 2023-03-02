@@ -17,14 +17,10 @@ class CachedNetwork {
     this.cacheFolder,
     this.charset = CachedNetworkCharset.utf8,
     this.timeout = 5000,
-  })  : _baseOptions = BaseOptions(
-            connectTimeout: 3000,
-            receiveTimeout: 50000,
-            sendTimeout: 3000,
-            headers: {
-              'User-Agent':
-                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
-            }),
+  })  : _baseOptions = BaseOptions(headers: {
+          'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
+        }),
         _options = Options(
           responseDecoder: ((responseBytes, options, responseBody) =>
               gbk_bytes.decode(responseBytes)),

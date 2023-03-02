@@ -1,14 +1,16 @@
 import 'dart:io';
 
 import 'package:creator/creator.dart';
+import 'package:creator_watcher/creator_watcher.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
+// import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as path;
-import 'package:share_plus/share_plus.dart';
+// import 'package:share_plus/share_plus.dart';
 import 'package:source_parser/model/book_source.dart';
 import 'package:source_parser/model/rule.dart';
+import 'package:source_parser/model/source.dart';
 import 'package:source_parser/state/global.dart';
 import 'package:source_parser/state/source.dart';
 import 'package:source_parser/util/generator.dart';
@@ -63,30 +65,50 @@ class BookSourceList extends StatelessWidget {
         // ],
         title: const Text('书源管理'),
       ),
-      body: Watcher((context, ref, _) {
-        if (AsyncDataStatus.waiting ==
-            ref.watch(bookSourcesCreator.asyncData).status) {
-          return const Center(child: CupertinoActivityIndicator());
-        } else {
-          var sources = ref.watch(bookSourcesCreator.asyncData).data;
-          if (sources == null || sources.isEmpty) {
-            return const Center(child: Text('空空如也'));
-          } else {
+      // body: Watcher((context, ref, _) {
+      //   if (AsyncDataStatus.waiting ==
+      //       ref.watch(bookSourcesCreator.asyncData).status) {
+      //     return const Center(child: CupertinoActivityIndicator());
+      //   } else {
+      //     var sources = ref.watch(bookSourcesCreator.asyncData).data;
+      //     if (sources == null || sources.isEmpty) {
+      //       return const Center(child: Text('空空如也'));
+      //     } else {
+      //       return ReorderableListView.builder(
+      //         itemCount: sources.length,
+      //         itemBuilder: (context, index) {
+      //           return SourceTile(
+      //             key: ValueKey('source-$index'),
+      //             source: sources[index],
+      //             onTap: (id) => handleTap(context, ref, id),
+      //           );
+      //         },
+      //         onReorder: (oldIndex, newIndex) =>
+      //             handleReorder(ref, oldIndex, newIndex),
+      //       );
+      //     }
+      //   }
+      // }),
+      body: EmitterWatcher<List<Source?>?>(
+        builder: (context, sources) {
+          if (sources != null && sources.isNotEmpty) {
             return ReorderableListView.builder(
               itemCount: sources.length,
               itemBuilder: (context, index) {
                 return SourceTile(
                   key: ValueKey('source-$index'),
-                  source: sources[index],
-                  onTap: (id) => handleTap(context, ref, id),
+                  source: sources[index]!,
+                  // onTap: (id) => handleTap(context, ref, id),
                 );
               },
-              onReorder: (oldIndex, newIndex) =>
-                  handleReorder(ref, oldIndex, newIndex),
+              onReorder: handleReorder,
             );
+          } else {
+            return const Center(child: Text('空空如也'));
           }
-        }
-      }),
+        },
+        emitter: sourcesEmitter,
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/book-source/create'),
         child: const Icon(Icons.add_outlined),
@@ -135,7 +157,7 @@ class BookSourceList extends StatelessWidget {
     navigator.push('/book-source/information/$id');
   }
 
-  void handleReorder(Ref ref, int oldIndex, int newIndex) {
+  void handleReorder(int oldIndex, int newIndex) {
     // var sources =
     //     ref.watch(bookSourceState.select((value) => value.bookSources));
     // if (newIndex > oldIndex) newIndex--;
@@ -155,7 +177,7 @@ class SourceTile extends StatelessWidget {
   const SourceTile({Key? key, required this.source, this.onTap})
       : super(key: key);
 
-  final BookSource source;
+  final Source source;
   final void Function(int)? onTap;
 
   @override
@@ -201,6 +223,6 @@ class SourceTile extends StatelessWidget {
   }
 
   void handleTap() {
-    onTap?.call(source.id!);
+    onTap?.call(source.id);
   }
 }

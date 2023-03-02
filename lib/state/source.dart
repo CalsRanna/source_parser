@@ -1,6 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:source_parser/model/book_source.dart';
 import 'package:source_parser/model/rule.dart';
+import 'package:source_parser/model/source.dart';
 import 'package:source_parser/state/global.dart';
 
 final bookSourceCreator = Creator<BookSource>.value(
@@ -13,6 +14,12 @@ final bookSourcesCreator = Emitter<List<BookSource>?>((ref, emit) async {
   final sources = await database?.bookSourceDao.getAllBookSources();
   emit(sources);
 }, name: 'bookSources');
+
+final sourcesEmitter = Emitter<List<Source?>?>((ref, emit) async {
+  final isar = ref.watch(isarEmitter.asyncData).data;
+  final sources = await isar?.sources.getAll([]);
+  emit(sources);
+}, name: 'sources');
 
 final searchRuleCreator = Creator<SearchRule?>.value(
   null,

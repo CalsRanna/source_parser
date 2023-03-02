@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/state/book.dart';
-import 'package:source_parser/state/global.dart';
 import 'package:source_parser/widget/bottom_bar.dart';
 import 'package:source_parser/widget/shelf_item.dart';
 
@@ -28,7 +27,6 @@ class BookShelf extends StatelessWidget {
       body: Watcher(
         (context, ref, _) {
           final books = ref.watch(shelfBooksEmitter.asyncData).data;
-          final isar = ref.watch(isarEmitter.asyncData).data;
           if (books != null && books.isNotEmpty) {
             return GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

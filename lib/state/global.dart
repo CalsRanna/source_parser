@@ -5,6 +5,7 @@ import 'package:isar/isar.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/database/database.dart';
+import 'package:source_parser/model/source.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/schema/user.dart';
 
@@ -42,7 +43,7 @@ final databaseFileEmitter = Emitter<String>((ref, emit) async {
 }, name: 'databaseFileEmitter');
 
 final isarEmitter = Emitter<Isar>((ref, emit) async {
-  final isar = await Isar.open([UserSchema, SettingSchema]);
+  final isar = await Isar.open([UserSchema, SettingSchema, SourceSchema]);
   emit(isar);
 }, keepAlive: true, name: 'isarEmitter');
 
