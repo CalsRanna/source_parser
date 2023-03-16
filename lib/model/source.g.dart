@@ -491,7 +491,12 @@ int _sourceEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
-  bytesCount += 3 + object.name.length * 3;
+  {
+    final value = object.name;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   {
     final value = object.searchAuthor;
     if (value != null) {
@@ -559,7 +564,12 @@ int _sourceEstimateSize(
     }
   }
   bytesCount += 3 + object.type.length * 3;
-  bytesCount += 3 + object.url.length * 3;
+  {
+    final value = object.url;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   {
     final value = object.urlRegex;
     if (value != null) {
@@ -672,7 +682,7 @@ Source _sourceDeserialize(
   object.informationPreprocess = reader.readStringOrNull(offsets[32]);
   object.informationWordCount = reader.readStringOrNull(offsets[33]);
   object.loginUrl = reader.readStringOrNull(offsets[34]);
-  object.name = reader.readString(offsets[35]);
+  object.name = reader.readStringOrNull(offsets[35]);
   object.order = reader.readInt(offsets[36]);
   object.searchAuthor = reader.readStringOrNull(offsets[37]);
   object.searchBooks = reader.readStringOrNull(offsets[38]);
@@ -686,7 +696,7 @@ Source _sourceDeserialize(
   object.searchUrl = reader.readStringOrNull(offsets[46]);
   object.searchWordCount = reader.readStringOrNull(offsets[47]);
   object.type = reader.readString(offsets[48]);
-  object.url = reader.readString(offsets[49]);
+  object.url = reader.readStringOrNull(offsets[49]);
   object.urlRegex = reader.readStringOrNull(offsets[50]);
   object.weight = reader.readIntOrNull(offsets[51]);
   return object;
@@ -770,7 +780,7 @@ P _sourceDeserializeProp<P>(
     case 34:
       return (reader.readStringOrNull(offset)) as P;
     case 35:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 36:
       return (reader.readInt(offset)) as P;
     case 37:
@@ -798,7 +808,7 @@ P _sourceDeserializeProp<P>(
     case 48:
       return (reader.readString(offset)) as P;
     case 49:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 50:
       return (reader.readStringOrNull(offset)) as P;
     case 51:
@@ -5905,8 +5915,24 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Source, Source, QAfterFilterCondition> nameIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'name',
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition> nameIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'name',
+      ));
+    });
+  }
+
   QueryBuilder<Source, Source, QAfterFilterCondition> nameEqualTo(
-    String value, {
+    String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -5919,7 +5945,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> nameGreaterThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5934,7 +5960,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> nameLessThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5949,8 +5975,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> nameBetween(
-    String lower,
-    String upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -7858,8 +7884,24 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Source, Source, QAfterFilterCondition> urlIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'url',
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition> urlIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'url',
+      ));
+    });
+  }
+
   QueryBuilder<Source, Source, QAfterFilterCondition> urlEqualTo(
-    String value, {
+    String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -7872,7 +7914,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> urlGreaterThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7887,7 +7929,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> urlLessThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7902,8 +7944,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> urlBetween(
-    String lower,
-    String upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -10098,7 +10140,7 @@ extension SourceQueryProperty on QueryBuilder<Source, Source, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Source, String, QQueryOperations> nameProperty() {
+  QueryBuilder<Source, String?, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
     });
@@ -10185,7 +10227,7 @@ extension SourceQueryProperty on QueryBuilder<Source, Source, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Source, String, QQueryOperations> urlProperty() {
+  QueryBuilder<Source, String?, QQueryOperations> urlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'url');
     });

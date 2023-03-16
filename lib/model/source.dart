@@ -6,8 +6,8 @@ part 'source.g.dart';
 @Name('sources')
 class Source {
   Id id = Isar.autoIncrement;
-  late String name;
-  late String url;
+  String? name;
+  String? url;
   bool enabled = true;
   @Name('explore_enabled')
   bool exploreEnabled = false;

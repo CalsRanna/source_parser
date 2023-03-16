@@ -1,10 +1,11 @@
 import 'package:creator/creator.dart';
+import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:source_parser/database/database.dart';
+// import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/model/book_source.dart';
-import 'package:source_parser/model/rule.dart';
+import 'package:source_parser/model/source.dart';
 import 'package:source_parser/state/global.dart';
 import 'package:source_parser/state/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
@@ -46,31 +47,26 @@ class _BookSourceInformationState extends State<BookSourceInformation> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          Card(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            elevation: 0,
-            child: Column(
-              children: [
-                RuleTile(
-                  title: '名称',
-                  value: source.name,
-                  onChange: (value) {
-                    setState(() => source.name = value);
-                    context.ref.set(bookSourceCreator, source);
-                  },
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+          EmitterWatcher<Source>(
+            emitter: sourceEmitter(null),
+            builder: (context, source) => Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
+                    title: '名称',
+                    value: source.name,
+                    onChange: (value) => updateName(context, value),
+                  ),
+                  RuleTile(
                     bordered: false,
                     title: '网址',
                     value: source.url,
-                    onChange: (value) {
-                      setState(() => source.url = value);
-                      context.ref.set(bookSourceCreator, source);
-                    },
-                  ),
-                ),
-              ],
+                    onChange: (value) => updateUrl(context, value),
+                  )
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -147,111 +143,68 @@ class _BookSourceInformationState extends State<BookSourceInformation> {
 
   void storeBookSource(BuildContext context) async {
     final ref = context.ref;
-    final database = ref.read(databaseEmitter.asyncData).data;
-    final source = ref.read(bookSourceCreator);
-    final searchRule = ref.read(searchRuleCreator);
-    final exploreRule = ref.read(exploreRuleCreator);
-    final informationRule = ref.read(informationRuleCreator);
-    final catalogueRule = ref.read(catalogueRuleCreator);
-    final contentRule = ref.read(contentRuleCreator);
-    var messager = Message.of(context);
-    if (source.id == null) {
-      await database?.bookSourceDao.insertBookSource(source);
-    } else {
-      await database?.bookSourceDao.updateBookSource(source);
-    }
-    storeRule(database!, source, searchRule!.toJson());
-    storeRule(database, source, exploreRule!.toJson());
-    storeRule(database, source, informationRule!.toJson());
-    storeRule(database, source, catalogueRule!.toJson());
-    storeRule(database, source, contentRule!.toJson());
-    messager.show('书源保存成功');
+    final messager = Message.of(context);
+    final isar = await ref.read(isarEmitter);
+    final source = await ref.read(sourceEmitter(null));
+    isar.writeTxn(() async {
+      await isar.sources.put(source);
+      messager.show('书源保存成功');
+    });
   }
 
-  void storeRule(
-    AppDatabase database,
-    BookSource source,
-    Map<String, String?> rule,
-  ) async {
-    final sourceDao = database.bookSourceDao;
-    final ruleDao = database.ruleDao;
-    final keys = rule.keys.toList();
-    if (source.id == null) {
-      var record = await sourceDao.findBookSourceByName(source.name);
-      if (record != null) {
-        for (var i = 0; i < keys.length; i++) {
-          await ruleDao.insertRule(Rule.bean(
-            name: keys[i],
-            value: rule[keys[i]],
-            sourceId: record.id,
-          ));
-        }
-      }
-    } else {
-      for (var i = 0; i < keys.length; i++) {
-        final record =
-            await ruleDao.getRuleByNameAndSourceId(keys[i], source.id!);
-        if (record != null) {
-          await ruleDao.updateRule(Rule.bean(
-            id: record.id,
-            name: keys[i],
-            value: rule[keys[i]],
-            sourceId: source.id,
-          ));
-        } else {
-          await ruleDao.insertRule(Rule.bean(
-            name: keys[i],
-            value: rule[keys[i]],
-            sourceId: source.id,
-          ));
-        }
-      }
-    }
+  void updateName(BuildContext context, String name) async {
+    final ref = context.ref;
+    final source = await ref.read(sourceEmitter(null));
+    source.name = name;
+    ref.emit(sourceEmitter(null), source);
   }
 
-  void updateType(BuildContext context, Ref ref) async {
-    var type = await showMaterialModalBottomSheet(
-      context: context,
-      builder: (context) => _SourceTypeModalBottomSheet(),
-    );
-    ref.update<BookSource?>(
-        bookSourceCreator, (source) => source?.copyWith(type: type));
+  void updateUrl(BuildContext context, String url) async {
+    final ref = context.ref;
+    final source = await ref.read(sourceEmitter(null));
+    source.url = url;
+    ref.emit(sourceEmitter(null), source);
   }
+
+  // void updateType(BuildContext context, Ref ref) async {
+  //   var type = await showMaterialModalBottomSheet(
+  //     context: context,
+  //     builder: (context) => _SourceTypeModalBottomSheet(),
+  //   );
+  //   ref.update<BookSource?>(
+  //       bookSourceCreator, (source) => source?.copyWith(type: type));
+  // }
 
   void navigate(BuildContext context, String route) {
     context.push('/book-source/$route');
   }
-
-  void debugSource(BuildContext context) async {
-    context.push('/book-source/debug');
-  }
 }
 
-class _SourceTypeModalBottomSheet extends StatelessWidget {
-  _SourceTypeModalBottomSheet({Key? key}) : super(key: key);
+// class _SourceTypeModalBottomSheet extends StatelessWidget {
+//   _SourceTypeModalBottomSheet({Key? key}) : super(key: key);
 
-  final List<String> types = ['文本', '图片', '音频', '视频'];
+//   final List<String> types = ['文本', '图片', '音频', '视频'];
 
-  @override
-  Widget build(BuildContext context) {
-    var children = <Widget>[];
-    for (var i = 0; i < types.length; i++) {
-      children.add(
-        ListTile(
-          title: Text(types[i]),
-          onTap: () => Navigator.of(context).pop(i),
-        ),
-      );
-    }
+//   @override
+//   Widget build(BuildContext context) {
+//     var children = <Widget>[];
+//     for (var i = 0; i < types.length; i++) {
+//       children.add(
+//         ListTile(
+//           title: Text(types[i]),
+//           onTap: () => Navigator.of(context).pop(i),
+//         ),
+//       );
+//     }
 
-    return Material(
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: children,
-        ),
-      ),
-    );
-  }
-}
+//     return Material(
+//       child: SafeArea(
+//         top: false,
+//         child: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: children,
+//         ),
+//       ),
+//     );
+//   }
+// }

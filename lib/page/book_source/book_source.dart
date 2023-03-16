@@ -39,17 +39,17 @@ class BookSourceList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var items = <PopupMenuItem<String>>[];
-    for (var i = 0; i < icons.length; i++) {
-      items.add(PopupMenuItem(
-        value: values[i],
-        child: Row(children: [
-          Icon(icons[i], color: Theme.of(context).primaryColor),
-          const SizedBox(width: 8),
-          Text(labels[i]),
-        ]),
-      ));
-    }
+    // var items = <PopupMenuItem<String>>[];
+    // for (var i = 0; i < icons.length; i++) {
+    //   items.add(PopupMenuItem(
+    //     value: values[i],
+    //     child: Row(children: [
+    //       Icon(icons[i], color: Theme.of(context).primaryColor),
+    //       const SizedBox(width: 8),
+    //       Text(labels[i]),
+    //     ]),
+    //   ));
+    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -199,7 +199,8 @@ class SourceTile extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: color),
-                child: Text(source.name, style: const TextStyle(fontSize: 16)),
+                child: Text(source.name ?? '',
+                    style: const TextStyle(fontSize: 16)),
               ),
             ),
             IconTheme.merge(
