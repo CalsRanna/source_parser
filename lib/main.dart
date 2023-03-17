@@ -1,8 +1,10 @@
 import 'package:creator/creator.dart';
+import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:source_parser/creator/setting.dart';
+import 'package:source_parser/model/setting.dart';
 import 'package:source_parser/router/router.dart';
-import 'package:source_parser/state/global.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -14,13 +16,13 @@ class SourceParser extends StatelessWidget {
   const SourceParser({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Watcher(
-      (context, ref, _) => MaterialApp.router(
+    return EmitterWatcher<Setting>(
+      emitter: settingEmitter,
+      builder: (context, setting) => MaterialApp.router(
         routerConfig: router,
         theme: ThemeData(
-          colorSchemeSeed: ref.watch(colorCreator),
-          brightness:
-              ref.watch(darkModeCreator) ? Brightness.dark : Brightness.light,
+          colorSchemeSeed: Color(setting.colorSeed),
+          brightness: setting.darkMode ? Brightness.dark : Brightness.light,
           useMaterial3: true,
         ),
         title: '元夕',

@@ -11,3 +11,9 @@ final sourceEmitter = Emitter.arg1<Source, int?>((ref, id, emit) async {
   }
   emit(source);
 }, name: (id) => 'sourceEmitter_$id');
+
+final sourcesEmitter = Emitter<List<Source>>((ref, emit) async {
+  final isar = await ref.watch(isarEmitter);
+  final sources = await isar.sources.where().findAll();
+  emit(sources);
+}, name: 'sourcesEmitter');

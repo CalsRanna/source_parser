@@ -3,25 +3,27 @@ import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive/hive.dart';
+import 'package:isar/isar.dart';
+import 'package:source_parser/creator/setting.dart';
+import 'package:source_parser/model/setting.dart';
 import 'package:source_parser/state/global.dart';
 import 'package:source_parser/widget/bottom_bar.dart';
 
-class Setting extends StatelessWidget {
-  const Setting({Key? key}) : super(key: key);
+class SettingPage extends StatelessWidget {
+  const SettingPage({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          CreatorWatcher<bool>(
-            builder: (context, darkMode) => IconButton(
-              icon: Icon(
-                darkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-              ),
-              onPressed: () => handlePress(context, darkMode),
+          EmitterWatcher<Setting>(
+            builder: (context, setting) => IconButton(
+              icon: Icon(setting.darkMode
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined),
+              onPressed: () => triggerDarkMode(context),
             ),
-            creator: darkModeCreator,
+            emitter: settingEmitter,
           ),
           IconButton(icon: const Icon(Icons.help_outline), onPressed: () {}),
         ],
@@ -42,11 +44,6 @@ class Setting extends StatelessWidget {
                   route: '/book-source',
                   title: '书源管理',
                 ),
-                // _SettingTile(
-                //   icon: Icons.find_replace_outlined,
-                //   route: '/setting/image-source',
-                //   title: '替换净化',
-                // ),
               ],
             ),
           ),
@@ -75,16 +72,6 @@ class Setting extends StatelessWidget {
             elevation: 0,
             child: Column(
               children: [
-                // _SettingTile(
-                //   icon: Icons.share_outlined,
-                //   route: '/setting/share',
-                //   title: '分享',
-                // ),
-                // _SettingTile(
-                //   icon: Icons.comment_outlined,
-                //   route: '/setting/comment',
-                //   title: '好评支持',
-                // ),
                 const _SettingTile(
                   icon: Icons.error_outline,
                   route: '/setting/about',
@@ -109,30 +96,39 @@ class Setting extends StatelessWidget {
     );
   }
 
-  void handlePress(BuildContext context, bool value) {
-    context.ref.set(darkModeCreator, !value);
+  void triggerDarkMode(BuildContext context) async {
+    final ref = context.ref;
+    final isar = await ref.read(isarEmitter);
+    await isar.writeTxn(() async {
+      var setting = await isar.settings.where().findFirst() ?? Setting();
+      setting.darkMode = !setting.darkMode;
+      isar.settings.put(setting);
+      ref.emit(settingEmitter, setting);
+    });
   }
 
   void handleTap(BuildContext context) {
     showModalBottomSheet(
       context: context,
       clipBehavior: Clip.hardEdge,
-      builder: (context) => CreatorWatcher<Color>(
-        builder: (context, color) => ColorPicker(
-          pickerColor: color,
+      builder: (context) => EmitterWatcher<Setting>(
+        builder: (context, setting) => ColorPicker(
+          pickerColor: Color(setting.colorSeed),
           labelTypes: const [],
           enableAlpha: false,
           colorPickerWidth: MediaQuery.of(context).size.width,
           onColorChanged: (value) => handleColorChange(context, value),
         ),
-        creator: colorCreator,
+        emitter: settingEmitter,
       ),
     );
   }
 
-  void handleColorChange(BuildContext context, Color color) {
-    context.ref.set(colorCreator, color);
-    Hive.box('setting').put('theme', color.value);
+  void handleColorChange(BuildContext context, Color color) async {
+    final ref = context.ref;
+    var setting = await ref.read(settingEmitter);
+    setting.colorSeed = color.value;
+    ref.emit(settingEmitter, setting);
   }
 }
 

@@ -20,7 +20,10 @@ import 'package:source_parser/page/setting/setting.dart';
 
 final router = GoRouter(routes: [
   GoRoute(path: '/', redirect: (context, state) => '/shelf'),
-  GoRoute(builder: (context, state) => BookSourceList(), path: '/book-source'),
+  GoRoute(
+    builder: (context, state) => const BookSourceList(),
+    path: '/book-source',
+  ),
   GoRoute(
       builder: (context, state) => const BookInformation(),
       path: '/book-information'),
@@ -75,7 +78,7 @@ final router = GoRouter(routes: [
   GoRoute(
     pageBuilder: (context, state) => NoTransitionPage(
       key: state.pageKey,
-      child: const Setting(),
+      child: const SettingPage(),
     ),
     path: '/setting',
   ),

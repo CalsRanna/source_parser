@@ -7,8 +7,8 @@ part 'setting.g.dart';
 @Name('settings')
 class Setting {
   Id id = Isar.autoIncrement;
-  @Name('color_value')
-  int? colorValue;
-  @ignore
-  Color? get color => colorValue != null ? Color(colorValue!) : Colors.blue;
+  @Name('color_seed')
+  int colorSeed = Colors.blue.value;
+  @Name('dark_mode')
+  bool darkMode = false;
 }

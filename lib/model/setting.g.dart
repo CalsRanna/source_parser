@@ -17,10 +17,15 @@ const SettingSchema = CollectionSchema(
   name: r'settings',
   id: -5221820136678325216,
   properties: {
-    r'color_value': PropertySchema(
+    r'color_seed': PropertySchema(
       id: 0,
-      name: r'color_value',
+      name: r'color_seed',
       type: IsarType.long,
+    ),
+    r'dark_mode': PropertySchema(
+      id: 1,
+      name: r'dark_mode',
+      type: IsarType.bool,
     )
   },
   estimateSize: _settingEstimateSize,
@@ -52,7 +57,8 @@ void _settingSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.colorValue);
+  writer.writeLong(offsets[0], object.colorSeed);
+  writer.writeBool(offsets[1], object.darkMode);
 }
 
 Setting _settingDeserialize(
@@ -62,7 +68,8 @@ Setting _settingDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Setting();
-  object.colorValue = reader.readLongOrNull(offsets[0]);
+  object.colorSeed = reader.readLong(offsets[0]);
+  object.darkMode = reader.readBool(offsets[1]);
   object.id = id;
   return object;
 }
@@ -75,7 +82,9 @@ P _settingDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
+    case 1:
+      return (reader.readBool(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -170,71 +179,65 @@ extension SettingQueryWhere on QueryBuilder<Setting, Setting, QWhereClause> {
 
 extension SettingQueryFilter
     on QueryBuilder<Setting, Setting, QFilterCondition> {
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorValueIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'color_value',
-      ));
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorValueIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'color_value',
-      ));
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorValueEqualTo(
-      int? value) {
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedEqualTo(
+      int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'color_value',
+        property: r'color_seed',
         value: value,
       ));
     });
   }
 
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorValueGreaterThan(
-    int? value, {
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedGreaterThan(
+    int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'color_value',
+        property: r'color_seed',
         value: value,
       ));
     });
   }
 
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorValueLessThan(
-    int? value, {
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedLessThan(
+    int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'color_value',
+        property: r'color_seed',
         value: value,
       ));
     });
   }
 
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorValueBetween(
-    int? lower,
-    int? upper, {
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedBetween(
+    int lower,
+    int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'color_value',
+        property: r'color_seed',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> darkModeEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'dark_mode',
+        value: value,
       ));
     });
   }
@@ -299,30 +302,54 @@ extension SettingQueryLinks
     on QueryBuilder<Setting, Setting, QFilterCondition> {}
 
 extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
-  QueryBuilder<Setting, Setting, QAfterSortBy> sortByColorValue() {
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByColorSeed() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'color_value', Sort.asc);
+      return query.addSortBy(r'color_seed', Sort.asc);
     });
   }
 
-  QueryBuilder<Setting, Setting, QAfterSortBy> sortByColorValueDesc() {
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByColorSeedDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'color_value', Sort.desc);
+      return query.addSortBy(r'color_seed', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByDarkMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dark_mode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByDarkModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dark_mode', Sort.desc);
     });
   }
 }
 
 extension SettingQuerySortThenBy
     on QueryBuilder<Setting, Setting, QSortThenBy> {
-  QueryBuilder<Setting, Setting, QAfterSortBy> thenByColorValue() {
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByColorSeed() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'color_value', Sort.asc);
+      return query.addSortBy(r'color_seed', Sort.asc);
     });
   }
 
-  QueryBuilder<Setting, Setting, QAfterSortBy> thenByColorValueDesc() {
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByColorSeedDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'color_value', Sort.desc);
+      return query.addSortBy(r'color_seed', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByDarkMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dark_mode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByDarkModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dark_mode', Sort.desc);
     });
   }
 
@@ -341,9 +368,15 @@ extension SettingQuerySortThenBy
 
 extension SettingQueryWhereDistinct
     on QueryBuilder<Setting, Setting, QDistinct> {
-  QueryBuilder<Setting, Setting, QDistinct> distinctByColorValue() {
+  QueryBuilder<Setting, Setting, QDistinct> distinctByColorSeed() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'color_value');
+      return query.addDistinctBy(r'color_seed');
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QDistinct> distinctByDarkMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'dark_mode');
     });
   }
 }
@@ -356,9 +389,15 @@ extension SettingQueryProperty
     });
   }
 
-  QueryBuilder<Setting, int?, QQueryOperations> colorValueProperty() {
+  QueryBuilder<Setting, int, QQueryOperations> colorSeedProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'color_value');
+      return query.addPropertyName(r'color_seed');
+    });
+  }
+
+  QueryBuilder<Setting, bool, QQueryOperations> darkModeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'dark_mode');
     });
   }
 }
