@@ -1,6 +1,5 @@
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/page/book/book_information.dart';
-import 'package:source_parser/page/book_shelf/book_shelf.dart';
 import 'package:source_parser/page/book_source/book_source.advanced_configuration.dart';
 import 'package:source_parser/page/book_source/book_source.catalogue_configuration.dart';
 import 'package:source_parser/page/book_source/book_source.content_configuration.dart';
@@ -12,14 +11,17 @@ import 'package:source_parser/page/book_source/book_source.information.dart';
 import 'package:source_parser/page/book_source/book_source.information_configuration.dart';
 import 'package:source_parser/page/book_source/book_source.search_configuration.dart';
 import 'package:source_parser/page/developer/developer.dart';
-import 'package:source_parser/page/explore/explore.dart';
+import 'package:source_parser/page/home/home.dart';
 import 'package:source_parser/page/search/search.dart';
 import 'package:source_parser/page/setting/about.dart';
 import 'package:source_parser/page/setting/reader_theme.dart';
-import 'package:source_parser/page/setting/setting.dart';
 
 final router = GoRouter(routes: [
-  GoRoute(path: '/', redirect: (context, state) => '/shelf'),
+  GoRoute(path: '/', redirect: (context, state) => '/home'),
+  GoRoute(
+    builder: (context, state) => const HomePage(),
+    path: '/home',
+  ),
   GoRoute(
     builder: (context, state) => const BookSourceList(),
     path: '/book-source',
@@ -67,21 +69,7 @@ final router = GoRouter(routes: [
     builder: (context, state) => const BookSourceSearchConfiguration(),
     path: '/book-source/search-configuration',
   ),
-  GoRoute(
-    pageBuilder: (context, state) => NoTransitionPage(
-      key: state.pageKey,
-      child: const Explore(),
-    ),
-    path: '/explore',
-  ),
   GoRoute(builder: (context, state) => const Search(), path: '/search'),
-  GoRoute(
-    pageBuilder: (context, state) => NoTransitionPage(
-      key: state.pageKey,
-      child: const SettingPage(),
-    ),
-    path: '/setting',
-  ),
   GoRoute(builder: (context, state) => const About(), path: '/setting/about'),
   GoRoute(
     builder: (context, state) => const Developer(),
@@ -90,12 +78,5 @@ final router = GoRouter(routes: [
   GoRoute(
     builder: (context, state) => const ReaderTheme(),
     path: '/setting/reader-theme',
-  ),
-  GoRoute(
-    pageBuilder: (context, state) => NoTransitionPage(
-      key: state.pageKey,
-      child: const BookShelf(),
-    ),
-    path: '/shelf',
   ),
 ]);
