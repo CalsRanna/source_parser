@@ -2,32 +2,15 @@ import 'package:creator/creator.dart';
 import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-// import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/model/book_source.dart';
 import 'package:source_parser/model/source.dart';
 import 'package:source_parser/state/global.dart';
-import 'package:source_parser/state/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/message.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
-class BookSourceInformation extends StatefulWidget {
+class BookSourceInformation extends StatelessWidget {
   const BookSourceInformation({Key? key}) : super(key: key);
-
-  @override
-  State<BookSourceInformation> createState() {
-    return _BookSourceInformationState();
-  }
-}
-
-class _BookSourceInformationState extends State<BookSourceInformation> {
-  late BookSource source;
-  @override
-  void didChangeDependencies() {
-    source = context.ref.read(bookSourceCreator);
-    super.didChangeDependencies();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +25,10 @@ class _BookSourceInformationState extends State<BookSourceInformation> {
           ),
         ],
         centerTitle: true,
-        title: Text(source.id != null ? '编辑书源' : '新建书源'),
+        title: EmitterWatcher<Source>(
+          builder: (context, source) => const Text('新建书源'),
+          emitter: sourceEmitter(null),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -123,19 +109,13 @@ class _BookSourceInformationState extends State<BookSourceInformation> {
               ],
             ),
           ),
-          Watcher((context, ref, _) {
-            if (source.id != null) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('删除', style: TextStyle(color: Colors.red)),
-                ),
-              );
-            } else {
-              return const SizedBox();
-            }
-          })
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {},
+              child: const Text('删除', style: TextStyle(color: Colors.red)),
+            ),
+          )
         ],
       ),
     );

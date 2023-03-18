@@ -1,7 +1,7 @@
-import 'package:creator/creator.dart';
+import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/model/rule.dart';
-import 'package:source_parser/state/source.dart';
+import 'package:source_parser/creator/source.dart';
+import 'package:source_parser/model/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
@@ -11,89 +11,45 @@ class BookSourceContentConfiguration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('正文配置')),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          Card(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            elevation: 0,
-            child: Column(
-              children: [
-                Watcher(
-                  (context, ref, _) => RuleTile(
+      body: EmitterWatcher<Source>(
+        builder: (context, source) => ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
                     title: '正文规则',
-                    value: ref.watch(contentRuleCreator)?.content,
-                    onChange: (value) => ref.update<ContentRule?>(
-                      contentRuleCreator,
-                      (rule) => rule?.copyWith(content: value),
-                    ),
+                    value: source.contentContent,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
-                    bordered: false,
+                  RuleTile(
                     title: '下一页URL规则',
-                    value: ref.watch(contentRuleCreator)?.pagination,
-                    onChange: (value) => ref.update<ContentRule?>(
-                      contentRuleCreator,
-                      (rule) => rule?.copyWith(pagination: value),
-                    ),
+                    value: source.contentPagination,
+                    onChange: (value) {},
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Card(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            elevation: 0,
-            child: Column(
-              children: [
-                Watcher(
-                  (context, ref, _) => RuleTile(
-                    title: '网页脚本',
-                    value: ref.watch(contentRuleCreator)?.script,
-                    onChange: (value) => ref.update<ContentRule?>(
-                      contentRuleCreator,
-                      (rule) => rule?.copyWith(script: value),
-                    ),
-                  ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
-                    title: '资源正则',
-                    value: ref.watch(contentRuleCreator)?.source,
-                    onChange: (value) => ref.update<ContentRule?>(
-                      contentRuleCreator,
-                      (rule) => rule?.copyWith(source: value),
-                    ),
-                  ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+            const SizedBox(height: 16),
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
                     title: '替换规则',
-                    value: ref.watch(contentRuleCreator)?.replace,
-                    onChange: (value) => ref.update<ContentRule?>(
-                      contentRuleCreator,
-                      (rule) => rule?.copyWith(replace: value),
-                    ),
+                    value: source.contentReplace,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
-                    bordered: false,
-                    title: '图片样式',
-                    value: ref.watch(contentRuleCreator)?.imageStyle,
-                    onChange: (value) => ref.update<ContentRule?>(
-                      contentRuleCreator,
-                      (rule) => rule?.copyWith(imageStyle: value),
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+        emitter: sourceEmitter(null),
       ),
     );
   }

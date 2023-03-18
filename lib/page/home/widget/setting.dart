@@ -58,15 +58,15 @@ class SettingView extends StatelessWidget {
                 route: '/setting/about',
                 title: '关于元夕',
               ),
-              CreatorWatcher<bool>(
-                builder: (context, debugMode) => debugMode
+              EmitterWatcher<Setting>(
+                builder: (context, setting) => setting.debugMode
                     ? const SettingTile(
                         icon: Icons.developer_mode_outlined,
                         route: '/setting/developer',
                         title: '开发者选项',
                       )
                     : const SizedBox(),
-                creator: debugModeCreator,
+                emitter: settingEmitter,
               )
             ],
           ),
@@ -96,6 +96,10 @@ class SettingView extends StatelessWidget {
     final ref = context.ref;
     var setting = await ref.read(settingEmitter);
     setting.colorSeed = color.value;
-    ref.emit(settingEmitter, setting);
+    ref.emit(settingEmitter, setting.clone);
+    final isar = await ref.read(isarEmitter);
+    await isar.writeTxn(() async {
+      isar.settings.put(setting);
+    });
   }
 }

@@ -1,8 +1,6 @@
 import 'package:cached_network/cached_network.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/state/global.dart';
-import 'package:sqlite_viewer/sqlite_viewer.dart';
 
 class Developer extends StatelessWidget {
   const Developer({Key? key}) : super(key: key);
@@ -17,7 +15,7 @@ class Developer extends StatelessWidget {
           children: [
             ListTile(
               title: const Text('查看数据库'),
-              onTap: () => showSqliteViewer(context, ref),
+              onTap: () {},
             ),
             ListTile(
               title: const Text('清空数据库'),
@@ -50,27 +48,11 @@ class Developer extends StatelessWidget {
             child: const Text('取消'),
           ),
           TextButton(
-            onPressed: (() => handleConfirm(context, ref)),
+            onPressed: () {},
             child: const Text('清空'),
           ),
         ],
       ),
-    );
-  }
-
-  void handleConfirm(BuildContext context, Ref ref) async {
-    var navigator = Navigator.of(context);
-    var database = ref.read(databaseEmitter.asyncData).data;
-    await database?.bookSourceDao.emptyBookSources();
-    await database?.ruleDao.emptyRules();
-    navigator.pop();
-  }
-
-  void showSqliteViewer(BuildContext context, Ref ref) {
-    final file = ref.read(databaseFileEmitter.asyncData).data;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => DatabaseList(dbPath: file)),
     );
   }
 

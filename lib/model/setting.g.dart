@@ -26,6 +26,11 @@ const SettingSchema = CollectionSchema(
       id: 1,
       name: r'dark_mode',
       type: IsarType.bool,
+    ),
+    r'debug_mode': PropertySchema(
+      id: 2,
+      name: r'debug_mode',
+      type: IsarType.bool,
     )
   },
   estimateSize: _settingEstimateSize,
@@ -59,6 +64,7 @@ void _settingSerialize(
 ) {
   writer.writeLong(offsets[0], object.colorSeed);
   writer.writeBool(offsets[1], object.darkMode);
+  writer.writeBool(offsets[2], object.debugMode);
 }
 
 Setting _settingDeserialize(
@@ -70,6 +76,7 @@ Setting _settingDeserialize(
   final object = Setting();
   object.colorSeed = reader.readLong(offsets[0]);
   object.darkMode = reader.readBool(offsets[1]);
+  object.debugMode = reader.readBool(offsets[2]);
   object.id = id;
   return object;
 }
@@ -84,6 +91,8 @@ P _settingDeserializeProp<P>(
     case 0:
       return (reader.readLong(offset)) as P;
     case 1:
+      return (reader.readBool(offset)) as P;
+    case 2:
       return (reader.readBool(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -242,6 +251,16 @@ extension SettingQueryFilter
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> debugModeEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'debug_mode',
+        value: value,
+      ));
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -325,6 +344,18 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
       return query.addSortBy(r'dark_mode', Sort.desc);
     });
   }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByDebugMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'debug_mode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByDebugModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'debug_mode', Sort.desc);
+    });
+  }
 }
 
 extension SettingQuerySortThenBy
@@ -350,6 +381,18 @@ extension SettingQuerySortThenBy
   QueryBuilder<Setting, Setting, QAfterSortBy> thenByDarkModeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dark_mode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByDebugMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'debug_mode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByDebugModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'debug_mode', Sort.desc);
     });
   }
 
@@ -379,6 +422,12 @@ extension SettingQueryWhereDistinct
       return query.addDistinctBy(r'dark_mode');
     });
   }
+
+  QueryBuilder<Setting, Setting, QDistinct> distinctByDebugMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'debug_mode');
+    });
+  }
 }
 
 extension SettingQueryProperty
@@ -398,6 +447,12 @@ extension SettingQueryProperty
   QueryBuilder<Setting, bool, QQueryOperations> darkModeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'dark_mode');
+    });
+  }
+
+  QueryBuilder<Setting, bool, QQueryOperations> debugModeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'debug_mode');
     });
   }
 }

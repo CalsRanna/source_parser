@@ -1,8 +1,7 @@
-import 'package:creator/creator.dart';
+import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/model/book_source.dart';
-import 'package:source_parser/model/rule.dart';
-import 'package:source_parser/state/source.dart';
+import 'package:source_parser/creator/source.dart';
+import 'package:source_parser/model/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
@@ -12,129 +11,90 @@ class BookSourceExploreConfiguration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('发现配置')),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          Card(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            elevation: 0,
-            child: Column(
-              children: [
-                Watcher(
-                  (context, ref, _) => RuleTile(
+      body: EmitterWatcher<Source>(
+        builder: (context, source) => ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
                     bordered: false,
                     title: 'URL规则',
-                    value: ref.watch(bookSourceCreator).exploreUrl,
-                    onChange: (value) => ref.update<BookSource?>(
-                      bookSourceCreator,
-                      (source) => source?.copyWith(exploreUrl: value),
-                    ),
+                    value: source.exploreUrl,
+                    onChange: (value) {},
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Card(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            elevation: 0,
-            child: Column(
-              children: [
-                Watcher(
-                  (context, ref, _) => RuleTile(
+            const SizedBox(height: 16),
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
+                    bordered: false,
                     title: '书籍列表规则',
-                    value: ref.watch(exploreRuleCreator)?.books,
-                    onChange: (value) => ref.update<ExploreRule?>(
-                      exploreRuleCreator,
-                      (rule) => rule?.copyWith(books: value),
-                    ),
+                    value: source.exploreBooks,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '书名规则',
-                    value: ref.watch(exploreRuleCreator)?.name,
-                    onChange: (value) => ref.update<ExploreRule?>(
-                      exploreRuleCreator,
-                      (rule) => rule?.copyWith(name: value),
-                    ),
+                    value: source.exploreName,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '作者规则',
-                    value: ref.watch(exploreRuleCreator)?.author,
-                    onChange: (value) => ref.update<ExploreRule?>(
-                      exploreRuleCreator,
-                      (rule) => rule?.copyWith(author: value),
-                    ),
+                    value: source.exploreAuthor,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '分类规则',
-                    value: ref.watch(exploreRuleCreator)?.category,
-                    onChange: (value) => ref.update<ExploreRule?>(
-                      exploreRuleCreator,
-                      (rule) => rule?.copyWith(category: value),
-                    ),
+                    value: source.exploreCategory,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '字数规则',
-                    value: ref.watch(exploreRuleCreator)?.words,
-                    onChange: (value) => ref.update<ExploreRule?>(
-                      exploreRuleCreator,
-                      (rule) => rule?.copyWith(words: value),
-                    ),
+                    value: source.exploreWordCount,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '最新章节规则',
-                    value: ref.watch(exploreRuleCreator)?.latestChapter,
-                    onChange: (value) => ref.update<ExploreRule?>(
-                      exploreRuleCreator,
-                      (rule) => rule?.copyWith(latestChapter: value),
-                    ),
+                    value: source.exploreLatestChapter,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '简介规则',
-                    value: ref.watch(exploreRuleCreator)?.introduction,
-                    onChange: (value) => ref.update<ExploreRule?>(
-                      exploreRuleCreator,
-                      (rule) => rule?.copyWith(introduction: value),
-                    ),
+                    value: source.exploreIntroduction,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '封面规则',
-                    value: ref.watch(exploreRuleCreator)?.cover,
-                    onChange: (value) => ref.update<ExploreRule?>(
-                      exploreRuleCreator,
-                      (rule) => rule?.copyWith(cover: value),
-                    ),
+                    value: source.exploreCover,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
                     bordered: false,
                     title: '详情URL规则',
-                    value: ref.watch(exploreRuleCreator)?.url,
-                    onChange: (value) => ref.update<ExploreRule?>(
-                      exploreRuleCreator,
-                      (rule) => rule?.copyWith(url: value),
-                    ),
+                    value: source.exploreInformationUrl,
+                    onChange: (value) {},
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+        emitter: sourceEmitter(null),
       ),
     );
   }

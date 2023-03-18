@@ -390,7 +390,7 @@ int _sourceEstimateSize(
     }
   }
   {
-    final value = object.exploreintroduction;
+    final value = object.exploreIntroduction;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -603,7 +603,7 @@ void _sourceSerialize(
   writer.writeString(offsets[15], object.exploreCover);
   writer.writeBool(offsets[16], object.exploreEnabled);
   writer.writeString(offsets[17], object.exploreInformationUrl);
-  writer.writeString(offsets[18], object.exploreintroduction);
+  writer.writeString(offsets[18], object.exploreIntroduction);
   writer.writeString(offsets[19], object.exploreLatestChapter);
   writer.writeString(offsets[20], object.exploreName);
   writer.writeString(offsets[21], object.exploreUrl);
@@ -664,7 +664,7 @@ Source _sourceDeserialize(
   object.exploreCover = reader.readStringOrNull(offsets[15]);
   object.exploreEnabled = reader.readBool(offsets[16]);
   object.exploreInformationUrl = reader.readStringOrNull(offsets[17]);
-  object.exploreintroduction = reader.readStringOrNull(offsets[18]);
+  object.exploreIntroduction = reader.readStringOrNull(offsets[18]);
   object.exploreLatestChapter = reader.readStringOrNull(offsets[19]);
   object.exploreName = reader.readStringOrNull(offsets[20]);
   object.exploreUrl = reader.readStringOrNull(offsets[21]);
@@ -3292,7 +3292,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreintroductionIsNull() {
+      exploreIntroductionIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'explore_introduction',
@@ -3301,7 +3301,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreintroductionIsNotNull() {
+      exploreIntroductionIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'explore_introduction',
@@ -3310,7 +3310,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreintroductionEqualTo(
+      exploreIntroductionEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -3324,7 +3324,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreintroductionGreaterThan(
+      exploreIntroductionGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -3340,7 +3340,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreintroductionLessThan(
+      exploreIntroductionLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -3356,7 +3356,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreintroductionBetween(
+      exploreIntroductionBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -3376,7 +3376,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreintroductionStartsWith(
+      exploreIntroductionStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -3390,7 +3390,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreintroductionEndsWith(
+      exploreIntroductionEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -3404,7 +3404,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreintroductionContains(String value, {bool caseSensitive = true}) {
+      exploreIntroductionContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'explore_introduction',
@@ -3415,7 +3415,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreintroductionMatches(String pattern, {bool caseSensitive = true}) {
+      exploreIntroductionMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'explore_introduction',
@@ -3426,7 +3426,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreintroductionIsEmpty() {
+      exploreIntroductionIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'explore_introduction',
@@ -3436,7 +3436,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreintroductionIsNotEmpty() {
+      exploreIntroductionIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'explore_introduction',
@@ -8465,13 +8465,13 @@ extension SourceQuerySortBy on QueryBuilder<Source, Source, QSortBy> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterSortBy> sortByExploreintroduction() {
+  QueryBuilder<Source, Source, QAfterSortBy> sortByExploreIntroduction() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'explore_introduction', Sort.asc);
     });
   }
 
-  QueryBuilder<Source, Source, QAfterSortBy> sortByExploreintroductionDesc() {
+  QueryBuilder<Source, Source, QAfterSortBy> sortByExploreIntroductionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'explore_introduction', Sort.desc);
     });
@@ -9094,13 +9094,13 @@ extension SourceQuerySortThenBy on QueryBuilder<Source, Source, QSortThenBy> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterSortBy> thenByExploreintroduction() {
+  QueryBuilder<Source, Source, QAfterSortBy> thenByExploreIntroduction() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'explore_introduction', Sort.asc);
     });
   }
 
-  QueryBuilder<Source, Source, QAfterSortBy> thenByExploreintroductionDesc() {
+  QueryBuilder<Source, Source, QAfterSortBy> thenByExploreIntroductionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'explore_introduction', Sort.desc);
     });
@@ -9657,7 +9657,7 @@ extension SourceQueryWhereDistinct on QueryBuilder<Source, Source, QDistinct> {
     });
   }
 
-  QueryBuilder<Source, Source, QDistinct> distinctByExploreintroduction(
+  QueryBuilder<Source, Source, QDistinct> distinctByExploreIntroduction(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'explore_introduction',
@@ -10031,7 +10031,7 @@ extension SourceQueryProperty on QueryBuilder<Source, Source, QQueryProperty> {
   }
 
   QueryBuilder<Source, String?, QQueryOperations>
-      exploreintroductionProperty() {
+      exploreIntroductionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'explore_introduction');
     });

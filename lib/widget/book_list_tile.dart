@@ -1,8 +1,6 @@
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/model/book.dart';
-import 'package:source_parser/state/book.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class BookListTile extends StatelessWidget {
@@ -42,7 +40,6 @@ class BookListTile extends StatelessWidget {
   }
 
   void _handleTap(BuildContext context) {
-    context.ref.set(bookCreator, book);
     context.push('/book-information');
   }
 

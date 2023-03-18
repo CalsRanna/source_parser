@@ -1,11 +1,6 @@
-import 'dart:convert';
-
-import 'package:creator/creator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:source_parser/model/debug.dart';
-import 'package:source_parser/state/source.dart';
+import 'package:source_parser/model/source.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/message.dart';
 
@@ -19,7 +14,7 @@ class BookSourceDebug extends StatefulWidget {
 class _BookSourceDebugState extends State<BookSourceDebug> {
   String defaultCredential = '都市';
   bool loading = false;
-  DebugResult? result;
+  dynamic result;
 
   @override
   void didChangeDependencies() {
@@ -114,21 +109,9 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
     setState(() {
       loading = true;
     });
-    var source = context.ref.read(bookSourceCreator);
-    var searchRule = context.ref.read(searchRuleCreator);
-    var informationRule = context.ref.read(informationRuleCreator);
-    var catalogueRule = context.ref.read(catalogueRuleCreator);
-    var contentRule = context.ref.read(contentRuleCreator);
 
     try {
-      var debug = await Parser().debug(
-        defaultCredential,
-        source,
-        searchRule,
-        informationRule,
-        catalogueRule,
-        contentRule,
-      );
+      var debug = await Parser().debug(defaultCredential, Source());
       setState(() {
         result = debug;
         loading = false;
@@ -190,23 +173,14 @@ class _DebugResultTile extends StatelessWidget {
 
   void showRawData(BuildContext context) {
     if (response != null) {
-      showCupertinoModalBottomSheet(
+      showModalBottomSheet(
         context: context,
         builder: (context) => _RawDataView(rawData: response!),
-        expand: true,
       );
     }
   }
 
-  void showJsonData(BuildContext context) {
-    if (results != null) {
-      showCupertinoModalBottomSheet(
-        context: context,
-        builder: (context) => _JsonDataView(list: results!),
-        expand: true,
-      );
-    }
-  }
+  void showJsonData(BuildContext context) {}
 }
 
 class _RawDataView extends StatelessWidget {
@@ -234,49 +208,6 @@ class _RawDataView extends StatelessWidget {
               ],
             ),
             Expanded(child: SingleChildScrollView(child: Text(rawData))),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void handleTap(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-}
-
-class _JsonDataView extends StatelessWidget {
-  const _JsonDataView({Key? key, required this.list}) : super(key: key);
-
-  final List<Map<String, dynamic>> list;
-
-  @override
-  Widget build(BuildContext context) {
-    var json = const JsonCodec().encode(list);
-    json = json
-        .replaceAll(',"', ',\n    "')
-        .replaceAll('{', '\n  {\n    ')
-        .replaceAll('}', '\n  }')
-        .replaceAll(']', '\n]');
-
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  '解析数据',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                IconButton(
-                    onPressed: () => handleTap(context),
-                    icon: const Icon(Icons.close))
-              ],
-            ),
-            Expanded(child: SingleChildScrollView(child: Text(json))),
           ],
         ),
       ),

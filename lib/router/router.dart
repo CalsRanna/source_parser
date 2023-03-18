@@ -13,7 +13,7 @@ import 'package:source_parser/page/book_source/book_source.search_configuration.
 import 'package:source_parser/page/developer/developer.dart';
 import 'package:source_parser/page/home/home.dart';
 import 'package:source_parser/page/search/search.dart';
-import 'package:source_parser/page/setting/about.dart';
+import 'package:source_parser/page/about.dart';
 import 'package:source_parser/page/setting/reader_theme.dart';
 
 final router = GoRouter(routes: [
@@ -70,7 +70,8 @@ final router = GoRouter(routes: [
     path: '/book-source/search-configuration',
   ),
   GoRoute(builder: (context, state) => const Search(), path: '/search'),
-  GoRoute(builder: (context, state) => const About(), path: '/setting/about'),
+  GoRoute(
+      builder: (context, state) => const AboutPage(), path: '/setting/about'),
   GoRoute(
     builder: (context, state) => const Developer(),
     path: '/setting/developer',

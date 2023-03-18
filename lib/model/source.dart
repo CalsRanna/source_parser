@@ -95,7 +95,7 @@ class Source {
   @Name('explore_latest_chapter')
   String? exploreLatestChapter;
   @Name('explore_introduction')
-  String? exploreintroduction;
+  String? exploreIntroduction;
   @Name('explore_cover')
   String? exploreCover;
   @Name('explore_information_url')

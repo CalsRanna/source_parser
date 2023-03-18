@@ -1,7 +1,7 @@
-import 'package:creator/creator.dart';
+import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/model/rule.dart';
-import 'package:source_parser/state/source.dart';
+import 'package:source_parser/creator/source.dart';
+import 'package:source_parser/model/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
@@ -11,79 +11,51 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('目录配置')),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          Card(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            elevation: 0,
-            child: Column(
-              children: [
-                Watcher(
-                  (contex, ref, _) => RuleTile(
+      body: EmitterWatcher<Source>(
+        builder: (context, source) => ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
                     title: '目录列表规则',
-                    value: ref.watch(catalogueRuleCreator)?.chapters,
-                    onChange: (value) => ref.update<CatalogueRule?>(
-                      catalogueRuleCreator,
-                      (rule) => rule?.copyWith(chapters: value),
-                    ),
+                    value: source.catalogueChapters,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (contex, ref, _) => RuleTile(
+                  RuleTile(
                     title: '章节名称规则',
-                    value: ref.watch(catalogueRuleCreator)?.name,
-                    onChange: (value) => ref.update<CatalogueRule?>(
-                      catalogueRuleCreator,
-                      (rule) => rule?.copyWith(name: value),
-                    ),
+                    value: source.catalogueName,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (contex, ref, _) => RuleTile(
+                  RuleTile(
                     title: '章节URL规则',
-                    value: ref.watch(catalogueRuleCreator)?.url,
-                    onChange: (value) => ref.update<CatalogueRule?>(
-                      catalogueRuleCreator,
-                      (rule) => rule?.copyWith(url: value),
-                    ),
+                    value: source.catalogueUrl,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (contex, ref, _) => RuleTile(
+                  RuleTile(
                     title: 'VIP标识',
-                    value: ref.watch(catalogueRuleCreator)?.vip,
-                    onChange: (value) => ref.update<CatalogueRule?>(
-                      catalogueRuleCreator,
-                      (rule) => rule?.copyWith(vip: value),
-                    ),
+                    value: source.catalogueVip,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (contex, ref, _) => RuleTile(
+                  RuleTile(
                     title: '更新时间规则',
-                    value: ref.watch(catalogueRuleCreator)?.updatedAt,
-                    onChange: (value) => ref.update<CatalogueRule?>(
-                      catalogueRuleCreator,
-                      (rule) => rule?.copyWith(updatedAt: value),
-                    ),
+                    value: source.catalogueUpdatedAt,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (contex, ref, _) => RuleTile(
-                    bordered: false,
-                    title: '目录下一页规则',
-                    value: ref.watch(catalogueRuleCreator)?.pagination,
-                    onChange: (value) => ref.update<CatalogueRule?>(
-                      catalogueRuleCreator,
-                      (rule) => rule?.copyWith(pagination: value),
-                    ),
+                  RuleTile(
+                    title: '下一页URL规则',
+                    value: source.cataloguePagination,
+                    onChange: (value) {},
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+        emitter: sourceEmitter(null),
       ),
     );
   }

@@ -1,14 +1,11 @@
 import 'package:creator/creator.dart';
 import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/model/setting.dart';
 import 'package:source_parser/router/router.dart';
 
 void main() async {
-  await Hive.initFlutter();
-  await Hive.openBox('setting');
   runApp(CreatorGraph(child: const SourceParser()));
 }
 
@@ -26,6 +23,9 @@ class SourceParser extends StatelessWidget {
           useMaterial3: true,
         ),
         title: '元夕',
+      ),
+      indicator: const Material(
+        child: CircularProgressIndicator.adaptive(),
       ),
     );
   }

@@ -1,8 +1,7 @@
-import 'package:creator/creator.dart';
+import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/model/book_source.dart';
-import 'package:source_parser/model/rule.dart';
-import 'package:source_parser/state/source.dart';
+import 'package:source_parser/creator/source.dart';
+import 'package:source_parser/model/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
@@ -16,139 +15,95 @@ class BookSourceSearchConfiguration extends StatelessWidget {
         actions: const [DebugButton()],
         title: const Text('搜索配置'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          Card(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            elevation: 0,
-            child: Column(
-              children: [
-                Watcher(
-                  (context, ref, _) => RuleTile(
+      body: EmitterWatcher<Source>(
+        builder: (context, source) => ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
                     title: '搜索URL',
-                    value: ref.watch(bookSourceCreator).searchUrl,
-                    onChange: (value) => ref.update<BookSource?>(
-                      bookSourceCreator,
-                      (source) => source?.copyWith(searchUrl: value),
-                    ),
+                    value: source.searchUrl,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
                     bordered: false,
                     title: '校验关键字',
-                    value: ref.watch(searchRuleCreator)?.checkKeyWord,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(checkKeyWord: value),
-                    ),
+                    value: source.searchCheckCredential,
+                    onChange: (value) {},
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Card(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            elevation: 0,
-            child: Column(
-              children: [
-                Watcher(
-                  (context, ref, _) => RuleTile(
+            const SizedBox(height: 16),
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
+                    bordered: false,
                     title: '书籍列表规则',
-                    value: ref.watch(searchRuleCreator)?.books,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(books: value),
-                    ),
+                    value: source.searchBooks,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '书名规则',
-                    value: ref.watch(searchRuleCreator)?.name,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(name: value),
-                    ),
+                    value: source.searchName,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '作者规则',
-                    value: ref.watch(searchRuleCreator)?.author,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(author: value),
-                    ),
+                    value: source.searchAuthor,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '分类规则',
-                    value: ref.watch(searchRuleCreator)?.category,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(category: value),
-                    ),
+                    value: source.searchCategory,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '字数规则',
-                    value: ref.watch(searchRuleCreator)?.words,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(words: value),
-                    ),
+                    value: source.searchWordCount,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '简介规则',
-                    value: ref.watch(searchRuleCreator)?.introduction,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(introduction: value),
-                    ),
+                    value: source.searchIntroduction,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '封面规则',
-                    value: ref.watch(searchRuleCreator)?.cover,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(cover: value),
-                    ),
+                    value: source.searchCover,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
+                    bordered: false,
                     title: '详情URL规则',
-                    value: ref.watch(searchRuleCreator)?.url,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(url: value),
-                    ),
+                    value: source.searchInformationUrl,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
                     bordered: false,
                     title: '最新章节规则',
-                    value: ref.watch(searchRuleCreator)?.latestChapter,
-                    onChange: (value) => ref.update<SearchRule?>(
-                      searchRuleCreator,
-                      (rule) => rule?.copyWith(latestChapter: value),
-                    ),
+                    value: source.searchLatestChapter,
+                    onChange: (value) {},
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+        emitter: sourceEmitter(null),
       ),
     );
   }

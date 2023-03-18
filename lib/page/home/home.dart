@@ -3,7 +3,6 @@ import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:isar/isar.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/model/setting.dart';
 import 'package:source_parser/page/home/widget/explore.dart';
@@ -90,12 +89,12 @@ class _HomePageState extends State<HomePage> {
 
   void triggerDarkMode(BuildContext context) async {
     final ref = context.ref;
+    final setting = await ref.read(settingEmitter);
+    setting.darkMode = !setting.darkMode;
+    ref.emit(settingEmitter, setting.clone);
     final isar = await ref.read(isarEmitter);
     await isar.writeTxn(() async {
-      var setting = await isar.settings.where().findFirst() ?? Setting();
-      setting.darkMode = !setting.darkMode;
       isar.settings.put(setting);
-      ref.emit(settingEmitter, setting);
     });
   }
 

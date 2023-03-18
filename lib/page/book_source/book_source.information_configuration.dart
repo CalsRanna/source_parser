@@ -1,7 +1,7 @@
-import 'package:creator/creator.dart';
+import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/model/rule.dart';
-import 'package:source_parser/state/source.dart';
+import 'package:source_parser/creator/source.dart';
+import 'package:source_parser/model/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
@@ -11,109 +11,66 @@ class BookSourceInformationConfiguration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('详情配置')),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          Card(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            elevation: 0,
-            child: Column(
-              children: [
-                Watcher(
-                  (context, ref, _) => RuleTile(
+      body: EmitterWatcher<Source>(
+        builder: (context, source) => ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
                     title: '预处理规则',
-                    value: ref.watch(informationRuleCreator)?.preprocess,
-                    onChange: (value) => ref.update<InformationRule?>(
-                      informationRuleCreator,
-                      (rule) => rule?.copyWith(preprocess: value),
-                    ),
+                    value: source.informationPreprocess,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
                     title: '书名规则',
-                    value: ref.watch(informationRuleCreator)?.name,
-                    onChange: (value) => ref.update<InformationRule?>(
-                      informationRuleCreator,
-                      (rule) => rule?.copyWith(name: value),
-                    ),
+                    value: source.informationName,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
                     title: '作者规则',
-                    value: ref.watch(informationRuleCreator)?.author,
-                    onChange: (value) => ref.update<InformationRule?>(
-                      informationRuleCreator,
-                      (rule) => rule?.copyWith(author: value),
-                    ),
+                    value: source.informationAuthor,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
                     title: '分类规则',
-                    value: ref.watch(informationRuleCreator)?.category,
-                    onChange: (value) => ref.update<InformationRule?>(
-                      informationRuleCreator,
-                      (rule) => rule?.copyWith(category: value),
-                    ),
+                    value: source.informationCategory,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
                     title: '字数规则',
-                    value: ref.watch(informationRuleCreator)?.words,
-                    onChange: (value) => ref.update<InformationRule?>(
-                      informationRuleCreator,
-                      (rule) => rule?.copyWith(words: value),
-                    ),
+                    value: source.informationWordCount,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
                     title: '最新章节规则',
-                    value: ref.watch(informationRuleCreator)?.latestChapter,
-                    onChange: (value) => ref.update<InformationRule?>(
-                      informationRuleCreator,
-                      (rule) => rule?.copyWith(latestChapter: value),
-                    ),
+                    value: source.informationLatestChapter,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
                     title: '简介规则',
-                    value: ref.watch(informationRuleCreator)?.introduction,
-                    onChange: (value) => ref.update<InformationRule?>(
-                      informationRuleCreator,
-                      (rule) => rule?.copyWith(introduction: value),
-                    ),
+                    value: source.informationIntroduction,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
+                  RuleTile(
                     title: '封面规则',
-                    value: ref.watch(informationRuleCreator)?.cover,
-                    onChange: (value) => ref.update<InformationRule?>(
-                      informationRuleCreator,
-                      (rule) => rule?.copyWith(cover: value),
-                    ),
+                    value: source.informationCover,
+                    onChange: (value) {},
                   ),
-                ),
-                Watcher(
-                  (context, ref, _) => RuleTile(
-                    bordered: false,
+                  RuleTile(
                     title: '目录URL规则',
-                    value: ref.watch(informationRuleCreator)?.catalogueUrl,
-                    onChange: (value) => ref.update<InformationRule?>(
-                      informationRuleCreator,
-                      (rule) => rule?.copyWith(catalogueUrl: value),
-                    ),
+                    value: source.informationCatalogueUrl,
+                    onChange: (value) {},
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+        emitter: sourceEmitter(null),
       ),
     );
   }
