@@ -3,12 +3,12 @@ import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:source_parser/creator/global.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/model/setting.dart';
 import 'package:source_parser/page/home/widget/explore.dart';
 import 'package:source_parser/page/home/widget/setting.dart';
 import 'package:source_parser/page/home/widget/shelf.dart';
-import 'package:source_parser/state/global.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

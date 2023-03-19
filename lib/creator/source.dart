@@ -1,7 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:isar/isar.dart';
+import 'package:source_parser/creator/global.dart';
 import 'package:source_parser/model/source.dart';
-import 'package:source_parser/state/global.dart';
 
 final sourceEmitter = Emitter.arg1<Source, int?>((ref, id, emit) async {
   final isar = await ref.watch(isarEmitter);
