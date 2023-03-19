@@ -14,11 +14,16 @@ class Parser {
     );
     final parser = HtmlParser();
     final node = parser.query(html);
-    final nodes = parser.parseNodes(node,
-        '#sanRoot>main>div.container.right-container_2EFJr>div>div:nth-child(2)>div');
+    final nodes = parser.parseNodes(
+      node,
+      '//div[@class="container-bg_lQ801"]/div/div[@class="category-wrap_iQLoo"]',
+    );
     return nodes
         .map((node) => History()
-          ..name = parser.parse(node, 'div.content_1YWBm>a>div@text'))
+          ..name = parser.parse(
+            node,
+            '/div[@class="content_1YWBm"]/a/div@text',
+          ))
         .toList();
   }
 
