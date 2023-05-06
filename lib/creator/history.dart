@@ -1,5 +1,5 @@
 import 'package:creator/creator.dart';
-import 'package:source_parser/model/history.dart';
+import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/util/parser.dart';
 
 final hotHistoriesEmitter = Emitter<List<History>>((ref, emit) async {

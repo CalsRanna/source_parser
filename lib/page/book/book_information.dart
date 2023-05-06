@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/history.dart';
-import 'package:source_parser/model/book.dart';
-import 'package:source_parser/model/history.dart';
+import 'package:source_parser/schema/book.dart';
+import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class BookInformation extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/model/source.dart';
+import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 

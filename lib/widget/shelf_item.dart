@@ -1,6 +1,6 @@
 import 'package:book_reader/book_reader.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/model/book.dart';
+import 'package:source_parser/schema/book.dart';
 
 class ShelfItem extends StatelessWidget {
   const ShelfItem({Key? key, required this.book, this.onTap}) : super(key: key);

@@ -54,7 +54,8 @@ final router = GoRouter(routes: [
     path: '/book-source/explore-configuration',
   ),
   GoRoute(
-    builder: (context, state) => BookSourceImport(by: state.queryParams['by']!),
+    builder: (context, state) =>
+        BookSourceImport(by: state.queryParameters['by']!),
     path: '/book-source/import',
   ),
   GoRoute(

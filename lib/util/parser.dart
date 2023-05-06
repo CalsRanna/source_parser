@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:cached_network/cached_network.dart';
 import 'package:html_parser_plus/html_parser_plus.dart';
 import 'package:logger/logger.dart';
-import 'package:source_parser/model/history.dart';
-import 'package:source_parser/model/source.dart';
+import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/source.dart';
 
 class Parser {
   static Future<List<History>> topSearch() async {

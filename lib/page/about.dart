@@ -1,7 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/model/setting.dart';
+import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/widget/message.dart';
 
 class AboutPage extends StatefulWidget {

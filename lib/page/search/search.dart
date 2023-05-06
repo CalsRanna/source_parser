@@ -2,7 +2,7 @@ import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/creator/history.dart';
-import 'package:source_parser/model/history.dart';
+import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/widget/message.dart';
 
 class Search extends StatelessWidget {

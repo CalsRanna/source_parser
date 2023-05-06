@@ -2,9 +2,9 @@ import 'package:creator/creator.dart';
 import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:source_parser/creator/global.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/model/source.dart';
+import 'package:source_parser/main.dart';
+import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/message.dart';
 import 'package:source_parser/widget/rule_tile.dart';
@@ -124,7 +124,6 @@ class BookSourceInformation extends StatelessWidget {
   void storeBookSource(BuildContext context) async {
     final ref = context.ref;
     final messager = Message.of(context);
-    final isar = await ref.read(isarEmitter);
     final source = await ref.read(sourceEmitter(null));
     isar.writeTxn(() async {
       await isar.sources.put(source);

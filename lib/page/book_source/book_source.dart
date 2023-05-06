@@ -2,7 +2,7 @@ import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/model/source.dart';
+import 'package:source_parser/schema/source.dart';
 
 class BookSourceList extends StatelessWidget {
   const BookSourceList({Key? key}) : super(key: key);

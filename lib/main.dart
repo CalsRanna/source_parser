@@ -1,11 +1,26 @@
 import 'package:creator/creator.dart';
 import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
+import 'package:isar/isar.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/model/setting.dart';
+import 'package:source_parser/schema/book.dart';
+import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/setting.dart';
+import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/router/router.dart';
 
+late Isar isar;
+
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final directory = await getApplicationDocumentsDirectory();
+  isar = await Isar.open([
+    BookSchema,
+    HistorySchema,
+    SettingSchema,
+    SourceSchema,
+  ], directory: directory.path);
   runApp(CreatorGraph(child: const SourceParser()));
 }
 

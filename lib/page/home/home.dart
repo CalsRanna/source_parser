@@ -3,9 +3,9 @@ import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:source_parser/creator/global.dart';
 import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/model/setting.dart';
+import 'package:source_parser/main.dart';
+import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/page/home/widget/explore.dart';
 import 'package:source_parser/page/home/widget/setting.dart';
 import 'package:source_parser/page/home/widget/shelf.dart';
@@ -92,7 +92,6 @@ class _HomePageState extends State<HomePage> {
     final setting = await ref.read(settingEmitter);
     setting.darkMode = !setting.darkMode;
     ref.emit(settingEmitter, setting.clone);
-    final isar = await ref.read(isarEmitter);
     await isar.writeTxn(() async {
       isar.settings.put(setting);
     });
