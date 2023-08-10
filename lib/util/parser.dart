@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:cached_network/cached_network.dart';
 import 'package:html_parser_plus/html_parser_plus.dart';
-import 'package:logger/logger.dart';
+import 'package:source_parser/model/book.dart';
+import 'package:source_parser/model/chapter.dart';
+import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/source.dart';
 
@@ -174,113 +176,110 @@ class Parser {
   //   });
   // }
 
-  Future<dynamic> debug(String credential, Source source) async {
-    final logger = Logger();
-    final start = DateTime.now().millisecondsSinceEpoch;
-    logger.d('开始调试');
-    // final network = CachedNetwork();
+  Future<DebugResult> debug(String credential, Source source) async {
+    var result = DebugResult(
+      searchRaw: '',
+      searchBooks: [],
+      informationBook: null,
+      informationRaw: '',
+      catalogueRaw: '',
+      catalogueChapters: [],
+      contentRaw: '',
+      contentContent: '',
+    );
+    final network = CachedNetwork();
     // // 调试搜索解析规则
-    logger.d('开始调试搜索解析规则');
-    // final searchUrl = source.searchUrl
-    //         ?.replaceAll('{{credential}}', credential)
-    //         .replaceAll('{{page}}', '1') ??
-    '';
-    // var html = await network.request(
-    //   searchUrl,
-    //   duration: const Duration(hours: 6),
-    // );
-    // final parser = HtmlParser();
-    // final document = parser.query(html);
-    // final nodes = parser.parseNodes(document, source.searchBooks);
-
-    // var books = <Book>[];
-    // for (var i = 0; i < items.length; i++) {
-    //   final author = XPathParser.parse(items[i], searchRule?.author);
-    //   final cover = XPathParser.parse(items[i], searchRule?.cover);
-    //   final name = XPathParser.parse(items[i], searchRule?.name);
-    //   final url = XPathParser.parse(items[i], searchRule?.url);
-    //   books.add(Book(author: author, cover: cover, name: name, url: url));
-    // }
-    // result = result.copyWith(
-    //   searchResponse: response,
-    //   searchBooks: books,
-    // );
-    // 调试详情规则解析
-    logger.d('开始调试详情解析规则');
-    // if (books.isNotEmpty) {
-    //   final informationUrl = books.first.url ?? '';
-    //   response = await network.get(informationUrl);
-    //   document = HtmlXPath.html(response ?? '').root;
-    //   var name = XPathParser.parse(document, informationRule?.name);
-    //   var author = XPathParser.parse(document, informationRule?.author);
-    //   var cover = XPathParser.parse(document, informationRule?.cover);
-    //   var category = XPathParser.parse(document, informationRule?.category);
-    //   var catalogueUrl =
-    //       XPathParser.parse(document, informationRule?.catalogueUrl);
-    //   var introduction =
-    //       XPathParser.parse(document, informationRule?.introduction);
-    //   final book = Book(
-    //     name: name,
-    //     author: author,
-    //     category: category,
-    //     cover: cover,
-    //     catalogueUrl: catalogueUrl,
-    //     introduction: introduction,
-    //     url: books.first.url,
-    //   );
-    //   result = result.copyWith(
-    //     informationResponse: response,
-    //     informationBook: book,
-    //   );
-    // 调试目录解析规则
-    logger.d('开始调试目录解析规则');
-    // catalogueUrl = catalogueUrl ?? books.first.url ?? '';
-    // response = await network.get(catalogueUrl);
-    // document = HtmlXPath.html(response ?? '').root;
-    // items = document.queryXPath(catalogueRule?.chapters ?? '').nodes;
-    // var chapters = <Chapter>[];
-    // for (var node in items) {
-    //   final name = XPathParser.parse(node, catalogueRule?.name);
-    //   final url = XPathParser.parse(node, catalogueRule?.url);
-    //   chapters.add(Chapter(name: name, url: url));
-    // }
-    // result = result.copyWith(
-    //   catalogueResponse: response,
-    //   catalogueChapters: chapters,
-    // );
-    // 调试正文解析规则
-    logger.d('开始调试正文解析规则');
-    // final contentUrl = chapters.first.url ?? '';
-    // response = await network.get(contentUrl);
-    // document = HtmlXPath.html(response ?? '').root;
-    // var content = XPathParser.parse(document, contentRule?.content);
-    // final chapter = Chapter(
-    //   name: chapters.first.name,
-    //   content: content,
-    //   url: chapters.first.url,
-    // );
-    // result = result.copyWith(
-    //   contentResponse: response,
-    //   contentChapter: chapter,
-    // );
-    // }
-    final end = DateTime.now().millisecondsSinceEpoch;
-    logger.d('结束调试,耗时${end - start}毫秒');
-    return null;
+    final searchUrl = source.searchUrl
+        ?.replaceAll('{{credential}}', credential)
+        .replaceAll('{{page}}', '1');
+    var html = await network.request(
+      searchUrl ?? '',
+      charset: source.charset,
+      duration: const Duration(hours: 6),
+      // reacquire: true,
+    );
+    result.searchRaw = html;
+    final parser = HtmlParser();
+    var document = parser.query(html);
+    var items = parser.parseNodes(document, source.searchBooks);
+    var books = <Book>[];
+    for (var i = 0; i < items.length; i++) {
+      final author = parser.parse(items[i], source.searchAuthor);
+      final category = parser.parse(items[i], source.searchCategory);
+      final cover = parser.parse(items[i], source.searchCover);
+      final introduction = parser.parse(items[i], source.searchIntroduction);
+      final name = parser.parse(items[i], source.searchName);
+      var url = parser.parse(items[i], source.searchInformationUrl);
+      if (!url.startsWith('http')) {
+        url = '${source.url ?? ''}$url';
+      }
+      books.add(
+        Book(
+          author: author,
+          catalogueUrl: '',
+          category: category,
+          cover: cover,
+          introduction: introduction,
+          name: name,
+          url: url,
+        ),
+      );
+    }
+    result.searchBooks = books;
+    if (books.isNotEmpty) {
+      // 调试详情规则解析
+      var informationUrl = books.first.url;
+      html = await network.request(informationUrl);
+      result.informationRaw = html;
+      document = parser.query(html);
+      var name = parser.parse(document, source.informationName);
+      var author = parser.parse(document, source.informationAuthor);
+      var cover = parser.parse(document, source.informationCover);
+      var category = parser.parse(document, source.informationCategory);
+      var catalogueUrl = parser.parse(document, source.informationCatalogueUrl);
+      var introduction = parser.parse(document, source.informationIntroduction);
+      final book = Book(
+        name: name,
+        author: author,
+        category: category,
+        cover: cover,
+        catalogueUrl: catalogueUrl,
+        introduction: introduction,
+        url: books.first.url,
+      );
+      result.informationBook = book;
+      // 调试目录解析规则
+      if (catalogueUrl.isEmpty) {
+        catalogueUrl = informationUrl;
+      }
+      html = await network.request(catalogueUrl);
+      result.catalogueRaw = html;
+      document = parser.query(html);
+      items = parser.parseNodes(document, source.catalogueChapters);
+      var chapters = <Chapter>[];
+      for (var i = 0; i < items.length; i++) {
+        final name = parser.parse(items[i], source.catalogueName);
+        var url = parser.parse(items[i], source.catalogueUrl);
+        if (!url.startsWith('http')) {
+          url = '${source.url ?? ''}$url';
+        }
+        chapters.add(
+          Chapter(
+            name: name,
+            url: url,
+          ),
+        );
+      }
+      result.catalogueChapters = chapters;
+      // 调试正文解析规则
+      if (chapters.isNotEmpty) {
+        html = await network.request(chapters.first.url);
+        result.contentRaw = html;
+        document = parser.query(html);
+        var content = parser.parse(document, source.contentContent);
+        result.contentContent = content;
+      }
+    }
+    return result;
   }
 }
-
-// class XPathParser {
-//   static String? parse(XPathNode node, String? rule) {
-//     if (rule == null) {
-//       return null;
-//     }
-//     var attribute = rule.split('@').last;
-//     var matchedNode = node.queryXPath(rule.replaceAll('@$attribute', '')).node;
-//     if (attribute == 'text') {
-//       return matchedNode?.text;
-//     } else {
-//       return matchedNode?.attributes[attribute];
-//     }
-//   }
-// }

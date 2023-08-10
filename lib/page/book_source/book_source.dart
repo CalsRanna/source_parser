@@ -1,7 +1,10 @@
+import 'package:creator/creator.dart';
 import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:isar/isar.dart';
 import 'package:source_parser/creator/source.dart';
+import 'package:source_parser/main.dart';
 import 'package:source_parser/schema/source.dart';
 
 class BookSourceList extends StatelessWidget {
@@ -14,7 +17,7 @@ class BookSourceList extends StatelessWidget {
       body: EmitterWatcher<List<Source>>(
         builder: (context, sources) {
           if (sources.isNotEmpty) {
-            return ReorderableListView.builder(
+            return ListView.builder(
               itemCount: sources.length,
               itemBuilder: (context, index) {
                 return SourceTile(
@@ -23,7 +26,6 @@ class BookSourceList extends StatelessWidget {
                   onTap: (id) => handleTap(context, id),
                 );
               },
-              onReorder: handleReorder,
             );
           } else {
             return const Center(child: Text('空空如也'));
@@ -39,10 +41,12 @@ class BookSourceList extends StatelessWidget {
   }
 
   void handleTap(BuildContext context, int id) async {
-    context.push('/book-source/information/$id');
+    final ref = context.ref;
+    final navigator = GoRouter.of(context);
+    final source = await isar.sources.filter().idEqualTo(id).findFirst();
+    ref.set(currentSourceCreator, source);
+    navigator.push('/book-source/information/$id');
   }
-
-  void handleReorder(int oldIndex, int newIndex) {}
 }
 
 class SourceTile extends StatelessWidget {

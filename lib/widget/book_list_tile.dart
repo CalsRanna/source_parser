@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:source_parser/schema/book.dart';
+import 'package:source_parser/model/book.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class BookListTile extends StatelessWidget {
@@ -30,7 +30,7 @@ class BookListTile extends StatelessWidget {
                   ),
                 ),
                 Text(_buildSubtitle() ?? ''),
-                Text(book.introduction ?? ''),
+                // Text(book.introduction ?? ''),
               ],
             ),
           ),
@@ -45,18 +45,18 @@ class BookListTile extends StatelessWidget {
 
   String? _buildSubtitle() {
     final spans = <String>[];
-    if (book.author != null) {
-      spans.add(book.author!);
-    }
-    if (book.category != null) {
-      spans.add(book.category!);
-    }
-    if (book.status != null) {
-      spans.add(book.status!);
-    }
-    if (book.words != null) {
-      spans.add(book.words!);
-    }
+    // if (book.author != null) {
+    //   spans.add(book.author!);
+    // }
+    // if (book.category != null) {
+    //   spans.add(book.category!);
+    // }
+    // if (book.status != null) {
+    //   spans.add(book.status!);
+    // }
+    // if (book.words != null) {
+    //   spans.add(book.words!);
+    // }
     return spans.isNotEmpty ? spans.join(' · ') : null;
   }
 }

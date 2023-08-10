@@ -1,7 +1,11 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+
+import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/creator/source.dart';
+import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/util/parser.dart';
+import 'package:source_parser/util/plain_string.dart';
 import 'package:source_parser/widget/message.dart';
 
 class BookSourceDebug extends StatefulWidget {
@@ -14,11 +18,20 @@ class BookSourceDebug extends StatefulWidget {
 class _BookSourceDebugState extends State<BookSourceDebug> {
   String defaultCredential = '都市';
   bool loading = false;
-  dynamic result;
+  DebugResult result = DebugResult(
+    searchBooks: [],
+    searchRaw: '',
+    informationBook: null,
+    informationRaw: '',
+    catalogueChapters: [],
+    catalogueRaw: '',
+    contentContent: '',
+    contentRaw: '',
+  );
 
   @override
   void didChangeDependencies() {
-    debug(context);
+    debug();
     super.didChangeDependencies();
   }
 
@@ -29,89 +42,55 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
         actions: [
           IconButton(
             icon: const Icon(Icons.bug_report_outlined),
-            onPressed: () => debug(context),
+            onPressed: debug,
           )
         ],
         title: const Text('书源调试'),
       ),
       body: loading
-          ? const Center(child: CupertinoActivityIndicator())
+          ? const Center(child: CircularProgressIndicator.adaptive())
           : ListView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               children: [
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: '默认以关键字“$defaultCredential”进行搜索调试',
-                  ),
+                _DebugResultTile(
+                  response: result.searchRaw.plain(),
+                  results: result.searchBooks.map((e) => e.toJson()).toList(),
+                  title: '搜索',
                 ),
-                Visibility(
-                  visible: result?.searchResponse != null,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      _DebugResultTile(
-                        response: result?.searchResponse,
-                        results: result?.searchBooks
-                            ?.map((book) => book.toJson())
-                            .toList(),
-                        title: '搜索结果',
-                      ),
-                    ],
-                  ),
+                const _DebugResultTile(title: '发现'),
+                _DebugResultTile(
+                  response: result.informationRaw.plain(),
+                  results: [result.informationBook?.toJson() ?? {}],
+                  title: '详情',
                 ),
-                Visibility(
-                  visible: result?.informationResponse != null,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      _DebugResultTile(
-                        response: result?.informationResponse,
-                        results: [result?.informationBook?.toJson() ?? {}],
-                        title: '详情结果',
-                      ),
-                    ],
-                  ),
+                _DebugResultTile(
+                  response: result.catalogueRaw.plain(),
+                  results:
+                      result.catalogueChapters.map((e) => e.toJson()).toList(),
+                  title: '目录',
                 ),
-                Visibility(
-                  visible: result?.catalogueResponse != null,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      _DebugResultTile(
-                        response: result?.catalogueResponse,
-                        results: result?.catalogueChapters
-                            ?.map((chapter) => chapter.toJson())
-                            .toList(),
-                        title: '目录结果',
-                      ),
-                    ],
-                  ),
-                ),
-                Visibility(
-                  visible: result?.contentResponse != null,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      _DebugResultTile(
-                        response: result?.contentResponse,
-                        results: [result?.contentChapter?.toJson() ?? {}],
-                        title: '正文结果',
-                      ),
-                    ],
-                  ),
+                _DebugResultTile(
+                  response: result.contentRaw.plain(),
+                  results: [
+                    {
+                      'content': result.contentContent,
+                    }
+                  ],
+                  title: '正文',
                 ),
               ],
             ),
     );
   }
 
-  void debug(BuildContext context) async {
+  void debug() async {
     setState(() {
       loading = true;
     });
 
     try {
-      var debug = await Parser().debug(defaultCredential, Source());
+      final source = context.ref.read(currentSourceCreator);
+      var debug = await Parser().debug(defaultCredential, source);
       setState(() {
         result = debug;
         loading = false;
@@ -140,6 +119,8 @@ class _DebugResultTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
+      elevation: 0,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -155,7 +136,11 @@ class _DebugResultTile extends StatelessWidget {
             ),
           ),
           ListTile(
-            subtitle: Text(response ?? '', overflow: TextOverflow.ellipsis),
+            subtitle: Text(
+              response != null && response!.isNotEmpty ? response! : '解析失败',
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
             title: const Text('原始数据'),
             trailing: const Icon(Icons.chevron_right_outlined),
             onTap: () => showRawData(context),
@@ -180,7 +165,14 @@ class _DebugResultTile extends StatelessWidget {
     }
   }
 
-  void showJsonData(BuildContext context) {}
+  void showJsonData(BuildContext context) {
+    if (results != null) {
+      showModalBottomSheet(
+        context: context,
+        builder: (context) => _ParsedDataView(results: results!),
+      );
+    }
+  }
 }
 
 class _RawDataView extends StatelessWidget {
@@ -208,6 +200,48 @@ class _RawDataView extends StatelessWidget {
               ],
             ),
             Expanded(child: SingleChildScrollView(child: Text(rawData))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void handleTap(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+}
+
+class _ParsedDataView extends StatelessWidget {
+  const _ParsedDataView({Key? key, required this.results}) : super(key: key);
+
+  final List results;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '解析数据',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                IconButton(
+                    onPressed: () => handleTap(context),
+                    icon: const Icon(Icons.close))
+              ],
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Text(
+                  json.encode(results),
+                ),
+              ),
+            ),
           ],
         ),
       ),

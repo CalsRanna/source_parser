@@ -16,7 +16,7 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
         actions: const [DebugButton()],
         title: const Text('高级配置'),
       ),
-      body: EmitterWatcher<Source>(
+      body: CreatorWatcher<Source>(
         builder: (context, source) => ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
@@ -93,25 +93,23 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
             ),
           ],
         ),
-        emitter: sourceEmitter(null),
+        creator: currentSourceCreator,
       ),
     );
   }
 
   void triggerEnabled(BuildContext context) async {
     final ref = context.ref;
-    final source = await ref.read(sourceEmitter(null));
-    source.enabled = !source.enabled;
-    ref.emit(sourceEmitter(null), source);
+    final source = ref.read(currentSourceCreator);
+    ref.set(currentSourceCreator, source.copyWith(enabled: !source.enabled));
   }
 
   void triggerExploreEnabled(BuildContext context) async {}
 
-  void updateGroup(BuildContext context, String group) async {}
-  void updateComment(BuildContext context, String group) async {}
-  void updateLoginUrl(BuildContext context, String group) async {}
-  void updateHeader(BuildContext context, String group) async {}
-  void updateWeight(BuildContext context, String group) async {}
+  void updateGroup(BuildContext context, String value) async {}
+  void updateComment(BuildContext context, String value) async {}
+  void updateLoginUrl(BuildContext context, String value) async {}
+  void updateHeader(BuildContext context, String value) async {}
 
   void selectCharset(BuildContext context) {
     const charsets = ['utf8', 'gbk'];
@@ -133,6 +131,11 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
   }
 
   void confirmSelect(BuildContext context, String charset) {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(currentSourceCreator, source.copyWith(charset: charset));
     Navigator.of(context).pop();
   }
+
+  void updateWeight(BuildContext context, String value) async {}
 }

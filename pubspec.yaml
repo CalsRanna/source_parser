@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
 
   book_reader: ^0.0.1
-  cached_network: ^1.0.0
+  cached_network: ^1.0.2
   cached_network_image: ^3.2.3
   creator: ^0.3.2
   creator_watcher: ^0.0.1

@@ -1,3 +1,4 @@
+import 'package:creator/creator.dart';
 import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:source_parser/creator/source.dart';
@@ -11,7 +12,7 @@ class BookSourceContentConfiguration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('正文配置')),
-      body: EmitterWatcher<Source>(
+      body: CreatorWatcher<Source>(
         builder: (context, source) => ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
@@ -23,12 +24,13 @@ class BookSourceContentConfiguration extends StatelessWidget {
                   RuleTile(
                     title: '正文规则',
                     value: source.contentContent,
-                    onChange: (value) {},
+                    onChange: (value) => updateContentContent(context, value),
                   ),
                   RuleTile(
                     title: '下一页URL规则',
                     value: source.contentPagination,
-                    onChange: (value) {},
+                    onChange: (value) =>
+                        updateContentPagination(context, value),
                   ),
                 ],
               ),
@@ -42,15 +44,33 @@ class BookSourceContentConfiguration extends StatelessWidget {
                   RuleTile(
                     title: '替换规则',
                     value: source.contentReplace,
-                    onChange: (value) {},
+                    onChange: (value) => updateContentReplace(context, value),
                   ),
                 ],
               ),
             ),
           ],
         ),
-        emitter: sourceEmitter(null),
+        creator: currentSourceCreator,
       ),
     );
+  }
+
+  void updateContentContent(BuildContext context, String value) {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(currentSourceCreator, source.copyWith(contentContent: value));
+  }
+
+  void updateContentPagination(BuildContext context, String value) {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(currentSourceCreator, source.copyWith(contentPagination: value));
+  }
+
+  void updateContentReplace(BuildContext context, String value) {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(currentSourceCreator, source.copyWith(contentReplace: value));
   }
 }

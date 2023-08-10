@@ -28,14 +28,36 @@ class RuleTile extends StatelessWidget {
       size: 16,
     );
 
-    return ListTile(
-      title: Text(title),
-      trailing: trailing ??
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [Text(value?.plain() ?? ''), icon],
-          ),
+    return GestureDetector(
       onTap: () => handleTap(context),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            Text(title),
+            const SizedBox(width: 8),
+            if (trailing != null)
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: trailing!,
+                ),
+              ),
+            if (trailing == null) ...[
+              Expanded(
+                child: Text(
+                  value?.plain() ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                ),
+              ),
+              const SizedBox(width: 8),
+              icon
+            ]
+          ],
+        ),
+      ),
     );
   }
 
@@ -44,7 +66,7 @@ class RuleTile extends StatelessWidget {
       onTap?.call();
     } else {
       var newValue = await Navigator.of(context).push(MaterialPageRoute(
-        builder: (conext) => RuleInput(title: title, text: value),
+        builder: (context) => RuleInput(title: title, text: value),
       ));
       onChange?.call(newValue);
     }

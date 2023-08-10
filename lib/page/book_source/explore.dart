@@ -5,17 +5,13 @@ import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
-class BookSourceSearchConfiguration extends StatelessWidget {
-  const BookSourceSearchConfiguration({Key? key}) : super(key: key);
-
+class BookSourceExploreConfiguration extends StatelessWidget {
+  const BookSourceExploreConfiguration({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: const [DebugButton()],
-        title: const Text('搜索配置'),
-      ),
-      body: EmitterWatcher<Source>(
+      appBar: AppBar(actions: const [DebugButton()], title: const Text('发现配置')),
+      body: CreatorWatcher<Source>(
         builder: (context, source) => ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
@@ -25,14 +21,9 @@ class BookSourceSearchConfiguration extends StatelessWidget {
               child: Column(
                 children: [
                   RuleTile(
-                    title: '搜索URL',
-                    value: source.searchUrl,
-                    onChange: (value) {},
-                  ),
-                  RuleTile(
                     bordered: false,
-                    title: '校验关键字',
-                    value: source.searchCheckCredential,
+                    title: 'URL规则',
+                    value: source.exploreUrl,
                     onChange: (value) {},
                   ),
                 ],
@@ -47,55 +38,55 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                   RuleTile(
                     bordered: false,
                     title: '书籍列表规则',
-                    value: source.searchBooks,
+                    value: source.exploreBooks,
                     onChange: (value) {},
                   ),
                   RuleTile(
                     bordered: false,
                     title: '书名规则',
-                    value: source.searchName,
+                    value: source.exploreName,
                     onChange: (value) {},
                   ),
                   RuleTile(
                     bordered: false,
                     title: '作者规则',
-                    value: source.searchAuthor,
+                    value: source.exploreAuthor,
                     onChange: (value) {},
                   ),
                   RuleTile(
                     bordered: false,
                     title: '分类规则',
-                    value: source.searchCategory,
+                    value: source.exploreCategory,
                     onChange: (value) {},
                   ),
                   RuleTile(
                     bordered: false,
                     title: '字数规则',
-                    value: source.searchWordCount,
-                    onChange: (value) {},
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '简介规则',
-                    value: source.searchIntroduction,
-                    onChange: (value) {},
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '封面规则',
-                    value: source.searchCover,
-                    onChange: (value) {},
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '详情URL规则',
-                    value: source.searchInformationUrl,
+                    value: source.exploreWordCount,
                     onChange: (value) {},
                   ),
                   RuleTile(
                     bordered: false,
                     title: '最新章节规则',
-                    value: source.searchLatestChapter,
+                    value: source.exploreLatestChapter,
+                    onChange: (value) {},
+                  ),
+                  RuleTile(
+                    bordered: false,
+                    title: '简介规则',
+                    value: source.exploreIntroduction,
+                    onChange: (value) {},
+                  ),
+                  RuleTile(
+                    bordered: false,
+                    title: '封面规则',
+                    value: source.exploreCover,
+                    onChange: (value) {},
+                  ),
+                  RuleTile(
+                    bordered: false,
+                    title: '详情URL规则',
+                    value: source.exploreInformationUrl,
                     onChange: (value) {},
                   ),
                 ],
@@ -103,7 +94,7 @@ class BookSourceSearchConfiguration extends StatelessWidget {
             ),
           ],
         ),
-        emitter: sourceEmitter(null),
+        creator: currentSourceCreator,
       ),
     );
   }

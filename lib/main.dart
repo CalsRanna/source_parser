@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/schema/source.dart';
@@ -16,7 +15,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final directory = await getApplicationDocumentsDirectory();
   isar = await Isar.open([
-    BookSchema,
     HistorySchema,
     SettingSchema,
     SourceSchema,
@@ -38,9 +36,6 @@ class SourceParser extends StatelessWidget {
           useMaterial3: true,
         ),
         title: '元夕',
-      ),
-      indicator: const Material(
-        child: CircularProgressIndicator.adaptive(),
       ),
     );
   }

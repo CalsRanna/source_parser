@@ -5,9 +5,8 @@ import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/history.dart';
-import 'package:source_parser/schema/book.dart';
+import 'package:source_parser/model/book.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
@@ -22,21 +21,26 @@ class BookInformation extends StatefulWidget {
 
 class _BookInformationState extends State<BookInformation> {
   bool loading = false;
+  Book book = Book(
+    author: '',
+    catalogueUrl: '',
+    category: '',
+    cover: '',
+    introduction: '',
+    name: '',
+    url: '',
+  );
 
   @override
   Widget build(BuildContext context) {
     var background = ImageFiltered(
-      imageFilter: ImageFilter.blur(sigmaX: 96, sigmaY: 96),
-      child: EmitterWatcher<Book>(
-        builder: (context, book) => BookCover(
+        imageFilter: ImageFilter.blur(sigmaX: 96, sigmaY: 96),
+        child: BookCover(
           borderRadius: null,
           height: 261,
-          url: book.cover ?? '',
+          url: book.cover,
           width: double.infinity,
-        ),
-        emitter: bookEmitter(null),
-      ),
-    );
+        ));
     var information = Stack(
       children: [
         background,
@@ -46,28 +50,22 @@ class _BookInformationState extends State<BookInformation> {
           top: 135,
           child: Row(
             children: [
-              EmitterWatcher<Book>(
-                builder: (context, book) => BookCover(url: book.cover ?? ''),
-                emitter: bookEmitter(null),
-              ),
+              BookCover(url: book.cover),
               const SizedBox(width: 16),
               Expanded(
-                child: EmitterWatcher<Book>(
-                  builder: (context, book) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        book.name ?? '',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      book.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
                       ),
-                      Text(book.author ?? ''),
-                      Text(_buildSpan(book)),
-                    ],
-                  ),
-                  emitter: bookEmitter(null),
+                    ),
+                    Text(book.author),
+                    Text(_buildSpan(book)),
+                  ],
                 ),
               )
             ],
@@ -101,18 +99,15 @@ class _BookInformationState extends State<BookInformation> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: const [Text('简介', style: boldTextStyle)],
+              const Row(
+                children: [Text('简介', style: boldTextStyle)],
               ),
               const SizedBox(height: 16),
-              EmitterWatcher<Book>(
-                builder: (context, book) => Text(
-                  book.introduction ?? '',
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                emitter: bookEmitter(null),
-              ),
+              Text(
+                book.name,
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
+              )
             ],
           ),
         ),
@@ -121,12 +116,12 @@ class _BookInformationState extends State<BookInformation> {
       Watcher(
         (context, ref, _) => GestureDetector(
           onTap: () => context.push('/catalog'),
-          child: Card(
-            shape: const RoundedRectangleBorder(),
+          child: const Card(
+            shape: RoundedRectangleBorder(),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16.0),
               child: Row(
-                children: const [
+                children: [
                   Text('目录', style: boldTextStyle),
                   Expanded(
                     child: Text(
@@ -142,16 +137,16 @@ class _BookInformationState extends State<BookInformation> {
         ),
       ),
       const SizedBox(height: 16),
-      Card(
-        shape: const RoundedRectangleBorder(),
+      const Card(
+        shape: RoundedRectangleBorder(),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Text('评论', style: boldTextStyle),
                   Icon(Icons.chevron_right_outlined)
                 ],
@@ -217,15 +212,15 @@ class _BookInformationState extends State<BookInformation> {
         children: [
           TextButton(
             onPressed: () {},
-            child: Row(
-              children: const [Icon(Icons.headphones_outlined), Text('听书')],
+            child: const Row(
+              children: [Icon(Icons.headphones_outlined), Text('听书')],
             ),
           ),
           const SizedBox(width: 8),
           TextButton(
             onPressed: () {},
-            child: Row(
-              children: const [Icon(Icons.library_add_outlined), Text('加入书架')],
+            child: const Row(
+              children: [Icon(Icons.library_add_outlined), Text('加入书架')],
             ),
           ),
           const SizedBox(width: 8),
@@ -265,12 +260,12 @@ class _BookInformationState extends State<BookInformation> {
 
   String _buildSpan(Book book) {
     final spans = <String>[];
-    if (book.category != null) {
-      spans.add(book.category!);
-    }
-    if (book.status != null) {
-      spans.add(book.status!);
-    }
+    // if (book.category != null) {
+    //   spans.add(book.category!);
+    // }
+    // if (book.status != null) {
+    //   spans.add(book.status!);
+    // }
     return spans.join(' · ');
   }
 }

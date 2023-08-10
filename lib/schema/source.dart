@@ -100,4 +100,121 @@ class Source {
   String? exploreCover;
   @Name('explore_information_url')
   String? exploreInformationUrl;
+
+  Source copyWith({
+    Id? id,
+    String? name,
+    String? url,
+    bool? enabled,
+    bool? exploreEnabled,
+    String? type,
+    String? group,
+    String? comment,
+    String? loginUrl,
+    String? urlRegex,
+    String? header,
+    String? charset,
+    int? weight,
+    int? order,
+    String? searchUrl,
+    String? searchCheckCredential,
+    String? searchBooks,
+    String? searchName,
+    String? searchAuthor,
+    String? searchCategory,
+    String? searchWordCount,
+    String? searchIntroduction,
+    String? searchCover,
+    String? searchInformationUrl,
+    String? searchLatestChapter,
+    String? informationPreprocess,
+    String? informationName,
+    String? informationAuthor,
+    String? informationCategory,
+    String? informationWordCount,
+    String? informationLatestChapter,
+    String? informationIntroduction,
+    String? informationCover,
+    String? informationCatalogueUrl,
+    String? catalogueChapters,
+    String? catalogueName,
+    String? catalogueUrl,
+    String? catalogueVip,
+    String? catalogueUpdatedAt,
+    String? cataloguePagination,
+    String? contentContent,
+    String? contentPagination,
+    String? contentReplace,
+    String? exploreUrl,
+    String? exploreBooks,
+    String? exploreName,
+    String? exploreAuthor,
+    String? exploreCategory,
+    String? exploreWordCount,
+    String? exploreLatestChapter,
+    String? exploreIntroduction,
+    String? exploreCover,
+    String? exploreInformationUrl,
+  }) {
+    return Source()
+      ..id = id ?? this.id
+      ..name = name ?? this.name
+      ..url = url ?? this.url
+      ..enabled = enabled ?? this.enabled
+      ..exploreEnabled = exploreEnabled ?? this.exploreEnabled
+      ..type = type ?? this.type
+      ..group = group ?? this.group
+      ..comment = comment ?? this.comment
+      ..loginUrl = loginUrl ?? this.loginUrl
+      ..urlRegex = urlRegex ?? this.urlRegex
+      ..header = header ?? this.header
+      ..charset = charset ?? this.charset
+      ..weight = weight ?? this.weight
+      ..order = order ?? this.order
+      ..searchUrl = searchUrl ?? this.searchUrl
+      ..searchCheckCredential =
+          searchCheckCredential ?? this.searchCheckCredential
+      ..searchBooks = searchBooks ?? this.searchBooks
+      ..searchName = searchName ?? this.searchName
+      ..searchAuthor = searchAuthor ?? this.searchAuthor
+      ..searchCategory = searchCategory ?? this.searchCategory
+      ..searchWordCount = searchWordCount ?? this.searchWordCount
+      ..searchIntroduction = searchIntroduction ?? this.searchIntroduction
+      ..searchCover = searchCover ?? this.searchCover
+      ..searchInformationUrl = searchInformationUrl ?? this.searchInformationUrl
+      ..searchLatestChapter = searchLatestChapter ?? this.searchLatestChapter
+      ..informationPreprocess =
+          informationPreprocess ?? this.informationPreprocess
+      ..informationName = informationName ?? this.informationName
+      ..informationAuthor = informationAuthor ?? this.informationAuthor
+      ..informationCategory = informationCategory ?? this.informationCategory
+      ..informationWordCount = informationWordCount ?? this.informationWordCount
+      ..informationLatestChapter =
+          informationLatestChapter ?? this.informationLatestChapter
+      ..informationIntroduction =
+          informationIntroduction ?? this.informationIntroduction
+      ..informationCover = informationCover ?? this.informationCover
+      ..informationCatalogueUrl =
+          informationCatalogueUrl ?? this.informationCatalogueUrl
+      ..catalogueChapters = catalogueChapters ?? this.catalogueChapters
+      ..catalogueName = catalogueName ?? this.catalogueName
+      ..catalogueUrl = catalogueUrl ?? this.catalogueUrl
+      ..catalogueVip = catalogueVip ?? this.catalogueVip
+      ..catalogueUpdatedAt = catalogueUpdatedAt ?? this.catalogueUpdatedAt
+      ..cataloguePagination = cataloguePagination ?? this.cataloguePagination
+      ..contentContent = contentContent ?? this.contentContent
+      ..contentPagination = contentPagination ?? this.contentPagination
+      ..contentReplace = contentReplace ?? this.contentReplace
+      ..exploreUrl = exploreUrl ?? this.exploreUrl
+      ..exploreBooks = exploreBooks ?? this.exploreBooks
+      ..exploreName = exploreName ?? this.exploreName
+      ..exploreAuthor = exploreAuthor ?? this.exploreAuthor
+      ..exploreCategory = exploreCategory ?? this.exploreCategory
+      ..exploreWordCount = exploreWordCount ?? this.exploreWordCount
+      ..exploreLatestChapter = exploreLatestChapter ?? this.exploreLatestChapter
+      ..exploreIntroduction = exploreIntroduction ?? this.exploreIntroduction
+      ..exploreCover = exploreCover ?? this.exploreCover
+      ..exploreInformationUrl =
+          exploreInformationUrl ?? this.exploreInformationUrl;
+  }
 }

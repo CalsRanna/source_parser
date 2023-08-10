@@ -1,6 +1,6 @@
 import 'package:book_reader/book_reader.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/schema/book.dart';
+import 'package:source_parser/model/book.dart';
 
 class ShelfItem extends StatelessWidget {
   const ShelfItem({Key? key, required this.book, this.onTap}) : super(key: key);
@@ -23,7 +23,7 @@ class ShelfItem extends StatelessWidget {
               child: Image.asset('asset/image/default_cover.jpg'),
             ),
             const SizedBox(height: 8),
-            Text(book.name ?? '')
+            Text(book.name)
           ],
         ),
       ),
@@ -35,7 +35,7 @@ class ShelfItem extends StatelessWidget {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => BookReader(
         future: (index) => Future.value('123'),
-        name: book.name!,
+        name: book.name,
       ),
     ));
   }

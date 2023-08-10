@@ -1,15 +1,15 @@
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/page/book/book_information.dart';
-import 'package:source_parser/page/book_source/book_source.advanced_configuration.dart';
-import 'package:source_parser/page/book_source/book_source.catalogue_configuration.dart';
-import 'package:source_parser/page/book_source/book_source.content_configuration.dart';
+import 'package:source_parser/page/book_source/advanced.dart';
+import 'package:source_parser/page/book_source/catalogue.dart';
+import 'package:source_parser/page/book_source/content.dart';
 import 'package:source_parser/page/book_source/book_source.dart';
-import 'package:source_parser/page/book_source/book_source.debug.dart';
-import 'package:source_parser/page/book_source/book_source.explore_configuration.dart';
-import 'package:source_parser/page/book_source/book_source.import.dart';
-import 'package:source_parser/page/book_source/book_source.information.dart';
-import 'package:source_parser/page/book_source/book_source.information_configuration.dart';
-import 'package:source_parser/page/book_source/book_source.search_configuration.dart';
+import 'package:source_parser/page/book_source/debug.dart';
+import 'package:source_parser/page/book_source/explore.dart';
+import 'package:source_parser/page/book_source/importer.dart';
+import 'package:source_parser/page/book_source/detail.dart';
+import 'package:source_parser/page/book_source/information.dart';
+import 'package:source_parser/page/book_source/search.dart';
 import 'package:source_parser/page/developer/developer.dart';
 import 'package:source_parser/page/home/home.dart';
 import 'package:source_parser/page/search/search.dart';
@@ -63,7 +63,8 @@ final router = GoRouter(routes: [
     path: '/book-source/information-configuration',
   ),
   GoRoute(
-    builder: (context, state) => const BookSourceInformation(),
+    builder: (context, state) =>
+        BookSourceInformation(id: int.parse(state.pathParameters['id']!)),
     path: '/book-source/information/:id',
   ),
   GoRoute(
