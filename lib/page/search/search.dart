@@ -2,11 +2,22 @@ import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/creator/history.dart';
+import 'package:source_parser/model/book.dart';
 import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/util/parser.dart';
+import 'package:source_parser/widget/book_list_tile.dart';
 import 'package:source_parser/widget/message.dart';
 
-class Search extends StatelessWidget {
+class Search extends StatefulWidget {
   const Search({Key? key}) : super(key: key);
+
+  @override
+  State<Search> createState() => _SearchState();
+}
+
+class _SearchState extends State<Search> {
+  var books = <Book>[];
+
   @override
   Widget build(BuildContext context) {
     final cancel = TextButton(
@@ -16,6 +27,7 @@ class Search extends StatelessWidget {
         style: TextStyle(color: Theme.of(context).colorScheme.secondary),
       ),
     );
+
     final Widget body = SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -29,17 +41,19 @@ class Search extends StatelessWidget {
                   const Text('热门搜索'),
                   const SizedBox(height: 8),
                   Wrap(
-                      runSpacing: 8,
-                      spacing: 8,
-                      children: histories
-                          .map((history) => ActionChip(
-                                label: Text(history.name ?? ''),
-                                labelPadding: EdgeInsets.zero,
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                                onPressed: () {},
-                              ))
-                          .toList()),
+                    runSpacing: 8,
+                    spacing: 8,
+                    children: histories
+                        .map((history) => ActionChip(
+                              label: Text(history.name ?? ''),
+                              labelPadding: EdgeInsets.zero,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              onPressed: () =>
+                                  search(context, history.name ?? ''),
+                            ))
+                        .toList(),
+                  ),
                 ],
               ),
               emitter: hotHistoriesEmitter,
@@ -58,7 +72,14 @@ class Search extends StatelessWidget {
         title: _SearchInput(),
         titleSpacing: 0,
       ),
-      body: body,
+      body: books.isEmpty
+          ? body
+          : ListView.builder(
+              itemBuilder: (context, index) {
+                return BookListTile(book: books[index]);
+              },
+              itemCount: books.length,
+            ),
     );
   }
 
@@ -67,7 +88,17 @@ class Search extends StatelessWidget {
   }
 
   void search(BuildContext context, String credential) async {
-    try {} catch (e) {
+    setState(() {
+      books = [];
+    });
+    try {
+      final stream = await Parser.search(credential);
+      stream.listen((book) {
+        setState(() {
+          books.add(book);
+        });
+      });
+    } catch (e) {
       Message.of(context).show(e.toString());
     }
   }

@@ -5,6 +5,7 @@ import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/model/book.dart';
 import 'package:source_parser/schema/history.dart';
@@ -21,18 +22,10 @@ class BookInformation extends StatefulWidget {
 
 class _BookInformationState extends State<BookInformation> {
   bool loading = false;
-  Book book = Book(
-    author: '',
-    catalogueUrl: '',
-    category: '',
-    cover: '',
-    introduction: '',
-    name: '',
-    url: '',
-  );
 
   @override
   Widget build(BuildContext context) {
+    final book = context.ref.watch(currentBookCreator);
     var background = ImageFiltered(
         imageFilter: ImageFilter.blur(sigmaX: 96, sigmaY: 96),
         child: BookCover(
@@ -93,6 +86,9 @@ class _BookInformationState extends State<BookInformation> {
     List<Widget> children = [
       const SizedBox(height: 16),
       Card(
+        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
+        elevation: 0,
+        margin: EdgeInsets.zero,
         shape: const RoundedRectangleBorder(),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -104,7 +100,7 @@ class _BookInformationState extends State<BookInformation> {
               ),
               const SizedBox(height: 16),
               Text(
-                book.name,
+                book.introduction,
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
               )
@@ -116,9 +112,12 @@ class _BookInformationState extends State<BookInformation> {
       Watcher(
         (context, ref, _) => GestureDetector(
           onTap: () => context.push('/catalog'),
-          child: const Card(
-            shape: RoundedRectangleBorder(),
-            child: Padding(
+          child: Card(
+            color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
+            elevation: 0,
+            margin: EdgeInsets.zero,
+            shape: const RoundedRectangleBorder(),
+            child: const Padding(
               padding: EdgeInsets.all(16.0),
               child: Row(
                 children: [
@@ -137,9 +136,12 @@ class _BookInformationState extends State<BookInformation> {
         ),
       ),
       const SizedBox(height: 16),
-      const Card(
-        shape: RoundedRectangleBorder(),
-        child: Padding(
+      Card(
+        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: const RoundedRectangleBorder(),
+        child: const Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,6 +159,9 @@ class _BookInformationState extends State<BookInformation> {
       ),
       const SizedBox(height: 16),
       Card(
+        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
+        elevation: 0,
+        margin: EdgeInsets.zero,
         shape: const RoundedRectangleBorder(),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -186,6 +191,9 @@ class _BookInformationState extends State<BookInformation> {
       ),
       const SizedBox(height: 16),
       Card(
+        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
+        elevation: 0,
+        margin: EdgeInsets.zero,
         shape: const RoundedRectangleBorder(),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),

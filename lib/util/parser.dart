@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:cached_network/cached_network.dart';
 import 'package:html_parser_plus/html_parser_plus.dart';
+import 'package:isar/isar.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:source_parser/main.dart';
 import 'package:source_parser/model/book.dart';
 import 'package:source_parser/model/chapter.dart';
 import 'package:source_parser/model/debug.dart';
@@ -29,83 +33,85 @@ class Parser {
         .toList();
   }
 
-  static Future<Stream<History>> search(
+  static Future<Stream<Book>> search(
     String credential,
   ) async {
-    final controller = StreamController<History>();
-    // for (var i = 0; i < sources.length; i++) {
-    //   var sender = ReceivePort();
-    //   var isolate = await Isolate.spawn(_searchInIsolate, sender.sendPort);
-    //   var sendPort = await sender.first as SendPort;
-    //   var reciver = ReceivePort();
-    //   sendPort.send([
-    //     sources[i],
-    //     credential,
-    //     folder,
-    //     reciver.sendPort,
-    //   ]);
-    //   reciver.forEach((element) {
-    //     if (element.runtimeType == History) {
-    //       controller.add(element);
-    //     } else if (element == 'close') {
-    //       isolate.kill();
-    //     }
-    //   });
-    // }
+    final controller = StreamController<Book>();
+    final sources = await isar.sources.filter().enabledEqualTo(true).findAll();
+    final cacheDirectory = await getTemporaryDirectory();
+    final network = CachedNetwork(cacheDirectory: cacheDirectory);
+    for (var i = 0; i < sources.length; i++) {
+      var sender = ReceivePort();
+      var isolate = await Isolate.spawn(_searchInIsolate, sender.sendPort);
+      var sendPort = await sender.first as SendPort;
+      var receiver = ReceivePort();
+      sendPort.send([
+        network,
+        sources[i],
+        credential,
+        receiver.sendPort,
+      ]);
+      receiver.forEach((element) {
+        if (element.runtimeType == Book) {
+          controller.add(element);
+        } else if (element == 'close') {
+          isolate.kill();
+        }
+      });
+    }
     return controller.stream;
   }
 
-  // static void _searchInIsolate(SendPort message) {
-  //   final port = ReceivePort();
-  //   message.send(port.sendPort);
-  //   port.listen((message) async {
-  //     // final source = message[0] as BookSource;
-  //     // final rule = message[1] as SearchRule;
-  //     // final credential = message[2] as String;
-  //     // final folder = message[3] as Directory;
-  //     final send = message[4] as SendPort;
+  static void _searchInIsolate(SendPort message) {
+    final port = ReceivePort();
+    message.send(port.sendPort);
+    port.listen((message) async {
+      final network = message[0] as CachedNetwork;
+      final source = message[1] as Source;
+      final credential = message[2] as String;
+      final send = message[3] as SendPort;
 
-  //     // var url = source.searchUrl;
-  //     // if (url?.startsWith('http') == false) {
-  //     //   url = source.url + (source.searchUrl ?? '');
-  //     // }
-  //     // url = url?.replaceAll('{{credential}}', credential) ?? '';
-  //     // var charset = CachedNetworkCharset.utf8;
-  //     // if (source.charset != 'utf8') {
-  //     //   charset = CachedNetworkCharset.gbk;
-  //     // }
-  //     // final response = await CachedNetwork(
-  //     //   baseUrl: source.url,
-  //     //   cacheFolder: folder,
-  //     //   charset: charset,
-  //     // ).get(url, permanent: false);
-  //     // // var document = parseHtmlDocument(response.data);
-  //     // // final items = document.querySelectorAll(searchRule.books ?? '');
-  //     // // for (var i = 0; i < items.length; i++) {
-  //     // //   final name = items[i].querySelector(searchRule.name ?? '')?.text;
-  //     // //   send.send(Book(name: name));
-  //     // // }
-  //     // final document = HtmlXPath.html(response ?? '').root;
-  //     // final items = document.queryXPath(rule.books ?? '').nodes;
-  //     // for (var item in items) {
-  //     //   final author = XPathParser.parse(item, rule.author);
-  //     //   final cover = XPathParser.parse(item, rule.cover);
-  //     //   final name = XPathParser.parse(item, rule.name);
-  //     //   var url = XPathParser.parse(item, rule.url);
-  //     //   if (url != null && url.startsWith('http') == false) {
-  //     //     url = '${source.url}$url';
-  //     //   }
-  //     //   send.send(Book(
-  //     //     author: author,
-  //     //     cover: cover,
-  //     //     name: name,
-  //     //     url: url,
-  //     //     sourceId: source.id,
-  //     //   ));
-  //     // }
-  //     send.send('close');
-  //   });
-  // }
+      final searchUrl = source.searchUrl
+          ?.replaceAll('{{credential}}', credential)
+          .replaceAll('{{page}}', '1');
+      var html = await network.request(
+        searchUrl ?? '',
+        charset: source.charset,
+        duration: const Duration(hours: 6),
+      );
+      final parser = HtmlParser();
+      var document = parser.query(html);
+      var items = parser.parseNodes(document, source.searchBooks);
+      for (var i = 0; i < items.length; i++) {
+        final author = parser.parse(items[i], source.searchAuthor);
+        final category = parser.parse(items[i], source.searchCategory);
+        var cover = parser.parse(items[i], source.searchCover);
+        if (!cover.startsWith('http')) {
+          cover = '${source.url ?? ''}$cover';
+        }
+        final introduction = parser.parse(items[i], source.searchIntroduction);
+        final name = parser.parse(items[i], source.searchName);
+        var url = parser.parse(items[i], source.searchInformationUrl);
+        if (!url.startsWith('http')) {
+          url = '${source.url ?? ''}$url';
+        }
+        if (name.isNotEmpty) {
+          send.send(
+            Book(
+              author: author,
+              catalogueUrl: '',
+              category: category,
+              cover: cover,
+              introduction: introduction,
+              name: name,
+              url: url,
+            ),
+          );
+        }
+      }
+      send.send('close');
+    });
+  }
 
   static Future<Stream<History>> fetch(
     History history,
@@ -206,24 +212,29 @@ class Parser {
     for (var i = 0; i < items.length; i++) {
       final author = parser.parse(items[i], source.searchAuthor);
       final category = parser.parse(items[i], source.searchCategory);
-      final cover = parser.parse(items[i], source.searchCover);
+      var cover = parser.parse(items[i], source.searchCover);
+      if (!cover.startsWith('http')) {
+        cover = '${source.url ?? ''}$cover';
+      }
       final introduction = parser.parse(items[i], source.searchIntroduction);
       final name = parser.parse(items[i], source.searchName);
       var url = parser.parse(items[i], source.searchInformationUrl);
       if (!url.startsWith('http')) {
         url = '${source.url ?? ''}$url';
       }
-      books.add(
-        Book(
-          author: author,
-          catalogueUrl: '',
-          category: category,
-          cover: cover,
-          introduction: introduction,
-          name: name,
-          url: url,
-        ),
-      );
+      if (name.isNotEmpty) {
+        books.add(
+          Book(
+            author: author,
+            catalogueUrl: '',
+            category: category,
+            cover: cover,
+            introduction: introduction,
+            name: name,
+            url: url,
+          ),
+        );
+      }
     }
     result.searchBooks = books;
     if (books.isNotEmpty) {
