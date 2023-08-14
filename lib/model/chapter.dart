@@ -20,4 +20,9 @@ class Chapter {
       'url': url,
     };
   }
+
+  @override
+  String toString() {
+    return toJson().toString();
+  }
 }

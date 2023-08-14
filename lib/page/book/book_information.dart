@@ -5,10 +5,17 @@ import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
+import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/history.dart';
+import 'package:source_parser/creator/source.dart';
+import 'package:source_parser/main.dart';
 import 'package:source_parser/model/book.dart';
+import 'package:source_parser/model/chapter.dart';
 import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class BookInformation extends StatefulWidget {
@@ -27,13 +34,14 @@ class _BookInformationState extends State<BookInformation> {
   Widget build(BuildContext context) {
     final book = context.ref.watch(currentBookCreator);
     var background = ImageFiltered(
-        imageFilter: ImageFilter.blur(sigmaX: 96, sigmaY: 96),
-        child: BookCover(
-          borderRadius: null,
-          height: 261,
-          url: book.cover,
-          width: double.infinity,
-        ));
+      imageFilter: ImageFilter.blur(sigmaX: 48, sigmaY: 48),
+      child: BookCover(
+        borderRadius: null,
+        height: double.infinity,
+        url: book.cover,
+        width: double.infinity,
+      ),
+    );
     var information = Stack(
       children: [
         background,
@@ -109,102 +117,9 @@ class _BookInformationState extends State<BookInformation> {
         ),
       ),
       const SizedBox(height: 16),
-      Watcher(
-        (context, ref, _) => GestureDetector(
-          onTap: () => context.push('/catalog'),
-          child: Card(
-            color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
-            elevation: 0,
-            margin: EdgeInsets.zero,
-            shape: const RoundedRectangleBorder(),
-            child: const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Text('目录', style: boldTextStyle),
-                  Expanded(
-                    child: Text(
-                      '530章·最新章节',
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
-                  Icon(Icons.chevron_right_outlined)
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+      _CatalogueCard(book: book),
       const SizedBox(height: 16),
-      Card(
-        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
-        elevation: 0,
-        margin: EdgeInsets.zero,
-        shape: const RoundedRectangleBorder(),
-        child: const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('评论', style: boldTextStyle),
-                  Icon(Icons.chevron_right_outlined)
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-      const SizedBox(height: 16),
-      Card(
-        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
-        elevation: 0,
-        margin: EdgeInsets.zero,
-        shape: const RoundedRectangleBorder(),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Text('书源', style: boldTextStyle),
-                  const Expanded(
-                    child: Text(
-                      '62个·3Z中文网',
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: loading
-                        ? const CupertinoActivityIndicator()
-                        : const Icon(Icons.chevron_right_outlined),
-                  )
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-      const SizedBox(height: 16),
-      Card(
-        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
-        elevation: 0,
-        margin: EdgeInsets.zero,
-        shape: const RoundedRectangleBorder(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-          child: Row(
-            children: [
-              const Expanded(child: Text('停止更新本书')),
-              Switch.adaptive(value: false, onChanged: (value) {})
-            ],
-          ),
-        ),
-      ),
+      _SourceCard(book: book),
     ];
 
     Widget bottomBar = Container(
@@ -221,20 +136,13 @@ class _BookInformationState extends State<BookInformation> {
           TextButton(
             onPressed: () {},
             child: const Row(
-              children: [Icon(Icons.headphones_outlined), Text('听书')],
-            ),
-          ),
-          const SizedBox(width: 8),
-          TextButton(
-            onPressed: () {},
-            child: const Row(
               children: [Icon(Icons.library_add_outlined), Text('加入书架')],
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: ElevatedButton(
-              onPressed: () => context.push('/book-reader'),
+              onPressed: startReader,
               child: const Text('立即阅读'),
             ),
           ),
@@ -275,5 +183,182 @@ class _BookInformationState extends State<BookInformation> {
     //   spans.add(book.status!);
     // }
     return spans.join(' · ');
+  }
+
+  void startReader() async {
+    final ref = context.ref;
+    final router = GoRouter.of(context);
+    final book = ref.watch(currentBookCreator);
+    final source =
+        await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
+    if (source != null) {
+      final chapters = await Parser().getChapters(
+        source: source,
+        url: book.url,
+      );
+      ref.set(currentChaptersCreator, chapters);
+      ref.set(currentSourceCreator, source);
+    }
+    router.push('/book-reader');
+  }
+}
+
+class _CatalogueCard extends StatefulWidget {
+  const _CatalogueCard({super.key, required this.book});
+
+  final Book book;
+
+  @override
+  State<_CatalogueCard> createState() => __CatalogueCardState();
+}
+
+class __CatalogueCardState extends State<_CatalogueCard> {
+  List<Chapter> chapters = [];
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getChapters();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+    return GestureDetector(
+      onTap: () => context.push('/catalog'),
+      child: Card(
+        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: const RoundedRectangleBorder(),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              const Text('目录', style: boldTextStyle),
+              Expanded(
+                child: loading
+                    ? const Align(
+                        alignment: Alignment.centerRight,
+                        child: CircularProgressIndicator.adaptive(),
+                      )
+                    : Text(
+                        '${chapters.length}章·${chapters.last.name}',
+                        textAlign: TextAlign.right,
+                      ),
+              ),
+              const Icon(Icons.chevron_right_outlined)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> getChapters() async {
+    setState(() {
+      loading = true;
+    });
+    try {
+      final source = await isar.sources
+          .filter()
+          .idEqualTo(widget.book.sourceId)
+          .findFirst();
+      if (source != null) {
+        final chapters = await Parser().getChapters(
+          source: source,
+          url: widget.book.url,
+        );
+        setState(() {
+          this.chapters = chapters;
+          loading = false;
+        });
+      }
+    } catch (error) {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+}
+
+class _SourceCard extends StatefulWidget {
+  const _SourceCard({super.key, required this.book});
+
+  final Book book;
+
+  @override
+  State<_SourceCard> createState() => __SourceCardState();
+}
+
+class __SourceCardState extends State<_SourceCard> {
+  bool loading = false;
+  List<Source> sources = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getChapters();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+    return Card(
+      color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: const RoundedRectangleBorder(),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text('书源', style: boldTextStyle),
+                Expanded(
+                  child: Text(
+                    sources.isEmpty
+                        ? ''
+                        : '${sources.length}个·${sources.last.name}',
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: loading
+                      ? const CupertinoActivityIndicator()
+                      : const Icon(Icons.chevron_right_outlined),
+                )
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> getChapters() async {
+    setState(() {
+      loading = true;
+    });
+    try {
+      final source = await isar.sources
+          .filter()
+          .idEqualTo(widget.book.sourceId)
+          .findFirst();
+      if (source != null) {
+        setState(() {
+          sources.add(source);
+          loading = false;
+        });
+      }
+    } catch (error) {
+      setState(() {
+        loading = false;
+      });
+    }
   }
 }

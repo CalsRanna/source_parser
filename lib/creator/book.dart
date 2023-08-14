@@ -9,6 +9,7 @@ final currentBookCreator = Creator.value(
     cover: '',
     introduction: '',
     name: '',
+    sourceId: 0,
     url: '',
   ),
   name: 'currentBookCreator',

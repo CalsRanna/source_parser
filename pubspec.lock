@@ -44,10 +44,9 @@ packages:
   book_reader:
     dependency: "direct main"
     description:
-      name: book_reader
-      sha256: "28c83f0e1472a0f02364e03f3f06f7bca21e83492ba0003d1176c37a634ffc54"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../book_reader"
+      relative: true
+    source: path
     version: "0.0.1"
   boolean_selector:
     dependency: transitive
@@ -428,10 +427,10 @@ packages:
     dependency: "direct main"
     description:
       name: html_parser_plus
-      sha256: "7c544a84cd23d7ae3ee30c85dcb620fd12e0dd30ad1e405244da6c9158b62f87"
+      sha256: "4c8ff68f5bd680cebd0b10c9b004c229b035634da30205dbccba2ee25a822b2f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.1"
+    version: "0.0.2"
   http:
     dependency: transitive
     description:

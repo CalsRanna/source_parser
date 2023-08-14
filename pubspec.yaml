@@ -12,7 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
 
-  book_reader: ^0.0.1
+  # book_reader: ^0.0.1
+  book_reader:
+    path: ../book_reader/
   cached_network: ^1.0.2
   cached_network_image: ^3.2.3
   creator: ^0.3.2
@@ -21,7 +23,7 @@ dependencies:
   dio: ^5.0.1
   flutter_colorpicker: ^1.0.3
   go_router: ^7.0.0
-  html_parser_plus: ^0.0.1
+  html_parser_plus: ^0.0.2
   isar: ^3.0.5
   isar_flutter_libs: ^3.0.5
   logger: ^1.1.0

@@ -19,14 +19,14 @@ class Parser {
       duration: const Duration(hours: 6),
     );
     final parser = HtmlParser();
-    final node = parser.query(html);
-    final nodes = parser.parseNodes(
+    final node = parser.parse(html);
+    final nodes = parser.queryNodes(
       node,
       '//div[@class="container-bg_lQ801"]/div/div[@class="category-wrap_iQLoo"]',
     );
     return nodes
         .map((node) => History()
-          ..name = parser.parse(
+          ..name = parser.query(
             node,
             '/div[@class="content_1YWBm"]/a/div@text',
           ))
@@ -80,18 +80,18 @@ class Parser {
         duration: const Duration(hours: 6),
       );
       final parser = HtmlParser();
-      var document = parser.query(html);
-      var items = parser.parseNodes(document, source.searchBooks);
+      var document = parser.parse(html);
+      var items = parser.queryNodes(document, source.searchBooks);
       for (var i = 0; i < items.length; i++) {
-        final author = parser.parse(items[i], source.searchAuthor);
-        final category = parser.parse(items[i], source.searchCategory);
-        var cover = parser.parse(items[i], source.searchCover);
+        final author = parser.query(items[i], source.searchAuthor);
+        final category = parser.query(items[i], source.searchCategory);
+        var cover = parser.query(items[i], source.searchCover);
         if (!cover.startsWith('http')) {
           cover = '${source.url ?? ''}$cover';
         }
-        final introduction = parser.parse(items[i], source.searchIntroduction);
-        final name = parser.parse(items[i], source.searchName);
-        var url = parser.parse(items[i], source.searchInformationUrl);
+        final introduction = parser.query(items[i], source.searchIntroduction);
+        final name = parser.query(items[i], source.searchName);
+        var url = parser.query(items[i], source.searchInformationUrl);
         if (!url.startsWith('http')) {
           url = '${source.url ?? ''}$url';
         }
@@ -104,6 +104,7 @@ class Parser {
               cover: cover,
               introduction: introduction,
               name: name,
+              sourceId: source.id,
               url: url,
             ),
           );
@@ -111,6 +112,37 @@ class Parser {
       }
       send.send('close');
     });
+  }
+
+  Future<List<Chapter>> getChapters({
+    required String url,
+    required Source source,
+  }) async {
+    final html = await CachedNetwork().request(url);
+    final parser = HtmlParser();
+    final document = parser.parse(html);
+    final items = parser.queryNodes(document, source.catalogueChapters);
+    List<Chapter> chapters = [];
+    for (var i = 0; i < items.length; i++) {
+      final name = parser.query(items[i], source.catalogueName);
+      var url = parser.query(items[i], source.catalogueUrl);
+      if (!url.startsWith('http')) {
+        url = '${source.url ?? ''}$url';
+      }
+      chapters.add(Chapter(name: name, url: url));
+    }
+    return chapters;
+  }
+
+  Future<String> getContent({
+    required String url,
+    required Source source,
+  }) async {
+    final html = await CachedNetwork().request(url);
+    final parser = HtmlParser();
+    final document = parser.parse(html);
+    final content = parser.query(document, source.contentContent);
+    return content;
   }
 
   static Future<Stream<History>> fetch(
@@ -206,19 +238,19 @@ class Parser {
     );
     result.searchRaw = html;
     final parser = HtmlParser();
-    var document = parser.query(html);
-    var items = parser.parseNodes(document, source.searchBooks);
+    var document = parser.parse(html);
+    var items = parser.queryNodes(document, source.searchBooks);
     var books = <Book>[];
     for (var i = 0; i < items.length; i++) {
-      final author = parser.parse(items[i], source.searchAuthor);
-      final category = parser.parse(items[i], source.searchCategory);
-      var cover = parser.parse(items[i], source.searchCover);
+      final author = parser.query(items[i], source.searchAuthor);
+      final category = parser.query(items[i], source.searchCategory);
+      var cover = parser.query(items[i], source.searchCover);
       if (!cover.startsWith('http')) {
         cover = '${source.url ?? ''}$cover';
       }
-      final introduction = parser.parse(items[i], source.searchIntroduction);
-      final name = parser.parse(items[i], source.searchName);
-      var url = parser.parse(items[i], source.searchInformationUrl);
+      final introduction = parser.query(items[i], source.searchIntroduction);
+      final name = parser.query(items[i], source.searchName);
+      var url = parser.query(items[i], source.searchInformationUrl);
       if (!url.startsWith('http')) {
         url = '${source.url ?? ''}$url';
       }
@@ -231,6 +263,7 @@ class Parser {
             cover: cover,
             introduction: introduction,
             name: name,
+            sourceId: source.id,
             url: url,
           ),
         );
@@ -242,13 +275,13 @@ class Parser {
       var informationUrl = books.first.url;
       html = await network.request(informationUrl);
       result.informationRaw = html;
-      document = parser.query(html);
-      var name = parser.parse(document, source.informationName);
-      var author = parser.parse(document, source.informationAuthor);
-      var cover = parser.parse(document, source.informationCover);
-      var category = parser.parse(document, source.informationCategory);
-      var catalogueUrl = parser.parse(document, source.informationCatalogueUrl);
-      var introduction = parser.parse(document, source.informationIntroduction);
+      document = parser.parse(html);
+      var name = parser.query(document, source.informationName);
+      var author = parser.query(document, source.informationAuthor);
+      var cover = parser.query(document, source.informationCover);
+      var category = parser.query(document, source.informationCategory);
+      var catalogueUrl = parser.query(document, source.informationCatalogueUrl);
+      var introduction = parser.query(document, source.informationIntroduction);
       final book = Book(
         name: name,
         author: author,
@@ -256,6 +289,7 @@ class Parser {
         cover: cover,
         catalogueUrl: catalogueUrl,
         introduction: introduction,
+        sourceId: source.id,
         url: books.first.url,
       );
       result.informationBook = book;
@@ -265,12 +299,12 @@ class Parser {
       }
       html = await network.request(catalogueUrl);
       result.catalogueRaw = html;
-      document = parser.query(html);
-      items = parser.parseNodes(document, source.catalogueChapters);
+      document = parser.parse(html);
+      items = parser.queryNodes(document, source.catalogueChapters);
       var chapters = <Chapter>[];
       for (var i = 0; i < items.length; i++) {
-        final name = parser.parse(items[i], source.catalogueName);
-        var url = parser.parse(items[i], source.catalogueUrl);
+        final name = parser.query(items[i], source.catalogueName);
+        var url = parser.query(items[i], source.catalogueUrl);
         if (!url.startsWith('http')) {
           url = '${source.url ?? ''}$url';
         }
@@ -286,8 +320,8 @@ class Parser {
       if (chapters.isNotEmpty) {
         html = await network.request(chapters.first.url);
         result.contentRaw = html;
-        document = parser.query(html);
-        var content = parser.parse(document, source.contentContent);
+        document = parser.parse(html);
+        var content = parser.query(document, source.contentContent);
         result.contentContent = content;
       }
     }

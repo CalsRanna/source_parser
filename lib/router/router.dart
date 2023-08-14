@@ -12,6 +12,7 @@ import 'package:source_parser/page/book_source/information.dart';
 import 'package:source_parser/page/book_source/search.dart';
 import 'package:source_parser/page/developer/developer.dart';
 import 'package:source_parser/page/home/home.dart';
+import 'package:source_parser/page/reader.dart';
 import 'package:source_parser/page/search/search.dart';
 import 'package:source_parser/page/about.dart';
 import 'package:source_parser/page/setting/reader_theme.dart';
@@ -29,6 +30,7 @@ final router = GoRouter(routes: [
   GoRoute(
       builder: (context, state) => const BookInformation(),
       path: '/book-information'),
+  GoRoute(builder: (context, state) => const Reader(), path: '/book-reader'),
   GoRoute(
     builder: (context, state) => const BookSourceAdvancedConfiguration(),
     path: '/book-source/advanced-configuration',

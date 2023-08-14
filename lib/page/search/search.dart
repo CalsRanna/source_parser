@@ -18,6 +18,14 @@ class Search extends StatefulWidget {
 class _SearchState extends State<Search> {
   var books = <Book>[];
 
+  final controller = TextEditingController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final cancel = TextButton(
@@ -69,7 +77,39 @@ class _SearchState extends State<Search> {
         centerTitle: false,
         leading: const SizedBox(),
         leadingWidth: 16,
-        title: _SearchInput(),
+        title: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Theme.of(context).colorScheme.surfaceVariant,
+          ),
+          height: 40,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.search,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  cursorHeight: 14,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    isCollapsed: true,
+                    hintText: '输入查询关键字',
+                    hintStyle: TextStyle(fontSize: 14, height: 1),
+                  ),
+                  style: const TextStyle(fontSize: 14),
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: (value) => search(context, value),
+                ),
+              ),
+            ],
+          ),
+        ),
         titleSpacing: 0,
       ),
       body: books.isEmpty
@@ -99,55 +139,6 @@ class _SearchState extends State<Search> {
         });
       });
     } catch (e) {
-      Message.of(context).show(e.toString());
-    }
-  }
-}
-
-class _SearchInput extends StatelessWidget {
-  _SearchInput({Key? key}) : super(key: key);
-
-  final controller = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Theme.of(context).colorScheme.surfaceVariant,
-      ),
-      height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          Icon(
-            Icons.search,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            size: 24,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              cursorHeight: 14,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                isCollapsed: true,
-                hintText: '输入查询关键字',
-                hintStyle: TextStyle(fontSize: 14, height: 1),
-              ),
-              style: const TextStyle(fontSize: 14),
-              textInputAction: TextInputAction.search,
-              onEditingComplete: () => search(context),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void search(BuildContext context) async {
-    try {} catch (e) {
       Message.of(context).show(e.toString());
     }
   }
