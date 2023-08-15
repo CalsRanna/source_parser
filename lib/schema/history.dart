@@ -7,6 +7,13 @@ part 'history.g.dart';
 class History {
   Id id = Isar.autoIncrement;
   String? author;
+  int? chapters;
   String? cover;
+  int cursor = 0;
+  int index = 0;
+  String? introduction;
   String? name;
+  @Name('source_id')
+  int? sourceId;
+  String? url;
 }

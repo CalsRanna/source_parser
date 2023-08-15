@@ -298,284 +298,54 @@ int _sourceEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  {
-    final value = object.catalogueChapters;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.catalogueName;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.cataloguePagination;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.catalogueUpdatedAt;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.catalogueUrl;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.catalogueVip;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
+  bytesCount += 3 + object.catalogueChapters.length * 3;
+  bytesCount += 3 + object.catalogueName.length * 3;
+  bytesCount += 3 + object.cataloguePagination.length * 3;
+  bytesCount += 3 + object.catalogueUpdatedAt.length * 3;
+  bytesCount += 3 + object.catalogueUrl.length * 3;
+  bytesCount += 3 + object.catalogueVip.length * 3;
   bytesCount += 3 + object.charset.length * 3;
-  {
-    final value = object.comment;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.contentContent;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.contentPagination;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.contentReplace;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.exploreAuthor;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.exploreBooks;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.exploreCategory;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.exploreCover;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.exploreInformationUrl;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.exploreIntroduction;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.exploreLatestChapter;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.exploreName;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.exploreUrl;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.exploreWordCount;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.group;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.header;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.informationAuthor;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.informationCatalogueUrl;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.informationCategory;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.informationCover;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.informationIntroduction;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.informationLatestChapter;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.informationName;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.informationPreprocess;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.informationWordCount;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.loginUrl;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.name;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.searchAuthor;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.searchBooks;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.searchCategory;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.searchCheckCredential;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.searchCover;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.searchInformationUrl;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.searchIntroduction;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.searchLatestChapter;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.searchName;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.searchUrl;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.searchWordCount;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
+  bytesCount += 3 + object.comment.length * 3;
+  bytesCount += 3 + object.contentContent.length * 3;
+  bytesCount += 3 + object.contentPagination.length * 3;
+  bytesCount += 3 + object.contentReplace.length * 3;
+  bytesCount += 3 + object.exploreAuthor.length * 3;
+  bytesCount += 3 + object.exploreBooks.length * 3;
+  bytesCount += 3 + object.exploreCategory.length * 3;
+  bytesCount += 3 + object.exploreCover.length * 3;
+  bytesCount += 3 + object.exploreInformationUrl.length * 3;
+  bytesCount += 3 + object.exploreIntroduction.length * 3;
+  bytesCount += 3 + object.exploreLatestChapter.length * 3;
+  bytesCount += 3 + object.exploreName.length * 3;
+  bytesCount += 3 + object.exploreUrl.length * 3;
+  bytesCount += 3 + object.exploreWordCount.length * 3;
+  bytesCount += 3 + object.group.length * 3;
+  bytesCount += 3 + object.header.length * 3;
+  bytesCount += 3 + object.informationAuthor.length * 3;
+  bytesCount += 3 + object.informationCatalogueUrl.length * 3;
+  bytesCount += 3 + object.informationCategory.length * 3;
+  bytesCount += 3 + object.informationCover.length * 3;
+  bytesCount += 3 + object.informationIntroduction.length * 3;
+  bytesCount += 3 + object.informationLatestChapter.length * 3;
+  bytesCount += 3 + object.informationName.length * 3;
+  bytesCount += 3 + object.informationPreprocess.length * 3;
+  bytesCount += 3 + object.informationWordCount.length * 3;
+  bytesCount += 3 + object.loginUrl.length * 3;
+  bytesCount += 3 + object.name.length * 3;
+  bytesCount += 3 + object.searchAuthor.length * 3;
+  bytesCount += 3 + object.searchBooks.length * 3;
+  bytesCount += 3 + object.searchCategory.length * 3;
+  bytesCount += 3 + object.searchCheckCredential.length * 3;
+  bytesCount += 3 + object.searchCover.length * 3;
+  bytesCount += 3 + object.searchInformationUrl.length * 3;
+  bytesCount += 3 + object.searchIntroduction.length * 3;
+  bytesCount += 3 + object.searchLatestChapter.length * 3;
+  bytesCount += 3 + object.searchName.length * 3;
+  bytesCount += 3 + object.searchUrl.length * 3;
+  bytesCount += 3 + object.searchWordCount.length * 3;
   bytesCount += 3 + object.type.length * 3;
-  {
-    final value = object.url;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.urlRegex;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
+  bytesCount += 3 + object.url.length * 3;
+  bytesCount += 3 + object.urlRegex.length * 3;
   return bytesCount;
 }
 
@@ -646,59 +416,59 @@ Source _sourceDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Source();
-  object.catalogueChapters = reader.readStringOrNull(offsets[0]);
-  object.catalogueName = reader.readStringOrNull(offsets[1]);
-  object.cataloguePagination = reader.readStringOrNull(offsets[2]);
-  object.catalogueUpdatedAt = reader.readStringOrNull(offsets[3]);
-  object.catalogueUrl = reader.readStringOrNull(offsets[4]);
-  object.catalogueVip = reader.readStringOrNull(offsets[5]);
+  object.catalogueChapters = reader.readString(offsets[0]);
+  object.catalogueName = reader.readString(offsets[1]);
+  object.cataloguePagination = reader.readString(offsets[2]);
+  object.catalogueUpdatedAt = reader.readString(offsets[3]);
+  object.catalogueUrl = reader.readString(offsets[4]);
+  object.catalogueVip = reader.readString(offsets[5]);
   object.charset = reader.readString(offsets[6]);
-  object.comment = reader.readStringOrNull(offsets[7]);
-  object.contentContent = reader.readStringOrNull(offsets[8]);
-  object.contentPagination = reader.readStringOrNull(offsets[9]);
-  object.contentReplace = reader.readStringOrNull(offsets[10]);
+  object.comment = reader.readString(offsets[7]);
+  object.contentContent = reader.readString(offsets[8]);
+  object.contentPagination = reader.readString(offsets[9]);
+  object.contentReplace = reader.readString(offsets[10]);
   object.enabled = reader.readBool(offsets[11]);
-  object.exploreAuthor = reader.readStringOrNull(offsets[12]);
-  object.exploreBooks = reader.readStringOrNull(offsets[13]);
-  object.exploreCategory = reader.readStringOrNull(offsets[14]);
-  object.exploreCover = reader.readStringOrNull(offsets[15]);
+  object.exploreAuthor = reader.readString(offsets[12]);
+  object.exploreBooks = reader.readString(offsets[13]);
+  object.exploreCategory = reader.readString(offsets[14]);
+  object.exploreCover = reader.readString(offsets[15]);
   object.exploreEnabled = reader.readBool(offsets[16]);
-  object.exploreInformationUrl = reader.readStringOrNull(offsets[17]);
-  object.exploreIntroduction = reader.readStringOrNull(offsets[18]);
-  object.exploreLatestChapter = reader.readStringOrNull(offsets[19]);
-  object.exploreName = reader.readStringOrNull(offsets[20]);
-  object.exploreUrl = reader.readStringOrNull(offsets[21]);
-  object.exploreWordCount = reader.readStringOrNull(offsets[22]);
-  object.group = reader.readStringOrNull(offsets[23]);
-  object.header = reader.readStringOrNull(offsets[24]);
+  object.exploreInformationUrl = reader.readString(offsets[17]);
+  object.exploreIntroduction = reader.readString(offsets[18]);
+  object.exploreLatestChapter = reader.readString(offsets[19]);
+  object.exploreName = reader.readString(offsets[20]);
+  object.exploreUrl = reader.readString(offsets[21]);
+  object.exploreWordCount = reader.readString(offsets[22]);
+  object.group = reader.readString(offsets[23]);
+  object.header = reader.readString(offsets[24]);
   object.id = id;
-  object.informationAuthor = reader.readStringOrNull(offsets[25]);
-  object.informationCatalogueUrl = reader.readStringOrNull(offsets[26]);
-  object.informationCategory = reader.readStringOrNull(offsets[27]);
-  object.informationCover = reader.readStringOrNull(offsets[28]);
-  object.informationIntroduction = reader.readStringOrNull(offsets[29]);
-  object.informationLatestChapter = reader.readStringOrNull(offsets[30]);
-  object.informationName = reader.readStringOrNull(offsets[31]);
-  object.informationPreprocess = reader.readStringOrNull(offsets[32]);
-  object.informationWordCount = reader.readStringOrNull(offsets[33]);
-  object.loginUrl = reader.readStringOrNull(offsets[34]);
-  object.name = reader.readStringOrNull(offsets[35]);
+  object.informationAuthor = reader.readString(offsets[25]);
+  object.informationCatalogueUrl = reader.readString(offsets[26]);
+  object.informationCategory = reader.readString(offsets[27]);
+  object.informationCover = reader.readString(offsets[28]);
+  object.informationIntroduction = reader.readString(offsets[29]);
+  object.informationLatestChapter = reader.readString(offsets[30]);
+  object.informationName = reader.readString(offsets[31]);
+  object.informationPreprocess = reader.readString(offsets[32]);
+  object.informationWordCount = reader.readString(offsets[33]);
+  object.loginUrl = reader.readString(offsets[34]);
+  object.name = reader.readString(offsets[35]);
   object.order = reader.readInt(offsets[36]);
-  object.searchAuthor = reader.readStringOrNull(offsets[37]);
-  object.searchBooks = reader.readStringOrNull(offsets[38]);
-  object.searchCategory = reader.readStringOrNull(offsets[39]);
-  object.searchCheckCredential = reader.readStringOrNull(offsets[40]);
-  object.searchCover = reader.readStringOrNull(offsets[41]);
-  object.searchInformationUrl = reader.readStringOrNull(offsets[42]);
-  object.searchIntroduction = reader.readStringOrNull(offsets[43]);
-  object.searchLatestChapter = reader.readStringOrNull(offsets[44]);
-  object.searchName = reader.readStringOrNull(offsets[45]);
-  object.searchUrl = reader.readStringOrNull(offsets[46]);
-  object.searchWordCount = reader.readStringOrNull(offsets[47]);
+  object.searchAuthor = reader.readString(offsets[37]);
+  object.searchBooks = reader.readString(offsets[38]);
+  object.searchCategory = reader.readString(offsets[39]);
+  object.searchCheckCredential = reader.readString(offsets[40]);
+  object.searchCover = reader.readString(offsets[41]);
+  object.searchInformationUrl = reader.readString(offsets[42]);
+  object.searchIntroduction = reader.readString(offsets[43]);
+  object.searchLatestChapter = reader.readString(offsets[44]);
+  object.searchName = reader.readString(offsets[45]);
+  object.searchUrl = reader.readString(offsets[46]);
+  object.searchWordCount = reader.readString(offsets[47]);
   object.type = reader.readString(offsets[48]);
-  object.url = reader.readStringOrNull(offsets[49]);
-  object.urlRegex = reader.readStringOrNull(offsets[50]);
-  object.weight = reader.readIntOrNull(offsets[51]);
+  object.url = reader.readString(offsets[49]);
+  object.urlRegex = reader.readString(offsets[50]);
+  object.weight = reader.readInt(offsets[51]);
   return object;
 }
 
@@ -710,109 +480,109 @@ P _sourceDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 9:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 10:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 11:
       return (reader.readBool(offset)) as P;
     case 12:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 13:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 14:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 15:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 16:
       return (reader.readBool(offset)) as P;
     case 17:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 18:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 19:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 20:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 21:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 22:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 23:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 24:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 25:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 26:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 27:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 28:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 29:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 30:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 31:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 32:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 33:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 34:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 35:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 36:
       return (reader.readInt(offset)) as P;
     case 37:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 38:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 39:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 40:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 41:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 42:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 43:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 44:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 45:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 46:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 47:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 48:
       return (reader.readString(offset)) as P;
     case 49:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 50:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 51:
-      return (reader.readIntOrNull(offset)) as P;
+      return (reader.readInt(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -906,26 +676,8 @@ extension SourceQueryWhere on QueryBuilder<Source, Source, QWhereClause> {
 }
 
 extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      catalogueChaptersIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'catalogue_chapters',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      catalogueChaptersIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'catalogue_chapters',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueChaptersEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -939,7 +691,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       catalogueChaptersGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -954,7 +706,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueChaptersLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -969,8 +721,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueChaptersBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1058,24 +810,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> catalogueNameIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'catalogue_name',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> catalogueNameIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'catalogue_name',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueNameEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1088,7 +824,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueNameGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1103,7 +839,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueNameLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1118,8 +854,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueNameBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1206,26 +942,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      cataloguePaginationIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'catalogue_pagination',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      cataloguePaginationIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'catalogue_pagination',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       cataloguePaginationEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1239,7 +957,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       cataloguePaginationGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1255,7 +973,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       cataloguePaginationLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1271,8 +989,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       cataloguePaginationBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1359,26 +1077,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      catalogueUpdatedAtIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'catalogue_updated_at',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      catalogueUpdatedAtIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'catalogue_updated_at',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueUpdatedAtEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1392,7 +1092,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       catalogueUpdatedAtGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1408,7 +1108,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       catalogueUpdatedAtLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1423,8 +1123,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueUpdatedAtBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1512,24 +1212,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> catalogueUrlIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'catalogue_url',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> catalogueUrlIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'catalogue_url',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueUrlEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1542,7 +1226,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueUrlGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1557,7 +1241,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueUrlLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1572,8 +1256,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueUrlBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1658,24 +1342,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> catalogueVipIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'catalogue_vip',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> catalogueVipIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'catalogue_vip',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueVipEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1688,7 +1356,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueVipGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1703,7 +1371,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueVipLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1718,8 +1386,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> catalogueVipBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1934,24 +1602,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> commentIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'comment',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> commentIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'comment',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> commentEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1964,7 +1616,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> commentGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1979,7 +1631,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> commentLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1994,8 +1646,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> commentBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -2080,25 +1732,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> contentContentIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'content_content',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      contentContentIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'content_content',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> contentContentEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -2111,7 +1746,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> contentContentGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -2126,7 +1761,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> contentContentLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -2141,8 +1776,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> contentContentBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -2228,26 +1863,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      contentPaginationIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'content_pagination',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      contentPaginationIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'content_pagination',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> contentPaginationEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -2261,7 +1878,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       contentPaginationGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -2276,7 +1893,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> contentPaginationLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -2291,8 +1908,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> contentPaginationBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -2380,25 +1997,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> contentReplaceIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'content_replace',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      contentReplaceIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'content_replace',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> contentReplaceEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -2411,7 +2011,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> contentReplaceGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -2426,7 +2026,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> contentReplaceLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -2441,8 +2041,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> contentReplaceBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -2538,24 +2138,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> exploreAuthorIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'explore_author',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> exploreAuthorIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'explore_author',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreAuthorEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -2568,7 +2152,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreAuthorGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -2583,7 +2167,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreAuthorLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -2598,8 +2182,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreAuthorBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -2685,24 +2269,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> exploreBooksIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'explore_books',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> exploreBooksIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'explore_books',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreBooksEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -2715,7 +2283,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreBooksGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -2730,7 +2298,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreBooksLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -2745,8 +2313,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreBooksBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -2831,25 +2399,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> exploreCategoryIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'explore_category',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreCategoryIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'explore_category',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreCategoryEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -2863,7 +2414,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreCategoryGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -2878,7 +2429,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreCategoryLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -2893,8 +2444,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreCategoryBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -2980,24 +2531,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> exploreCoverIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'explore_cover',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> exploreCoverIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'explore_cover',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreCoverEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -3010,7 +2545,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreCoverGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3025,7 +2560,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreCoverLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3040,8 +2575,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreCoverBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -3137,26 +2672,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreInformationUrlIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'explore_information_url',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreInformationUrlIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'explore_information_url',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreInformationUrlEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -3170,7 +2687,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreInformationUrlGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3186,7 +2703,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreInformationUrlLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3202,8 +2719,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreInformationUrlBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -3292,26 +2809,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreIntroductionIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'explore_introduction',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreIntroductionIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'explore_introduction',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreIntroductionEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -3325,7 +2824,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreIntroductionGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3341,7 +2840,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreIntroductionLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3357,8 +2856,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreIntroductionBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -3446,26 +2945,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreLatestChapterIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'explore_latest_chapter',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreLatestChapterIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'explore_latest_chapter',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreLatestChapterEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -3479,7 +2960,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreLatestChapterGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3495,7 +2976,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreLatestChapterLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3511,8 +2992,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreLatestChapterBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -3599,24 +3080,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> exploreNameIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'explore_name',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> exploreNameIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'explore_name',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreNameEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -3629,7 +3094,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreNameGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3644,7 +3109,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreNameLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3659,8 +3124,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreNameBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -3745,24 +3210,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> exploreUrlIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'explore_url',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> exploreUrlIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'explore_url',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreUrlEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -3775,7 +3224,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreUrlGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3790,7 +3239,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreUrlLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3805,8 +3254,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreUrlBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -3891,25 +3340,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> exploreWordCountIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'explore_word_count',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      exploreWordCountIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'explore_word_count',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreWordCountEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -3923,7 +3355,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       exploreWordCountGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3938,7 +3370,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreWordCountLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -3953,8 +3385,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> exploreWordCountBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -4042,24 +3474,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> groupIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'group',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> groupIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'group',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> groupEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -4072,7 +3488,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> groupGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -4087,7 +3503,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> groupLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -4102,8 +3518,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> groupBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -4188,24 +3604,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> headerIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'header',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> headerIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'header',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> headerEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -4218,7 +3618,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> headerGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -4233,7 +3633,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> headerLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -4248,8 +3648,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> headerBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -4386,26 +3786,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationAuthorIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'information_author',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationAuthorIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'information_author',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> informationAuthorEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -4419,7 +3801,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationAuthorGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -4434,7 +3816,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> informationAuthorLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -4449,8 +3831,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> informationAuthorBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -4539,26 +3921,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationCatalogueUrlIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'information_catalogue_url',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationCatalogueUrlIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'information_catalogue_url',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       informationCatalogueUrlEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -4572,7 +3936,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationCatalogueUrlGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -4588,7 +3952,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationCatalogueUrlLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -4604,8 +3968,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationCatalogueUrlBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -4695,26 +4059,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationCategoryIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'information_category',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationCategoryIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'information_category',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       informationCategoryEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -4728,7 +4074,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationCategoryGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -4744,7 +4090,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationCategoryLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -4760,8 +4106,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationCategoryBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -4848,25 +4194,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> informationCoverIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'information_cover',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationCoverIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'information_cover',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> informationCoverEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -4880,7 +4209,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationCoverGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -4895,7 +4224,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> informationCoverLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -4910,8 +4239,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> informationCoverBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -5000,26 +4329,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationIntroductionIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'information_introduction',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationIntroductionIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'information_introduction',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       informationIntroductionEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -5033,7 +4344,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationIntroductionGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5049,7 +4360,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationIntroductionLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5065,8 +4376,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationIntroductionBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -5156,26 +4467,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationLatestChapterIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'information_latest_chapter',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationLatestChapterIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'information_latest_chapter',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       informationLatestChapterEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -5189,7 +4482,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationLatestChapterGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5205,7 +4498,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationLatestChapterLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5221,8 +4514,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationLatestChapterBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -5311,25 +4604,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> informationNameIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'information_name',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationNameIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'information_name',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> informationNameEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -5343,7 +4619,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationNameGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5358,7 +4634,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> informationNameLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5373,8 +4649,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> informationNameBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -5461,26 +4737,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationPreprocessIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'information_preprocess',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationPreprocessIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'information_preprocess',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       informationPreprocessEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -5494,7 +4752,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationPreprocessGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5510,7 +4768,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationPreprocessLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5526,8 +4784,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationPreprocessBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -5616,26 +4874,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationWordCountIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'information_word_count',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      informationWordCountIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'information_word_count',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       informationWordCountEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -5649,7 +4889,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationWordCountGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5665,7 +4905,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationWordCountLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5681,8 +4921,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       informationWordCountBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -5769,24 +5009,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> loginUrlIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'login_url',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> loginUrlIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'login_url',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> loginUrlEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -5799,7 +5023,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> loginUrlGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5814,7 +5038,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> loginUrlLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5829,8 +5053,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> loginUrlBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -5915,24 +5139,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> nameIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'name',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> nameIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'name',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> nameEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -5945,7 +5153,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> nameGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5960,7 +5168,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> nameLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -5975,8 +5183,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> nameBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -6112,24 +5320,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> searchAuthorIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'search_author',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> searchAuthorIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'search_author',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> searchAuthorEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -6142,7 +5334,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchAuthorGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -6157,7 +5349,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchAuthorLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -6172,8 +5364,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchAuthorBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -6258,24 +5450,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> searchBooksIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'search_books',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> searchBooksIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'search_books',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> searchBooksEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -6288,7 +5464,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchBooksGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -6303,7 +5479,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchBooksLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -6318,8 +5494,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchBooksBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -6404,25 +5580,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> searchCategoryIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'search_category',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      searchCategoryIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'search_category',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> searchCategoryEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -6435,7 +5594,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchCategoryGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -6450,7 +5609,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchCategoryLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -6465,8 +5624,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchCategoryBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -6553,26 +5712,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      searchCheckCredentialIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'search_check_credential',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      searchCheckCredentialIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'search_check_credential',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       searchCheckCredentialEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -6586,7 +5727,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       searchCheckCredentialGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -6602,7 +5743,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       searchCheckCredentialLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -6618,8 +5759,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       searchCheckCredentialBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -6707,24 +5848,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> searchCoverIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'search_cover',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> searchCoverIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'search_cover',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> searchCoverEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -6737,7 +5862,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchCoverGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -6752,7 +5877,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchCoverLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -6767,8 +5892,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchCoverBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -6854,26 +5979,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      searchInformationUrlIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'search_information_url',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      searchInformationUrlIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'search_information_url',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       searchInformationUrlEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -6887,7 +5994,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       searchInformationUrlGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -6903,7 +6010,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       searchInformationUrlLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -6919,8 +6026,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       searchInformationUrlBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -7007,26 +6114,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      searchIntroductionIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'search_introduction',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      searchIntroductionIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'search_introduction',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> searchIntroductionEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -7040,7 +6129,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       searchIntroductionGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7056,7 +6145,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       searchIntroductionLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7071,8 +6160,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchIntroductionBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -7161,26 +6250,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
-      searchLatestChapterIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'search_latest_chapter',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      searchLatestChapterIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'search_latest_chapter',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
       searchLatestChapterEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -7194,7 +6265,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       searchLatestChapterGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7210,7 +6281,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       searchLatestChapterLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7226,8 +6297,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       searchLatestChapterBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -7314,24 +6385,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> searchNameIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'search_name',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> searchNameIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'search_name',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> searchNameEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -7344,7 +6399,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchNameGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7359,7 +6414,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchNameLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7374,8 +6429,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchNameBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -7460,24 +6515,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> searchUrlIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'search_url',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> searchUrlIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'search_url',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> searchUrlEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -7490,7 +6529,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchUrlGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7505,7 +6544,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchUrlLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7520,8 +6559,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchUrlBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -7606,25 +6645,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> searchWordCountIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'search_word_count',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition>
-      searchWordCountIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'search_word_count',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> searchWordCountEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -7638,7 +6660,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
 
   QueryBuilder<Source, Source, QAfterFilterCondition>
       searchWordCountGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7653,7 +6675,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchWordCountLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7668,8 +6690,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> searchWordCountBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -7884,24 +6906,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> urlIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'url',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> urlIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'url',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> urlEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -7914,7 +6920,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> urlGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7929,7 +6935,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> urlLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -7944,8 +6950,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> urlBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -8028,24 +7034,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> urlRegexIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'url_regex',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> urlRegexIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'url_regex',
-      ));
-    });
-  }
-
   QueryBuilder<Source, Source, QAfterFilterCondition> urlRegexEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -8058,7 +7048,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> urlRegexGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -8073,7 +7063,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> urlRegexLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -8088,8 +7078,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> urlRegexBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -8174,24 +7164,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Source, Source, QAfterFilterCondition> weightIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'weight',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> weightIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'weight',
-      ));
-    });
-  }
-
-  QueryBuilder<Source, Source, QAfterFilterCondition> weightEqualTo(
-      int? value) {
+  QueryBuilder<Source, Source, QAfterFilterCondition> weightEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'weight',
@@ -8201,7 +7174,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> weightGreaterThan(
-    int? value, {
+    int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -8214,7 +7187,7 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> weightLessThan(
-    int? value, {
+    int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -8227,8 +7200,8 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
   }
 
   QueryBuilder<Source, Source, QAfterFilterCondition> weightBetween(
-    int? lower,
-    int? upper, {
+    int lower,
+    int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
@@ -9920,38 +8893,37 @@ extension SourceQueryProperty on QueryBuilder<Source, Source, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> catalogueChaptersProperty() {
+  QueryBuilder<Source, String, QQueryOperations> catalogueChaptersProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'catalogue_chapters');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> catalogueNameProperty() {
+  QueryBuilder<Source, String, QQueryOperations> catalogueNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'catalogue_name');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
-      cataloguePaginationProperty() {
+  QueryBuilder<Source, String, QQueryOperations> cataloguePaginationProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'catalogue_pagination');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> catalogueUpdatedAtProperty() {
+  QueryBuilder<Source, String, QQueryOperations> catalogueUpdatedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'catalogue_updated_at');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> catalogueUrlProperty() {
+  QueryBuilder<Source, String, QQueryOperations> catalogueUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'catalogue_url');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> catalogueVipProperty() {
+  QueryBuilder<Source, String, QQueryOperations> catalogueVipProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'catalogue_vip');
     });
@@ -9963,25 +8935,25 @@ extension SourceQueryProperty on QueryBuilder<Source, Source, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> commentProperty() {
+  QueryBuilder<Source, String, QQueryOperations> commentProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'comment');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> contentContentProperty() {
+  QueryBuilder<Source, String, QQueryOperations> contentContentProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'content_content');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> contentPaginationProperty() {
+  QueryBuilder<Source, String, QQueryOperations> contentPaginationProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'content_pagination');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> contentReplaceProperty() {
+  QueryBuilder<Source, String, QQueryOperations> contentReplaceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'content_replace');
     });
@@ -9993,25 +8965,25 @@ extension SourceQueryProperty on QueryBuilder<Source, Source, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> exploreAuthorProperty() {
+  QueryBuilder<Source, String, QQueryOperations> exploreAuthorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'explore_author');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> exploreBooksProperty() {
+  QueryBuilder<Source, String, QQueryOperations> exploreBooksProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'explore_books');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> exploreCategoryProperty() {
+  QueryBuilder<Source, String, QQueryOperations> exploreCategoryProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'explore_category');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> exploreCoverProperty() {
+  QueryBuilder<Source, String, QQueryOperations> exploreCoverProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'explore_cover');
     });
@@ -10023,124 +8995,122 @@ extension SourceQueryProperty on QueryBuilder<Source, Source, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
+  QueryBuilder<Source, String, QQueryOperations>
       exploreInformationUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'explore_information_url');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
-      exploreIntroductionProperty() {
+  QueryBuilder<Source, String, QQueryOperations> exploreIntroductionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'explore_introduction');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
+  QueryBuilder<Source, String, QQueryOperations>
       exploreLatestChapterProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'explore_latest_chapter');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> exploreNameProperty() {
+  QueryBuilder<Source, String, QQueryOperations> exploreNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'explore_name');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> exploreUrlProperty() {
+  QueryBuilder<Source, String, QQueryOperations> exploreUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'explore_url');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> exploreWordCountProperty() {
+  QueryBuilder<Source, String, QQueryOperations> exploreWordCountProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'explore_word_count');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> groupProperty() {
+  QueryBuilder<Source, String, QQueryOperations> groupProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'group');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> headerProperty() {
+  QueryBuilder<Source, String, QQueryOperations> headerProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'header');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> informationAuthorProperty() {
+  QueryBuilder<Source, String, QQueryOperations> informationAuthorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'information_author');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
+  QueryBuilder<Source, String, QQueryOperations>
       informationCatalogueUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'information_catalogue_url');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
-      informationCategoryProperty() {
+  QueryBuilder<Source, String, QQueryOperations> informationCategoryProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'information_category');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> informationCoverProperty() {
+  QueryBuilder<Source, String, QQueryOperations> informationCoverProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'information_cover');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
+  QueryBuilder<Source, String, QQueryOperations>
       informationIntroductionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'information_introduction');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
+  QueryBuilder<Source, String, QQueryOperations>
       informationLatestChapterProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'information_latest_chapter');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> informationNameProperty() {
+  QueryBuilder<Source, String, QQueryOperations> informationNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'information_name');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
+  QueryBuilder<Source, String, QQueryOperations>
       informationPreprocessProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'information_preprocess');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
+  QueryBuilder<Source, String, QQueryOperations>
       informationWordCountProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'information_word_count');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> loginUrlProperty() {
+  QueryBuilder<Source, String, QQueryOperations> loginUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'login_url');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> nameProperty() {
+  QueryBuilder<Source, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
     });
@@ -10152,70 +9122,69 @@ extension SourceQueryProperty on QueryBuilder<Source, Source, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> searchAuthorProperty() {
+  QueryBuilder<Source, String, QQueryOperations> searchAuthorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'search_author');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> searchBooksProperty() {
+  QueryBuilder<Source, String, QQueryOperations> searchBooksProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'search_books');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> searchCategoryProperty() {
+  QueryBuilder<Source, String, QQueryOperations> searchCategoryProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'search_category');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
+  QueryBuilder<Source, String, QQueryOperations>
       searchCheckCredentialProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'search_check_credential');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> searchCoverProperty() {
+  QueryBuilder<Source, String, QQueryOperations> searchCoverProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'search_cover');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
+  QueryBuilder<Source, String, QQueryOperations>
       searchInformationUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'search_information_url');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> searchIntroductionProperty() {
+  QueryBuilder<Source, String, QQueryOperations> searchIntroductionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'search_introduction');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations>
-      searchLatestChapterProperty() {
+  QueryBuilder<Source, String, QQueryOperations> searchLatestChapterProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'search_latest_chapter');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> searchNameProperty() {
+  QueryBuilder<Source, String, QQueryOperations> searchNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'search_name');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> searchUrlProperty() {
+  QueryBuilder<Source, String, QQueryOperations> searchUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'search_url');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> searchWordCountProperty() {
+  QueryBuilder<Source, String, QQueryOperations> searchWordCountProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'search_word_count');
     });
@@ -10227,19 +9196,19 @@ extension SourceQueryProperty on QueryBuilder<Source, Source, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> urlProperty() {
+  QueryBuilder<Source, String, QQueryOperations> urlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'url');
     });
   }
 
-  QueryBuilder<Source, String?, QQueryOperations> urlRegexProperty() {
+  QueryBuilder<Source, String, QQueryOperations> urlRegexProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'url_regex');
     });
   }
 
-  QueryBuilder<Source, int?, QQueryOperations> weightProperty() {
+  QueryBuilder<Source, int, QQueryOperations> weightProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'weight');
     });

@@ -3,18 +3,16 @@ description: A parser use to do everything you want to.
 
 publish_to: "none"
 
-version: 1.0.0+3
+version: 1.0.0+4
 
 environment:
-  sdk: ">=2.17.1 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  # book_reader: ^0.0.1
-  book_reader:
-    path: ../book_reader/
+  book_reader: ^0.0.2
   cached_network: ^1.0.2
   cached_network_image: ^3.2.3
   creator: ^0.3.2
@@ -43,15 +41,3 @@ flutter:
 
   assets:
     - asset/image/default_cover.jpg
-
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700

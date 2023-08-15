@@ -10,7 +10,9 @@ final currentBookCreator = Creator.value(
     introduction: '',
     name: '',
     sourceId: 0,
+    sources: [0],
     url: '',
   ),
+  keepAlive: true,
   name: 'currentBookCreator',
 );

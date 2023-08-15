@@ -6,6 +6,7 @@ class Book {
   String introduction;
   String name;
   int sourceId;
+  List<int> sources;
   String url;
 
   Book({
@@ -16,6 +17,7 @@ class Book {
     required this.introduction,
     required this.name,
     required this.sourceId,
+    required this.sources,
     required this.url,
   });
 
@@ -28,6 +30,7 @@ class Book {
       introduction: json['introduction'],
       name: json['name'],
       sourceId: json['source_id'],
+      sources: json['sources'],
       url: json['url'],
     );
   }
@@ -41,6 +44,7 @@ class Book {
       'introduction': introduction,
       'name': name,
       'source_id': sourceId,
+      'sources': sources,
       'url': url,
     };
   }

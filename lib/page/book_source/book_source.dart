@@ -75,8 +75,7 @@ class SourceTile extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: color),
-                child: Text(source.name ?? '',
-                    style: const TextStyle(fontSize: 16)),
+                child: Text(source.name, style: const TextStyle(fontSize: 16)),
               ),
             ),
             IconTheme.merge(

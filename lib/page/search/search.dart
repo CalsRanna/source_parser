@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/model/book.dart';
-import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_list_tile.dart';
 import 'package:source_parser/widget/message.dart';
@@ -17,32 +16,44 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> {
   var books = <Book>[];
-
   final controller = TextEditingController();
+  final FocusNode node = FocusNode();
+  bool showResult = false;
+
+  @override
+  void initState() {
+    super.initState();
+    controller.addListener(() {
+      setState(() {
+        showResult = controller.text.isNotEmpty;
+      });
+    });
+  }
 
   @override
   void dispose() {
     controller.dispose();
+    node.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final medium = theme.textTheme.bodyMedium;
+
     final cancel = TextButton(
       onPressed: () => pop(context),
-      child: Text(
-        '取消',
-        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-      ),
+      child: Text('取消', style: medium),
     );
-
     final Widget body = SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            EmitterWatcher<List<History>>(
+            EmitterWatcher<List<Book>>(
               builder: (context, histories) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -53,12 +64,11 @@ class _SearchState extends State<Search> {
                     spacing: 8,
                     children: histories
                         .map((history) => ActionChip(
-                              label: Text(history.name ?? ''),
+                              label: Text(history.name),
                               labelPadding: EdgeInsets.zero,
                               materialTapTargetSize:
                                   MaterialTapTargetSize.shrinkWrap,
-                              onPressed: () =>
-                                  search(context, history.name ?? ''),
+                              onPressed: () => search(context, history.name),
                             ))
                         .toList(),
                   ),
@@ -77,42 +87,31 @@ class _SearchState extends State<Search> {
         centerTitle: false,
         leading: const SizedBox(),
         leadingWidth: 16,
-        title: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Theme.of(context).colorScheme.surfaceVariant,
+        title: TextField(
+          focusNode: node,
+          controller: controller,
+          decoration: InputDecoration(
+            fillColor: onSurface.withOpacity(0.05),
+            filled: true,
+            border: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
+            isCollapsed: true,
+            isDense: true,
+            hintText: '输入查询关键字',
           ),
-          height: 40,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              Icon(
-                Icons.search,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                size: 24,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  cursorHeight: 14,
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    isCollapsed: true,
-                    hintText: '输入查询关键字',
-                    hintStyle: TextStyle(fontSize: 14, height: 1),
-                  ),
-                  style: const TextStyle(fontSize: 14),
-                  textInputAction: TextInputAction.search,
-                  onSubmitted: (value) => search(context, value),
-                ),
-              ),
-            ],
-          ),
+          style: const TextStyle(fontSize: 14),
+          textInputAction: TextInputAction.search,
+          onSubmitted: (value) => search(context, value),
         ),
         titleSpacing: 0,
       ),
-      body: books.isEmpty
+      body: !showResult
           ? body
           : ListView.builder(
               itemBuilder: (context, index) {
@@ -131,12 +130,29 @@ class _SearchState extends State<Search> {
     setState(() {
       books = [];
     });
+    node.unfocus();
+    controller.text = credential;
     try {
       final stream = await Parser.search(credential);
-      stream.listen((book) {
-        setState(() {
-          books.add(book);
+      stream.listen((book) async {
+        final index = books.indexWhere((item) {
+          return item.name == book.name && item.author == book.author;
         });
+        if (index >= 0) {
+          var exist = books.elementAt(index);
+          if (exist.introduction.length < book.introduction.length) {
+            exist.introduction = book.introduction;
+          }
+          exist.sources.add(book.sourceId);
+          books[index] = exist;
+          setState(() {
+            books = [...books];
+          });
+        } else {
+          setState(() {
+            books.add(book);
+          });
+        }
       });
     } catch (e) {
       Message.of(context).show(e.toString());

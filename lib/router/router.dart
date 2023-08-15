@@ -10,18 +10,24 @@ import 'package:source_parser/page/book_source/importer.dart';
 import 'package:source_parser/page/book_source/detail.dart';
 import 'package:source_parser/page/book_source/information.dart';
 import 'package:source_parser/page/book_source/search.dart';
+import 'package:source_parser/page/catalogue.dart';
 import 'package:source_parser/page/developer/developer.dart';
 import 'package:source_parser/page/home/home.dart';
 import 'package:source_parser/page/reader.dart';
 import 'package:source_parser/page/search/search.dart';
 import 'package:source_parser/page/about.dart';
 import 'package:source_parser/page/setting/reader_theme.dart';
+import 'package:source_parser/page/source.dart';
 
 final router = GoRouter(routes: [
   GoRoute(path: '/', redirect: (context, state) => '/home'),
   GoRoute(
     builder: (context, state) => const HomePage(),
     path: '/home',
+  ),
+  GoRoute(
+    builder: (context, state) => const AvailableSources(),
+    path: '/book-available-sources',
   ),
   GoRoute(
     builder: (context, state) => const BookSourceList(),
@@ -31,6 +37,10 @@ final router = GoRouter(routes: [
       builder: (context, state) => const BookInformation(),
       path: '/book-information'),
   GoRoute(builder: (context, state) => const Reader(), path: '/book-reader'),
+  GoRoute(
+    builder: (context, state) => const Catalogue(),
+    path: '/book-catalogue',
+  ),
   GoRoute(
     builder: (context, state) => const BookSourceAdvancedConfiguration(),
     path: '/book-source/advanced-configuration',

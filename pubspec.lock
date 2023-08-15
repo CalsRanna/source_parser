@@ -44,10 +44,11 @@ packages:
   book_reader:
     dependency: "direct main"
     description:
-      path: "../book_reader"
-      relative: true
-    source: path
-    version: "0.0.1"
+      name: book_reader
+      sha256: "843cb34e3c7a77616810855b9752fa421e9b6b1fc76ad1f10c3bf5374c0005d8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   boolean_selector:
     dependency: transitive
     description:

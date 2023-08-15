@@ -3,7 +3,6 @@ import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/main.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/widget/setting_tile.dart';
 
@@ -97,8 +96,8 @@ class SettingView extends StatelessWidget {
     var setting = await ref.read(settingEmitter);
     setting.colorSeed = color.value;
     ref.emit(settingEmitter, setting.clone);
-    await isar.writeTxn(() async {
-      isar.settings.put(setting);
-    });
+    // await isar.writeTxn(() async {
+    //   isar.settings.put(setting);
+    // });
   }
 }

@@ -6,100 +6,100 @@ part 'source.g.dart';
 @Name('sources')
 class Source {
   Id id = Isar.autoIncrement;
-  String? name;
-  String? url;
+  String name = '';
+  String url = '';
   bool enabled = true;
   @Name('explore_enabled')
   bool exploreEnabled = false;
   String type = 'book';
-  String? group;
-  String? comment;
+  String group = '';
+  String comment = '';
   @Name('login_url')
-  String? loginUrl;
+  String loginUrl = '';
   @Name('url_regex')
-  String? urlRegex;
-  String? header;
+  String urlRegex = '';
+  String header = '';
   String charset = 'utf8';
-  short? weight;
+  short weight = 0;
   short order = 0;
   @Name('search_url')
-  String? searchUrl;
+  String searchUrl = '';
   @Name('search_check_credential')
-  String? searchCheckCredential;
+  String searchCheckCredential = '';
   @Name('search_books')
-  String? searchBooks;
+  String searchBooks = '';
   @Name('search_name')
-  String? searchName;
+  String searchName = '';
   @Name('search_author')
-  String? searchAuthor;
+  String searchAuthor = '';
   @Name('search_category')
-  String? searchCategory;
+  String searchCategory = '';
   @Name('search_word_count')
-  String? searchWordCount;
+  String searchWordCount = '';
   @Name('search_introduction')
-  String? searchIntroduction;
+  String searchIntroduction = '';
   @Name('search_cover')
-  String? searchCover;
+  String searchCover = '';
   @Name('search_information_url')
-  String? searchInformationUrl;
+  String searchInformationUrl = '';
   @Name('search_latest_chapter')
-  String? searchLatestChapter;
+  String searchLatestChapter = '';
   @Name('information_preprocess')
-  String? informationPreprocess;
+  String informationPreprocess = '';
   @Name('information_name')
-  String? informationName;
+  String informationName = '';
   @Name('information_author')
-  String? informationAuthor;
+  String informationAuthor = '';
   @Name('information_category')
-  String? informationCategory;
+  String informationCategory = '';
   @Name('information_word_count')
-  String? informationWordCount;
+  String informationWordCount = '';
   @Name('information_latest_chapter')
-  String? informationLatestChapter;
+  String informationLatestChapter = '';
   @Name('information_introduction')
-  String? informationIntroduction;
+  String informationIntroduction = '';
   @Name('information_cover')
-  String? informationCover;
+  String informationCover = '';
   @Name('information_catalogue_url')
-  String? informationCatalogueUrl;
+  String informationCatalogueUrl = '';
   @Name('catalogue_chapters')
-  String? catalogueChapters;
+  String catalogueChapters = '';
   @Name('catalogue_name')
-  String? catalogueName;
+  String catalogueName = '';
   @Name('catalogue_url')
-  String? catalogueUrl;
+  String catalogueUrl = '';
   @Name('catalogue_vip')
-  String? catalogueVip;
+  String catalogueVip = '';
   @Name('catalogue_updated_at')
-  String? catalogueUpdatedAt;
+  String catalogueUpdatedAt = '';
   @Name('catalogue_pagination')
-  String? cataloguePagination;
+  String cataloguePagination = '';
   @Name('content_content')
-  String? contentContent;
+  String contentContent = '';
   @Name('content_pagination')
-  String? contentPagination;
+  String contentPagination = '';
   @Name('content_replace')
-  String? contentReplace;
+  String contentReplace = '';
   @Name('explore_url')
-  String? exploreUrl;
+  String exploreUrl = '';
   @Name('explore_books')
-  String? exploreBooks;
+  String exploreBooks = '';
   @Name('explore_name')
-  String? exploreName;
+  String exploreName = '';
   @Name('explore_author')
-  String? exploreAuthor;
+  String exploreAuthor = '';
   @Name('explore_category')
-  String? exploreCategory;
+  String exploreCategory = '';
   @Name('explore_word_count')
-  String? exploreWordCount;
+  String exploreWordCount = '';
   @Name('explore_latest_chapter')
-  String? exploreLatestChapter;
+  String exploreLatestChapter = '';
   @Name('explore_introduction')
-  String? exploreIntroduction;
+  String exploreIntroduction = '';
   @Name('explore_cover')
-  String? exploreCover;
+  String exploreCover = '';
   @Name('explore_information_url')
-  String? exploreInformationUrl;
+  String exploreInformationUrl = '';
 
   Source copyWith({
     Id? id,

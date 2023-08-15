@@ -9,11 +9,10 @@ import 'package:source_parser/main.dart';
 import 'package:source_parser/model/book.dart';
 import 'package:source_parser/model/chapter.dart';
 import 'package:source_parser/model/debug.dart';
-import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/source.dart';
 
 class Parser {
-  static Future<List<History>> topSearch() async {
+  static Future<List<Book>> topSearch() async {
     final html = await CachedNetwork().request(
       'https://top.baidu.com/board?tab=novel',
       duration: const Duration(hours: 6),
@@ -24,13 +23,23 @@ class Parser {
       node,
       '//div[@class="container-bg_lQ801"]/div/div[@class="category-wrap_iQLoo"]',
     );
-    return nodes
-        .map((node) => History()
-          ..name = parser.query(
-            node,
-            '/div[@class="content_1YWBm"]/a/div@text',
-          ))
-        .toList();
+    return nodes.map((node) {
+      final name = parser.query(
+        node,
+        '/div[@class="content_1YWBm"]/a/div@text',
+      );
+      return Book(
+        author: '',
+        catalogueUrl: '',
+        category: '',
+        cover: '',
+        introduction: '',
+        name: name.trim(),
+        sourceId: 0,
+        sources: [0],
+        url: '',
+      );
+    }).toList();
   }
 
   static Future<Stream<Book>> search(
@@ -72,10 +81,10 @@ class Parser {
       final send = message[3] as SendPort;
 
       final searchUrl = source.searchUrl
-          ?.replaceAll('{{credential}}', credential)
+          .replaceAll('{{credential}}', credential)
           .replaceAll('{{page}}', '1');
       var html = await network.request(
-        searchUrl ?? '',
+        searchUrl,
         charset: source.charset,
         duration: const Duration(hours: 6),
       );
@@ -87,13 +96,13 @@ class Parser {
         final category = parser.query(items[i], source.searchCategory);
         var cover = parser.query(items[i], source.searchCover);
         if (!cover.startsWith('http')) {
-          cover = '${source.url ?? ''}$cover';
+          cover = '${source.url}$cover';
         }
         final introduction = parser.query(items[i], source.searchIntroduction);
         final name = parser.query(items[i], source.searchName);
         var url = parser.query(items[i], source.searchInformationUrl);
         if (!url.startsWith('http')) {
-          url = '${source.url ?? ''}$url';
+          url = '${source.url}$url';
         }
         if (name.isNotEmpty) {
           send.send(
@@ -105,6 +114,7 @@ class Parser {
               introduction: introduction,
               name: name,
               sourceId: source.id,
+              sources: [source.id],
               url: url,
             ),
           );
@@ -127,7 +137,7 @@ class Parser {
       final name = parser.query(items[i], source.catalogueName);
       var url = parser.query(items[i], source.catalogueUrl);
       if (!url.startsWith('http')) {
-        url = '${source.url ?? ''}$url';
+        url = '${source.url}$url';
       }
       chapters.add(Chapter(name: name, url: url));
     }
@@ -137,82 +147,15 @@ class Parser {
   Future<String> getContent({
     required String url,
     required Source source,
+    required String title,
+    bool reacquire = false,
   }) async {
-    final html = await CachedNetwork().request(url);
+    final html = await CachedNetwork().request(url, reacquire: reacquire);
     final parser = HtmlParser();
     final document = parser.parse(html);
     final content = parser.query(document, source.contentContent);
-    return content;
+    return '$title\n$content';
   }
-
-  static Future<Stream<History>> fetch(
-    History history,
-  ) async {
-    final controller = StreamController<History>();
-    // var source = await database.bookSourceDao.getBookSource(book.sourceId!);
-    // var rules = await database.ruleDao.getRulesBySourceId(source!.id!);
-    // var informationRule = InformationRule.fromJson(rules.toJson());
-    // var sender = ReceivePort();
-    // var isolate = await Isolate.spawn(_fetchInIsolate, sender.sendPort);
-    // var sendPort = await sender.first as SendPort;
-    // var reciver = ReceivePort();
-    // sendPort.send([
-    //   source,
-    //   informationRule,
-    //   book,
-    //   folder,
-    //   reciver.sendPort,
-    // ]);
-    // reciver.forEach((element) {
-    //   if (element.runtimeType == Book) {
-    //     controller.add(element);
-    //   } else if (element == 'close') {
-    //     isolate.kill();
-    //   }
-    // });
-
-    return controller.stream;
-  }
-
-  // static void _fetchInIsolate(SendPort message) {
-  //   final port = ReceivePort();
-  //   message.send(port.sendPort);
-  //   port.listen((message) async {
-  //     // final source = message[0] as BookSource;
-  //     // final rule = message[1] as InformationRule;
-  //     // final book = message[2] as Book;
-  //     // final folder = message[3] as Directory;
-  //     final send = message[4] as SendPort;
-
-  //     // var charset = CachedNetworkCharset.utf8;
-  //     // if (source.charset != 'utf8') {
-  //     //   charset = CachedNetworkCharset.gbk;
-  //     // }
-  //     // final response = await CachedNetwork(
-  //     //   baseUrl: source.url,
-  //     //   cacheFolder: folder,
-  //     //   charset: charset,
-  //     // ).get(book.url!, permanent: false);
-  //     // var document = HtmlXPath.html(response ?? '').root;
-  //     // final author = XPathParser.parse(document, rule.author);
-  //     // final catalogueUrl = XPathParser.parse(document, rule.catalogueUrl);
-  //     // final category = XPathParser.parse(document, rule.category);
-  //     // final cover = XPathParser.parse(document, rule.cover);
-  //     // final introduction = XPathParser.parse(document, rule.introduction);
-  //     // final name = XPathParser.parse(document, rule.name);
-  //     // send.send(Book(
-  //     //   author: author,
-  //     //   catalogueUrl: catalogueUrl,
-  //     //   category: category,
-  //     //   cover: cover,
-  //     //   introduction: introduction,
-  //     //   name: name,
-  //     //   url: book.url,
-  //     //   sourceId: book.sourceId,
-  //     // ));
-  //     send.send('close');
-  //   });
-  // }
 
   Future<DebugResult> debug(String credential, Source source) async {
     var result = DebugResult(
@@ -228,10 +171,10 @@ class Parser {
     final network = CachedNetwork();
     // // 调试搜索解析规则
     final searchUrl = source.searchUrl
-        ?.replaceAll('{{credential}}', credential)
+        .replaceAll('{{credential}}', credential)
         .replaceAll('{{page}}', '1');
     var html = await network.request(
-      searchUrl ?? '',
+      searchUrl,
       charset: source.charset,
       duration: const Duration(hours: 6),
       // reacquire: true,
@@ -246,13 +189,13 @@ class Parser {
       final category = parser.query(items[i], source.searchCategory);
       var cover = parser.query(items[i], source.searchCover);
       if (!cover.startsWith('http')) {
-        cover = '${source.url ?? ''}$cover';
+        cover = '${source.url}$cover';
       }
       final introduction = parser.query(items[i], source.searchIntroduction);
       final name = parser.query(items[i], source.searchName);
       var url = parser.query(items[i], source.searchInformationUrl);
       if (!url.startsWith('http')) {
-        url = '${source.url ?? ''}$url';
+        url = '${source.url}$url';
       }
       if (name.isNotEmpty) {
         books.add(
@@ -264,6 +207,7 @@ class Parser {
             introduction: introduction,
             name: name,
             sourceId: source.id,
+            sources: [source.id],
             url: url,
           ),
         );
@@ -290,6 +234,7 @@ class Parser {
         catalogueUrl: catalogueUrl,
         introduction: introduction,
         sourceId: source.id,
+        sources: [source.id],
         url: books.first.url,
       );
       result.informationBook = book;
@@ -306,7 +251,7 @@ class Parser {
         final name = parser.query(items[i], source.catalogueName);
         var url = parser.query(items[i], source.catalogueUrl);
         if (!url.startsWith('http')) {
-          url = '${source.url ?? ''}$url';
+          url = '${source.url}$url';
         }
         chapters.add(
           Chapter(

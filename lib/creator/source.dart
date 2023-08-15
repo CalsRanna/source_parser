@@ -7,9 +7,10 @@ import 'package:source_parser/schema/source.dart';
 final sourcesEmitter = Emitter<List<Source>>((ref, emit) async {
   final sources = await isar.sources.where().findAll();
   emit(sources);
-}, name: 'sourcesEmitter');
+}, keepAlive: true, name: 'sourcesEmitter');
 
 final currentSourceCreator = Creator<Source>.value(
   Source(),
+  keepAlive: true,
   name: 'currentSourceCreator',
 );

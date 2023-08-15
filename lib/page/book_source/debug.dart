@@ -57,7 +57,7 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
                   results: result.searchBooks.map((e) => e.toJson()).toList(),
                   title: '搜索',
                 ),
-                const _DebugResultTile(title: '发现'),
+                // const _DebugResultTile(title: '发现'),
                 _DebugResultTile(
                   response: result.informationRaw.plain(),
                   results: [result.informationBook?.toJson() ?? {}],

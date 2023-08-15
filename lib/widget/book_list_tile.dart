@@ -14,14 +14,14 @@ class BookListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final surfaceVariant = colorScheme.surfaceVariant;
+    final onSurface = colorScheme.onSurface;
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
     return GestureDetector(
       onTap: () => _handleTap(context),
       child: Container(
-        color: surfaceVariant,
+        color: onSurface.withOpacity(0.05),
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(8),
         child: Row(

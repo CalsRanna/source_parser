@@ -1,8 +1,9 @@
 import 'package:creator/creator.dart';
+import 'package:source_parser/model/book.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/util/parser.dart';
 
-final hotHistoriesEmitter = Emitter<List<History>>((ref, emit) async {
+final hotHistoriesEmitter = Emitter<List<Book>>((ref, emit) async {
   final histories = await Parser.topSearch();
   emit(histories);
 }, name: 'hotHistoriesEmitter');
