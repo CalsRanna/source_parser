@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:cached_network/cached_network.dart';
@@ -271,5 +272,23 @@ class Parser {
       }
     }
     return result;
+  }
+
+  Future<List<Source>> importNetworkSource(String url) async {
+    final network = CachedNetwork();
+    final html = await network.request(url, reacquire: true);
+    final parser = HtmlParser();
+    final document = parser.parse(html);
+    final raw = parser.query(document, '/@text');
+    final json = jsonDecode(raw);
+    List<Source> sources = [];
+    if (json is List) {
+      for (var element in json) {
+        sources.add(Source.fromJson(element));
+      }
+    } else {
+      sources.add(Source.fromJson(json));
+    }
+    return sources;
   }
 }
