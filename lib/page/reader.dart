@@ -1,5 +1,6 @@
 // import 'package:book_reader/book_reader.dart';
 import 'package:book_reader/book_reader.dart';
+import 'package:cached_network/cached_network.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,7 @@ import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/main.dart';
+import 'package:source_parser/model/chapter.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/message.dart';
@@ -45,7 +47,10 @@ class _ReaderState extends State<Reader> {
           title: chapters.elementAt(index).name,
         ),
         onProgressChanged: handleProgressChanged,
-        onChapterChanged: handleChapterChanged,
+        onChapterChanged: (index) => handleChapterChanged(
+          index: index,
+          chapters: chapters,
+        ),
         onCatalogueNavigated: handleCatalogueNavigated,
       );
     });
@@ -80,8 +85,16 @@ class _ReaderState extends State<Reader> {
     });
   }
 
-  void handleChapterChanged(int index) {
+  void handleChapterChanged({
+    required int index,
+    required List<Chapter> chapters,
+  }) {
     context.ref.set(currentChapterIndexCreator, index);
+    final length = chapters.length;
+    if (index + 1 < length) {
+      final url = chapters.elementAt(index + 1).url;
+      CachedNetwork().request(url);
+    }
   }
 
   void handleCatalogueNavigated() {
