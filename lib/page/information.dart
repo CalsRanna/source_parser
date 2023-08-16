@@ -16,7 +16,7 @@ import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
-import 'package:source_parser/widget/message.dart';
+import 'package:source_parser/util/message.dart';
 
 class BookInformation extends StatefulWidget {
   const BookInformation({super.key});

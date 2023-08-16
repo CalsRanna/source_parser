@@ -12,7 +12,7 @@ import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
-import 'package:source_parser/widget/message.dart';
+import 'package:source_parser/util/message.dart';
 
 class ShelfView extends StatefulWidget {
   const ShelfView({super.key});
@@ -87,7 +87,7 @@ class _ShelfTile extends StatelessWidget {
       onLongPress: () => _handleLongPress(context),
       onTap: () => _handleTap(context),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
         child: Row(
           children: [
             BookCover(

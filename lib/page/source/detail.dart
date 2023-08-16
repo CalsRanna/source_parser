@@ -7,7 +7,7 @@ import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/main.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
-import 'package:source_parser/widget/message.dart';
+import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
 class BookSourceInformation extends StatelessWidget {

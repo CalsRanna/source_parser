@@ -1,11 +1,12 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/model/book.dart';
 import 'package:source_parser/util/parser.dart';
-import 'package:source_parser/widget/book_list_tile.dart';
-import 'package:source_parser/widget/message.dart';
+import 'package:source_parser/widget/book_cover.dart';
+import 'package:source_parser/util/message.dart';
 
 class Search extends StatefulWidget {
   const Search({Key? key}) : super(key: key);
@@ -125,12 +126,15 @@ class _SearchState extends State<Search> {
                   Expanded(
                     child: ListView.separated(
                       itemBuilder: (context, index) {
-                        return BookListTile(book: books[index]);
+                        return _SearchTile(book: books[index]);
                       },
                       itemCount: books.length,
                       separatorBuilder: (context, index) {
                         return Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           child: Divider(
                             color: outline.withOpacity(0.05),
                             height: 1,
@@ -193,5 +197,79 @@ class _SearchState extends State<Search> {
     } catch (e) {
       Message.of(context).show(e.toString());
     }
+  }
+}
+
+class _SearchTile extends StatelessWidget {
+  const _SearchTile({Key? key, required this.book}) : super(key: key);
+
+  final Book book;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final bodyMedium = textTheme.bodyMedium;
+    final bodySmall = textTheme.bodySmall;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _handleTap(context),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BookCover(url: book.cover),
+            const SizedBox(width: 16),
+            Expanded(
+              child: SizedBox(
+                height: 96,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      book.name,
+                      style: bodyMedium,
+                    ),
+                    Text(_buildSubtitle() ?? '', style: bodySmall),
+                    const Spacer(),
+                    Text(
+                      book.introduction
+                          .replaceAll('\n', '')
+                          .replaceAll(' ', ''),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _handleTap(BuildContext context) {
+    context.ref.set(currentBookCreator, book);
+    context.push('/book-information');
+  }
+
+  String? _buildSubtitle() {
+    final spans = <String>[];
+    if (book.author.isNotEmpty) {
+      spans.add(book.author);
+    }
+    if (book.category.isNotEmpty) {
+      spans.add(book.category);
+    }
+    if (book.status.isNotEmpty) {
+      spans.add(book.status);
+    }
+    if (book.words.isNotEmpty) {
+      spans.add(book.words);
+    }
+    return spans.isNotEmpty ? spans.join(' · ') : null;
   }
 }

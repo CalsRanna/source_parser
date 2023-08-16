@@ -1,22 +1,22 @@
 import 'package:go_router/go_router.dart';
-import 'package:source_parser/page/book/book_information.dart';
-import 'package:source_parser/page/book_source/advanced.dart';
-import 'package:source_parser/page/book_source/catalogue.dart';
-import 'package:source_parser/page/book_source/content.dart';
-import 'package:source_parser/page/book_source/book_source.dart';
-import 'package:source_parser/page/book_source/debug.dart';
-import 'package:source_parser/page/book_source/explore.dart';
-import 'package:source_parser/page/book_source/importer.dart';
-import 'package:source_parser/page/book_source/detail.dart';
-import 'package:source_parser/page/book_source/information.dart';
-import 'package:source_parser/page/book_source/search.dart';
+import 'package:source_parser/page/information.dart';
+import 'package:source_parser/page/source/advanced.dart';
+import 'package:source_parser/page/source/catalogue.dart';
+import 'package:source_parser/page/source/content.dart';
+import 'package:source_parser/page/source/source.dart';
+import 'package:source_parser/page/source/debug.dart';
+import 'package:source_parser/page/source/explore.dart';
+import 'package:source_parser/page/source/importer.dart';
+import 'package:source_parser/page/source/detail.dart';
+import 'package:source_parser/page/source/information.dart';
+import 'package:source_parser/page/source/search.dart';
 import 'package:source_parser/page/catalogue.dart';
-import 'package:source_parser/page/developer/developer.dart';
+import 'package:source_parser/page/developer.dart';
 import 'package:source_parser/page/home/home.dart';
 import 'package:source_parser/page/reader.dart';
-import 'package:source_parser/page/search/search.dart';
+import 'package:source_parser/page/search.dart';
 import 'package:source_parser/page/about.dart';
-import 'package:source_parser/page/setting/reader_theme.dart';
+import 'package:source_parser/page/theme.dart';
 import 'package:source_parser/page/source.dart';
 
 final router = GoRouter(routes: [

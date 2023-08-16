@@ -2,7 +2,7 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/schema/setting.dart';
-import 'package:source_parser/widget/message.dart';
+import 'package:source_parser/util/message.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({Key? key}) : super(key: key);
@@ -22,7 +22,7 @@ class _AboutPageState extends State<AboutPage> {
       appBar: AppBar(),
       body: Center(
         child: GestureDetector(
-          onTap: () => handleTap(context),
+          // onTap: () => handleTap(context),
           child: const Text('凤箫声动，玉壶光转，一夜鱼龙舞。'),
         ),
       ),

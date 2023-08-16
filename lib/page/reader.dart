@@ -12,7 +12,7 @@ import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/main.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/util/parser.dart';
-import 'package:source_parser/widget/message.dart';
+import 'package:source_parser/util/message.dart';
 
 class Reader extends StatefulWidget {
   const Reader({super.key});
