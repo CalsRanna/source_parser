@@ -16,6 +16,7 @@ class Catalogue extends StatefulWidget {
 
 class _CatalogueState extends State<Catalogue> {
   late ScrollController controller;
+  bool atTop = true;
 
   @override
   void didChangeDependencies() {
@@ -32,7 +33,10 @@ class _CatalogueState extends State<Catalogue> {
       appBar: AppBar(
         title: const Text('目录'),
         actions: [
-          TextButton(onPressed: handlePressed, child: const Text('底部'))
+          TextButton(
+            onPressed: handlePressed,
+            child: Text(atTop ? '底部' : '顶部'),
+          )
         ],
       ),
       body: Watcher((context, ref, child) {
@@ -59,11 +63,16 @@ class _CatalogueState extends State<Catalogue> {
   }
 
   void handlePressed() {
-    controller.animateTo(
-      controller.position.maxScrollExtent,
-      curve: Curves.bounceInOut,
-      duration: const Duration(milliseconds: 200),
-    );
+    var position = controller.position.maxScrollExtent;
+    if (!atTop) {
+      position = controller.position.minScrollExtent;
+    }
+    const curve = Curves.easeInOut;
+    const duration = Duration(milliseconds: 200);
+    controller.animateTo(position, curve: curve, duration: duration);
+    setState(() {
+      atTop = !atTop;
+    });
   }
 
   void startReader(int index) async {
