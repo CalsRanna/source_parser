@@ -1,4 +1,4 @@
-import 'package:creator_watcher/creator_watcher.dart';
+import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/creator/history.dart';
@@ -19,6 +19,7 @@ class _SearchState extends State<Search> {
   final controller = TextEditingController();
   final FocusNode node = FocusNode();
   bool showResult = false;
+  bool loading = false;
 
   @override
   void initState() {
@@ -53,8 +54,10 @@ class _SearchState extends State<Search> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            EmitterWatcher<List<Book>>(
-              builder: (context, histories) => Column(
+            Watcher((context, ref, child) {
+              final histories =
+                  ref.watch(hotHistoriesEmitter.asyncData).data ?? [];
+              return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('热门搜索'),
@@ -73,9 +76,8 @@ class _SearchState extends State<Search> {
                         .toList(),
                   ),
                 ],
-              ),
-              emitter: hotHistoriesEmitter,
-            ),
+              );
+            })
           ],
         ),
       ),
@@ -108,16 +110,31 @@ class _SearchState extends State<Search> {
           style: const TextStyle(fontSize: 14),
           textInputAction: TextInputAction.search,
           onSubmitted: (value) => search(context, value),
+          onTapOutside: (event) => node.unfocus(),
         ),
         titleSpacing: 0,
       ),
       body: !showResult
           ? body
-          : ListView.builder(
-              itemBuilder: (context, index) {
-                return BookListTile(book: books[index]);
-              },
-              itemCount: books.length,
+          : Column(
+              children: [
+                if (loading) const LinearProgressIndicator(),
+                if (books.isNotEmpty && !node.hasFocus)
+                  Expanded(
+                    child: ListView.builder(
+                      itemBuilder: (context, index) {
+                        return BookListTile(book: books[index]);
+                      },
+                      itemCount: books.length,
+                    ),
+                  ),
+                if (books.isEmpty && !loading && !node.hasFocus)
+                  const Expanded(
+                    child: Center(
+                      child: Text('空空如也'),
+                    ),
+                  ),
+              ],
             ),
     );
   }
@@ -128,32 +145,40 @@ class _SearchState extends State<Search> {
 
   void search(BuildContext context, String credential) async {
     setState(() {
+      loading = true;
       books = [];
     });
     node.unfocus();
     controller.text = credential;
     try {
       final stream = await Parser.search(credential);
-      stream.listen((book) async {
-        final index = books.indexWhere((item) {
-          return item.name == book.name && item.author == book.author;
-        });
-        if (index >= 0) {
-          var exist = books.elementAt(index);
-          if (exist.introduction.length < book.introduction.length) {
-            exist.introduction = book.introduction;
+      stream.listen(
+        (book) async {
+          final index = books.indexWhere((item) {
+            return item.name == book.name && item.author == book.author;
+          });
+          if (index >= 0) {
+            var exist = books.elementAt(index);
+            if (exist.introduction.length < book.introduction.length) {
+              exist.introduction = book.introduction;
+            }
+            exist.sources.add(book.sourceId);
+            books[index] = exist;
+            setState(() {
+              books = [...books];
+            });
+          } else {
+            setState(() {
+              books.add(book);
+            });
           }
-          exist.sources.add(book.sourceId);
-          books[index] = exist;
+        },
+        onDone: () {
           setState(() {
-            books = [...books];
+            loading = false;
           });
-        } else {
-          setState(() {
-            books.add(book);
-          });
-        }
-      });
+        },
+      );
     } catch (e) {
       Message.of(context).show(e.toString());
     }

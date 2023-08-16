@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
+import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/main.dart';
 import 'package:source_parser/schema/history.dart';
@@ -51,6 +52,7 @@ class _ReaderState extends State<Reader> {
         onProgressChanged: handleProgressChanged,
         onChapterChanged: handleChapterChanged,
         onCatalogueNavigated: handleCatalogueNavigated,
+        onPop: handlePop,
       );
     });
   }
@@ -101,5 +103,11 @@ class _ReaderState extends State<Reader> {
 
   void handleCatalogueNavigated() {
     context.push('/book-catalogue');
+  }
+
+  void handlePop(int index, int cursor) async {
+    final ref = context.ref;
+    final histories = await isar.historys.where().findAll();
+    ref.set(historiesCreator, histories);
   }
 }

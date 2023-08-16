@@ -50,6 +50,7 @@ class Parser {
     final sources = await isar.sources.filter().enabledEqualTo(true).findAll();
     final cacheDirectory = await getTemporaryDirectory();
     final network = CachedNetwork(cacheDirectory: cacheDirectory);
+    var closed = 0;
     for (var i = 0; i < sources.length; i++) {
       var sender = ReceivePort();
       var isolate = await Isolate.spawn(_searchInIsolate, sender.sendPort);
@@ -61,11 +62,15 @@ class Parser {
         credential,
         receiver.sendPort,
       ]);
-      receiver.forEach((element) {
+      receiver.forEach((element) async {
         if (element.runtimeType == Book) {
           controller.add(element);
         } else if (element == 'close') {
           isolate.kill();
+          closed++;
+          if (closed == sources.length) {
+            controller.close();
+          }
         }
       });
     }
