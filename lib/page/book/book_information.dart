@@ -231,14 +231,13 @@ class _BookInformationState extends State<BookInformation> {
         .authorEqualTo(book.author)
         .findFirst();
     history ??= History();
+    ref.set(currentChapterIndexCreator, history.index);
+    ref.set(currentCursorCreator, history.cursor);
     if (source != null) {
-      final chapters = await Parser().getChapters(
-        source: source,
-        url: book.url,
-      );
-      ref.set(currentChaptersCreator, chapters);
       ref.set(currentSourceCreator, source);
-      ref.set(currentChapterIndexCreator, history.index);
+      final parser = Parser();
+      final chapters = await parser.getChapters(source: source, url: book.url);
+      ref.set(currentChaptersCreator, chapters);
     }
     router.push('/book-reader');
     final chapters = ref.read(currentChaptersCreator);

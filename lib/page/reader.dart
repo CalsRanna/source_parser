@@ -29,12 +29,15 @@ class _ReaderState extends State<Reader> {
       final chapters = ref.watch(currentChaptersCreator);
       final index = ref.watch(currentChapterIndexCreator);
       final source = ref.watch(currentSourceCreator);
+      final cursor = ref.watch(currentCursorCreator);
+
       return BookReader(
         future: (index) => Parser().getContent(
           url: chapters.elementAt(index).url,
           source: source,
           title: chapters.elementAt(index).name,
         ),
+        cursor: cursor,
         index: index,
         total: chapters.length,
         name: book.name,
