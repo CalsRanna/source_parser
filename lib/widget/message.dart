@@ -6,7 +6,9 @@ class Message {
   Message.of(this.context);
 
   void show(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(SnackBar(
       content: Text(message),
     ));
   }

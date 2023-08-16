@@ -3,8 +3,8 @@ class Chapter {
   String url;
 
   Chapter({
-    required this.name,
-    required this.url,
+    this.name = '',
+    this.url = '',
   });
 
   factory Chapter.fromJson(Map<String, dynamic> json) {

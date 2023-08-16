@@ -10,15 +10,15 @@ class Book {
   String url;
 
   Book({
-    required this.author,
-    required this.catalogueUrl,
-    required this.category,
-    required this.cover,
-    required this.introduction,
-    required this.name,
-    required this.sourceId,
-    required this.sources,
-    required this.url,
+    this.author = '',
+    this.catalogueUrl = '',
+    this.category = '',
+    this.cover = '',
+    this.introduction = '',
+    this.name = '',
+    this.sourceId = 0,
+    this.sources = const <int>[],
+    this.url = '',
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {

@@ -12,6 +12,7 @@ import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
+import 'package:source_parser/widget/message.dart';
 
 class ShelfView extends StatefulWidget {
   const ShelfView({super.key});
@@ -78,18 +79,15 @@ class _ShelfTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final onSurface = colorScheme.onSurface;
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onLongPress: () => _handleLongPress(context),
       onTap: () => _handleTap(context),
-      child: Container(
-        color: onSurface.withOpacity(0.05),
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(8),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
         child: Row(
           children: [
             BookCover(
@@ -162,6 +160,7 @@ class _ShelfTile extends StatelessWidget {
   void _handleTap(BuildContext context) async {
     final ref = context.ref;
     final router = GoRouter.of(context);
+    final message = Message.of(context);
     ref.set(currentBookCreator, Book.fromJson(history.toJson()));
     ref.set(currentChapterIndexCreator, history.index);
     ref.set(currentCursorCreator, history.cursor);
@@ -173,6 +172,10 @@ class _ShelfTile extends StatelessWidget {
       final parser = Parser();
       final chapters = await parser.getChapters(source: source, url: book.url);
       ref.set(currentChaptersCreator, chapters);
+      if (chapters.isEmpty) {
+        message.show('未找到章节');
+        return;
+      }
     }
     router.push('/book-reader');
   }
@@ -189,7 +192,13 @@ class _ShelfTile extends StatelessWidget {
       spans.add(history.author);
     }
     final chapters = _calculateUnreadChapters();
-    spans.add('$chapters章未读');
+    if (chapters > 0) {
+      spans.add('$chapters章未读');
+    } else if (chapters == 0) {
+      spans.add('已读完');
+    } else {
+      spans.add('未找到章节');
+    }
     return spans.isNotEmpty ? spans.join(' · ') : null;
   }
 }

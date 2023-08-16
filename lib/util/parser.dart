@@ -29,17 +29,7 @@ class Parser {
         node,
         '/div[@class="content_1YWBm"]/a/div@text',
       );
-      return Book(
-        author: '',
-        catalogueUrl: '',
-        category: '',
-        cover: '',
-        introduction: '',
-        name: name.trim(),
-        sourceId: 0,
-        sources: [0],
-        url: '',
-      );
+      return Book(name: name.trim());
     }).toList();
   }
 
@@ -114,7 +104,6 @@ class Parser {
           send.send(
             Book(
               author: author,
-              catalogueUrl: '',
               category: category,
               cover: cover,
               introduction: introduction,
@@ -164,16 +153,7 @@ class Parser {
   }
 
   Future<DebugResult> debug(String credential, Source source) async {
-    var result = DebugResult(
-      searchRaw: '',
-      searchBooks: [],
-      informationBook: null,
-      informationRaw: '',
-      catalogueRaw: '',
-      catalogueChapters: [],
-      contentRaw: '',
-      contentContent: '',
-    );
+    var result = DebugResult();
     final network = CachedNetwork();
     // // 调试搜索解析规则
     final searchUrl = source.searchUrl
@@ -207,7 +187,6 @@ class Parser {
         books.add(
           Book(
             author: author,
-            catalogueUrl: '',
             category: category,
             cover: cover,
             introduction: introduction,
@@ -243,7 +222,7 @@ class Parser {
         sources: [source.id],
         url: books.first.url,
       );
-      result.informationBook = book;
+      result.informationBook = [book];
       // 调试目录解析规则
       if (catalogueUrl.isEmpty) {
         catalogueUrl = informationUrl;
@@ -259,12 +238,7 @@ class Parser {
         if (!url.startsWith('http')) {
           url = '${source.url}$url';
         }
-        chapters.add(
-          Chapter(
-            name: name,
-            url: url,
-          ),
-        );
+        chapters.add(Chapter(name: name, url: url));
       }
       result.catalogueChapters = chapters;
       // 调试正文解析规则

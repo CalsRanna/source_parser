@@ -13,17 +13,14 @@ class BookListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final onSurface = colorScheme.onSurface;
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => _handleTap(context),
-      child: Container(
-        color: onSurface.withOpacity(0.05),
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -31,10 +28,9 @@ class BookListTile extends StatelessWidget {
             const SizedBox(width: 16),
             Expanded(
               child: SizedBox(
-                height: 120,
+                height: 96,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
                       book.name,
@@ -43,8 +39,10 @@ class BookListTile extends StatelessWidget {
                     Text(_buildSubtitle() ?? '', style: bodySmall),
                     const Spacer(),
                     Text(
-                      book.introduction,
-                      maxLines: 3,
+                      book.introduction
+                          .replaceAll('\n', '')
+                          .replaceAll(' ', ''),
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: bodyMedium,
                     ),

@@ -41,7 +41,9 @@ class _SearchState extends State<Search> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final onSurface = theme.colorScheme.onSurface;
+    final colorScheme = theme.colorScheme;
+    final onSurface = colorScheme.onSurface;
+    final outline = colorScheme.outline;
     final medium = theme.textTheme.bodyMedium;
 
     final cancel = TextButton(
@@ -121,11 +123,20 @@ class _SearchState extends State<Search> {
                 if (loading) const LinearProgressIndicator(),
                 if (books.isNotEmpty && !node.hasFocus)
                   Expanded(
-                    child: ListView.builder(
+                    child: ListView.separated(
                       itemBuilder: (context, index) {
                         return BookListTile(book: books[index]);
                       },
                       itemCount: books.length,
+                      separatorBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Divider(
+                            color: outline.withOpacity(0.05),
+                            height: 1,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 if (books.isEmpty && !loading && !node.hasFocus)

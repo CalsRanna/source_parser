@@ -5,8 +5,8 @@ class BookCover extends StatelessWidget {
   const BookCover({
     Key? key,
     this.borderRadius = 4,
-    this.height = 120,
-    this.width = 90,
+    this.height = 96,
+    this.width = 72,
     required this.url,
   }) : super(key: key);
 

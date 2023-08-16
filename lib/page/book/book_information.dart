@@ -16,6 +16,7 @@ import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
+import 'package:source_parser/widget/message.dart';
 
 class BookInformation extends StatefulWidget {
   const BookInformation({super.key});
@@ -53,10 +54,10 @@ class _BookInformationState extends State<BookInformation> {
           Positioned(
             left: 16,
             right: 16,
-            top: 135,
+            bottom: 16,
             child: Row(
               children: [
-                BookCover(url: book.cover),
+                BookCover(height: 120, url: book.cover, width: 90),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -82,7 +83,7 @@ class _BookInformationState extends State<BookInformation> {
 
       var header = SliverAppBar(
         centerTitle: false,
-        expandedHeight: 240,
+        expandedHeight: 200,
         flexibleSpace: FlexibleSpaceBar(
           background: information,
           collapseMode: CollapseMode.pin,
@@ -100,7 +101,7 @@ class _BookInformationState extends State<BookInformation> {
       List<Widget> children = [
         const SizedBox(height: 16),
         Card(
-          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
+          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
           elevation: 0,
           margin: EdgeInsets.zero,
           shape: const RoundedRectangleBorder(),
@@ -221,6 +222,7 @@ class _BookInformationState extends State<BookInformation> {
   void startReader() async {
     final ref = context.ref;
     final router = GoRouter.of(context);
+    final message = Message.of(context);
     final book = ref.read(currentBookCreator);
     final source =
         await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
@@ -237,6 +239,10 @@ class _BookInformationState extends State<BookInformation> {
       final parser = Parser();
       final chapters = await parser.getChapters(source: source, url: book.url);
       ref.set(currentChaptersCreator, chapters);
+      if (chapters.isEmpty) {
+        message.show('未找到章节');
+        return;
+      }
     }
     router.push('/book-reader');
     final chapters = ref.read(currentChaptersCreator);
@@ -267,7 +273,7 @@ class _CatalogueCard extends StatelessWidget {
       return GestureDetector(
         onTap: () => context.push('/book-catalogue'),
         child: Card(
-          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
+          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
           elevation: 0,
           margin: EdgeInsets.zero,
           shape: const RoundedRectangleBorder(),
@@ -323,7 +329,7 @@ class __SourceCardState extends State<_SourceCard> {
     return GestureDetector(
       onTap: () => context.push('/book-available-sources'),
       child: Card(
-        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
+        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: const RoundedRectangleBorder(),

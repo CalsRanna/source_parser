@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_json_view/flutter_json_view.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/util/parser.dart';
@@ -18,16 +19,7 @@ class BookSourceDebug extends StatefulWidget {
 class _BookSourceDebugState extends State<BookSourceDebug> {
   String defaultCredential = '都市';
   bool loading = false;
-  DebugResult result = DebugResult(
-    searchBooks: [],
-    searchRaw: '',
-    informationBook: null,
-    informationRaw: '',
-    catalogueChapters: [],
-    catalogueRaw: '',
-    contentContent: '',
-    contentRaw: '',
-  );
+  DebugResult result = DebugResult();
 
   @override
   void didChangeDependencies() {
@@ -60,7 +52,11 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
                 // const _DebugResultTile(title: '发现'),
                 _DebugResultTile(
                   response: result.informationRaw.plain(),
-                  results: [result.informationBook?.toJson() ?? {}],
+                  results: [
+                    result.informationBook.isNotEmpty
+                        ? result.informationBook.first.toJson()
+                        : {}
+                  ],
                   title: '详情',
                 ),
                 _DebugResultTile(
@@ -147,7 +143,11 @@ class _DebugResultTile extends StatelessWidget {
           ),
           ListTile(
             title: const Text('解析数据'),
-            subtitle: Text('${results?.length ?? 0}条数据'),
+            subtitle: Text(
+              jsonEncode(results),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
             trailing: const Icon(Icons.chevron_right_outlined),
             onTap: () => showJsonData(context),
           ),
@@ -169,7 +169,7 @@ class _DebugResultTile extends StatelessWidget {
     if (results != null) {
       showModalBottomSheet(
         context: context,
-        builder: (context) => _ParsedDataView(results: results!),
+        builder: (context) => _ParsedDataView(parsed: results!),
       );
     }
   }
@@ -195,8 +195,9 @@ class _RawDataView extends StatelessWidget {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 IconButton(
-                    onPressed: () => handleTap(context),
-                    icon: const Icon(Icons.close))
+                  icon: const Icon(Icons.close),
+                  onPressed: () => handleTap(context),
+                )
               ],
             ),
             Expanded(child: SingleChildScrollView(child: Text(rawData))),
@@ -212,12 +213,17 @@ class _RawDataView extends StatelessWidget {
 }
 
 class _ParsedDataView extends StatelessWidget {
-  const _ParsedDataView({Key? key, required this.results}) : super(key: key);
+  const _ParsedDataView({Key? key, required this.parsed}) : super(key: key);
 
-  final List results;
+  final List parsed;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final surface = colorScheme.surface;
+    final onSurface = colorScheme.onSurface;
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -231,14 +237,20 @@ class _ParsedDataView extends StatelessWidget {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 IconButton(
-                    onPressed: () => handleTap(context),
-                    icon: const Icon(Icons.close))
+                  icon: const Icon(Icons.close),
+                  onPressed: () => handleTap(context),
+                )
               ],
             ),
             Expanded(
               child: SingleChildScrollView(
-                child: Text(
-                  json.encode(results),
+                child: JsonView.map(
+                  {'parsed': parsed},
+                  theme: JsonViewTheme(
+                    backgroundColor: surface,
+                    defaultTextStyle: TextStyle(color: onSurface),
+                    viewType: JsonViewType.base,
+                  ),
                 ),
               ),
             ),
