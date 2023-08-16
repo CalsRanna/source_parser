@@ -15,7 +15,16 @@ class Catalogue extends StatefulWidget {
 }
 
 class _CatalogueState extends State<Catalogue> {
-  ScrollController controller = ScrollController();
+  late ScrollController controller;
+
+  @override
+  void didChangeDependencies() {
+    final ref = context.ref;
+    final current = ref.watch(currentChapterIndexCreator);
+    // HACK: offset minus 344 to keep tile in the screen center
+    controller = ScrollController(initialScrollOffset: 56.0 * current - 344);
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +37,18 @@ class _CatalogueState extends State<Catalogue> {
       ),
       body: Watcher((context, ref, child) {
         final chapters = ref.watch(currentChaptersCreator);
+        final current = ref.watch(currentChapterIndexCreator);
+        final theme = Theme.of(context);
+        final primary = theme.colorScheme.primary;
+
         return ListView.builder(
           controller: controller,
           itemBuilder: (context, index) {
             return ListTile(
-              title: Text(chapters[index].name),
+              title: Text(
+                chapters[index].name,
+                style: TextStyle(color: current == index ? primary : null),
+              ),
               onTap: () => startReader(index),
             );
           },
