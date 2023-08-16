@@ -42,7 +42,6 @@ class _BookInformationState extends State<BookInformation> {
       var background = ImageFiltered(
         imageFilter: ImageFilter.blur(sigmaX: 48, sigmaY: 48),
         child: BookCover(
-          borderRadius: null,
           height: double.infinity,
           url: book.cover,
           width: double.infinity,
@@ -89,7 +88,7 @@ class _BookInformationState extends State<BookInformation> {
           collapseMode: CollapseMode.pin,
         ),
         title: CreatorWatcher<History>(
-          builder: (context, history) => Text(history.name ?? ''),
+          builder: (context, history) => Text(history.name),
           creator: historyCreator,
         ),
         titleSpacing: 0,

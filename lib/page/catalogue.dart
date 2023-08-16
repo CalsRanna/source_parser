@@ -78,13 +78,14 @@ class _CatalogueState extends State<Catalogue> {
   void startReader(int index) async {
     final ref = context.ref;
     final router = GoRouter.of(context);
+    ref.set(currentChapterIndexCreator, index);
+    ref.set(currentCursorCreator, 0);
     final book = ref.read(currentBookCreator);
     final source =
         await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
     if (source != null) {
       ref.set(currentSourceCreator, source);
     }
-    ref.set(currentChapterIndexCreator, index);
     router.push('/book-reader');
   }
 }

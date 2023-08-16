@@ -10,21 +10,15 @@ class BookCover extends StatelessWidget {
     required this.url,
   }) : super(key: key);
 
-  final double? borderRadius;
+  final double borderRadius;
   final double height;
   final double width;
   final String url;
 
   @override
   Widget build(BuildContext context) {
-    BoxDecoration? decoration;
-    if (borderRadius != null) {
-      decoration = BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius!),
-      );
-    }
-    return Container(
-      decoration: decoration,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
       child: CachedNetworkImage(
         width: width,
         height: height,

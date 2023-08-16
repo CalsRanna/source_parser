@@ -83,36 +83,11 @@ int _historyEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  {
-    final value = object.author;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.cover;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.introduction;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.name;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  {
-    final value = object.url;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
+  bytesCount += 3 + object.author.length * 3;
+  bytesCount += 3 + object.cover.length * 3;
+  bytesCount += 3 + object.introduction.length * 3;
+  bytesCount += 3 + object.name.length * 3;
+  bytesCount += 3 + object.url.length * 3;
   return bytesCount;
 }
 
@@ -140,16 +115,16 @@ History _historyDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = History();
-  object.author = reader.readStringOrNull(offsets[0]);
-  object.chapters = reader.readLongOrNull(offsets[1]);
-  object.cover = reader.readStringOrNull(offsets[2]);
+  object.author = reader.readString(offsets[0]);
+  object.chapters = reader.readLong(offsets[1]);
+  object.cover = reader.readString(offsets[2]);
   object.cursor = reader.readLong(offsets[3]);
   object.id = id;
   object.index = reader.readLong(offsets[4]);
-  object.introduction = reader.readStringOrNull(offsets[5]);
-  object.name = reader.readStringOrNull(offsets[6]);
-  object.sourceId = reader.readLongOrNull(offsets[7]);
-  object.url = reader.readStringOrNull(offsets[8]);
+  object.introduction = reader.readString(offsets[5]);
+  object.name = reader.readString(offsets[6]);
+  object.sourceId = reader.readLong(offsets[7]);
+  object.url = reader.readString(offsets[8]);
   return object;
 }
 
@@ -161,23 +136,23 @@ P _historyDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 2:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 3:
       return (reader.readLong(offset)) as P;
     case 4:
       return (reader.readLong(offset)) as P;
     case 5:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 8:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -272,24 +247,8 @@ extension HistoryQueryWhere on QueryBuilder<History, History, QWhereClause> {
 
 extension HistoryQueryFilter
     on QueryBuilder<History, History, QFilterCondition> {
-  QueryBuilder<History, History, QAfterFilterCondition> authorIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'author',
-      ));
-    });
-  }
-
-  QueryBuilder<History, History, QAfterFilterCondition> authorIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'author',
-      ));
-    });
-  }
-
   QueryBuilder<History, History, QAfterFilterCondition> authorEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -302,7 +261,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> authorGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -317,7 +276,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> authorLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -332,8 +291,8 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> authorBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -418,24 +377,8 @@ extension HistoryQueryFilter
     });
   }
 
-  QueryBuilder<History, History, QAfterFilterCondition> chaptersIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'chapters',
-      ));
-    });
-  }
-
-  QueryBuilder<History, History, QAfterFilterCondition> chaptersIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'chapters',
-      ));
-    });
-  }
-
   QueryBuilder<History, History, QAfterFilterCondition> chaptersEqualTo(
-      int? value) {
+      int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'chapters',
@@ -445,7 +388,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> chaptersGreaterThan(
-    int? value, {
+    int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -458,7 +401,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> chaptersLessThan(
-    int? value, {
+    int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -471,8 +414,8 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> chaptersBetween(
-    int? lower,
-    int? upper, {
+    int lower,
+    int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
@@ -487,24 +430,8 @@ extension HistoryQueryFilter
     });
   }
 
-  QueryBuilder<History, History, QAfterFilterCondition> coverIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'cover',
-      ));
-    });
-  }
-
-  QueryBuilder<History, History, QAfterFilterCondition> coverIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'cover',
-      ));
-    });
-  }
-
   QueryBuilder<History, History, QAfterFilterCondition> coverEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -517,7 +444,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> coverGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -532,7 +459,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> coverLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -547,8 +474,8 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> coverBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -791,25 +718,8 @@ extension HistoryQueryFilter
     });
   }
 
-  QueryBuilder<History, History, QAfterFilterCondition> introductionIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'introduction',
-      ));
-    });
-  }
-
-  QueryBuilder<History, History, QAfterFilterCondition>
-      introductionIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'introduction',
-      ));
-    });
-  }
-
   QueryBuilder<History, History, QAfterFilterCondition> introductionEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -822,7 +732,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> introductionGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -837,7 +747,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> introductionLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -852,8 +762,8 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> introductionBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -939,24 +849,8 @@ extension HistoryQueryFilter
     });
   }
 
-  QueryBuilder<History, History, QAfterFilterCondition> nameIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'name',
-      ));
-    });
-  }
-
-  QueryBuilder<History, History, QAfterFilterCondition> nameIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'name',
-      ));
-    });
-  }
-
   QueryBuilder<History, History, QAfterFilterCondition> nameEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -969,7 +863,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> nameGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -984,7 +878,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> nameLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -999,8 +893,8 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> nameBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1085,24 +979,8 @@ extension HistoryQueryFilter
     });
   }
 
-  QueryBuilder<History, History, QAfterFilterCondition> sourceIdIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'source_id',
-      ));
-    });
-  }
-
-  QueryBuilder<History, History, QAfterFilterCondition> sourceIdIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'source_id',
-      ));
-    });
-  }
-
   QueryBuilder<History, History, QAfterFilterCondition> sourceIdEqualTo(
-      int? value) {
+      int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'source_id',
@@ -1112,7 +990,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> sourceIdGreaterThan(
-    int? value, {
+    int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1125,7 +1003,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> sourceIdLessThan(
-    int? value, {
+    int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1138,8 +1016,8 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> sourceIdBetween(
-    int? lower,
-    int? upper, {
+    int lower,
+    int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
@@ -1154,24 +1032,8 @@ extension HistoryQueryFilter
     });
   }
 
-  QueryBuilder<History, History, QAfterFilterCondition> urlIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'url',
-      ));
-    });
-  }
-
-  QueryBuilder<History, History, QAfterFilterCondition> urlIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'url',
-      ));
-    });
-  }
-
   QueryBuilder<History, History, QAfterFilterCondition> urlEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1184,7 +1046,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> urlGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1199,7 +1061,7 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> urlLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1214,8 +1076,8 @@ extension HistoryQueryFilter
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> urlBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1610,19 +1472,19 @@ extension HistoryQueryProperty
     });
   }
 
-  QueryBuilder<History, String?, QQueryOperations> authorProperty() {
+  QueryBuilder<History, String, QQueryOperations> authorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'author');
     });
   }
 
-  QueryBuilder<History, int?, QQueryOperations> chaptersProperty() {
+  QueryBuilder<History, int, QQueryOperations> chaptersProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'chapters');
     });
   }
 
-  QueryBuilder<History, String?, QQueryOperations> coverProperty() {
+  QueryBuilder<History, String, QQueryOperations> coverProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'cover');
     });
@@ -1640,25 +1502,25 @@ extension HistoryQueryProperty
     });
   }
 
-  QueryBuilder<History, String?, QQueryOperations> introductionProperty() {
+  QueryBuilder<History, String, QQueryOperations> introductionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'introduction');
     });
   }
 
-  QueryBuilder<History, String?, QQueryOperations> nameProperty() {
+  QueryBuilder<History, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
     });
   }
 
-  QueryBuilder<History, int?, QQueryOperations> sourceIdProperty() {
+  QueryBuilder<History, int, QQueryOperations> sourceIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'source_id');
     });
   }
 
-  QueryBuilder<History, String?, QQueryOperations> urlProperty() {
+  QueryBuilder<History, String, QQueryOperations> urlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'url');
     });

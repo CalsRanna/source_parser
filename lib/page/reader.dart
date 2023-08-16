@@ -9,7 +9,6 @@ import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/main.dart';
-import 'package:source_parser/model/chapter.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/message.dart';
@@ -50,10 +49,7 @@ class _ReaderState extends State<Reader> {
           title: chapters.elementAt(index).name,
         ),
         onProgressChanged: handleProgressChanged,
-        onChapterChanged: (index) => handleChapterChanged(
-          index: index,
-          chapters: chapters,
-        ),
+        onChapterChanged: handleChapterChanged,
         onCatalogueNavigated: handleCatalogueNavigated,
       );
     });
@@ -88,15 +84,18 @@ class _ReaderState extends State<Reader> {
     });
   }
 
-  void handleChapterChanged({
-    required int index,
-    required List<Chapter> chapters,
-  }) {
+  void handleChapterChanged(int index) {
     context.ref.set(currentChapterIndexCreator, index);
+    cacheChapters(index);
+  }
+
+  void cacheChapters(int index) {
+    final chapters = context.ref.read(currentChaptersCreator);
     final length = chapters.length;
-    if (index + 1 < length) {
-      final url = chapters.elementAt(index + 1).url;
-      CachedNetwork().request(url);
+    for (var i = 1; i <= 2; i++) {
+      if (index + i < length) {
+        CachedNetwork().request(chapters.elementAt(index + i).url);
+      }
     }
   }
 

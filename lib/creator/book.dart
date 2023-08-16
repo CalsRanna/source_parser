@@ -17,4 +17,8 @@ final currentBookCreator = Creator.value(
   name: 'currentBookCreator',
 );
 
-final currentCursorCreator = Creator.value(0, name: 'currentCursorCreator');
+final currentCursorCreator = Creator.value(
+  0,
+  keepAlive: true,
+  name: 'currentCursorCreator',
+);

@@ -23,15 +23,15 @@ class Book {
 
   factory Book.fromJson(Map<String, dynamic> json) {
     return Book(
-      author: json['author'],
-      catalogueUrl: json['catalogue_url'],
-      category: json['category'],
-      cover: json['cover'],
-      introduction: json['introduction'],
-      name: json['name'],
-      sourceId: json['source_id'],
-      sources: json['sources'],
-      url: json['url'],
+      author: json['author'] ?? '',
+      catalogueUrl: json['catalogue_url'] ?? '',
+      category: json['category'] ?? '',
+      cover: json['cover'] ?? '',
+      introduction: json['introduction'] ?? '',
+      name: json['name'] ?? '',
+      sourceId: json['source_id'] ?? 0,
+      sources: json['sources'] ?? [0],
+      url: json['url'] ?? '',
     );
   }
 
