@@ -9,7 +9,7 @@ class History {
   String author = '';
   String catalogueUrl = '';
   String category = '';
-  int chapters = 0;
+  List<Catalogue> chapters = [];
   String cover = '';
   int cursor = 0;
   int index = 0;
@@ -30,12 +30,18 @@ class History {
   History();
 
   factory History.fromJson(Map<String, dynamic> json) {
+    List<Catalogue> chapters = [];
+    if (json['chapters'] is List) {
+      chapters = (json['chapters'] as List)
+          .map((chapter) => Catalogue.fromJson(chapter))
+          .toList();
+    }
     return History()
       ..id = json['id'] as Id
       ..author = json['author'] as String
       ..catalogueUrl = json['catalogueUrl'] as String
       ..category = json['category'] as String
-      ..chapters = json['chapters'] as int
+      ..chapters = chapters
       ..cover = json['cover'] as String
       ..cursor = json['cursor'] as int
       ..index = json['index'] as int
@@ -57,7 +63,7 @@ class History {
       'author': author,
       'catalogueUrl': catalogueUrl,
       'category': category,
-      'chapters': chapters,
+      'chapters': chapters.map((chapter) => chapter.toJson()).toList(),
       'cover': cover,
       'cursor': cursor,
       'index': index,
@@ -70,6 +76,36 @@ class History {
       'updated_at': updatedAt,
       'url': url,
       'words': words,
+    };
+  }
+
+  @override
+  String toString() {
+    return toJson().toString();
+  }
+}
+
+@embedded
+@Name('catalogues')
+class Catalogue {
+  bool cached = false;
+  String name = '';
+  String url = '';
+
+  Catalogue();
+
+  factory Catalogue.fromJson(Map<String, dynamic> json) {
+    return Catalogue()
+      ..cached = json['cached'] as bool
+      ..name = json['name'] as String
+      ..url = json['url'] as String;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'cached': cached,
+      'name': name,
+      'url': url,
     };
   }
 

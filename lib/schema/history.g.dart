@@ -35,7 +35,8 @@ const HistorySchema = CollectionSchema(
     r'chapters': PropertySchema(
       id: 3,
       name: r'chapters',
-      type: IsarType.long,
+      type: IsarType.objectList,
+      target: r'catalogues',
     ),
     r'cover': PropertySchema(
       id: 4,
@@ -105,7 +106,7 @@ const HistorySchema = CollectionSchema(
   idName: r'id',
   indexes: {},
   links: {},
-  embeddedSchemas: {},
+  embeddedSchemas: {r'catalogues': CatalogueSchema},
   getId: _historyGetId,
   getLinks: _historyGetLinks,
   attach: _historyAttach,
@@ -121,6 +122,14 @@ int _historyEstimateSize(
   bytesCount += 3 + object.author.length * 3;
   bytesCount += 3 + object.catalogueUrl.length * 3;
   bytesCount += 3 + object.category.length * 3;
+  bytesCount += 3 + object.chapters.length * 3;
+  {
+    final offsets = allOffsets[Catalogue]!;
+    for (var i = 0; i < object.chapters.length; i++) {
+      final value = object.chapters[i];
+      bytesCount += CatalogueSchema.estimateSize(value, offsets, allOffsets);
+    }
+  }
   bytesCount += 3 + object.cover.length * 3;
   bytesCount += 3 + object.introduction.length * 3;
   bytesCount += 3 + object.latestChapter.length * 3;
@@ -142,7 +151,12 @@ void _historySerialize(
   writer.writeString(offsets[0], object.author);
   writer.writeString(offsets[1], object.catalogueUrl);
   writer.writeString(offsets[2], object.category);
-  writer.writeLong(offsets[3], object.chapters);
+  writer.writeObjectList<Catalogue>(
+    offsets[3],
+    allOffsets,
+    CatalogueSchema.serialize,
+    object.chapters,
+  );
   writer.writeString(offsets[4], object.cover);
   writer.writeLong(offsets[5], object.cursor);
   writer.writeLong(offsets[6], object.index);
@@ -167,7 +181,13 @@ History _historyDeserialize(
   object.author = reader.readString(offsets[0]);
   object.catalogueUrl = reader.readString(offsets[1]);
   object.category = reader.readString(offsets[2]);
-  object.chapters = reader.readLong(offsets[3]);
+  object.chapters = reader.readObjectList<Catalogue>(
+        offsets[3],
+        CatalogueSchema.deserialize,
+        allOffsets,
+        Catalogue(),
+      ) ??
+      [];
   object.cover = reader.readString(offsets[4]);
   object.cursor = reader.readLong(offsets[5]);
   object.id = id;
@@ -198,7 +218,13 @@ P _historyDeserializeProp<P>(
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readLong(offset)) as P;
+      return (reader.readObjectList<Catalogue>(
+            offset,
+            CatalogueSchema.deserialize,
+            allOffsets,
+            Catalogue(),
+          ) ??
+          []) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
@@ -708,56 +734,88 @@ extension HistoryQueryFilter
     });
   }
 
-  QueryBuilder<History, History, QAfterFilterCondition> chaptersEqualTo(
-      int value) {
+  QueryBuilder<History, History, QAfterFilterCondition> chaptersLengthEqualTo(
+      int length) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'chapters',
-        value: value,
-      ));
+      return query.listLength(
+        r'chapters',
+        length,
+        true,
+        length,
+        true,
+      );
     });
   }
 
-  QueryBuilder<History, History, QAfterFilterCondition> chaptersGreaterThan(
-    int value, {
+  QueryBuilder<History, History, QAfterFilterCondition> chaptersIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'chapters',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<History, History, QAfterFilterCondition> chaptersIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'chapters',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<History, History, QAfterFilterCondition> chaptersLengthLessThan(
+    int length, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'chapters',
-        value: value,
-      ));
+      return query.listLength(
+        r'chapters',
+        0,
+        true,
+        length,
+        include,
+      );
     });
   }
 
-  QueryBuilder<History, History, QAfterFilterCondition> chaptersLessThan(
-    int value, {
+  QueryBuilder<History, History, QAfterFilterCondition>
+      chaptersLengthGreaterThan(
+    int length, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'chapters',
-        value: value,
-      ));
+      return query.listLength(
+        r'chapters',
+        length,
+        include,
+        999999,
+        true,
+      );
     });
   }
 
-  QueryBuilder<History, History, QAfterFilterCondition> chaptersBetween(
+  QueryBuilder<History, History, QAfterFilterCondition> chaptersLengthBetween(
     int lower,
     int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'chapters',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.listLength(
+        r'chapters',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
     });
   }
 
@@ -2156,7 +2214,14 @@ extension HistoryQueryFilter
 }
 
 extension HistoryQueryObject
-    on QueryBuilder<History, History, QFilterCondition> {}
+    on QueryBuilder<History, History, QFilterCondition> {
+  QueryBuilder<History, History, QAfterFilterCondition> chaptersElement(
+      FilterQuery<Catalogue> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'chapters');
+    });
+  }
+}
 
 extension HistoryQueryLinks
     on QueryBuilder<History, History, QFilterCondition> {}
@@ -2195,18 +2260,6 @@ extension HistoryQuerySortBy on QueryBuilder<History, History, QSortBy> {
   QueryBuilder<History, History, QAfterSortBy> sortByCategoryDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'category', Sort.desc);
-    });
-  }
-
-  QueryBuilder<History, History, QAfterSortBy> sortByChapters() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'chapters', Sort.asc);
-    });
-  }
-
-  QueryBuilder<History, History, QAfterSortBy> sortByChaptersDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'chapters', Sort.desc);
     });
   }
 
@@ -2381,18 +2434,6 @@ extension HistoryQuerySortThenBy
     });
   }
 
-  QueryBuilder<History, History, QAfterSortBy> thenByChapters() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'chapters', Sort.asc);
-    });
-  }
-
-  QueryBuilder<History, History, QAfterSortBy> thenByChaptersDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'chapters', Sort.desc);
-    });
-  }
-
   QueryBuilder<History, History, QAfterSortBy> thenByCover() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'cover', Sort.asc);
@@ -2561,12 +2602,6 @@ extension HistoryQueryWhereDistinct
     });
   }
 
-  QueryBuilder<History, History, QDistinct> distinctByChapters() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'chapters');
-    });
-  }
-
   QueryBuilder<History, History, QDistinct> distinctByCover(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2675,7 +2710,7 @@ extension HistoryQueryProperty
     });
   }
 
-  QueryBuilder<History, int, QQueryOperations> chaptersProperty() {
+  QueryBuilder<History, List<Catalogue>, QQueryOperations> chaptersProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'chapters');
     });
@@ -2753,3 +2788,365 @@ extension HistoryQueryProperty
     });
   }
 }
+
+// **************************************************************************
+// IsarEmbeddedGenerator
+// **************************************************************************
+
+// coverage:ignore-file
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+
+const CatalogueSchema = Schema(
+  name: r'catalogues',
+  id: -5524434975210401736,
+  properties: {
+    r'cached': PropertySchema(
+      id: 0,
+      name: r'cached',
+      type: IsarType.bool,
+    ),
+    r'name': PropertySchema(
+      id: 1,
+      name: r'name',
+      type: IsarType.string,
+    ),
+    r'url': PropertySchema(
+      id: 2,
+      name: r'url',
+      type: IsarType.string,
+    )
+  },
+  estimateSize: _catalogueEstimateSize,
+  serialize: _catalogueSerialize,
+  deserialize: _catalogueDeserialize,
+  deserializeProp: _catalogueDeserializeProp,
+);
+
+int _catalogueEstimateSize(
+  Catalogue object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  var bytesCount = offsets.last;
+  bytesCount += 3 + object.name.length * 3;
+  bytesCount += 3 + object.url.length * 3;
+  return bytesCount;
+}
+
+void _catalogueSerialize(
+  Catalogue object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  writer.writeBool(offsets[0], object.cached);
+  writer.writeString(offsets[1], object.name);
+  writer.writeString(offsets[2], object.url);
+}
+
+Catalogue _catalogueDeserialize(
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  final object = Catalogue();
+  object.cached = reader.readBool(offsets[0]);
+  object.name = reader.readString(offsets[1]);
+  object.url = reader.readString(offsets[2]);
+  return object;
+}
+
+P _catalogueDeserializeProp<P>(
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
+  switch (propertyId) {
+    case 0:
+      return (reader.readBool(offset)) as P;
+    case 1:
+      return (reader.readString(offset)) as P;
+    case 2:
+      return (reader.readString(offset)) as P;
+    default:
+      throw IsarError('Unknown property with id $propertyId');
+  }
+}
+
+extension CatalogueQueryFilter
+    on QueryBuilder<Catalogue, Catalogue, QFilterCondition> {
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> cachedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'cached',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'name',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'name',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'name',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'name',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'url',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'url',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'url',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'url',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'url',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'url',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'url',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'url',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'url',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'url',
+        value: '',
+      ));
+    });
+  }
+}
+
+extension CatalogueQueryObject
+    on QueryBuilder<Catalogue, Catalogue, QFilterCondition> {}

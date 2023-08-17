@@ -38,7 +38,7 @@ final router = GoRouter(routes: [
       path: '/book-information'),
   GoRoute(builder: (context, state) => const Reader(), path: '/book-reader'),
   GoRoute(
-    builder: (context, state) => const Catalogue(),
+    builder: (context, state) => const CataloguePage(),
     path: '/book-catalogue',
   ),
   GoRoute(

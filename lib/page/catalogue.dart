@@ -8,13 +8,13 @@ import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/main.dart';
 import 'package:source_parser/schema/source.dart';
 
-class Catalogue extends StatefulWidget {
-  const Catalogue({super.key});
+class CataloguePage extends StatefulWidget {
+  const CataloguePage({super.key});
   @override
-  State<Catalogue> createState() => _CatalogueState();
+  State<CataloguePage> createState() => _CataloguePageState();
 }
 
-class _CatalogueState extends State<Catalogue> {
+class _CataloguePageState extends State<CataloguePage> {
   late ScrollController controller;
   bool atTop = true;
 

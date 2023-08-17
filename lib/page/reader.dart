@@ -26,28 +26,27 @@ class _ReaderState extends State<Reader> {
   Widget build(BuildContext context) {
     return Watcher((context, ref, child) {
       final book = ref.watch(currentBookCreator);
-      final chapters = ref.watch(currentChaptersCreator);
       final index = ref.watch(currentChapterIndexCreator);
       final source = ref.watch(currentSourceCreator);
       final cursor = ref.watch(currentCursorCreator);
 
       return BookReader(
         future: (index) => Parser().getContent(
-          url: chapters.elementAt(index).url,
+          url: book.chapters.elementAt(index).url,
           source: source,
-          title: chapters.elementAt(index).name,
+          title: book.chapters.elementAt(index).name,
         ),
         cursor: cursor,
         index: index,
-        total: chapters.length,
+        total: book.chapters.length,
         name: book.name,
-        title: chapters.elementAt(index).name,
+        title: book.chapters.elementAt(index).name,
         onMessage: handleMessage,
         onRefresh: (index) => Parser().getContent(
-          url: chapters.elementAt(index).url,
+          url: book.chapters.elementAt(index).url,
           reacquire: true,
           source: source,
-          title: chapters.elementAt(index).name,
+          title: book.chapters.elementAt(index).name,
         ),
         onProgressChanged: handleProgressChanged,
         onChapterChanged: handleChapterChanged,
@@ -64,7 +63,6 @@ class _ReaderState extends State<Reader> {
   void handleProgressChanged(int cursor) async {
     final ref = context.ref;
     final book = ref.read(currentBookCreator);
-    final chapters = ref.read(currentChaptersCreator);
     final index = ref.read(currentChapterIndexCreator);
     var history = await isar.historys
         .filter()
@@ -78,7 +76,9 @@ class _ReaderState extends State<Reader> {
     history.introduction = book.introduction;
     history.url = book.url;
     history.sourceId = book.sourceId;
-    history.chapters = chapters.length;
+    history.chapters = book.chapters.map((chapter) {
+      return Catalogue.fromJson(chapter.toJson());
+    }).toList();
     history.cursor = cursor;
     history.index = index;
     await isar.writeTxn(() async {
@@ -92,11 +92,11 @@ class _ReaderState extends State<Reader> {
   }
 
   void cacheChapters(int index) {
-    final chapters = context.ref.read(currentChaptersCreator);
-    final length = chapters.length;
+    final book = context.ref.read(currentBookCreator);
+    final length = book.chapters.length;
     for (var i = 1; i <= 2; i++) {
       if (index + i < length) {
-        CachedNetwork().request(chapters.elementAt(index + i).url);
+        CachedNetwork().request(book.chapters.elementAt(index + i).url);
       }
     }
   }

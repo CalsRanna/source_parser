@@ -61,7 +61,9 @@ class _ShelfViewState extends State<ShelfView> {
           url: history.url,
           source: source,
         );
-        history.chapters = chapters.length;
+        history.chapters = chapters.map((chapter) {
+          return Catalogue.fromJson(chapter.toJson());
+        }).toList();
         await isar.writeTxn(() async {
           isar.historys.put(history);
         });
@@ -171,7 +173,6 @@ class _ShelfTile extends StatelessWidget {
       ref.set(currentSourceCreator, source);
       final parser = Parser();
       final chapters = await parser.getChapters(source: source, url: book.url);
-      ref.set(currentChaptersCreator, chapters);
       if (chapters.isEmpty) {
         message.show('未找到章节');
         return;
@@ -181,7 +182,7 @@ class _ShelfTile extends StatelessWidget {
   }
 
   int _calculateUnreadChapters() {
-    final chapters = history.chapters;
+    final chapters = history.chapters.length;
     final current = history.index;
     return chapters - current - 1;
   }

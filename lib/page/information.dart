@@ -157,14 +157,7 @@ class _BookInformationState extends State<BookInformation> {
       ];
 
       Widget bottomBar = Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: Theme.of(context).colorScheme.primaryContainer,
-            ),
-          ),
-        ),
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
             // TextButton(
@@ -286,21 +279,21 @@ class _BookInformationState extends State<BookInformation> {
       ref.set(currentSourceCreator, source);
       final parser = Parser();
       final chapters = await parser.getChapters(source: source, url: book.url);
-      ref.set(currentChaptersCreator, chapters);
       if (chapters.isEmpty) {
         message.show('未找到章节');
         return;
       }
     }
     router.push('/book-reader');
-    final chapters = ref.read(currentChaptersCreator);
     history.author = book.author;
     history.cover = book.cover;
     history.name = book.name;
     history.introduction = book.introduction;
     history.url = book.url;
     history.sourceId = book.sourceId;
-    history.chapters = chapters.length;
+    history.chapters = book.chapters.map((chapter) {
+      return Catalogue.fromJson(chapter.toJson());
+    }).toList();
     await isar.writeTxn(() async {
       isar.historys.put(history!);
     });

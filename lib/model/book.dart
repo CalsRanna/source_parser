@@ -34,12 +34,18 @@ class Book {
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
+    List<Chapter> chapters = [];
+    if (json['chapters'] is List) {
+      chapters = json['chapters'].map<Chapter>((chapter) {
+        return Chapter.fromJson(chapter);
+      }).toList();
+    }
     return Book(
       author: json['author'] ?? '',
       catalogueUrl: json['catalogue_url'] ?? '',
       category: json['category'] ?? '',
       cover: json['cover'] ?? '',
-      chapters: json['chapters'] ?? <Chapter>[],
+      chapters: chapters,
       introduction: json['introduction'] ?? '',
       latestChapter: json['latest_chapter'] ?? '',
       name: json['name'] ?? '',
@@ -58,7 +64,7 @@ class Book {
       'catalogue_url': catalogueUrl,
       'category': category,
       'cover': cover,
-      'chapters': chapters,
+      'chapters': chapters.map((chapter) => chapter.toJson()).toList(),
       'introduction': introduction,
       'latest_chapter': latestChapter,
       'name': name,
