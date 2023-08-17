@@ -1,4 +1,3 @@
-// import 'package:book_reader/book_reader.dart';
 import 'package:book_reader/book_reader.dart';
 import 'package:cached_network/cached_network.dart';
 import 'package:creator/creator.dart';
@@ -31,11 +30,7 @@ class _ReaderState extends State<Reader> {
       final cursor = ref.watch(currentCursorCreator);
 
       return BookReader(
-        future: (index) => Parser().getContent(
-          url: book.chapters.elementAt(index).url,
-          source: source,
-          title: book.chapters.elementAt(index).name,
-        ),
+        future: getContent,
         cursor: cursor,
         index: index,
         total: book.chapters.length,
@@ -54,6 +49,17 @@ class _ReaderState extends State<Reader> {
         onPop: handlePop,
       );
     });
+  }
+
+  Future<String> getContent(int index) async {
+    final parser = Parser();
+    final ref = context.ref;
+    final book = ref.read(currentBookCreator);
+    final source = ref.read(currentSourceCreator);
+    final chapters = book.chapters;
+    final title = chapters.elementAt(index).name;
+    final url = chapters.elementAt(index).url;
+    return parser.getContent(source: source, title: title, url: url);
   }
 
   void handleMessage(String message) {
