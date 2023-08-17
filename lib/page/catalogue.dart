@@ -44,14 +44,25 @@ class _CatalogueState extends State<Catalogue> {
         final current = ref.watch(currentChapterIndexCreator);
         final theme = Theme.of(context);
         final primary = theme.colorScheme.primary;
+        final onSurface = theme.colorScheme.onSurface;
 
         return ListView.builder(
           controller: controller,
           itemBuilder: (context, index) {
+            Color color;
+            if (current == index) {
+              color = primary;
+            } else {
+              if (book.chapters[index].cached) {
+                color = onSurface;
+              } else {
+                color = onSurface.withOpacity(0.5);
+              }
+            }
             return ListTile(
               title: Text(
                 book.chapters[index].name,
-                style: TextStyle(color: current == index ? primary : null),
+                style: TextStyle(color: color),
               ),
               onTap: () => startReader(index),
             );
