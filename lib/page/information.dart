@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:creator/creator.dart';
@@ -12,6 +13,7 @@ import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/main.dart';
 import 'package:source_parser/model/book.dart';
+import 'package:source_parser/model/chapter.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
@@ -33,6 +35,7 @@ class _BookInformationState extends State<BookInformation> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    getInformation();
     getChapters();
   }
 
@@ -60,19 +63,41 @@ class _BookInformationState extends State<BookInformation> {
                 BookCover(height: 120, url: book.cover, width: 90),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        book.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
+                  child: DefaultTextStyle.merge(
+                    style: const TextStyle(color: Colors.white, height: 1.6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          book.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
-                      Text(book.author),
-                      Text(_buildSpan(book)),
-                    ],
+                        Text(book.author),
+                        Text(
+                          _buildSpan(book),
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.85),
+                          ),
+                        ),
+                        if (book.words.isNotEmpty)
+                          Container(
+                            decoration: const ShapeDecoration(
+                              shape: StadiumBorder(
+                                side: BorderSide(color: Colors.white),
+                              ),
+                            ),
+                            margin: const EdgeInsets.only(top: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            child: Text(book.words),
+                          ),
+                      ],
+                    ),
                   ),
                 )
               ],
@@ -96,8 +121,10 @@ class _BookInformationState extends State<BookInformation> {
         pinned: true,
       );
 
-      const boldTextStyle =
-          TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+      const boldTextStyle = TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+      );
       List<Widget> children = [
         const SizedBox(height: 16),
         Card(
@@ -124,7 +151,7 @@ class _BookInformationState extends State<BookInformation> {
           ),
         ),
         const SizedBox(height: 16),
-        _CatalogueCard(loading: loading),
+        const _CatalogueCard(),
         const SizedBox(height: 16),
         _SourceCard(book: book),
       ];
@@ -182,40 +209,61 @@ class _BookInformationState extends State<BookInformation> {
     });
   }
 
-  Future<void> getChapters() async {
-    setState(() {
-      loading = true;
-    });
-    final book = context.ref.read(currentBookCreator);
-    try {
-      final ref = context.ref;
-      final source =
-          await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
-      if (source != null) {
-        final chapters = await Parser().getChapters(
-          source: source,
-          url: book.url,
-        );
-        ref.set(currentChaptersCreator, chapters);
-        setState(() {
-          loading = false;
-        });
+  Future<void> getInformation() async {
+    final ref = context.ref;
+    final book = ref.read(currentBookCreator);
+    final queryBuilder = isar.sources.filter();
+    final sourceId = book.sourceId;
+    final source = await queryBuilder.idEqualTo(sourceId).findFirst();
+    if (source != null) {
+      final information = await Parser().getInformation(book.url, source);
+      String? updatedIntroduction;
+      if (information.introduction.length > book.introduction.length) {
+        updatedIntroduction = information.introduction;
       }
-    } catch (error) {
-      setState(() {
-        loading = false;
-      });
+      final updatedBook = book.copyWith(
+        catalogueUrl: information.catalogueUrl,
+        category: information.category,
+        cover: information.cover,
+        introduction: updatedIntroduction,
+        latestChapter: information.latestChapter,
+        words: information.words,
+      );
+      ref.set(currentBookCreator, updatedBook);
+    }
+  }
+
+  Future<void> getChapters() async {
+    final book = context.ref.read(currentBookCreator);
+    final ref = context.ref;
+    final source =
+        await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
+    if (source != null) {
+      final chapters = await Parser().getChapters(
+        source: source,
+        url: book.url,
+      );
+      List<Chapter> updatedChapters = [];
+      if (chapters.length > book.chapters.length) {
+        final start = max(book.chapters.length - 1, 0);
+        final end = max(chapters.length - 1, 0);
+        updatedChapters = chapters.getRange(start, end).toList();
+      }
+      final updatedBook = book.copyWith(
+        chapters: [...book.chapters, ...updatedChapters],
+      );
+      ref.set(currentBookCreator, updatedBook);
     }
   }
 
   String _buildSpan(Book book) {
     final spans = <String>[];
-    // if (book.category != null) {
-    //   spans.add(book.category!);
-    // }
-    // if (book.status != null) {
-    //   spans.add(book.status!);
-    // }
+    if (book.category.isNotEmpty) {
+      spans.add(book.category);
+    }
+    if (book.status.isNotEmpty) {
+      spans.add(book.status);
+    }
     return spans.join(' · ');
   }
 
@@ -260,15 +308,13 @@ class _BookInformationState extends State<BookInformation> {
 }
 
 class _CatalogueCard extends StatelessWidget {
-  const _CatalogueCard({required this.loading});
-
-  final bool loading;
+  const _CatalogueCard();
 
   @override
   Widget build(BuildContext context) {
     const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
     return Watcher((context, ref, child) {
-      final chapters = ref.watch(currentChaptersCreator);
+      final book = ref.watch(currentBookCreator);
 
       return GestureDetector(
         onTap: () => context.push('/book-catalogue'),
@@ -283,15 +329,10 @@ class _CatalogueCard extends StatelessWidget {
               children: [
                 const Text('目录', style: boldTextStyle),
                 Expanded(
-                  child: loading
-                      ? const Align(
-                          alignment: Alignment.centerRight,
-                          child: CircularProgressIndicator.adaptive(),
-                        )
-                      : Text(
-                          '共${chapters.length}章',
-                          textAlign: TextAlign.right,
-                        ),
+                  child: Text(
+                    '共${book.chapters.length}章',
+                    textAlign: TextAlign.right,
+                  ),
                 ),
                 const Icon(Icons.chevron_right_outlined)
               ],

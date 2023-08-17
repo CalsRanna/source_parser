@@ -27,6 +27,30 @@ class History {
   String url = '';
   String words = '';
 
+  History();
+
+  factory History.fromJson(Map<String, dynamic> json) {
+    return History()
+      ..id = json['id'] as Id
+      ..author = json['author'] as String
+      ..catalogueUrl = json['catalogueUrl'] as String
+      ..category = json['category'] as String
+      ..chapters = json['chapters'] as int
+      ..cover = json['cover'] as String
+      ..cursor = json['cursor'] as int
+      ..index = json['index'] as int
+      ..introduction = json['introduction'] as String
+      ..latestChapter = json['latest_chapter'] as String
+      ..name = json['name'] as String
+      ..sourceId = json['source_id'] as int
+      ..sources =
+          (json['sources'] as List<dynamic>).map((e) => e as int).toList()
+      ..status = json['status'] as String
+      ..updatedAt = json['updated_at'] as String
+      ..url = json['url'] as String
+      ..words = json['words'] as String;
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -47,5 +71,10 @@ class History {
       'url': url,
       'words': words,
     };
+  }
+
+  @override
+  String toString() {
+    return toJson().toString();
   }
 }

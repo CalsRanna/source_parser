@@ -119,6 +119,31 @@ class Parser {
     });
   }
 
+  Future<Book> getInformation(String url, Source source) async {
+    final html = await CachedNetwork().request(url);
+    final parser = HtmlParser();
+    final document = parser.parse(html);
+    final author = parser.query(document, source.informationAuthor);
+    final catalogueUrl = parser.query(document, source.informationCatalogueUrl);
+    final category = parser.query(document, source.informationCategory);
+    final cover = parser.query(document, source.informationCover);
+    final introduction = parser.query(document, source.informationIntroduction);
+    final latestChapter =
+        parser.query(document, source.informationLatestChapter);
+    final name = parser.query(document, source.informationName);
+    final words = parser.query(document, source.informationWordCount);
+    return Book(
+      author: author,
+      catalogueUrl: catalogueUrl,
+      category: category,
+      cover: cover,
+      introduction: introduction,
+      latestChapter: latestChapter,
+      name: name,
+      words: words,
+    );
+  }
+
   Future<List<Chapter>> getChapters({
     required String url,
     required Source source,

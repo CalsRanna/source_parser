@@ -40,7 +40,7 @@ class _CatalogueState extends State<Catalogue> {
         ],
       ),
       body: Watcher((context, ref, child) {
-        final chapters = ref.watch(currentChaptersCreator);
+        final book = ref.watch(currentBookCreator);
         final current = ref.watch(currentChapterIndexCreator);
         final theme = Theme.of(context);
         final primary = theme.colorScheme.primary;
@@ -50,13 +50,13 @@ class _CatalogueState extends State<Catalogue> {
           itemBuilder: (context, index) {
             return ListTile(
               title: Text(
-                chapters[index].name,
+                book.chapters[index].name,
                 style: TextStyle(color: current == index ? primary : null),
               ),
               onTap: () => startReader(index),
             );
           },
-          itemCount: chapters.length,
+          itemCount: book.chapters.length,
         );
       }),
     );

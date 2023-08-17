@@ -234,9 +234,7 @@ class _SearchTile extends StatelessWidget {
                     Text(_buildSubtitle() ?? '', style: bodySmall),
                     const Spacer(),
                     Text(
-                      book.introduction
-                          .replaceAll('\n', '')
-                          .replaceAll(' ', ''),
+                      book.introduction.replaceAll(RegExp(r'\s'), ''),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: bodyMedium,
