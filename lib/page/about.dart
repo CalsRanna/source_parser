@@ -1,8 +1,4 @@
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/schema/setting.dart';
-import 'package:source_parser/util/message.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({Key? key}) : super(key: key);
@@ -29,17 +25,17 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
-  void handleTap(BuildContext context) async {
-    final message = Message.of(context);
-    final ref = context.ref;
-    final setting = await ref.read(settingEmitter);
-    setState(() {
-      count++;
-    });
-    if (count == 5 && !setting.debugMode) {
-      setting.debugMode = !setting.debugMode;
-      ref.emit(settingEmitter, setting.clone);
-      message.show('开发者模式已打开');
-    }
-  }
+  // void handleTap(BuildContext context) async {
+  //   final message = Message.of(context);
+  //   final ref = context.ref;
+  //   final setting = await ref.read(settingEmitter);
+  //   setState(() {
+  //     count++;
+  //   });
+  //   if (count == 5 && !setting.debugMode) {
+  //     setting.debugMode = !setting.debugMode;
+  //     ref.emit(settingEmitter, setting.clone);
+  //     message.show('开发者模式已打开');
+  //   }
+  // }
 }

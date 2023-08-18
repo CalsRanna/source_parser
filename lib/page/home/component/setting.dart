@@ -1,10 +1,5 @@
-import 'package:creator/creator.dart';
-import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/schema/setting.dart';
 
 class SettingView extends StatelessWidget {
   const SettingView({super.key});
@@ -74,32 +69,32 @@ class SettingView extends StatelessWidget {
     );
   }
 
-  void handleTap(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      clipBehavior: Clip.hardEdge,
-      builder: (context) => EmitterWatcher<Setting>(
-        builder: (context, setting) => ColorPicker(
-          pickerColor: Color(setting.colorSeed),
-          labelTypes: const [],
-          enableAlpha: false,
-          colorPickerWidth: MediaQuery.of(context).size.width,
-          onColorChanged: (value) => handleColorChange(context, value),
-        ),
-        emitter: settingEmitter,
-      ),
-    );
-  }
+  // void handleTap(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     clipBehavior: Clip.hardEdge,
+  //     builder: (context) => EmitterWatcher<Setting>(
+  //       builder: (context, setting) => ColorPicker(
+  //         pickerColor: Color(setting.colorSeed),
+  //         labelTypes: const [],
+  //         enableAlpha: false,
+  //         colorPickerWidth: MediaQuery.of(context).size.width,
+  //         onColorChanged: (value) => handleColorChange(context, value),
+  //       ),
+  //       emitter: settingEmitter,
+  //     ),
+  //   );
+  // }
 
-  void handleColorChange(BuildContext context, Color color) async {
-    final ref = context.ref;
-    var setting = await ref.read(settingEmitter);
-    setting.colorSeed = color.value;
-    ref.emit(settingEmitter, setting.clone);
-    // await isar.writeTxn(() async {
-    //   isar.settings.put(setting);
-    // });
-  }
+  // void handleColorChange(BuildContext context, Color color) async {
+  //   final ref = context.ref;
+  //   var setting = await ref.read(settingEmitter);
+  //   setting.colorSeed = color.value;
+  //   ref.emit(settingEmitter, setting.clone);
+  // await isar.writeTxn(() async {
+  //   isar.settings.put(setting);
+  // });
+  // }
 }
 
 class SettingTile extends StatelessWidget {

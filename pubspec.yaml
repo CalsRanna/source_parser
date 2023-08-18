@@ -1,9 +1,7 @@
 name: source_parser
 description: A parser use to do everything you want to.
 
-publish_to: "none"
-
-version: 1.0.0+7
+version: 1.0.0+8
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -12,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  book_reader: ^0.0.5
+  book_reader: ^0.0.6
   # book_reader:
   #   path: ../book_reader
   cached_network: ^1.0.2

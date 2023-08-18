@@ -7,9 +7,11 @@ import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/history.dart';
+import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/main.dart';
 import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/message.dart';
 
@@ -28,13 +30,27 @@ class _ReaderState extends State<Reader> {
       final index = ref.watch(currentChapterIndexCreator);
       final source = ref.watch(currentSourceCreator);
       final cursor = ref.watch(currentCursorCreator);
+      final darkMode = ref.watch(darkModeCreator);
+
+      var theme = ReaderTheme();
+      if (darkMode) {
+        final schema = Theme.of(context).colorScheme;
+        theme = theme.copyWith(
+          backgroundColor: schema.background,
+          footerStyle: theme.footerStyle.copyWith(color: schema.onBackground),
+          headerStyle: theme.headerStyle.copyWith(color: schema.onBackground),
+          pageStyle: theme.pageStyle.copyWith(color: schema.onBackground),
+        );
+      }
 
       return BookReader(
         future: getContent,
         cursor: cursor,
+        darkMode: darkMode,
         index: index,
         total: book.chapters.length,
         name: book.name,
+        theme: theme,
         title: book.chapters.elementAt(index).name,
         onMessage: handleMessage,
         onRefresh: (index) => Parser().getContent(
@@ -47,6 +63,7 @@ class _ReaderState extends State<Reader> {
         onChapterChanged: handleChapterChanged,
         onCatalogueNavigated: handleCatalogueNavigated,
         onPop: handlePop,
+        onDarkModePressed: handleDarkModePressed,
       );
     });
   }
@@ -115,5 +132,17 @@ class _ReaderState extends State<Reader> {
     final ref = context.ref;
     final histories = await isar.historys.where().findAll();
     ref.set(historiesCreator, histories);
+  }
+
+  void handleDarkModePressed() async {
+    final ref = context.ref;
+    final darkMode = ref.read(darkModeCreator);
+    ref.set(darkModeCreator, !darkMode);
+    var setting = await isar.settings.where().findFirst();
+    setting ??= Setting();
+    setting.darkMode = !darkMode;
+    await isar.writeTxn(() async {
+      isar.settings.put(setting!);
+    });
   }
 }

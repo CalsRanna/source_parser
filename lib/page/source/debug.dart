@@ -83,7 +83,7 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
     setState(() {
       loading = true;
     });
-
+    final message = Message.of(context);
     try {
       final source = context.ref.read(currentSourceCreator);
       var debug = await Parser().debug(defaultCredential, source);
@@ -95,7 +95,7 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
       setState(() {
         loading = false;
       });
-      Message.of(context).show(e.toString());
+      message.show(e.toString());
     }
   }
 }

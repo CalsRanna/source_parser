@@ -1,6 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:isar/isar.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/main.dart';
 import 'package:source_parser/schema/setting.dart';
@@ -38,15 +39,15 @@ class _HomePageState extends State<HomePage> {
     //   ),
     // ];
     final settingActions = <Widget>[
-      // EmitterWatcher<Setting>(
-      //   builder: (context, setting) => IconButton(
-      //     icon: Icon(setting.darkMode
-      //         ? Icons.light_mode_outlined
-      //         : Icons.dark_mode_outlined),
-      //     onPressed: () => triggerDarkMode(context),
-      //   ),
-      //   emitter: settingEmitter,
-      // ),
+      Watcher((context, ref, child) {
+        final darkMode = ref.watch(darkModeCreator);
+        return IconButton(
+          icon: Icon(
+            darkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+          ),
+          onPressed: () => triggerDarkMode(context),
+        );
+      }),
       // IconButton(icon: const Icon(Icons.help_outline), onPressed: () {}),
     ];
     final destinations = [
@@ -89,11 +90,13 @@ class _HomePageState extends State<HomePage> {
 
   void triggerDarkMode(BuildContext context) async {
     final ref = context.ref;
-    final setting = await ref.read(settingEmitter);
-    setting.darkMode = !setting.darkMode;
-    ref.emit(settingEmitter, setting.clone);
+    final darkMode = ref.read(darkModeCreator);
+    ref.set(darkModeCreator, !darkMode);
+    var setting = await isar.settings.where().findFirst();
+    setting ??= Setting();
+    setting.darkMode = !darkMode;
     await isar.writeTxn(() async {
-      isar.settings.put(setting);
+      isar.settings.put(setting!);
     });
   }
 

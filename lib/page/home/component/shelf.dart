@@ -24,7 +24,7 @@ class ShelfView extends StatefulWidget {
 class _ShelfViewState extends State<ShelfView> {
   @override
   void didChangeDependencies() {
-    getHistories();
+    refresh();
     super.didChangeDependencies();
   }
 
@@ -44,13 +44,8 @@ class _ShelfViewState extends State<ShelfView> {
     });
   }
 
-  Future<void> getHistories() async {
-    final ref = context.ref;
-    final histories = await isar.historys.where().findAll();
-    ref.set(historiesCreator, histories);
-  }
-
   Future<void> refresh() async {
+    final ref = context.ref;
     final histories = await isar.historys.where().findAll();
     final parser = Parser();
     for (var history in histories) {
@@ -69,7 +64,7 @@ class _ShelfViewState extends State<ShelfView> {
         });
       }
     }
-    await getHistories();
+    ref.set(historiesCreator, histories);
   }
 }
 
@@ -92,12 +87,7 @@ class _ShelfTile extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
         child: Row(
           children: [
-            BookCover(
-              // borderRadius: 16,
-              url: history.cover,
-              height: 80,
-              width: 60,
-            ),
+            BookCover(url: history.cover, height: 80, width: 60),
             const SizedBox(width: 16),
             Expanded(
               child: SizedBox(

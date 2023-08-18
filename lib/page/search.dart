@@ -165,6 +165,7 @@ class _SearchState extends State<Search> {
     });
     node.unfocus();
     controller.text = credential;
+    final message = Message.of(context);
     try {
       final stream = await Parser.search(credential);
       stream.listen(
@@ -195,7 +196,7 @@ class _SearchState extends State<Search> {
         },
       );
     } catch (e) {
-      Message.of(context).show(e.toString());
+      message.show(e.toString());
     }
   }
 }

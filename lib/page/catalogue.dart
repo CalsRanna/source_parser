@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +25,8 @@ class _CataloguePageState extends State<CataloguePage> {
     final ref = context.ref;
     final current = ref.watch(currentChapterIndexCreator);
     // HACK: offset minus 344 to keep tile in the screen center
-    controller = ScrollController(initialScrollOffset: 56.0 * current - 344);
+    double offset = max(56.0 * current - 344, 0);
+    controller = ScrollController(initialScrollOffset: offset);
     super.didChangeDependencies();
   }
 
