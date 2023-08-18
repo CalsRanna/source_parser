@@ -24,6 +24,12 @@ class Reader extends StatefulWidget {
 
 class _ReaderState extends State<Reader> {
   @override
+  void deactivate() {
+    updateHistories();
+    super.deactivate();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child) {
       final book = ref.watch(currentBookCreator);
@@ -129,9 +135,7 @@ class _ReaderState extends State<Reader> {
   }
 
   void handlePop(int index, int cursor) async {
-    final ref = context.ref;
-    final histories = await isar.historys.where().findAll();
-    ref.set(historiesCreator, histories);
+    updateHistories();
   }
 
   void handleDarkModePressed() async {
@@ -144,5 +148,11 @@ class _ReaderState extends State<Reader> {
     await isar.writeTxn(() async {
       isar.settings.put(setting!);
     });
+  }
+
+  void updateHistories() async {
+    final ref = context.ref;
+    final histories = await isar.historys.where().findAll();
+    ref.set(historiesCreator, histories);
   }
 }
