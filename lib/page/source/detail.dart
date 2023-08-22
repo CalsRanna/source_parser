@@ -17,6 +17,9 @@ class BookSourceInformation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final error = colorScheme.error;
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -118,7 +121,7 @@ class BookSourceInformation extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: ElevatedButton(
               onPressed: () => handleTap(context),
-              child: const Text('删除', style: TextStyle(color: Colors.red)),
+              child: Text('删除', style: TextStyle(color: error)),
             ),
           )
         ],

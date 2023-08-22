@@ -2,6 +2,7 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/creator/book.dart';
+import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/model/book.dart';
 import 'package:source_parser/util/parser.dart';
@@ -252,6 +253,8 @@ class _SearchTile extends StatelessWidget {
 
   void _handleTap(BuildContext context) {
     context.ref.set(currentBookCreator, book);
+    context.ref.set(currentChapterIndexCreator, 0);
+    context.ref.set(currentCursorCreator, 0);
     context.push('/book-information');
   }
 

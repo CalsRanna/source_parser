@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_json_view/flutter_json_view.dart';
+import 'package:json_view/json_view.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/util/parser.dart';
@@ -46,32 +46,26 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
               children: [
                 _DebugResultTile(
                   response: result.searchRaw.plain(),
-                  results: result.searchBooks.map((e) => e.toJson()).toList(),
+                  result: result.searchBooks.map((e) => e.toJson()).toList(),
                   title: '搜索',
                 ),
                 // const _DebugResultTile(title: '发现'),
                 _DebugResultTile(
                   response: result.informationRaw.plain(),
-                  results: [
-                    result.informationBook.isNotEmpty
-                        ? result.informationBook.first.toJson()
-                        : {}
-                  ],
+                  result: result.informationBook.isNotEmpty
+                      ? result.informationBook.first.toJson()
+                      : {},
                   title: '详情',
                 ),
                 _DebugResultTile(
                   response: result.catalogueRaw.plain(),
-                  results:
+                  result:
                       result.catalogueChapters.map((e) => e.toJson()).toList(),
                   title: '目录',
                 ),
                 _DebugResultTile(
                   response: result.contentRaw.plain(),
-                  results: [
-                    {
-                      'content': result.contentContent,
-                    }
-                  ],
+                  result: {'content': result.contentContent},
                   title: '正文',
                 ),
               ],
@@ -104,12 +98,12 @@ class _DebugResultTile extends StatelessWidget {
   const _DebugResultTile({
     Key? key,
     this.response,
-    this.results,
+    this.result,
     required this.title,
   }) : super(key: key);
 
   final String? response;
-  final List<Map<String, dynamic>>? results;
+  final dynamic result;
   final String title;
 
   @override
@@ -144,7 +138,7 @@ class _DebugResultTile extends StatelessWidget {
           ListTile(
             title: const Text('解析数据'),
             subtitle: Text(
-              jsonEncode(results),
+              jsonEncode(result),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
@@ -166,10 +160,10 @@ class _DebugResultTile extends StatelessWidget {
   }
 
   void showJsonData(BuildContext context) {
-    if (results != null) {
+    if (result != null) {
       showModalBottomSheet(
         context: context,
-        builder: (context) => _ParsedDataView(parsed: results!),
+        builder: (context) => _ParsedDataView(parsed: result),
       );
     }
   }
@@ -182,27 +176,25 @@ class _RawDataView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  '原始数据',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => handleTap(context),
-                )
-              ],
-            ),
-            Expanded(child: SingleChildScrollView(child: Text(rawData))),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                '原始数据',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => handleTap(context),
+              )
+            ],
+          ),
+          Expanded(child: SingleChildScrollView(child: Text(rawData))),
+        ],
       ),
     );
   }
@@ -215,47 +207,34 @@ class _RawDataView extends StatelessWidget {
 class _ParsedDataView extends StatelessWidget {
   const _ParsedDataView({Key? key, required this.parsed}) : super(key: key);
 
-  final List parsed;
+  final dynamic parsed;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surface = colorScheme.surface;
-    final onSurface = colorScheme.onSurface;
-
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  '解析数据',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => handleTap(context),
-                )
-              ],
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: JsonView.map(
-                  {'parsed': parsed},
-                  theme: JsonViewTheme(
-                    backgroundColor: surface,
-                    defaultTextStyle: TextStyle(color: onSurface),
-                    viewType: JsonViewType.base,
-                  ),
-                ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                '解析数据',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => handleTap(context),
+              )
+            ],
+          ),
+          Expanded(
+            child: JsonView(
+              json: parsed,
+              styleScheme: const JsonStyleScheme(openAtStart: true),
             ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }

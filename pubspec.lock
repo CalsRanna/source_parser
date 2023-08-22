@@ -125,10 +125,10 @@ packages:
     dependency: "direct main"
     description:
       name: cached_network
-      sha256: fc110f812675f69d7ee28b7570b58a2cb1de643f467b25db9bcfdb1f1c4d057c
+      sha256: "4dfaa42ac25b2482ddcdda1c321e4aae7607a514b3b513b71311ef2242c13931"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   cached_network_image:
     dependency: "direct main"
     description:
@@ -358,14 +358,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.3"
-  flutter_json_view:
-    dependency: "direct main"
-    description:
-      name: flutter_json_view
-      sha256: "023f610d2da7b4df7c5aa6dcc2e56b87725cb03458cd9160513f36c417d7ea48"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.2"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -520,6 +512,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.8.1"
+  json_view:
+    dependency: "direct main"
+    description:
+      name: json_view
+      sha256: "905c69f9e69d1eab5406b87ab6c10c3706c04c70c6a4959621bd2b43c2d27374"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.2"
   lints:
     dependency: transitive
     description:

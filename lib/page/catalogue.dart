@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cached_network/cached_network.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,8 @@ import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/main.dart';
+import 'package:source_parser/model/book.dart';
+import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/source.dart';
 
 class CataloguePage extends StatefulWidget {
@@ -65,6 +68,8 @@ class _CataloguePageState extends State<CataloguePage> {
             return ListTile(
               title: Text(
                 book.chapters[index].name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: color),
               ),
               onTap: () => startReader(index),
@@ -81,9 +86,7 @@ class _CataloguePageState extends State<CataloguePage> {
     if (!atTop) {
       position = controller.position.minScrollExtent;
     }
-    const curve = Curves.easeInOut;
-    const duration = Duration(milliseconds: 200);
-    controller.animateTo(position, curve: curve, duration: duration);
+    controller.jumpTo(position);
     setState(() {
       atTop = !atTop;
     });
@@ -100,6 +103,29 @@ class _CataloguePageState extends State<CataloguePage> {
     if (source != null) {
       ref.set(currentSourceCreator, source);
     }
+    cacheChapters(index);
     router.push('/book-reader');
+  }
+
+  void cacheChapters(int index) async {
+    final ref = context.ref;
+    final book = context.ref.read(currentBookCreator);
+    final length = book.chapters.length;
+    for (var i = 1; i <= 3; i++) {
+      if (index + i < length) {
+        await CachedNetwork().request(book.chapters.elementAt(index + i).url);
+        var history = await isar.histories
+            .filter()
+            .nameEqualTo(book.name)
+            .authorEqualTo(book.author)
+            .findFirst();
+        history ??= History();
+        history.chapters.elementAt(index + i).cached = true;
+        await isar.writeTxn(() async {
+          isar.histories.put(history!);
+        });
+        ref.set(currentBookCreator, Book.fromJson(history.toJson()));
+      }
+    }
   }
 }

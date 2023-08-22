@@ -29,7 +29,7 @@ class BookSourceList extends StatelessWidget {
             return ListView.builder(
               itemCount: sources.length,
               itemBuilder: (context, index) {
-                return SourceTile(
+                return _SourceTile(
                   key: ValueKey('source-$index'),
                   source: sources[index],
                   onTap: (id) => handleTap(context, id),
@@ -92,8 +92,8 @@ class BookSourceList extends StatelessWidget {
   }
 }
 
-class SourceTile extends StatelessWidget {
-  const SourceTile({Key? key, required this.source, this.onTap})
+class _SourceTile extends StatelessWidget {
+  const _SourceTile({Key? key, required this.source, this.onTap})
       : super(key: key);
 
   final Source source;
@@ -101,11 +101,13 @@ class SourceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var color = Colors.black;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    var onBackground = colorScheme.onBackground;
     if (!source.enabled) {
-      color = Colors.grey;
+      onBackground = onBackground.withOpacity(0.75);
     }
-
+    final primary = colorScheme.primary;
     return InkWell(
       onTap: handleTap,
       child: Padding(
@@ -117,15 +119,12 @@ class SourceTile extends StatelessWidget {
               child: DefaultTextStyle.merge(
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: color),
+                style: TextStyle(color: onBackground),
                 child: Text(source.name, style: const TextStyle(fontSize: 16)),
               ),
             ),
             IconTheme.merge(
-              data: IconThemeData(
-                color: Theme.of(context).primaryColor,
-                size: 12,
-              ),
+              data: IconThemeData(color: primary, size: 12),
               child: Row(
                 children: [
                   if (source.enabled) const Icon(Icons.search_outlined),

@@ -15,7 +15,7 @@ dependencies:
   book_reader: ^0.0.7
   # book_reader:
   #   path: ../book_reader
-  cached_network: ^1.0.2
+  cached_network: ^1.0.3
   cached_network_image: ^3.2.3
   creator: ^0.3.2
   creator_watcher: ^0.0.1
@@ -26,9 +26,9 @@ dependencies:
   html_parser_plus: ^0.0.2
   isar: ^3.0.5
   isar_flutter_libs: ^3.0.5
+  json_view: ^0.4.2
   logger: ^1.1.0
   path_provider: ^2.0.14
-  flutter_json_view: ^1.1.2
 
 dev_dependencies:
   flutter_test:

@@ -10,6 +10,7 @@ import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/main.dart';
+import 'package:source_parser/model/book.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/parser.dart';
@@ -93,7 +94,7 @@ class _ReaderState extends State<Reader> {
     final ref = context.ref;
     final book = ref.read(currentBookCreator);
     final index = ref.read(currentChapterIndexCreator);
-    var history = await isar.historys
+    var history = await isar.histories
         .filter()
         .nameEqualTo(book.name)
         .authorEqualTo(book.author)
@@ -111,7 +112,7 @@ class _ReaderState extends State<Reader> {
     history.cursor = cursor;
     history.index = index;
     await isar.writeTxn(() async {
-      isar.historys.put(history!);
+      isar.histories.put(history!);
     });
   }
 
@@ -120,12 +121,24 @@ class _ReaderState extends State<Reader> {
     cacheChapters(index);
   }
 
-  void cacheChapters(int index) {
+  void cacheChapters(int index) async {
+    final ref = context.ref;
     final book = context.ref.read(currentBookCreator);
     final length = book.chapters.length;
-    for (var i = 1; i <= 2; i++) {
+    for (var i = 1; i <= 3; i++) {
       if (index + i < length) {
-        CachedNetwork().request(book.chapters.elementAt(index + i).url);
+        await CachedNetwork().request(book.chapters.elementAt(index + i).url);
+        var history = await isar.histories
+            .filter()
+            .nameEqualTo(book.name)
+            .authorEqualTo(book.author)
+            .findFirst();
+        history ??= History();
+        history.chapters.elementAt(index + i).cached = true;
+        await isar.writeTxn(() async {
+          isar.histories.put(history!);
+        });
+        ref.set(currentBookCreator, Book.fromJson(history.toJson()));
       }
     }
   }
@@ -152,7 +165,7 @@ class _ReaderState extends State<Reader> {
 
   void updateHistories() async {
     final ref = context.ref;
-    final histories = await isar.historys.where().findAll();
+    final histories = await isar.histories.where().findAll();
     ref.set(historiesCreator, histories);
   }
 }

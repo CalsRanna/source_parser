@@ -267,7 +267,7 @@ class _BookInformationState extends State<BookInformation> {
     final book = ref.read(currentBookCreator);
     final source =
         await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
-    var history = await isar.historys
+    var history = await isar.histories
         .filter()
         .nameEqualTo(book.name)
         .authorEqualTo(book.author)
@@ -295,7 +295,7 @@ class _BookInformationState extends State<BookInformation> {
       return Catalogue.fromJson(chapter.toJson());
     }).toList();
     await isar.writeTxn(() async {
-      isar.historys.put(history!);
+      isar.histories.put(history!);
     });
   }
 }

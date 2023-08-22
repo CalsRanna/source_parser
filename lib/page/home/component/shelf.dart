@@ -1,3 +1,4 @@
+import 'package:cached_network/cached_network.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -46,7 +47,7 @@ class _ShelfViewState extends State<ShelfView> {
 
   Future<void> refresh() async {
     final ref = context.ref;
-    final histories = await isar.historys.where().findAll();
+    final histories = await isar.histories.where().findAll();
     final parser = Parser();
     for (var history in histories) {
       final source =
@@ -56,11 +57,13 @@ class _ShelfViewState extends State<ShelfView> {
           url: history.url,
           source: source,
         );
-        history.chapters = chapters.map((chapter) {
-          return Catalogue.fromJson(chapter.toJson());
-        }).toList();
+        List<Catalogue> catalogues = [];
+        for (var chapter in chapters) {
+          chapter.cached = await CachedNetwork().cached(chapter.url);
+          catalogues.add(Catalogue.fromJson(chapter.toJson()));
+        }
         await isar.writeTxn(() async {
-          isar.historys.put(history);
+          isar.histories.put(history);
         });
       }
     }
@@ -142,10 +145,10 @@ class _ShelfTile extends StatelessWidget {
     final ref = context.ref;
     final navigator = Navigator.of(context);
     await isar.writeTxn(() async {
-      await isar.historys.delete(history.id);
+      await isar.histories.delete(history.id);
     });
     navigator.pop();
-    final histories = await isar.historys.where().findAll();
+    final histories = await isar.histories.where().findAll();
     ref.set(historiesCreator, histories);
   }
 

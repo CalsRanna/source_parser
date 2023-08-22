@@ -2,7 +2,7 @@ import 'package:isar/isar.dart';
 
 part 'history.g.dart';
 
-@collection
+@Collection(accessor: 'histories')
 @Name('histories')
 class History {
   Id id = Isar.autoIncrement;
