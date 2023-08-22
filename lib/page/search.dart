@@ -69,15 +69,14 @@ class _SearchState extends State<Search> {
                   Wrap(
                     runSpacing: 8,
                     spacing: 8,
-                    children: histories
-                        .map((history) => ActionChip(
-                              label: Text(history.name),
-                              labelPadding: EdgeInsets.zero,
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                              onPressed: () => search(context, history.name),
-                            ))
-                        .toList(),
+                    children: histories.map((history) {
+                      return ActionChip(
+                        label: Text(history.name),
+                        labelPadding: EdgeInsets.zero,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        onPressed: () => search(context, history.name),
+                      );
+                    }).toList(),
                   ),
                 ],
               );
@@ -231,6 +230,8 @@ class _SearchTile extends StatelessWidget {
                   children: [
                     Text(
                       book.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: bodyMedium,
                     ),
                     Text(_buildSubtitle() ?? '', style: bodySmall),

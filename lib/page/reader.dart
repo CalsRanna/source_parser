@@ -35,7 +35,6 @@ class _ReaderState extends State<Reader> {
     return Watcher((context, ref, child) {
       final book = ref.watch(currentBookCreator);
       final index = ref.watch(currentChapterIndexCreator);
-      final source = ref.watch(currentSourceCreator);
       final cursor = ref.watch(currentCursorCreator);
       final darkMode = ref.watch(darkModeCreator);
 
@@ -60,12 +59,7 @@ class _ReaderState extends State<Reader> {
         theme: theme,
         title: book.chapters.elementAt(index).name,
         onMessage: handleMessage,
-        onRefresh: (index) => Parser().getContent(
-          url: book.chapters.elementAt(index).url,
-          reacquire: true,
-          source: source,
-          title: book.chapters.elementAt(index).name,
-        ),
+        onRefresh: handleRefresh,
         onProgressChanged: handleProgressChanged,
         onChapterChanged: handleChapterChanged,
         onCatalogueNavigated: handleCatalogueNavigated,
@@ -88,6 +82,21 @@ class _ReaderState extends State<Reader> {
 
   void handleMessage(String message) {
     Message.of(context).show(message);
+  }
+
+  Future<String> handleRefresh(int index) async {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    final book = ref.read(currentBookCreator);
+    final chapter = book.chapters.elementAt(index);
+    final title = chapter.name;
+    final url = chapter.url;
+    return Parser().getContent(
+      reacquire: true,
+      source: source,
+      title: title,
+      url: url,
+    );
   }
 
   void handleProgressChanged(int cursor) async {
