@@ -40,12 +40,12 @@ class _ReaderState extends State<Reader> {
 
       var theme = ReaderTheme();
       if (darkMode) {
-        final schema = Theme.of(context).colorScheme;
+        final scheme = Theme.of(context).colorScheme;
         theme = theme.copyWith(
-          backgroundColor: schema.background,
-          footerStyle: theme.footerStyle.copyWith(color: schema.onBackground),
-          headerStyle: theme.headerStyle.copyWith(color: schema.onBackground),
-          pageStyle: theme.pageStyle.copyWith(color: schema.onBackground),
+          backgroundColor: scheme.background,
+          footerStyle: theme.footerStyle.copyWith(color: scheme.onBackground),
+          headerStyle: theme.headerStyle.copyWith(color: scheme.onBackground),
+          pageStyle: theme.pageStyle.copyWith(color: scheme.onBackground),
         );
       }
 
