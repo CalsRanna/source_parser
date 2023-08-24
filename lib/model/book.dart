@@ -1,4 +1,5 @@
 import 'package:source_parser/model/chapter.dart';
+import 'package:source_parser/model/source.dart';
 
 class Book {
   String author;
@@ -10,7 +11,7 @@ class Book {
   String latestChapter;
   String name;
   int sourceId;
-  List<int> sources;
+  List<AvailableSource> sources;
   String status;
   String updatedAt;
   String url;
@@ -26,7 +27,7 @@ class Book {
     this.latestChapter = '',
     this.name = '',
     this.sourceId = 0,
-    this.sources = const <int>[],
+    this.sources = const <AvailableSource>[],
     this.status = '',
     this.updatedAt = '',
     this.url = '',
@@ -40,6 +41,12 @@ class Book {
         return Chapter.fromJson(chapter);
       }).toList();
     }
+    List<AvailableSource> sources = [];
+    if (json['sources'] is List) {
+      sources = json['sources'].map<AvailableSource>((source) {
+        return AvailableSource.fromJson(source);
+      }).toList();
+    }
     return Book(
       author: json['author'] ?? '',
       catalogueUrl: json['catalogue_url'] ?? '',
@@ -50,7 +57,7 @@ class Book {
       latestChapter: json['latest_chapter'] ?? '',
       name: json['name'] ?? '',
       sourceId: json['source_id'] ?? 0,
-      sources: json['sources'] ?? [0],
+      sources: sources,
       status: json['status'] ?? '',
       updatedAt: json['updated_at'] ?? '',
       url: json['url'] ?? '',
@@ -69,7 +76,7 @@ class Book {
       'latest_chapter': latestChapter,
       'name': name,
       'source_id': sourceId,
-      'sources': sources,
+      'sources': sources.map((source) => source.toJson()).toList(),
       'status': status,
       'updated_at': updatedAt,
       'url': url,
@@ -87,7 +94,7 @@ class Book {
     String? latestChapter,
     String? name,
     int? sourceId,
-    List<int>? sources,
+    List<AvailableSource>? sources,
     String? status,
     String? updatedAt,
     String? url,

@@ -1,10 +1,14 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/history.dart';
+import 'package:source_parser/main.dart';
 import 'package:source_parser/model/book.dart';
+import 'package:source_parser/model/source.dart';
+import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
 import 'package:source_parser/util/message.dart';
@@ -178,7 +182,15 @@ class _SearchState extends State<Search> {
             if (exist.introduction.length < book.introduction.length) {
               exist.introduction = book.introduction;
             }
-            exist.sources.add(book.sourceId);
+            final source = await isar.sources
+                .filter()
+                .idEqualTo(book.sourceId)
+                .findFirst();
+            if (source != null) {
+              exist.sources.add(
+                AvailableSource(name: source.name, url: book.url),
+              );
+            }
             books[index] = exist;
             setState(() {
               books = [...books];

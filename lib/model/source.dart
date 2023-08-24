@@ -1,19 +1,28 @@
 class AvailableSource {
+  int id;
   String name;
   String url;
 
-  AvailableSource({this.name = '', this.url = ''});
+  AvailableSource({this.id = 0, this.name = '', this.url = ''});
 
   factory AvailableSource.fromJson(Map<String, dynamic> json) {
-    return AvailableSource(name: json['name'] ?? '', url: json['url'] ?? '');
+    return AvailableSource(
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      url: json['url'] ?? '',
+    );
   }
 
   Map<String, dynamic> toJson() {
-    return {'name': name, 'url': url};
+    return {'id': id, 'name': name, 'url': url};
   }
 
-  AvailableSource copyWith({String? name, String? url}) {
-    return AvailableSource(url: url ?? this.url, name: name ?? this.name);
+  AvailableSource copyWith({int? id, String? name, String? url}) {
+    return AvailableSource(
+      id: id ?? this.id,
+      url: url ?? this.url,
+      name: name ?? this.name,
+    );
   }
 
   @override

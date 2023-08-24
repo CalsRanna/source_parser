@@ -9,6 +9,7 @@ import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/main.dart';
 import 'package:source_parser/model/book.dart';
+import 'package:source_parser/model/source.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
@@ -48,6 +49,7 @@ class _ShelfViewState extends State<ShelfView> {
   Future<void> refresh() async {
     final ref = context.ref;
     final histories = await isar.histories.where().findAll();
+    ref.set(historiesCreator, histories);
     final parser = Parser();
     for (var history in histories) {
       final source =
@@ -62,6 +64,7 @@ class _ShelfViewState extends State<ShelfView> {
           chapter.cached = await CachedNetwork().cached(chapter.url);
           catalogues.add(Catalogue.fromJson(chapter.toJson()));
         }
+        history.chapters = catalogues;
         await isar.writeTxn(() async {
           isar.histories.put(history);
         });
@@ -170,6 +173,14 @@ class _ShelfTile extends StatelessWidget {
         message.show('未找到章节');
         return;
       }
+    }
+    if (book.sources.isEmpty) {
+      final currentSource = ref.read(currentSourceCreator);
+      final availableSource = AvailableSource();
+      availableSource.id = currentSource.id;
+      availableSource.name = currentSource.name;
+      availableSource.url = currentSource.url;
+      ref.set(currentBookCreator, book.copyWith(sources: [availableSource]));
     }
     router.push('/book-reader');
   }

@@ -10,6 +10,7 @@ import 'package:source_parser/main.dart';
 import 'package:source_parser/model/book.dart';
 import 'package:source_parser/model/chapter.dart';
 import 'package:source_parser/model/debug.dart';
+import 'package:source_parser/model/source.dart';
 import 'package:source_parser/schema/source.dart';
 
 class Parser {
@@ -109,7 +110,9 @@ class Parser {
               introduction: introduction,
               name: name,
               sourceId: source.id,
-              sources: [source.id],
+              sources: [
+                AvailableSource(id: source.id, name: source.name, url: url)
+              ],
               url: url,
             ),
           );
@@ -217,7 +220,7 @@ class Parser {
             introduction: introduction,
             name: name,
             sourceId: source.id,
-            sources: [source.id],
+            sources: [AvailableSource(name: source.name, url: url)],
             url: url,
           ),
         );
@@ -244,7 +247,7 @@ class Parser {
         catalogueUrl: catalogueUrl,
         introduction: introduction,
         sourceId: source.id,
-        sources: [source.id],
+        sources: [AvailableSource(name: source.name, url: books.first.url)],
         url: books.first.url,
       );
       result.informationBook = [book];

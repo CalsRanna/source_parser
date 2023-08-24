@@ -3,7 +3,7 @@ description: A parser use to do everything you want to.
 
 publish_to: none
 
-version: 1.0.0+10
+version: 1.0.0+11
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  book_reader: ^0.0.12
+  book_reader: ^0.0.13
   # book_reader:
   #   path: ../book_reader
   cached_network: ^1.0.3

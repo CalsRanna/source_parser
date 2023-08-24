@@ -20,7 +20,7 @@ class History {
   @Name('source_id')
   int sourceId = 0;
   @Name('sources')
-  List<int> sources = [];
+  List<SourceSwitcher> sources = [];
   String status = '';
   @Name('updated_at')
   String updatedAt = '';
@@ -36,6 +36,12 @@ class History {
           .map((chapter) => Catalogue.fromJson(chapter))
           .toList();
     }
+    List<SourceSwitcher> sources = [];
+    if (json['sources'] is List) {
+      sources = (json['sources'] as List)
+          .map((source) => SourceSwitcher.fromJson(source))
+          .toList();
+    }
     return History()
       ..id = json['id'] as Id
       ..author = json['author'] as String
@@ -49,8 +55,7 @@ class History {
       ..latestChapter = json['latest_chapter'] as String
       ..name = json['name'] as String
       ..sourceId = json['source_id'] as int
-      ..sources =
-          (json['sources'] as List<dynamic>).map((e) => e as int).toList()
+      ..sources = sources
       ..status = json['status'] as String
       ..updatedAt = json['updated_at'] as String
       ..url = json['url'] as String
@@ -71,7 +76,7 @@ class History {
       'latest_chapter': latestChapter,
       'name': name,
       'source_id': sourceId,
-      'sources': sources,
+      'sources': sources.map((source) => source.toJson()).toList(),
       'status': status,
       'updated_at': updatedAt,
       'url': url,
@@ -102,11 +107,33 @@ class Catalogue {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'cached': cached,
-      'name': name,
-      'url': url,
-    };
+    return {'cached': cached, 'name': name, 'url': url};
+  }
+
+  @override
+  String toString() {
+    return toJson().toString();
+  }
+}
+
+@embedded
+@Name('source_switchers')
+class SourceSwitcher {
+  int id = 0;
+  String name = '';
+  String url = '';
+
+  SourceSwitcher();
+
+  factory SourceSwitcher.fromJson(Map<String, dynamic> json) {
+    return SourceSwitcher()
+      ..id = json['id'] as int
+      ..name = json['name'] as String
+      ..url = json['url'] as String;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name, 'url': url};
   }
 
   @override

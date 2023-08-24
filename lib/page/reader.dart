@@ -65,6 +65,7 @@ class _ReaderState extends State<Reader> {
         onCatalogueNavigated: handleCatalogueNavigated,
         onPop: handlePop,
         onDarkModePressed: handleDarkModePressed,
+        onSourceSwitcherPressed: handleSourceSwitcherPressed,
       );
     });
   }
@@ -115,6 +116,9 @@ class _ReaderState extends State<Reader> {
     history.introduction = book.introduction;
     history.url = book.url;
     history.sourceId = book.sourceId;
+    history.sources = book.sources.map((source) {
+      return SourceSwitcher.fromJson(source.toJson());
+    }).toList();
     history.chapters = book.chapters.map((chapter) {
       return Catalogue.fromJson(chapter.toJson());
     }).toList();
@@ -154,6 +158,10 @@ class _ReaderState extends State<Reader> {
 
   void handleCatalogueNavigated() {
     context.push('/book-catalogue');
+  }
+
+  void handleSourceSwitcherPressed() {
+    context.push('/book-available-sources');
   }
 
   void handlePop(int index, int cursor) async {

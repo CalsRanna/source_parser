@@ -291,6 +291,9 @@ class _BookInformationState extends State<BookInformation> {
     history.introduction = book.introduction;
     history.url = book.url;
     history.sourceId = book.sourceId;
+    history.sources = book.sources.map((source) {
+      return SourceSwitcher.fromJson(source.toJson());
+    }).toList();
     history.chapters = book.chapters.map((chapter) {
       return Catalogue.fromJson(chapter.toJson());
     }).toList();
