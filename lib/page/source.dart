@@ -18,7 +18,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('可用源')),
+      appBar: AppBar(title: const Text('可用书源')),
       body: Watcher((context, ref, child) {
         final book = ref.watch(currentBookCreator);
         return ListView.builder(
@@ -59,11 +59,9 @@ class _AvailableSourcesState extends State<AvailableSources> {
       final url = book.sources[index].url;
       final chapters = await Parser().getChapters(url: url, source: source);
       ref.set(
-          currentBookCreator,
-          book.copyWith(
-            sourceId: sourceId,
-            chapters: chapters,
-          ));
+        currentBookCreator,
+        book.copyWith(sourceId: sourceId, chapters: chapters),
+      );
       message.show('切换成功');
     } else {
       message.show('未找到源');

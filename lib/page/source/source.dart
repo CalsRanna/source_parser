@@ -18,7 +18,7 @@ class BookSourceList extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () => importSource(context),
-            icon: const Icon(Icons.cloud_upload_outlined),
+            icon: const Icon(Icons.file_download_outlined),
           )
         ],
         title: const Text('书源管理'),
@@ -32,7 +32,7 @@ class BookSourceList extends StatelessWidget {
                 return _SourceTile(
                   key: ValueKey('source-$index'),
                   source: sources[index],
-                  onTap: (id) => handleTap(context, id),
+                  onTap: (id) => editSource(context, id),
                 );
               },
             );
@@ -43,7 +43,7 @@ class BookSourceList extends StatelessWidget {
         emitter: sourcesEmitter,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/book-source/create'),
+        onPressed: () => createSource(context),
         child: const Icon(Icons.add_outlined),
       ),
     );
@@ -63,7 +63,7 @@ class BookSourceList extends StatelessWidget {
             const SizedBox(height: 8),
             const SelectableText(
               '目前仅支持GitHub仓库中文件的原始地址，例如https://raw.githubuserconten'
-              't.com/CalsRanna/RuleSample/master/rule.json',
+              't.com/CalsRanna/rule_sample/master/sources.json',
             ),
           ],
         ),
@@ -83,12 +83,17 @@ class BookSourceList extends StatelessWidget {
     router.pop();
   }
 
-  void handleTap(BuildContext context, int id) async {
+  void editSource(BuildContext context, int id) async {
     final ref = context.ref;
     final navigator = GoRouter.of(context);
     final source = await isar.sources.filter().idEqualTo(id).findFirst();
     ref.set(currentSourceCreator, source);
     navigator.push('/book-source/information/$id');
+  }
+
+  void createSource(BuildContext context) {
+    context.ref.set(currentSourceCreator, Source());
+    context.push('/book-source/create');
   }
 }
 

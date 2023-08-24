@@ -104,7 +104,7 @@ class Source {
   Source();
 
   Source.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
+      : id = json['id'] ?? Isar.autoIncrement,
         name = json['name'] ?? '',
         url = json['url'] ?? '',
         enabled = json['enabled'] ?? true,
