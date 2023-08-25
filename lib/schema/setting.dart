@@ -14,13 +14,3 @@ class Setting {
   @Name('debug_mode')
   bool debugMode = false;
 }
-
-extension CloneableSetting on Setting {
-  Setting get clone {
-    return Setting()
-      ..id = id
-      ..colorSeed = colorSeed
-      ..darkMode = darkMode
-      ..debugMode = debugMode;
-  }
-}

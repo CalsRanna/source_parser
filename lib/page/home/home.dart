@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/main.dart';
+import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/page/home/component/setting.dart';
 import 'package:source_parser/page/home/component/shelf.dart';

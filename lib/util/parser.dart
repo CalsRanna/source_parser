@@ -6,11 +6,11 @@ import 'package:cached_network/cached_network.dart';
 import 'package:html_parser_plus/html_parser_plus.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:source_parser/main.dart';
 import 'package:source_parser/model/book.dart';
 import 'package:source_parser/model/chapter.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/model/source.dart';
+import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 
 class Parser {
@@ -147,10 +147,7 @@ class Parser {
     );
   }
 
-  Future<List<Chapter>> getChapters({
-    required String url,
-    required Source source,
-  }) async {
+  Future<List<Chapter>> getChapters(String url, Source source) async {
     final html = await CachedNetwork().request(url);
     final parser = HtmlParser();
     final document = parser.parse(html);

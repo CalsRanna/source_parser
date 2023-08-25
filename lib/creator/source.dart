@@ -1,6 +1,6 @@
 import 'package:creator/creator.dart';
 import 'package:isar/isar.dart';
-import 'package:source_parser/main.dart';
+import 'package:source_parser/schema/isar.dart';
 
 import 'package:source_parser/schema/source.dart';
 

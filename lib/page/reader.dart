@@ -7,11 +7,12 @@ import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/history.dart';
+import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/main.dart';
 import 'package:source_parser/model/book.dart';
 import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/message.dart';
@@ -157,6 +158,7 @@ class _ReaderState extends State<Reader> {
   }
 
   void handleCatalogueNavigated() {
+    context.ref.set(fromCreator, '/book-reader');
     context.push('/book-catalogue');
   }
 

@@ -4,11 +4,10 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/router/router.dart';
-
-late Isar isar;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +17,10 @@ void main() async {
     SettingSchema,
     SourceSchema,
   ], directory: directory.path);
-  runApp(CreatorGraph(child: const SourceParser()));
+  runApp(CreatorGraph(
+    observer: const CreatorObserver(),
+    child: const SourceParser(),
+  ));
 }
 
 class SourceParser extends StatefulWidget {

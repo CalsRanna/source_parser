@@ -7,10 +7,10 @@ import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/main.dart';
 import 'package:source_parser/model/book.dart';
 import 'package:source_parser/model/source.dart';
 import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
@@ -55,10 +55,7 @@ class _ShelfViewState extends State<ShelfView> {
       final source =
           await isar.sources.filter().idEqualTo(history.sourceId).findFirst();
       if (source != null) {
-        final chapters = await parser.getChapters(
-          url: history.url,
-          source: source,
-        );
+        final chapters = await parser.getChapters(history.url, source);
         List<Catalogue> catalogues = [];
         for (var chapter in chapters) {
           chapter.cached = await CachedNetwork().cached(chapter.url);
@@ -168,7 +165,7 @@ class _ShelfTile extends StatelessWidget {
     if (source != null) {
       ref.set(currentSourceCreator, source);
       final parser = Parser();
-      final chapters = await parser.getChapters(source: source, url: book.url);
+      final chapters = await parser.getChapters(book.url, source);
       if (chapters.isEmpty) {
         message.show('未找到章节');
         return;

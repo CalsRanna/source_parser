@@ -7,10 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
+import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/main.dart';
 import 'package:source_parser/model/book.dart';
 import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 
 class CataloguePage extends StatefulWidget {
@@ -104,7 +105,13 @@ class _CataloguePageState extends State<CataloguePage> {
       ref.set(currentSourceCreator, source);
     }
     cacheChapters(index);
-    router.push('/book-reader');
+    final from = ref.read(fromCreator);
+    if (from == '/book-reader') {
+      router.pop();
+      router.replace('/book-reader');
+    } else {
+      router.push('/book-reader');
+    }
   }
 
   void cacheChapters(int index) async {

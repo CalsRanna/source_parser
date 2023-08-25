@@ -2,7 +2,7 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
-import 'package:source_parser/main.dart';
+import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/parser.dart';
@@ -57,7 +57,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
     final source = await isar.sources.filter().idEqualTo(sourceId).findFirst();
     if (source != null) {
       final url = book.sources[index].url;
-      final chapters = await Parser().getChapters(url: url, source: source);
+      final chapters = await Parser().getChapters(url, source);
       ref.set(
         currentBookCreator,
         book.copyWith(sourceId: sourceId, chapters: chapters),
