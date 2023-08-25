@@ -175,10 +175,7 @@ class _Source extends StatelessWidget {
                       textAlign: TextAlign.right,
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Icon(Icons.chevron_right_outlined),
-                  )
+                  const Icon(Icons.chevron_right_outlined)
                 ],
               ),
             ],
