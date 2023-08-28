@@ -174,7 +174,7 @@ class Parser {
     final parser = HtmlParser();
     final document = parser.parse(html);
     final content = parser.query(document, source.contentContent);
-    return '$title\n$content';
+    return '$title\n\n$content';
   }
 
   Future<DebugResult> debug(String credential, Source source) async {

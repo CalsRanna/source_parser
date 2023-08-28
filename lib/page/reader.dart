@@ -16,6 +16,7 @@ import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/message.dart';
+import 'package:source_parser/widget/book_cover.dart';
 
 class Reader extends StatefulWidget {
   const Reader({super.key});
@@ -51,6 +52,8 @@ class _ReaderState extends State<Reader> {
       }
 
       return BookReader(
+        author: book.author,
+        cover: BookCover(height: 48, width: 36, url: book.cover),
         future: getContent,
         cursor: cursor,
         darkMode: darkMode,
@@ -67,6 +70,8 @@ class _ReaderState extends State<Reader> {
         onPop: handlePop,
         onDarkModePressed: handleDarkModePressed,
         onSourceSwitcherPressed: handleSourceSwitcherPressed,
+        onCached: handleCached,
+        onDetailPressed: handleDetailPressed,
       );
     });
   }
@@ -167,6 +172,7 @@ class _ReaderState extends State<Reader> {
   }
 
   void handlePop(int index, int cursor) async {
+    context.pop();
     updateHistories();
   }
 
@@ -186,5 +192,36 @@ class _ReaderState extends State<Reader> {
     final ref = context.ref;
     final histories = await isar.histories.where().findAll();
     ref.set(historiesCreator, histories);
+  }
+
+  void handleCached(int amount) async {
+    final ref = context.ref;
+    final message = Message.of(context);
+    final book = ref.read(currentBookCreator);
+    if (amount == 0) {
+      amount = book.chapters.length;
+    }
+    final index = ref.read(currentChapterIndexCreator);
+    for (var i = 1; i <= amount; i++) {
+      if (index + i < book.chapters.length) {
+        await CachedNetwork().request(book.chapters.elementAt(index + i).url);
+        var history = await isar.histories
+            .filter()
+            .nameEqualTo(book.name)
+            .authorEqualTo(book.author)
+            .findFirst();
+        history ??= History();
+        history.chapters.elementAt(index + i).cached = true;
+        await isar.writeTxn(() async {
+          isar.histories.put(history!);
+        });
+        ref.set(currentBookCreator, Book.fromJson(history.toJson()));
+      }
+    }
+    message.show('缓存完毕');
+  }
+
+  void handleDetailPressed() {
+    context.push('/book-information');
   }
 }
