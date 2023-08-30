@@ -130,6 +130,7 @@ class Parser {
     final html = await CachedNetwork().request(
       url,
       charset: source.charset,
+      duration: const Duration(hours: 6),
       method: method,
     );
     final parser = HtmlParser();
@@ -160,6 +161,7 @@ class Parser {
     final html = await CachedNetwork().request(
       url,
       charset: source.charset,
+      duration: const Duration(hours: 6),
       method: method,
     );
     final parser = HtmlParser();
