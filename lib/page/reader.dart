@@ -54,24 +54,24 @@ class _ReaderState extends State<Reader> {
       return BookReader(
         author: book.author,
         cover: BookCover(height: 48, width: 36, url: book.cover),
-        future: getContent,
         cursor: cursor,
         darkMode: darkMode,
+        future: getContent,
         index: index,
-        total: book.chapters.length,
         name: book.name,
         theme: theme,
         title: book.chapters.elementAt(index).name,
-        onMessage: handleMessage,
-        onRefresh: handleRefresh,
-        onProgressChanged: handleProgressChanged,
-        onChapterChanged: handleChapterChanged,
-        onCatalogueNavigated: handleCatalogueNavigated,
-        onPop: handlePop,
-        onDarkModePressed: handleDarkModePressed,
-        onSourceSwitcherPressed: handleSourceSwitcherPressed,
+        total: book.chapters.length,
         onCached: handleCached,
+        onCataloguePressed: handleCataloguePressed,
+        onChapterChanged: handleChapterChanged,
+        onDarkModePressed: handleDarkModePressed,
         onDetailPressed: handleDetailPressed,
+        onMessage: handleMessage,
+        onPop: handlePop,
+        onProgressChanged: handleProgressChanged,
+        onRefresh: handleRefresh,
+        onSourcePressed: handleSourcePressed,
       );
     });
   }
@@ -84,7 +84,19 @@ class _ReaderState extends State<Reader> {
     final chapters = book.chapters;
     final title = chapters.elementAt(index).name;
     final url = chapters.elementAt(index).url;
-    return parser.getContent(source: source, title: title, url: url);
+    final content = parser.getContent(source: source, title: title, url: url);
+    var history = await isar.histories
+        .filter()
+        .nameEqualTo(book.name)
+        .authorEqualTo(book.author)
+        .findFirst();
+    history ??= History();
+    history.chapters.elementAt(index).cached = true;
+    await isar.writeTxn(() async {
+      isar.histories.put(history!);
+    });
+    ref.set(currentBookCreator, Book.fromJson(history.toJson()));
+    return content;
   }
 
   void handleMessage(String message) {
@@ -162,12 +174,12 @@ class _ReaderState extends State<Reader> {
     }
   }
 
-  void handleCatalogueNavigated() {
+  void handleCataloguePressed() {
     context.ref.set(fromCreator, '/book-reader');
     context.push('/book-catalogue');
   }
 
-  void handleSourceSwitcherPressed() {
+  void handleSourcePressed() {
     context.push('/book-available-sources');
   }
 
