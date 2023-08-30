@@ -82,6 +82,9 @@ class _ShelfTile extends StatelessWidget {
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
+    final colorScheme = theme.colorScheme;
+    final onBackground = colorScheme.onBackground;
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onLongPress: () => _handleLongPress(context),
@@ -90,11 +93,11 @@ class _ShelfTile extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
         child: Row(
           children: [
-            BookCover(url: history.cover, height: 80, width: 60),
+            BookCover(url: history.cover, height: 64, width: 48),
             const SizedBox(width: 16),
             Expanded(
               child: SizedBox(
-                height: 80,
+                height: 64,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -104,7 +107,18 @@ class _ShelfTile extends StatelessWidget {
                       history.name,
                       style: bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                     ),
-                    Text(_buildSubtitle() ?? '', style: bodySmall),
+                    Text(
+                      _buildSubtitle() ?? '',
+                      style: bodySmall?.copyWith(
+                        color: onBackground.withOpacity(0.5),
+                      ),
+                    ),
+                    Text(
+                      _buildProgress() ?? '',
+                      style: bodySmall?.copyWith(
+                        color: onBackground.withOpacity(0.5),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -200,6 +214,18 @@ class _ShelfTile extends StatelessWidget {
       spans.add('已读完');
     } else {
       spans.add('未找到章节');
+    }
+    return spans.isNotEmpty ? spans.join(' · ') : null;
+  }
+
+  String? _buildProgress() {
+    final spans = <String>[];
+    if (history.updatedAt.isNotEmpty) {
+      spans.add(history.updatedAt);
+    }
+
+    if (history.chapters.isNotEmpty) {
+      spans.add(history.chapters.last.name);
     }
     return spans.isNotEmpty ? spans.join(' · ') : null;
   }

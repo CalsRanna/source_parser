@@ -51,7 +51,7 @@ class SettingView extends StatelessWidget {
           child: const Column(
             children: [
               SettingTile(
-                icon: Icons.error_outline,
+                icon: Icons.info_outline_rounded,
                 route: '/setting/about',
                 title: '关于元夕',
               ),
@@ -76,16 +76,18 @@ class SettingView extends StatelessWidget {
   //   showModalBottomSheet(
   //     context: context,
   //     clipBehavior: Clip.hardEdge,
-  //     builder: (context) => EmitterWatcher<Setting>(
-  //       builder: (context, setting) => ColorPicker(
+  //     builder: (context) {
+  //       return Watcher((context, ref, child) {
+  //         final setting = ref.watch(setting)
+  //         return ColorPicker(
   //         pickerColor: Color(setting.colorSeed),
   //         labelTypes: const [],
   //         enableAlpha: false,
   //         colorPickerWidth: MediaQuery.of(context).size.width,
   //         onColorChanged: (value) => handleColorChange(context, value),
-  //       ),
-  //       emitter: settingEmitter,
-  //     ),
+  //       );
+  //       };
+  //     },
   //   );
   // }
 
