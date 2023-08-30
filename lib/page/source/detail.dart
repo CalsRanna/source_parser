@@ -19,6 +19,7 @@ class BookSourceInformation extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final surfaceVariant = colorScheme.surfaceVariant;
     final error = colorScheme.error;
     return Scaffold(
       appBar: AppBar(
@@ -44,7 +45,7 @@ class BookSourceInformation extends StatelessWidget {
           CreatorWatcher<Source>(
             creator: currentSourceCreator,
             builder: (context, source) => Card(
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color: surfaceVariant,
               elevation: 0,
               child: Column(
                 children: [
@@ -63,9 +64,9 @@ class BookSourceInformation extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           Card(
-            color: Theme.of(context).colorScheme.surfaceVariant,
+            color: surfaceVariant,
             elevation: 0,
             child: Column(
               children: [
@@ -77,9 +78,9 @@ class BookSourceInformation extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           Card(
-            color: Theme.of(context).colorScheme.surfaceVariant,
+            color: surfaceVariant,
             elevation: 0,
             child: Column(
               children: [
@@ -103,18 +104,21 @@ class BookSourceInformation extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          Card(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            elevation: 0,
-            child: Column(
-              children: [
-                RuleTile(
-                  bordered: false,
-                  title: '发现',
-                  onTap: () => navigate(context, 'explore-configuration'),
-                ),
-              ],
+          const SizedBox(height: 8),
+          CreatorWatcher<Source>(
+            creator: currentSourceCreator,
+            builder: (context, source) => Card(
+              color: surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
+                    title: '发现',
+                    value: source.exploreJson,
+                    onChange: (value) => updateExploreJson(context, value),
+                  ),
+                ],
+              ),
             ),
           ),
           Padding(
@@ -151,6 +155,12 @@ class BookSourceInformation extends StatelessWidget {
     final ref = context.ref;
     final source = ref.read(currentSourceCreator);
     ref.set(currentSourceCreator, source.copyWith(url: url));
+  }
+
+  void updateExploreJson(BuildContext context, String json) async {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(currentSourceCreator, source.copyWith(exploreJson: json));
   }
 
   void navigate(BuildContext context, String route) {

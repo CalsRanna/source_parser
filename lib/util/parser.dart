@@ -80,10 +80,13 @@ class Parser {
       final searchUrl = source.searchUrl
           .replaceAll('{{credential}}', credential)
           .replaceAll('{{page}}', '1');
+
+      final method = source.searchMethod.toUpperCase();
       var html = await network.request(
         searchUrl,
         charset: source.charset,
         duration: const Duration(hours: 6),
+        method: method,
       );
       final parser = HtmlParser();
       var document = parser.parse(html);
@@ -123,7 +126,8 @@ class Parser {
   }
 
   Future<Book> getInformation(String url, Source source) async {
-    final html = await CachedNetwork().request(url);
+    final method = source.informationMethod.toUpperCase();
+    final html = await CachedNetwork().request(url, method: method);
     final parser = HtmlParser();
     final document = parser.parse(html);
     final author = parser.query(document, source.informationAuthor);
@@ -148,7 +152,8 @@ class Parser {
   }
 
   Future<List<Chapter>> getChapters(String url, Source source) async {
-    final html = await CachedNetwork().request(url);
+    final method = source.catalogueMethod.toUpperCase();
+    final html = await CachedNetwork().request(url, method: method);
     final parser = HtmlParser();
     final document = parser.parse(html);
     final items = parser.queryNodes(document, source.catalogueChapters);
@@ -170,7 +175,12 @@ class Parser {
     required String title,
     bool reacquire = false,
   }) async {
-    final html = await CachedNetwork().request(url, reacquire: reacquire);
+    final method = source.contentMethod.toUpperCase();
+    final html = await CachedNetwork().request(
+      url,
+      method: method,
+      reacquire: reacquire,
+    );
     final parser = HtmlParser();
     final document = parser.parse(html);
     final content = parser.query(document, source.contentContent);
@@ -188,7 +198,8 @@ class Parser {
       searchUrl,
       charset: source.charset,
       duration: const Duration(hours: 6),
-      // reacquire: true,
+      method: source.searchMethod.toUpperCase(),
+      reacquire: true,
     );
     result.searchRaw = html;
     final parser = HtmlParser();
@@ -227,7 +238,10 @@ class Parser {
     if (books.isNotEmpty) {
       // 调试详情规则解析
       var informationUrl = books.first.url;
-      html = await network.request(informationUrl);
+      html = await network.request(
+        informationUrl,
+        method: source.informationMethod.toUpperCase(),
+      );
       result.informationRaw = html;
       document = parser.parse(html);
       var name = parser.query(document, source.informationName);
@@ -252,7 +266,10 @@ class Parser {
       if (catalogueUrl.isEmpty) {
         catalogueUrl = informationUrl;
       }
-      html = await network.request(catalogueUrl);
+      html = await network.request(
+        catalogueUrl,
+        method: source.catalogueMethod.toUpperCase(),
+      );
       result.catalogueRaw = html;
       document = parser.parse(html);
       items = parser.queryNodes(document, source.catalogueChapters);
@@ -268,7 +285,10 @@ class Parser {
       result.catalogueChapters = chapters;
       // 调试正文解析规则
       if (chapters.isNotEmpty) {
-        html = await network.request(chapters.first.url);
+        html = await network.request(
+          chapters.first.url,
+          method: source.contentMethod.toUpperCase(),
+        );
         result.contentRaw = html;
         document = parser.parse(html);
         var content = parser.query(document, source.contentContent);

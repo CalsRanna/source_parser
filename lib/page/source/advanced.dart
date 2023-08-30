@@ -58,19 +58,9 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
               child: Column(
                 children: [
                   RuleTile(
-                    title: '分组',
-                    value: source.group,
-                    onChange: (value) => updateGroup(context, value),
-                  ),
-                  RuleTile(
                     title: '备注',
                     value: source.comment,
                     onChange: (value) => updateComment(context, value),
-                  ),
-                  RuleTile(
-                    title: '登陆URL',
-                    value: source.loginUrl,
-                    onChange: (value) => updateLoginUrl(context, value),
                   ),
                   RuleTile(
                     title: '请求头',
@@ -81,12 +71,6 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
                     title: '编码',
                     value: source.charset,
                     onTap: () => selectCharset(context),
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '权重',
-                    value: source.weight.toString(),
-                    onChange: (value) => updateWeight(context, value),
                   ),
                 ],
               ),
@@ -104,25 +88,39 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
     ref.set(currentSourceCreator, source.copyWith(enabled: !source.enabled));
   }
 
-  void triggerExploreEnabled(BuildContext context) async {}
+  void triggerExploreEnabled(BuildContext context) async {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(
+      currentSourceCreator,
+      source.copyWith(exploreEnabled: !source.exploreEnabled),
+    );
+  }
 
-  void updateGroup(BuildContext context, String value) async {}
-  void updateComment(BuildContext context, String value) async {}
-  void updateLoginUrl(BuildContext context, String value) async {}
-  void updateHeader(BuildContext context, String value) async {}
+  void updateComment(BuildContext context, String value) async {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(currentSourceCreator, source.copyWith(comment: value));
+  }
+
+  void updateHeader(BuildContext context, String value) async {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(currentSourceCreator, source.copyWith(header: value));
+  }
 
   void selectCharset(BuildContext context) {
-    const charsets = ['utf8', 'gbk'];
+    const encodings = ['utf8', 'gbk'];
     showModalBottomSheet(
       context: context,
       builder: (context) => SizedBox(
         height: 56 * 2 + MediaQuery.of(context).padding.bottom,
         child: Column(
           children: List.generate(
-            charsets.length,
+            encodings.length,
             (index) => ListTile(
-              title: Text(charsets[index]),
-              onTap: () => confirmSelect(context, charsets[index]),
+              title: Text(encodings[index]),
+              onTap: () => confirmSelect(context, encodings[index]),
             ),
           ),
         ),
@@ -136,6 +134,4 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
     ref.set(currentSourceCreator, source.copyWith(charset: charset));
     Navigator.of(context).pop();
   }
-
-  void updateWeight(BuildContext context, String value) async {}
 }

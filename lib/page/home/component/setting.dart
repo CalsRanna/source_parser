@@ -6,11 +6,14 @@ class SettingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final surfaceVariant = colorScheme.surfaceVariant;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Card(
-          color: Theme.of(context).colorScheme.surfaceVariant,
+          color: surfaceVariant,
           elevation: 0,
           child: const Column(
             children: [
@@ -22,9 +25,9 @@ class SettingView extends StatelessWidget {
             ],
           ),
         ),
-        // const SizedBox(height: 16),
+        // const SizedBox(height: 8),
         // Card(
-        //   color: Theme.of(context).colorScheme.surfaceVariant,
+        //   color: surfaceVariant,
         //   elevation: 0,
         //   child: Column(
         //     children: [
@@ -41,9 +44,9 @@ class SettingView extends StatelessWidget {
         //     ],
         //   ),
         // ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         Card(
-          color: Theme.of(context).colorScheme.surfaceVariant,
+          color: surfaceVariant,
           elevation: 0,
           child: const Column(
             children: [

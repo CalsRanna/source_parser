@@ -38,11 +38,6 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
                     onChange: (value) => updateCatalogueUrl(context, value),
                   ),
                   RuleTile(
-                    title: 'VIP标识',
-                    value: source.catalogueVip,
-                    onChange: (value) => updateCatalogueVip(context, value),
-                  ),
-                  RuleTile(
                     title: '更新时间规则',
                     value: source.catalogueUpdatedAt,
                     onChange: (value) =>
@@ -57,11 +52,51 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
+                    title: '请求方法',
+                    value: source.catalogueMethod,
+                    onTap: () => selectMethod(context),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
         creator: currentSourceCreator,
       ),
     );
+  }
+
+  void selectMethod(BuildContext context) {
+    const methods = ['get', 'post'];
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SizedBox(
+        height: 56 * 2 + MediaQuery.of(context).padding.bottom,
+        child: Column(
+          children: List.generate(
+            methods.length,
+            (index) => ListTile(
+              title: Text(methods[index]),
+              onTap: () => confirmSelect(context, methods[index]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void confirmSelect(BuildContext context, String method) {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(currentSourceCreator, source.copyWith(catalogueMethod: method));
+    Navigator.of(context).pop();
   }
 
   void updateCatalogueChapters(BuildContext context, String value) {
@@ -80,12 +115,6 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
     final ref = context.ref;
     final source = ref.read(currentSourceCreator);
     ref.set(currentSourceCreator, source.copyWith(catalogueUrl: value));
-  }
-
-  void updateCatalogueVip(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(catalogueVip: value));
   }
 
   void updateCatalogueUpdatedAt(BuildContext context, String value) {

@@ -5,7 +5,6 @@ import 'package:source_parser/page/source/catalogue.dart';
 import 'package:source_parser/page/source/content.dart';
 import 'package:source_parser/page/source/source.dart';
 import 'package:source_parser/page/source/debug.dart';
-import 'package:source_parser/page/source/explore.dart';
 import 'package:source_parser/page/source/importer.dart';
 import 'package:source_parser/page/source/detail.dart';
 import 'package:source_parser/page/source/information.dart';
@@ -60,10 +59,6 @@ final router = GoRouter(routes: [
   GoRoute(
     builder: (context, state) => const BookSourceDebug(),
     path: '/book-source/debug',
-  ),
-  GoRoute(
-    builder: (context, state) => const BookSourceExploreConfiguration(),
-    path: '/book-source/explore-configuration',
   ),
   GoRoute(
     builder: (context, state) =>

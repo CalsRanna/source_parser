@@ -29,9 +29,9 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                   ),
                   RuleTile(
                     bordered: false,
-                    title: '校验关键字',
-                    value: source.searchCheckCredential,
-                    onChange: (value) {},
+                    title: '请求方法',
+                    value: source.searchMethod,
+                    onTap: () => selectMethod(context),
                   ),
                 ],
               ),
@@ -113,6 +113,32 @@ class BookSourceSearchConfiguration extends StatelessWidget {
     final ref = context.ref;
     final source = ref.read(currentSourceCreator);
     ref.set(currentSourceCreator, source.copyWith(searchUrl: value));
+  }
+
+  void selectMethod(BuildContext context) {
+    const methods = ['get', 'post'];
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SizedBox(
+        height: 56 * 2 + MediaQuery.of(context).padding.bottom,
+        child: Column(
+          children: List.generate(
+            methods.length,
+            (index) => ListTile(
+              title: Text(methods[index]),
+              onTap: () => confirmSelect(context, methods[index]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void confirmSelect(BuildContext context, String method) {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(currentSourceCreator, source.copyWith(searchMethod: method));
+    Navigator.of(context).pop();
   }
 
   void updateSearchBooks(BuildContext context, String value) {

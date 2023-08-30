@@ -14,12 +14,15 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final titleLarge = textTheme.titleLarge;
     return Scaffold(
       appBar: AppBar(),
       body: Center(
         child: GestureDetector(
           // onTap: () => handleTap(context),
-          child: const Text('凤箫声动，玉壶光转，一夜鱼龙舞。'),
+          child: Text('凤箫声动，玉壶光转，一夜鱼龙舞。', style: titleLarge),
         ),
       ),
     );

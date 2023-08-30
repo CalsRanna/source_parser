@@ -42,9 +42,9 @@ class BookSourceContentConfiguration extends StatelessWidget {
               child: Column(
                 children: [
                   RuleTile(
-                    title: '替换规则',
-                    value: source.contentReplace,
-                    onChange: (value) => updateContentReplace(context, value),
+                    title: '请求方法',
+                    value: source.contentMethod,
+                    onTap: () => selectMethod(context),
                   ),
                 ],
               ),
@@ -54,6 +54,32 @@ class BookSourceContentConfiguration extends StatelessWidget {
         creator: currentSourceCreator,
       ),
     );
+  }
+
+  void selectMethod(BuildContext context) {
+    const methods = ['get', 'post'];
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SizedBox(
+        height: 56 * 2 + MediaQuery.of(context).padding.bottom,
+        child: Column(
+          children: List.generate(
+            methods.length,
+            (index) => ListTile(
+              title: Text(methods[index]),
+              onTap: () => confirmSelect(context, methods[index]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void confirmSelect(BuildContext context, String method) {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(currentSourceCreator, source.copyWith(contentMethod: method));
+    Navigator.of(context).pop();
   }
 
   void updateContentContent(BuildContext context, String value) {
@@ -66,11 +92,5 @@ class BookSourceContentConfiguration extends StatelessWidget {
     final ref = context.ref;
     final source = ref.read(currentSourceCreator);
     ref.set(currentSourceCreator, source.copyWith(contentPagination: value));
-  }
-
-  void updateContentReplace(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(contentReplace: value));
   }
 }
