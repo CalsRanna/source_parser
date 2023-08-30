@@ -127,7 +127,11 @@ class Parser {
 
   Future<Book> getInformation(String url, Source source) async {
     final method = source.informationMethod.toUpperCase();
-    final html = await CachedNetwork().request(url, method: method);
+    final html = await CachedNetwork().request(
+      url,
+      charset: source.charset,
+      method: method,
+    );
     final parser = HtmlParser();
     final document = parser.parse(html);
     final author = parser.query(document, source.informationAuthor);
@@ -153,7 +157,11 @@ class Parser {
 
   Future<List<Chapter>> getChapters(String url, Source source) async {
     final method = source.catalogueMethod.toUpperCase();
-    final html = await CachedNetwork().request(url, method: method);
+    final html = await CachedNetwork().request(
+      url,
+      charset: source.charset,
+      method: method,
+    );
     final parser = HtmlParser();
     final document = parser.parse(html);
     final items = parser.queryNodes(document, source.catalogueChapters);
@@ -178,6 +186,7 @@ class Parser {
     final method = source.contentMethod.toUpperCase();
     final html = await CachedNetwork().request(
       url,
+      charset: source.charset,
       method: method,
       reacquire: reacquire,
     );
@@ -240,7 +249,10 @@ class Parser {
       var informationUrl = books.first.url;
       html = await network.request(
         informationUrl,
+        charset: source.charset,
+        duration: const Duration(hours: 6),
         method: source.informationMethod.toUpperCase(),
+        reacquire: true,
       );
       result.informationRaw = html;
       document = parser.parse(html);
@@ -268,7 +280,10 @@ class Parser {
       }
       html = await network.request(
         catalogueUrl,
+        charset: source.charset,
+        duration: const Duration(hours: 6),
         method: source.catalogueMethod.toUpperCase(),
+        reacquire: true,
       );
       result.catalogueRaw = html;
       document = parser.parse(html);
@@ -287,7 +302,10 @@ class Parser {
       if (chapters.isNotEmpty) {
         html = await network.request(
           chapters.first.url,
+          charset: source.charset,
+          duration: const Duration(hours: 6),
           method: source.contentMethod.toUpperCase(),
+          reacquire: true,
         );
         result.contentRaw = html;
         document = parser.parse(html);

@@ -104,14 +104,14 @@ class _CataloguePageState extends State<CataloguePage> {
     if (source != null) {
       ref.set(currentSourceCreator, source);
     }
-    cacheChapters(index);
     final from = ref.read(fromCreator);
     if (from == '/book-reader') {
       router.pop();
-      router.replace('/book-reader');
+      router.pushReplacement('/book-reader');
     } else {
       router.push('/book-reader');
     }
+    cacheChapters(index);
   }
 
   void cacheChapters(int index) async {
