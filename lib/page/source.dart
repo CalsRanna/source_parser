@@ -1,7 +1,11 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
+import 'package:source_parser/creator/router.dart';
+import 'package:source_parser/model/source.dart';
+import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/message.dart';
@@ -19,50 +23,118 @@ class _AvailableSourcesState extends State<AvailableSources> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('可用书源')),
-      body: Watcher((context, ref, child) {
-        final book = ref.watch(currentBookCreator);
-        return ListView.builder(
-          itemBuilder: (context, index) {
-            final active = book.sources[index].id == book.sourceId;
-            final primary = Theme.of(context).colorScheme.primary;
-            return ListTile(
-              subtitle: Text(
-                book.sources[index].url,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              title: Text(
-                book.sources[index].name,
-                style: TextStyle(color: active ? primary : null),
-              ),
-              trailing: active ? const Icon(Icons.check) : null,
-              onTap: () => switchSource(index),
+      body: RefreshIndicator(
+        onRefresh: handleRefresh,
+        child: Watcher((context, ref, child) {
+          final book = ref.watch(currentBookCreator);
+          return ListView.builder(
+            itemBuilder: (context, index) {
+              final active = book.sources[index].id == book.sourceId;
+              final primary = Theme.of(context).colorScheme.primary;
+              return ListTile(
+                subtitle: Text(
+                  book.sources[index].url,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                title: Text(
+                  book.sources[index].name,
+                  style: TextStyle(color: active ? primary : null),
+                ),
+                trailing: active ? const Icon(Icons.check) : null,
+                onTap: () => switchSource(index),
+              );
+            },
+            itemCount: book.sources.length,
+          );
+        }),
+      ),
+    );
+  }
+
+  Future<void> handleRefresh() async {
+    final ref = context.ref;
+    final currentBook = ref.read(currentBookCreator);
+    final stream = await Parser.search(currentBook.name);
+    List<AvailableSource> sources = [];
+    stream.listen(
+      (book) async {
+        final sameAuthor = book.author == currentBook.author;
+        final sameName = book.name == currentBook.name;
+        if (sameAuthor && sameName) {
+          final source =
+              await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
+          if (source != null) {
+            sources.add(
+              AvailableSource(id: source.id, name: source.name, url: book.url),
             );
-          },
-          itemCount: book.sources.length,
-        );
-      }),
+            ref.set(currentBookCreator, currentBook.copyWith(sources: sources));
+            var history = await isar.histories
+                .filter()
+                .nameEqualTo(book.name)
+                .authorEqualTo(book.author)
+                .findFirst();
+            if (history != null) {
+              history.sources = sources.map((source) {
+                return SourceSwitcher.fromJson(source.toJson());
+              }).toList();
+              await isar.writeTxn(() async {
+                isar.histories.put(history);
+              });
+            }
+          }
+        }
+      },
     );
   }
 
   void switchSource(int index) async {
     final message = Message.of(context);
+    final router = GoRouter.of(context);
     final ref = context.ref;
     final book = ref.read(currentBookCreator);
-    if (book.sources[index].id == book.sourceId) {
+    final sourceId = book.sources[index].id;
+    if (sourceId == book.sourceId) {
       message.show('已在当前源');
       return;
     }
-    final sourceId = book.sources[index].id;
     final source = await isar.sources.filter().idEqualTo(sourceId).findFirst();
     if (source != null) {
       final url = book.sources[index].url;
+      final information = await Parser().getInformation(url, source);
+      final catalogueUrl = information.catalogueUrl;
       final chapters = await Parser().getChapters(url, source);
       ref.set(
         currentBookCreator,
-        book.copyWith(sourceId: sourceId, chapters: chapters),
+        book.copyWith(
+          catalogueUrl: catalogueUrl,
+          chapters: chapters,
+          sourceId: sourceId,
+          url: url,
+        ),
       );
-      message.show('切换成功');
+      var history = await isar.histories
+          .filter()
+          .nameEqualTo(book.name)
+          .authorEqualTo(book.author)
+          .findFirst();
+      if (history != null) {
+        history.url = url;
+        history.catalogueUrl = catalogueUrl;
+        history.chapters = chapters.map((chapter) {
+          return Catalogue.fromJson(chapter.toJson());
+        }).toList();
+        history.sourceId = sourceId;
+        await isar.writeTxn(() async {
+          isar.histories.put(history);
+        });
+      }
+      final from = ref.read(fromCreator);
+      router.pop();
+      if (from == '/book-reader') {
+        router.pushReplacement('/book-reader');
+        message.show('切换成功');
+      }
     } else {
       message.show('未找到源');
     }

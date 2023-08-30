@@ -155,7 +155,7 @@ class _Source extends StatelessWidget {
   Widget build(BuildContext context) {
     const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
     return GestureDetector(
-      onTap: () => context.push('/book-available-sources'),
+      onTap: () => handleTap(context),
       child: Card(
         color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
         elevation: 0,
@@ -183,6 +183,11 @@ class _Source extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void handleTap(BuildContext context) {
+    context.ref.set(fromCreator, '/book-information');
+    context.push('/book-available-sources');
   }
 }
 

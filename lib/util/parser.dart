@@ -237,7 +237,9 @@ class Parser {
             introduction: introduction,
             name: name,
             sourceId: source.id,
-            sources: [AvailableSource(name: source.name, url: url)],
+            sources: [
+              AvailableSource(id: source.id, name: source.name, url: url)
+            ],
             url: url,
           ),
         );
@@ -270,7 +272,13 @@ class Parser {
         catalogueUrl: catalogueUrl,
         introduction: introduction,
         sourceId: source.id,
-        sources: [AvailableSource(name: source.name, url: books.first.url)],
+        sources: [
+          AvailableSource(
+            id: source.id,
+            name: source.name,
+            url: books.first.url,
+          )
+        ],
         url: books.first.url,
       );
       result.informationBook = [book];

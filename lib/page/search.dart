@@ -188,7 +188,11 @@ class _SearchState extends State<Search> {
                 .findFirst();
             if (source != null) {
               exist.sources.add(
-                AvailableSource(name: source.name, url: book.url),
+                AvailableSource(
+                  id: source.id,
+                  name: source.name,
+                  url: book.url,
+                ),
               );
             }
             books[index] = exist;

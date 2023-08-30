@@ -180,6 +180,7 @@ class _ReaderState extends State<Reader> {
   }
 
   void handleSourcePressed() {
+    context.ref.set(fromCreator, '/book-reader');
     context.push('/book-available-sources');
   }
 
