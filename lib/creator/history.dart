@@ -8,11 +8,6 @@ final hotHistoriesEmitter = Emitter<List<Book>>((ref, emit) async {
   emit(histories);
 }, name: 'hotHistoriesEmitter');
 
-final historyCreator = Creator<History>.value(
-  History(),
-  name: 'historyCreator',
-);
-
 final historiesCreator = Creator<List<History>>.value(
   [],
   keepAlive: true,
