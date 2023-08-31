@@ -351,13 +351,13 @@ class _BottomBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Row(
         children: [
-          TextButton(
-            onPressed: () {},
-            child: const Row(
-              children: [Icon(Icons.library_add_outlined), Text('加入书架')],
-            ),
-          ),
-          const SizedBox(width: 8),
+          // TextButton(
+          //   onPressed: () {},
+          //   child: const Row(
+          //     children: [Icon(Icons.library_add_outlined), Text('加入书架')],
+          //   ),
+          // ),
+          // const SizedBox(width: 8),
           Expanded(
             child: ElevatedButton(
               onPressed: () => startReader(context),
@@ -381,9 +381,14 @@ class _BottomBar extends StatelessWidget {
         .nameEqualTo(book.name)
         .authorEqualTo(book.author)
         .findFirst();
-    history ??= History();
-    ref.set(currentChapterIndexCreator, history.index);
-    ref.set(currentCursorCreator, history.cursor);
+    var cursor = 0;
+    var index = 0;
+    if (history != null) {
+      cursor = history.cursor;
+      index = history.index;
+    }
+    ref.set(currentChapterIndexCreator, index);
+    ref.set(currentCursorCreator, cursor);
     if (source != null) {
       ref.set(currentSourceCreator, source);
       final parser = Parser();
@@ -394,21 +399,6 @@ class _BottomBar extends StatelessWidget {
       }
     }
     router.push('/book-reader');
-    history.author = book.author;
-    history.cover = book.cover;
-    history.name = book.name;
-    history.introduction = book.introduction;
-    history.url = book.url;
-    history.sourceId = book.sourceId;
-    history.sources = book.sources.map((source) {
-      return SourceSwitcher.fromJson(source.toJson());
-    }).toList();
-    history.chapters = book.chapters.map((chapter) {
-      return Catalogue.fromJson(chapter.toJson());
-    }).toList();
-    await isar.writeTxn(() async {
-      isar.histories.put(history!);
-    });
   }
 }
 
