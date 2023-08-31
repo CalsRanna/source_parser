@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/router.dart';
+import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/model/source.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/isar.dart';
@@ -100,10 +101,11 @@ class _AvailableSourcesState extends State<AvailableSources> {
     }
     final source = await isar.sources.filter().idEqualTo(sourceId).findFirst();
     if (source != null) {
+      ref.set(currentSourceCreator, source);
       final url = book.sources[index].url;
       final information = await Parser().getInformation(url, source);
       final catalogueUrl = information.catalogueUrl;
-      final chapters = await Parser().getChapters(url, source);
+      final chapters = await Parser().getChapters(catalogueUrl, source);
       ref.set(
         currentBookCreator,
         book.copyWith(

@@ -55,7 +55,7 @@ class _ShelfViewState extends State<ShelfView> {
       final source =
           await isar.sources.filter().idEqualTo(history.sourceId).findFirst();
       if (source != null) {
-        final chapters = await parser.getChapters(history.url, source);
+        final chapters = await parser.getChapters(history.catalogueUrl, source);
         List<Catalogue> catalogues = [];
         for (var chapter in chapters) {
           chapter.cached = await CachedNetwork().cached(chapter.url);
@@ -179,7 +179,7 @@ class _ShelfTile extends StatelessWidget {
     if (source != null) {
       ref.set(currentSourceCreator, source);
       final parser = Parser();
-      final chapters = await parser.getChapters(book.url, source);
+      final chapters = await parser.getChapters(book.catalogueUrl, source);
       if (chapters.isEmpty) {
         message.show('未找到章节');
         return;

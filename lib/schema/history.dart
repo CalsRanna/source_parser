@@ -43,14 +43,13 @@ class History {
           .toList();
     }
     return History()
-      ..id = json['id'] as Id
       ..author = json['author'] as String
-      ..catalogueUrl = json['catalogueUrl'] as String
+      ..catalogueUrl = json['catalogue_url'] as String
       ..category = json['category'] as String
       ..chapters = chapters
       ..cover = json['cover'] as String
-      ..cursor = json['cursor'] as int
-      ..index = json['index'] as int
+      ..cursor = json['cursor'] ?? 0
+      ..index = json['index'] ?? 0
       ..introduction = json['introduction'] as String
       ..latestChapter = json['latest_chapter'] as String
       ..name = json['name'] as String
@@ -66,7 +65,7 @@ class History {
     return {
       'id': id,
       'author': author,
-      'catalogueUrl': catalogueUrl,
+      'catalogue_url': catalogueUrl,
       'category': category,
       'chapters': chapters.map((chapter) => chapter.toJson()).toList(),
       'cover': cover,

@@ -85,7 +85,10 @@ class _BookInformationState extends State<BookInformation> {
       if (information.introduction.length > book.introduction.length) {
         updatedIntroduction = information.introduction;
       }
-      final chapters = await Parser().getChapters(book.url, source);
+      final chapters = await Parser().getChapters(
+        information.catalogueUrl,
+        source,
+      );
       List<Chapter> updatedChapters = [];
       if (chapters.length > book.chapters.length) {
         final start = max(book.chapters.length - 1, 0);
@@ -368,7 +371,7 @@ class _BottomBar extends StatelessWidget {
     if (source != null) {
       ref.set(currentSourceCreator, source);
       final parser = Parser();
-      final chapters = await parser.getChapters(book.url, source);
+      final chapters = await parser.getChapters(book.catalogueUrl, source);
       if (chapters.isEmpty) {
         message.show('未找到章节');
         return;

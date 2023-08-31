@@ -90,7 +90,7 @@ class _ReaderState extends State<Reader> {
         .nameEqualTo(book.name)
         .authorEqualTo(book.author)
         .findFirst();
-    history ??= History();
+    history ??= History.fromJson(book.toJson());
     history.chapters.elementAt(index).cached = true;
     await isar.writeTxn(() async {
       isar.histories.put(history!);
@@ -156,9 +156,13 @@ class _ReaderState extends State<Reader> {
     final ref = context.ref;
     final book = context.ref.read(currentBookCreator);
     final length = book.chapters.length;
+    final source = ref.read(currentSourceCreator);
     for (var i = 1; i <= 3; i++) {
       if (index + i < length) {
-        await CachedNetwork().request(book.chapters.elementAt(index + i).url);
+        await CachedNetwork().request(
+          book.chapters.elementAt(index + i).url,
+          charset: source.charset,
+        );
         var history = await isar.histories
             .filter()
             .nameEqualTo(book.name)

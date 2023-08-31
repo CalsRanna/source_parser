@@ -150,7 +150,10 @@ class Parser {
     final parser = HtmlParser();
     final document = parser.parse(html);
     final author = parser.query(document, source.informationAuthor);
-    final catalogueUrl = parser.query(document, source.informationCatalogueUrl);
+    var catalogueUrl = parser.query(document, source.informationCatalogueUrl);
+    if (catalogueUrl.isEmpty) {
+      catalogueUrl = url;
+    }
     final category = parser.query(document, source.informationCategory);
     final cover = parser.query(document, source.informationCover);
     final introduction = parser.query(document, source.informationIntroduction);
@@ -294,6 +297,9 @@ class Parser {
       var cover = parser.query(document, source.informationCover);
       var category = parser.query(document, source.informationCategory);
       var catalogueUrl = parser.query(document, source.informationCatalogueUrl);
+      if (catalogueUrl.isEmpty) {
+        catalogueUrl = informationUrl;
+      }
       var introduction = parser.query(document, source.informationIntroduction);
       final book = Book(
         name: name,
@@ -344,7 +350,7 @@ class Parser {
           charset: source.charset,
           duration: const Duration(hours: 6),
           method: source.contentMethod.toUpperCase(),
-          reacquire: true,
+          reacquire: false,
         );
         result.contentRaw = html;
         document = parser.parse(html);
