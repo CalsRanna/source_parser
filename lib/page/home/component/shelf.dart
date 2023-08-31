@@ -114,7 +114,7 @@ class _ShelfTile extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      _buildProgress() ?? '',
+                      _buildLatestChapter() ?? '',
                       style: bodySmall?.copyWith(
                         color: onBackground.withOpacity(0.5),
                       ),
@@ -218,7 +218,7 @@ class _ShelfTile extends StatelessWidget {
     return spans.isNotEmpty ? spans.join(' · ') : null;
   }
 
-  String? _buildProgress() {
+  String? _buildLatestChapter() {
     final spans = <String>[];
     if (history.updatedAt.isNotEmpty) {
       spans.add(history.updatedAt);

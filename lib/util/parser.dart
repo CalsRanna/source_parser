@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:cached_network/cached_network.dart';
+import 'package:charset/charset.dart';
 import 'package:html_parser_plus/html_parser_plus.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
@@ -74,13 +75,26 @@ class Parser {
     port.listen((message) async {
       final network = message[0] as CachedNetwork;
       final source = message[1] as Source;
-      final credential = message[2] as String;
+      var credential = message[2] as String;
       final send = message[3] as SendPort;
-
+      try {
+        final header = jsonDecode(source.header);
+        if (header['Content-Type'] == 'application/x-www-form-urlencoded') {
+          if (source.charset == 'gbk') {
+            final codeUnits = gbk.encode(credential);
+            credential = codeUnits.map((codeUnit) {
+              return '%${codeUnit.toRadixString(16).padLeft(2, '0').toUpperCase()}';
+            }).join();
+          } else {
+            credential = Uri.encodeComponent(credential);
+          }
+        }
+      } catch (error) {
+        // Do nothing
+      }
       final searchUrl = source.searchUrl
           .replaceAll('{{credential}}', credential)
           .replaceAll('{{page}}', '1');
-
       final method = source.searchMethod.toUpperCase();
       var html = await network.request(
         searchUrl,
@@ -202,6 +216,21 @@ class Parser {
     var result = DebugResult();
     final network = CachedNetwork();
     // // 调试搜索解析规则
+    try {
+      final header = jsonDecode(source.header);
+      if (header['Content-Type'] == 'application/x-www-form-urlencoded') {
+        if (source.charset == 'gbk') {
+          final codeUnits = gbk.encode(credential);
+          credential = codeUnits.map((codeUnit) {
+            return '%${codeUnit.toRadixString(16).padLeft(2, '0').toUpperCase()}';
+          }).join();
+        } else {
+          credential = Uri.encodeComponent(credential);
+        }
+      }
+    } catch (error) {
+      // Do nothing
+    }
     final searchUrl = source.searchUrl
         .replaceAll('{{credential}}', credential)
         .replaceAll('{{page}}', '1');
