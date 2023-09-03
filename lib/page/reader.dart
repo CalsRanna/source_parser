@@ -157,24 +157,29 @@ class _ReaderState extends State<Reader> {
     final book = context.ref.read(currentBookCreator);
     final length = book.chapters.length;
     final source = ref.read(currentSourceCreator);
+    var history = await isar.histories
+        .filter()
+        .nameEqualTo(book.name)
+        .authorEqualTo(book.author)
+        .findFirst();
     for (var i = 1; i <= 3; i++) {
       if (index + i < length) {
         await CachedNetwork().request(
           book.chapters.elementAt(index + i).url,
           charset: source.charset,
+          method: source.contentMethod,
         );
-        var history = await isar.histories
-            .filter()
-            .nameEqualTo(book.name)
-            .authorEqualTo(book.author)
-            .findFirst();
-        history ??= History();
-        history.chapters.elementAt(index + i).cached = true;
-        await isar.writeTxn(() async {
-          isar.histories.put(history!);
-        });
-        ref.set(currentBookCreator, Book.fromJson(history.toJson()));
+        book.chapters.elementAt(index + i).cached = true;
+        if (history != null) {
+          history.chapters.elementAt(index + i).cached = true;
+        }
       }
+    }
+    if (history != null) {
+      await isar.writeTxn(() async {
+        isar.histories.put(history);
+      });
+      ref.set(currentBookCreator, book.copyWith());
     }
   }
 
@@ -215,25 +220,35 @@ class _ReaderState extends State<Reader> {
     final ref = context.ref;
     final message = Message.of(context);
     final book = ref.read(currentBookCreator);
+    final source = ref.read(currentSourceCreator);
     if (amount == 0) {
       amount = book.chapters.length;
     }
     final index = ref.read(currentChapterIndexCreator);
+
+    var history = await isar.histories
+        .filter()
+        .nameEqualTo(book.name)
+        .authorEqualTo(book.author)
+        .findFirst();
     for (var i = 1; i <= amount; i++) {
       if (index + i < book.chapters.length) {
-        await CachedNetwork().request(book.chapters.elementAt(index + i).url);
-        var history = await isar.histories
-            .filter()
-            .nameEqualTo(book.name)
-            .authorEqualTo(book.author)
-            .findFirst();
-        history ??= History();
-        history.chapters.elementAt(index + i).cached = true;
-        await isar.writeTxn(() async {
-          isar.histories.put(history!);
-        });
-        ref.set(currentBookCreator, Book.fromJson(history.toJson()));
+        await CachedNetwork().request(
+          book.chapters.elementAt(index + i).url,
+          charset: source.charset,
+          method: source.contentMethod,
+        );
+        book.chapters.elementAt(index + i).cached = true;
+        if (history != null) {
+          history.chapters.elementAt(index + i).cached = true;
+        }
       }
+    }
+    if (history != null) {
+      await isar.writeTxn(() async {
+        isar.histories.put(history);
+      });
+      ref.set(currentBookCreator, book.copyWith());
     }
     message.show('缓存完毕');
   }

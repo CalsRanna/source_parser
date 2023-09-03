@@ -1,5 +1,7 @@
+import 'package:cached_network/cached_network.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:source_parser/util/message.dart';
 
 class SettingView extends StatelessWidget {
   const SettingView({super.key});
@@ -48,9 +50,14 @@ class SettingView extends StatelessWidget {
         Card(
           color: surfaceVariant,
           elevation: 0,
-          child: const Column(
+          child: Column(
             children: [
               SettingTile(
+                icon: Icons.cached_outlined,
+                title: '清空缓存',
+                onTap: () => clearCache(context),
+              ),
+              const SettingTile(
                 icon: Icons.info_outline_rounded,
                 route: '/setting/about',
                 title: '关于元夕',
@@ -70,6 +77,16 @@ class SettingView extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void clearCache(BuildContext context) async {
+    final message = Message.of(context);
+    final succeed = await CachedNetwork().clearCache();
+    if (succeed) {
+      message.show('已清空缓存');
+    } else {
+      message.show('清空缓存失败');
+    }
   }
 
   // void handleTap(BuildContext context) {

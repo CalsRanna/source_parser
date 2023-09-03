@@ -125,10 +125,10 @@ packages:
     dependency: "direct main"
     description:
       name: cached_network
-      sha256: "4dfaa42ac25b2482ddcdda1c321e4aae7607a514b3b513b71311ef2242c13931"
+      sha256: "215d1abff8fea040ed93cb3c29efae8eb8548e7c89dfa2558cf2bb05ca7b34f7"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.3"
+    version: "1.0.4"
   cached_network_image:
     dependency: "direct main"
     description:
