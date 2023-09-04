@@ -13,6 +13,7 @@ import 'package:source_parser/model/book.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/util/parser.dart';
 
 class CataloguePage extends StatefulWidget {
   const CataloguePage({super.key});
@@ -46,40 +47,54 @@ class _CataloguePageState extends State<CataloguePage> {
           )
         ],
       ),
-      body: Watcher((context, ref, child) {
-        final book = ref.watch(currentBookCreator);
-        final current = ref.watch(currentChapterIndexCreator);
-        final theme = Theme.of(context);
-        final primary = theme.colorScheme.primary;
-        final onSurface = theme.colorScheme.onSurface;
+      body: RefreshIndicator(
+        onRefresh: handleRefresh,
+        child: Watcher((context, ref, child) {
+          final book = ref.watch(currentBookCreator);
+          final current = ref.watch(currentChapterIndexCreator);
+          final theme = Theme.of(context);
+          final primary = theme.colorScheme.primary;
+          final onSurface = theme.colorScheme.onSurface;
 
-        return ListView.builder(
-          controller: controller,
-          itemBuilder: (context, index) {
-            Color color;
-            if (current == index) {
-              color = primary;
-            } else {
-              if (book.chapters[index].cached) {
-                color = onSurface;
+          return ListView.builder(
+            controller: controller,
+            itemBuilder: (context, index) {
+              Color color;
+              if (current == index) {
+                color = primary;
               } else {
-                color = onSurface.withOpacity(0.5);
+                if (book.chapters[index].cached) {
+                  color = onSurface;
+                } else {
+                  color = onSurface.withOpacity(0.5);
+                }
               }
-            }
-            return ListTile(
-              title: Text(
-                book.chapters[index].name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: color),
-              ),
-              onTap: () => startReader(index),
-            );
-          },
-          itemCount: book.chapters.length,
-        );
-      }),
+              return ListTile(
+                title: Text(
+                  book.chapters[index].name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: color),
+                ),
+                onTap: () => startReader(index),
+              );
+            },
+            itemCount: book.chapters.length,
+          );
+        }),
+      ),
     );
+  }
+
+  Future<void> handleRefresh() async {
+    final ref = context.ref;
+    final book = ref.read(currentBookCreator);
+    final source =
+        await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
+    if (source != null) {
+      final chapters = await Parser().getChapters(book.catalogueUrl, source);
+      ref.set(currentBookCreator, book.copyWith(chapters: chapters));
+    }
   }
 
   void handlePressed() {
