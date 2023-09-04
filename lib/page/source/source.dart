@@ -6,6 +6,7 @@ import 'package:isar/isar.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/parser.dart';
 
 class BookSourceList extends StatelessWidget {
@@ -52,7 +53,7 @@ class BookSourceList extends StatelessWidget {
   void importSource(BuildContext context) async {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Padding(
+      builder: (_) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
@@ -73,13 +74,97 @@ class BookSourceList extends StatelessWidget {
 
   void confirmImporting(BuildContext context, String value) async {
     final router = Navigator.of(context);
+    router.pop();
+    showDialog(
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          child: Container(
+            alignment: Alignment.center,
+            height: 200,
+            width: 200,
+            child: const CircularProgressIndicator(),
+          ),
+        );
+      },
+      context: context,
+    );
+    final message = Message.of(context);
+    try {
+      var sources = await Parser().importNetworkSource(value);
+      final sourcesInDatabase = await isar.sources.where().findAll();
+      List<Source> newSources = [];
+      List<Source> oldSources = [];
+      for (var source in sources) {
+        if (sourcesInDatabase.where((element) {
+          final hasSameName = element.name == source.name;
+          final hasSameUrl = element.url == source.url;
+          return hasSameName && hasSameUrl;
+        }).isNotEmpty) {
+          oldSources.add(source);
+        } else {
+          newSources.add(source);
+        }
+      }
+      router.pop();
+      if (oldSources.isNotEmpty) {
+        // ignore: use_build_context_synchronously
+        showDialog(
+          context: context,
+          builder: (_) {
+            return AlertDialog(
+              title: Text('发现${oldSources.length}个同名书源书源'),
+              actions: [
+                TextButton(
+                  onPressed: () => handleImport(context, newSources),
+                  child: const Text('保持原有'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    handleImport(context, newSources, oldSources);
+                  },
+                  child: const Text('直接覆盖'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // ignore: use_build_context_synchronously
+        handleImport(context, newSources, oldSources);
+      }
+    } catch (error) {
+      router.pop();
+      message.show(error.toString());
+    }
+  }
+
+  void handleImport(
+    BuildContext context,
+    List<Source> newSources, [
+    List<Source> oldSources = const [],
+  ]) async {
+    final router = Navigator.of(context);
     final ref = context.ref;
-    var sources = await Parser().importNetworkSource(value);
+    if (oldSources.isNotEmpty) {
+      for (var oldSource in oldSources) {
+        final source = await isar.sources
+            .filter()
+            .nameEqualTo(oldSource.name)
+            .urlEqualTo(oldSource.url)
+            .findFirst();
+        if (source != null) {
+          await isar.writeTxn(() async {
+            await isar.sources.put(oldSource.copyWith(id: source.id));
+          });
+        }
+      }
+    }
     await isar.writeTxn(() async {
-      await isar.sources.putAll(sources);
-      sources = await isar.sources.where().findAll();
-      ref.emit(sourcesEmitter, sources);
+      await isar.sources.putAll(newSources);
     });
+    final sources = await isar.sources.where().findAll();
+    ref.emit(sourcesEmitter, sources);
     router.pop();
   }
 
