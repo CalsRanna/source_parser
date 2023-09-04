@@ -113,6 +113,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
   void switchSource(int index) async {
     final message = Message.of(context);
     final router = GoRouter.of(context);
+    final navigator = Navigator.of(context);
     final ref = context.ref;
     final book = ref.read(currentBookCreator);
     final sourceId = book.sources[index].id;
@@ -120,6 +121,29 @@ class _AvailableSourcesState extends State<AvailableSources> {
       message.show('已在当前源');
       return;
     }
+    showDialog(
+      barrierDismissible: false,
+      builder: (_) {
+        return const UnconstrainedBox(
+          child: SizedBox(
+            height: 160,
+            width: 160,
+            child: Dialog(
+              insetPadding: EdgeInsets.zero,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('正在加载'),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      context: context,
+    );
     final source = await isar.sources.filter().idEqualTo(sourceId).findFirst();
     if (source != null) {
       ref.set(currentSourceCreator, source);
@@ -136,6 +160,13 @@ class _AvailableSourcesState extends State<AvailableSources> {
           url: url,
         ),
       );
+      navigator.pop();
+      final from = ref.read(fromCreator);
+      router.pop();
+      if (from == '/book-reader') {
+        router.pushReplacement('/book-reader');
+        message.show('切换成功');
+      }
       var history = await isar.histories
           .filter()
           .nameEqualTo(book.name)
@@ -152,13 +183,8 @@ class _AvailableSourcesState extends State<AvailableSources> {
           isar.histories.put(history);
         });
       }
-      final from = ref.read(fromCreator);
-      router.pop();
-      if (from == '/book-reader') {
-        router.pushReplacement('/book-reader');
-        message.show('切换成功');
-      }
     } else {
+      navigator.pop();
       message.show('未找到源');
     }
   }

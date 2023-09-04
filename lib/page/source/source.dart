@@ -77,13 +77,22 @@ class BookSourceList extends StatelessWidget {
     router.pop();
     showDialog(
       barrierDismissible: false,
-      builder: (context) {
-        return Dialog(
-          child: Container(
-            alignment: Alignment.center,
-            height: 200,
-            width: 200,
-            child: const CircularProgressIndicator(),
+      builder: (_) {
+        return const UnconstrainedBox(
+          child: SizedBox(
+            height: 160,
+            width: 160,
+            child: Dialog(
+              insetPadding: EdgeInsets.zero,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('正在加载'),
+                ],
+              ),
+            ),
           ),
         );
       },
