@@ -33,10 +33,21 @@ class _AvailableSourcesState extends State<AvailableSources> {
               final active = book.sources[index].id == book.sourceId;
               final primary = Theme.of(context).colorScheme.primary;
               return ListTile(
-                subtitle: Text(
-                  book.sources[index].url,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                subtitle: FutureBuilder(
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return const Text('加载失败');
+                    } else if (snapshot.hasData) {
+                      return Text(
+                        snapshot.data!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    } else {
+                      return const Text('正在加载');
+                    }
+                  },
+                  future: getLatestChapter(book.sources[index]),
                 ),
                 title: Text(
                   book.sources[index].name,
@@ -51,6 +62,16 @@ class _AvailableSourcesState extends State<AvailableSources> {
         }),
       ),
     );
+  }
+
+  Future<String> getLatestChapter(AvailableSource source) async {
+    final currentSource =
+        await isar.sources.filter().idEqualTo(source.id).findFirst();
+    if (currentSource != null) {
+      return Parser().getLatestChapter(source.url, currentSource);
+    } else {
+      return '加载失败';
+    }
   }
 
   Future<void> handleRefresh() async {

@@ -196,6 +196,16 @@ class Parser {
     return chapters;
   }
 
+  Future<String> getLatestChapter(String url, Source source) async {
+    final book = await getInformation(url, source);
+    final chapters = await getChapters(book.catalogueUrl, source);
+    if (chapters.isNotEmpty) {
+      return chapters.last.name;
+    } else {
+      return '解析失败';
+    }
+  }
+
   Future<String> getContent({
     required String url,
     required Source source,
