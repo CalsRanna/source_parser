@@ -45,10 +45,10 @@ packages:
     dependency: "direct main"
     description:
       name: book_reader
-      sha256: "633a4567fb4cd276b53c8fb0549e5458cfd80bd6d584efa90782d61d6adcde1f"
+      sha256: f375497c3ef00cefb4500dc46ad9ba1d31b12c56f00d3888d176cbf384dddff6
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.17"
+    version: "0.0.18"
   boolean_selector:
     dependency: transitive
     description:
@@ -125,10 +125,10 @@ packages:
     dependency: "direct main"
     description:
       name: cached_network
-      sha256: "215d1abff8fea040ed93cb3c29efae8eb8548e7c89dfa2558cf2bb05ca7b34f7"
+      sha256: "4ee03ea6712f77ecfb8dc5f066a29344f27780ae90f7e7fa2a3bd2c72c2d1aa8"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.5"
   cached_network_image:
     dependency: "direct main"
     description:

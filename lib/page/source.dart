@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
+import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/model/source.dart';
@@ -160,12 +161,11 @@ class _AvailableSourcesState extends State<AvailableSources> {
           url: url,
         ),
       );
-      navigator.pop();
-      final from = ref.read(fromCreator);
-      router.pop();
-      if (from == '/book-reader') {
-        router.pushReplacement('/book-reader');
-        message.show('切换成功');
+      final length = chapters.length;
+      final currentChapter = ref.read(currentChapterIndexCreator);
+      if (length <= currentChapter) {
+        ref.set(currentChapterIndexCreator, length - 1);
+        ref.set(currentCursorCreator, 0);
       }
       var history = await isar.histories
           .filter()
@@ -182,6 +182,13 @@ class _AvailableSourcesState extends State<AvailableSources> {
         await isar.writeTxn(() async {
           isar.histories.put(history);
         });
+      }
+      navigator.pop();
+      final from = ref.read(fromCreator);
+      router.pop();
+      if (from == '/book-reader') {
+        router.pushReplacement('/book-reader');
+        message.show('切换成功');
       }
     } else {
       navigator.pop();

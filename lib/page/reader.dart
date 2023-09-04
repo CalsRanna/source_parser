@@ -36,9 +36,20 @@ class _ReaderState extends State<Reader> {
   Widget build(BuildContext context) {
     return Watcher((context, ref, child) {
       final book = ref.watch(currentBookCreator);
-      final index = ref.watch(currentChapterIndexCreator);
-      final cursor = ref.watch(currentCursorCreator);
+      var index = ref.watch(currentChapterIndexCreator);
+      var cursor = ref.watch(currentCursorCreator);
       final darkMode = ref.watch(darkModeCreator);
+      final length = book.chapters.length;
+      if (length <= index) {
+        ref.set(currentChapterIndexCreator, length - 1);
+        ref.set(currentCursorCreator, 0);
+        index = length - 1;
+        cursor = 0;
+      }
+      if (cursor < 0) {
+        ref.set(currentCursorCreator, 0);
+        cursor = 0;
+      }
 
       var theme = ReaderTheme();
       if (darkMode) {
