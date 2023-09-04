@@ -31,6 +31,11 @@ const SettingSchema = CollectionSchema(
       id: 2,
       name: r'debug_mode',
       type: IsarType.bool,
+    ),
+    r'line_space': PropertySchema(
+      id: 3,
+      name: r'line_space',
+      type: IsarType.double,
     )
   },
   estimateSize: _settingEstimateSize,
@@ -65,6 +70,7 @@ void _settingSerialize(
   writer.writeLong(offsets[0], object.colorSeed);
   writer.writeBool(offsets[1], object.darkMode);
   writer.writeBool(offsets[2], object.debugMode);
+  writer.writeDouble(offsets[3], object.lineSpace);
 }
 
 Setting _settingDeserialize(
@@ -78,6 +84,7 @@ Setting _settingDeserialize(
   object.darkMode = reader.readBool(offsets[1]);
   object.debugMode = reader.readBool(offsets[2]);
   object.id = id;
+  object.lineSpace = reader.readDouble(offsets[3]);
   return object;
 }
 
@@ -94,6 +101,8 @@ P _settingDeserializeProp<P>(
       return (reader.readBool(offset)) as P;
     case 2:
       return (reader.readBool(offset)) as P;
+    case 3:
+      return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -312,6 +321,68 @@ extension SettingQueryFilter
       ));
     });
   }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> lineSpaceEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'line_space',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> lineSpaceGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'line_space',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> lineSpaceLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'line_space',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> lineSpaceBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'line_space',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
 }
 
 extension SettingQueryObject
@@ -354,6 +425,18 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByDebugModeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'debug_mode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByLineSpace() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'line_space', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByLineSpaceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'line_space', Sort.desc);
     });
   }
 }
@@ -407,6 +490,18 @@ extension SettingQuerySortThenBy
       return query.addSortBy(r'id', Sort.desc);
     });
   }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByLineSpace() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'line_space', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByLineSpaceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'line_space', Sort.desc);
+    });
+  }
 }
 
 extension SettingQueryWhereDistinct
@@ -426,6 +521,12 @@ extension SettingQueryWhereDistinct
   QueryBuilder<Setting, Setting, QDistinct> distinctByDebugMode() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'debug_mode');
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QDistinct> distinctByLineSpace() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'line_space');
     });
   }
 }
@@ -453,6 +554,12 @@ extension SettingQueryProperty
   QueryBuilder<Setting, bool, QQueryOperations> debugModeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'debug_mode');
+    });
+  }
+
+  QueryBuilder<Setting, double, QQueryOperations> lineSpaceProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'line_space');
     });
   }
 }

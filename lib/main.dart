@@ -57,6 +57,13 @@ class _SourceParserState extends State<SourceParser> {
     final ref = context.ref;
     var setting = await isar.settings.where().findFirst();
     setting ??= Setting();
+    if (setting.lineSpace.isNaN) {
+      setting.lineSpace = 1.618 + 0.618 * 2;
+    }
+    await isar.writeTxn(() async {
+      await isar.settings.put(setting!);
+    });
     ref.set(darkModeCreator, setting.darkMode);
+    ref.set(lineSpaceCreator, setting.lineSpace);
   }
 }

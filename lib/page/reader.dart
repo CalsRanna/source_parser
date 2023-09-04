@@ -52,6 +52,10 @@ class _ReaderState extends State<Reader> {
       }
 
       var theme = ReaderTheme();
+      final lineSpace = ref.watch(lineSpaceCreator);
+      theme = theme.copyWith(
+        pageStyle: theme.pageStyle.copyWith(height: lineSpace),
+      );
       if (darkMode) {
         final scheme = Theme.of(context).colorScheme;
         theme = theme.copyWith(
@@ -82,6 +86,7 @@ class _ReaderState extends State<Reader> {
         onPop: handlePop,
         onProgressChanged: handleProgressChanged,
         onRefresh: handleRefresh,
+        onSettingPressed: handleSettingPressed,
         onSourcePressed: handleSourcePressed,
       );
     });
@@ -266,5 +271,9 @@ class _ReaderState extends State<Reader> {
 
   void handleDetailPressed() {
     context.push('/book-information');
+  }
+
+  void handleSettingPressed() {
+    context.push('/reader-theme');
   }
 }

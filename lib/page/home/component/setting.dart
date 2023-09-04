@@ -24,6 +24,11 @@ class SettingView extends StatelessWidget {
                 route: '/book-source',
                 title: '书源管理',
               ),
+              SettingTile(
+                icon: Icons.format_color_text_outlined,
+                route: '/reader-theme',
+                title: '阅读主题',
+              ),
             ],
           ),
         ),

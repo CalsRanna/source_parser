@@ -82,11 +82,11 @@ final router = GoRouter(routes: [
   GoRoute(
       builder: (context, state) => const AboutPage(), path: '/setting/about'),
   GoRoute(
-    builder: (context, state) => const Developer(),
-    path: '/setting/developer',
+    builder: (context, state) => const ReaderTheme(),
+    path: '/reader-theme',
   ),
   GoRoute(
-    builder: (context, state) => const ReaderTheme(),
-    path: '/setting/reader-theme',
+    builder: (context, state) => const Developer(),
+    path: '/setting/developer',
   ),
 ]);

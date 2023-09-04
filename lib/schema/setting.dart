@@ -13,4 +13,6 @@ class Setting {
   bool darkMode = false;
   @Name('debug_mode')
   bool debugMode = false;
+  @Name('line_space')
+  double lineSpace = 1.618 + 0.618 * 2;
 }
