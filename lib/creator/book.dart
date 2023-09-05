@@ -14,12 +14,6 @@ final currentBookCreator = Creator.value(
   name: 'currentBookCreator',
 );
 
-final currentCursorCreator = Creator.value(
-  0,
-  keepAlive: true,
-  name: 'currentCursorCreator',
-);
-
 final topSearchEmitter = Emitter<List<Book>>((ref, emit) async {
   final books = await Parser.topSearch();
   emit(books);

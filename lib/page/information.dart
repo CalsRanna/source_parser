@@ -6,9 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
-import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/router.dart';
-import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -366,17 +364,7 @@ class _BottomBar extends StatelessWidget {
   }
 
   void startReader(BuildContext context) async {
-    final ref = context.ref;
-    final router = GoRouter.of(context);
-    ref.set(currentChapterIndexCreator, 0);
-    ref.set(currentCursorCreator, 0);
-    final book = ref.read(currentBookCreator);
-    final builder = isar.sources.filter();
-    final source = await builder.idEqualTo(book.sourceId).findFirst();
-    if (source != null) {
-      ref.set(currentSourceCreator, source);
-    }
-    router.push('/book-reader');
+    context.push('/book-reader');
   }
 }
 

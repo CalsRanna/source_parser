@@ -4,8 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:source_parser/creator/book.dart';
-import 'package:source_parser/creator/chapter.dart';
-import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -170,13 +168,6 @@ class _ShelfTile extends StatelessWidget {
     final ref = context.ref;
     final router = GoRouter.of(context);
     ref.set(currentBookCreator, book);
-    ref.set(currentChapterIndexCreator, book.index);
-    ref.set(currentCursorCreator, book.cursor);
-    final builder = isar.sources.filter();
-    final source = await builder.idEqualTo(book.sourceId).findFirst();
-    if (source != null) {
-      ref.set(currentSourceCreator, source);
-    }
     router.push('/book-reader');
   }
 

@@ -6,9 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
-import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/router.dart';
-import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
@@ -26,9 +24,9 @@ class _CataloguePageState extends State<CataloguePage> {
   @override
   void didChangeDependencies() {
     final ref = context.ref;
-    final current = ref.watch(currentChapterIndexCreator);
+    final book = ref.watch(currentBookCreator);
     // HACK: offset minus 344 to keep tile in the screen center
-    double offset = max(56.0 * current - 344, 0);
+    double offset = max(56.0 * book.index - 344, 0);
     controller = ScrollController(initialScrollOffset: offset);
     super.didChangeDependencies();
   }
@@ -49,7 +47,6 @@ class _CataloguePageState extends State<CataloguePage> {
         onRefresh: handleRefresh,
         child: Watcher((context, ref, child) {
           final book = ref.watch(currentBookCreator);
-          final current = ref.watch(currentChapterIndexCreator);
           final theme = Theme.of(context);
           final primary = theme.colorScheme.primary;
           final onSurface = theme.colorScheme.onSurface;
@@ -62,7 +59,7 @@ class _CataloguePageState extends State<CataloguePage> {
                 title: FutureBuilder(
                   builder: (context, snapshot) {
                     Color color;
-                    if (current == index) {
+                    if (book.index == index) {
                       color = primary;
                     } else {
                       color = onSurface.withOpacity(0.5);
@@ -115,14 +112,9 @@ class _CataloguePageState extends State<CataloguePage> {
   void startReader(int index) async {
     final ref = context.ref;
     final router = GoRouter.of(context);
-    ref.set(currentChapterIndexCreator, index);
-    ref.set(currentCursorCreator, 0);
     final book = ref.read(currentBookCreator);
-    final builder = isar.sources.filter();
-    final source = await builder.idEqualTo(book.sourceId).findFirst();
-    if (source != null) {
-      ref.set(currentSourceCreator, source);
-    }
+    final updatedBook = book.copyWith(cursor: 0, index: index);
+    ref.set(currentBookCreator, updatedBook);
     final from = ref.read(fromCreator);
     if (from == '/book-reader') {
       router.pop();

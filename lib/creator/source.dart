@@ -9,6 +9,7 @@ final sourcesEmitter = Emitter<List<Source>>((ref, emit) async {
   emit(sources);
 }, keepAlive: true, name: 'sourcesEmitter');
 
+/// 仅用于书源的编辑
 final currentSourceCreator = Creator<Source>.value(
   Source(),
   keepAlive: true,
