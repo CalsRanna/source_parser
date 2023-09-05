@@ -9,8 +9,6 @@ import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/model/book.dart';
-import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
@@ -55,26 +53,32 @@ class _CataloguePageState extends State<CataloguePage> {
           final theme = Theme.of(context);
           final primary = theme.colorScheme.primary;
           final onSurface = theme.colorScheme.onSurface;
+          final network = CachedNetwork();
 
           return ListView.builder(
             controller: controller,
             itemBuilder: (context, index) {
-              Color color;
-              if (current == index) {
-                color = primary;
-              } else {
-                if (book.chapters[index].cached) {
-                  color = onSurface;
-                } else {
-                  color = onSurface.withOpacity(0.5);
-                }
-              }
               return ListTile(
-                title: Text(
-                  book.chapters[index].name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: color),
+                title: FutureBuilder(
+                  builder: (context, snapshot) {
+                    Color color;
+                    if (current == index) {
+                      color = primary;
+                    } else {
+                      color = onSurface.withOpacity(0.5);
+                      if (snapshot.hasData) {
+                        final cached = snapshot.data!;
+                        color = onSurface.withOpacity(cached ? 1 : 0.5);
+                      }
+                    }
+                    return Text(
+                      book.chapters[index].name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: color),
+                    );
+                  },
+                  future: network.cached(book.chapters[index].url),
                 ),
                 onTap: () => startReader(index),
               );
@@ -130,23 +134,11 @@ class _CataloguePageState extends State<CataloguePage> {
   }
 
   void cacheChapters(int index) async {
-    final ref = context.ref;
     final book = context.ref.read(currentBookCreator);
     final length = book.chapters.length;
     for (var i = 1; i <= 3; i++) {
       if (index + i < length) {
         await CachedNetwork().request(book.chapters.elementAt(index + i).url);
-        var history = await isar.histories
-            .filter()
-            .nameEqualTo(book.name)
-            .authorEqualTo(book.author)
-            .findFirst();
-        history ??= History();
-        history.chapters.elementAt(index + i).cached = true;
-        await isar.writeTxn(() async {
-          isar.histories.put(history!);
-        });
-        ref.set(currentBookCreator, Book.fromJson(history.toJson()));
       }
     }
   }

@@ -1,4 +1,3 @@
-import 'package:cached_network/cached_network.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -63,7 +62,6 @@ class _ShelfViewState extends State<ShelfView> {
         final chapters = await parser.getChapters(history.catalogueUrl, source);
         List<Catalogue> catalogues = [];
         for (var chapter in chapters) {
-          chapter.cached = await CachedNetwork().cached(chapter.url);
           catalogues.add(Catalogue.fromJson(chapter.toJson()));
         }
         history.chapters = catalogues;

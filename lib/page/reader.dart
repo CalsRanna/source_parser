@@ -11,7 +11,6 @@ import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/model/book.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
@@ -101,19 +100,7 @@ class _ReaderState extends State<Reader> {
     final chapters = book.chapters;
     final title = chapters.elementAt(index).name;
     final url = chapters.elementAt(index).url;
-    final content = parser.getContent(source: source, title: title, url: url);
-    var history = await isar.histories
-        .filter()
-        .nameEqualTo(book.name)
-        .authorEqualTo(book.author)
-        .findFirst();
-    history ??= History.fromJson(book.toJson());
-    history.chapters.elementAt(index).cached = true;
-    await isar.writeTxn(() async {
-      isar.histories.put(history!);
-    });
-    ref.set(currentBookCreator, Book.fromJson(history.toJson()));
-    return content;
+    return parser.getContent(source: source, title: title, url: url);
   }
 
   void handleMessage(String message) {
@@ -174,11 +161,6 @@ class _ReaderState extends State<Reader> {
     final book = context.ref.read(currentBookCreator);
     final length = book.chapters.length;
     final source = ref.read(currentSourceCreator);
-    var history = await isar.histories
-        .filter()
-        .nameEqualTo(book.name)
-        .authorEqualTo(book.author)
-        .findFirst();
     for (var i = 1; i <= 3; i++) {
       if (index + i < length) {
         await CachedNetwork().request(
@@ -186,17 +168,7 @@ class _ReaderState extends State<Reader> {
           charset: source.charset,
           method: source.contentMethod,
         );
-        book.chapters.elementAt(index + i).cached = true;
-        if (history != null) {
-          history.chapters.elementAt(index + i).cached = true;
-        }
       }
-    }
-    if (history != null) {
-      await isar.writeTxn(() async {
-        isar.histories.put(history);
-      });
-      ref.set(currentBookCreator, book.copyWith());
     }
   }
 
@@ -247,32 +219,21 @@ class _ReaderState extends State<Reader> {
       amount = book.chapters.length;
     }
     final index = ref.read(currentChapterIndexCreator);
-
-    var history = await isar.histories
-        .filter()
-        .nameEqualTo(book.name)
-        .authorEqualTo(book.author)
-        .findFirst();
+    var failed = 0;
     for (var i = 1; i <= amount; i++) {
       if (index + i < book.chapters.length) {
-        await CachedNetwork().request(
-          book.chapters.elementAt(index + i).url,
-          charset: source.charset,
-          method: source.contentMethod,
-        );
-        book.chapters.elementAt(index + i).cached = true;
-        if (history != null) {
-          history.chapters.elementAt(index + i).cached = true;
+        try {
+          await CachedNetwork().request(
+            book.chapters.elementAt(index + i).url,
+            charset: source.charset,
+            method: source.contentMethod,
+          );
+        } catch (error) {
+          failed += 1;
         }
       }
     }
-    if (history != null) {
-      await isar.writeTxn(() async {
-        isar.histories.put(history);
-      });
-      ref.set(currentBookCreator, book.copyWith());
-    }
-    message.show('缓存完毕');
+    message.show('缓存完毕，${amount - failed}章成功，$failed章失败');
   }
 
   void handleDetailPressed() {

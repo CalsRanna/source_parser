@@ -2777,18 +2777,13 @@ const CatalogueSchema = Schema(
   name: r'catalogues',
   id: -5524434975210401736,
   properties: {
-    r'cached': PropertySchema(
-      id: 0,
-      name: r'cached',
-      type: IsarType.bool,
-    ),
     r'name': PropertySchema(
-      id: 1,
+      id: 0,
       name: r'name',
       type: IsarType.string,
     ),
     r'url': PropertySchema(
-      id: 2,
+      id: 1,
       name: r'url',
       type: IsarType.string,
     )
@@ -2816,9 +2811,8 @@ void _catalogueSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeBool(offsets[0], object.cached);
-  writer.writeString(offsets[1], object.name);
-  writer.writeString(offsets[2], object.url);
+  writer.writeString(offsets[0], object.name);
+  writer.writeString(offsets[1], object.url);
 }
 
 Catalogue _catalogueDeserialize(
@@ -2828,9 +2822,8 @@ Catalogue _catalogueDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Catalogue();
-  object.cached = reader.readBool(offsets[0]);
-  object.name = reader.readString(offsets[1]);
-  object.url = reader.readString(offsets[2]);
+  object.name = reader.readString(offsets[0]);
+  object.url = reader.readString(offsets[1]);
   return object;
 }
 
@@ -2842,10 +2835,8 @@ P _catalogueDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readBool(offset)) as P;
-    case 1:
       return (reader.readString(offset)) as P;
-    case 2:
+    case 1:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -2854,16 +2845,6 @@ P _catalogueDeserializeProp<P>(
 
 extension CatalogueQueryFilter
     on QueryBuilder<Catalogue, Catalogue, QFilterCondition> {
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> cachedEqualTo(
-      bool value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'cached',
-        value: value,
-      ));
-    });
-  }
-
   QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameEqualTo(
     String value, {
     bool caseSensitive = true,

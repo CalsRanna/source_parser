@@ -92,7 +92,6 @@ class History {
 @embedded
 @Name('catalogues')
 class Catalogue {
-  bool cached = false;
   String name = '';
   String url = '';
 
@@ -100,13 +99,12 @@ class Catalogue {
 
   factory Catalogue.fromJson(Map<String, dynamic> json) {
     return Catalogue()
-      ..cached = json['cached'] as bool
       ..name = json['name'] as String
       ..url = json['url'] as String;
   }
 
   Map<String, dynamic> toJson() {
-    return {'cached': cached, 'name': name, 'url': url};
+    return {'name': name, 'url': url};
   }
 
   @override
