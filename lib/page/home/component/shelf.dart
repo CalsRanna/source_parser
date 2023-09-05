@@ -11,7 +11,6 @@ import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
-import 'package:source_parser/util/message.dart';
 
 class ShelfView extends StatefulWidget {
   const ShelfView({super.key});
@@ -170,20 +169,13 @@ class _ShelfTile extends StatelessWidget {
   void _handleTap(BuildContext context) async {
     final ref = context.ref;
     final router = GoRouter.of(context);
-    final message = Message.of(context);
     ref.set(currentBookCreator, book);
     ref.set(currentChapterIndexCreator, book.index);
     ref.set(currentCursorCreator, book.cursor);
-    final source =
-        await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
+    final builder = isar.sources.filter();
+    final source = await builder.idEqualTo(book.sourceId).findFirst();
     if (source != null) {
       ref.set(currentSourceCreator, source);
-      final parser = Parser();
-      final chapters = await parser.getChapters(book.catalogueUrl, source);
-      if (chapters.isEmpty) {
-        message.show('未找到章节');
-        return;
-      }
     }
     router.push('/book-reader');
   }
