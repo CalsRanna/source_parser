@@ -3,6 +3,7 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
+import 'package:lpinyin/lpinyin.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/history.dart';
@@ -49,7 +50,11 @@ class _ShelfViewState extends State<ShelfView> {
   Future<void> refresh() async {
     final ref = context.ref;
     final histories = await isar.histories.where().findAll();
-    ref.set(historiesCreator, histories);
+    histories.sort((a, b) {
+      final first = PinyinHelper.getPinyin(a.name);
+      final second = PinyinHelper.getPinyin(b.name);
+      return first.compareTo(second);
+    });
     final parser = Parser();
     for (var history in histories) {
       final source =
@@ -163,6 +168,11 @@ class _ShelfTile extends StatelessWidget {
     });
     navigator.pop();
     final histories = await isar.histories.where().findAll();
+    histories.sort((a, b) {
+      final first = PinyinHelper.getPinyin(a.name);
+      final second = PinyinHelper.getPinyin(b.name);
+      return first.compareTo(second);
+    });
     ref.set(historiesCreator, histories);
   }
 

@@ -58,7 +58,7 @@ class _SourceParserState extends State<SourceParser> {
     var setting = await isar.settings.where().findFirst();
     setting ??= Setting();
     if (setting.lineSpace.isNaN) {
-      setting.lineSpace = 1.618 + 0.618 * 2;
+      setting.lineSpace = 1.0 + 0.618 * 2;
     }
     await isar.writeTxn(() async {
       await isar.settings.put(setting!);

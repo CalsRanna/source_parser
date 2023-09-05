@@ -25,21 +25,21 @@ class ReaderTheme extends StatelessWidget {
                 const Text('行间距'),
                 const Spacer(),
                 _LineSpaceTile(
-                  active: lineSpace == 1.618 + 0.618 * 3,
+                  active: lineSpace == 1.0 + 0.618 * 3,
                   label: '较大',
-                  onTap: () => updateLineSpace(context, 1.618 + 0.618 * 3),
+                  onTap: () => updateLineSpace(context, 1.0 + 0.618 * 3),
                 ),
                 const SizedBox(width: 8),
                 _LineSpaceTile(
-                  active: lineSpace == 1.618 + 0.618 * 2,
+                  active: lineSpace == 1.0 + 0.618 * 2,
                   label: '适中',
-                  onTap: () => updateLineSpace(context, 1.618 + 0.618 * 2),
+                  onTap: () => updateLineSpace(context, 1.0 + 0.618 * 2),
                 ),
                 const SizedBox(width: 8),
                 _LineSpaceTile(
-                  active: lineSpace == 1.618 + 0.618 * 1,
+                  active: lineSpace == 1.0 + 0.618 * 1,
                   label: '较小',
-                  onTap: () => updateLineSpace(context, 1.618 + 0.618 * 1),
+                  onTap: () => updateLineSpace(context, 1.0 + 0.618 * 1),
                 ),
               ],
             );

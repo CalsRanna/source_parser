@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  book_reader: ^0.0.20
+  book_reader: ^0.0.21
   # book_reader:
   #   path: ../book_reader
   cached_network: ^1.0.5
@@ -34,6 +34,7 @@ dependencies:
   logger: ^1.1.0
   path_provider: ^2.0.14
   charset: ^2.0.1
+  lpinyin: ^2.0.3
 
 dev_dependencies:
   flutter_test:

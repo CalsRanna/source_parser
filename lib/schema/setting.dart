@@ -14,5 +14,5 @@ class Setting {
   @Name('debug_mode')
   bool debugMode = false;
   @Name('line_space')
-  double lineSpace = 1.618 + 0.618 * 2;
+  double lineSpace = 1.0 + 0.618 * 2;
 }

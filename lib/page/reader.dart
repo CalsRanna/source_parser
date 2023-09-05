@@ -4,6 +4,7 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
+import 'package:lpinyin/lpinyin.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/history.dart';
@@ -229,6 +230,11 @@ class _ReaderState extends State<Reader> {
   void updateHistories() async {
     final ref = context.ref;
     final histories = await isar.histories.where().findAll();
+    histories.sort((a, b) {
+      final first = PinyinHelper.getPinyin(a.name);
+      final second = PinyinHelper.getPinyin(b.name);
+      return first.compareTo(second);
+    });
     ref.set(historiesCreator, histories);
   }
 
