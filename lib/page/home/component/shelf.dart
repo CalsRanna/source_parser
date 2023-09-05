@@ -59,11 +59,7 @@ class _ShelfViewState extends State<ShelfView> {
           await isar.sources.filter().idEqualTo(history.sourceId).findFirst();
       if (source != null) {
         final chapters = await parser.getChapters(history.catalogueUrl, source);
-        List<Catalogue> catalogues = [];
-        for (var chapter in chapters) {
-          catalogues.add(Catalogue.fromJson(chapter.toJson()));
-        }
-        history.chapters = catalogues;
+        history.chapters = chapters;
         await isar.writeTxn(() async {
           isar.histories.put(history);
         });

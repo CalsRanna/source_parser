@@ -174,9 +174,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
       if (history != null) {
         history.url = url;
         history.catalogueUrl = catalogueUrl;
-        history.chapters = chapters.map((chapter) {
-          return Catalogue.fromJson(chapter.toJson());
-        }).toList();
+        history.chapters = chapters;
         history.sourceId = sourceId;
         await isar.writeTxn(() async {
           isar.histories.put(history);

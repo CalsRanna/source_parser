@@ -8,7 +8,6 @@ import 'package:html_parser_plus/html_parser_plus.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/model/book.dart';
-import 'package:source_parser/model/chapter.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/isar.dart';
@@ -193,7 +192,10 @@ class Parser {
       if (!url.startsWith('http')) {
         url = '${source.url}$url';
       }
-      chapters.add(Chapter(name: name, url: url));
+      var chapter = Chapter();
+      chapter.name = name;
+      chapter.url = url;
+      chapters.add(chapter);
     }
     return chapters;
   }
@@ -353,7 +355,10 @@ class Parser {
         if (!url.startsWith('http')) {
           url = '${source.url}$url';
         }
-        chapters.add(Chapter(name: name, url: url));
+        var chapter = Chapter();
+        chapter.name = name;
+        chapter.url = url;
+        chapters.add(chapter);
       }
       result.catalogueChapters = chapters;
       // 调试正文解析规则

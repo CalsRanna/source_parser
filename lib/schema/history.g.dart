@@ -36,7 +36,7 @@ const HistorySchema = CollectionSchema(
       id: 3,
       name: r'chapters',
       type: IsarType.objectList,
-      target: r'catalogues',
+      target: r'chapters',
     ),
     r'cover': PropertySchema(
       id: 4,
@@ -108,7 +108,7 @@ const HistorySchema = CollectionSchema(
   indexes: {},
   links: {},
   embeddedSchemas: {
-    r'catalogues': CatalogueSchema,
+    r'chapters': ChapterSchema,
     r'available_sources': AvailableSourceSchema
   },
   getId: _historyGetId,
@@ -128,10 +128,10 @@ int _historyEstimateSize(
   bytesCount += 3 + object.category.length * 3;
   bytesCount += 3 + object.chapters.length * 3;
   {
-    final offsets = allOffsets[Catalogue]!;
+    final offsets = allOffsets[Chapter]!;
     for (var i = 0; i < object.chapters.length; i++) {
       final value = object.chapters[i];
-      bytesCount += CatalogueSchema.estimateSize(value, offsets, allOffsets);
+      bytesCount += ChapterSchema.estimateSize(value, offsets, allOffsets);
     }
   }
   bytesCount += 3 + object.cover.length * 3;
@@ -163,10 +163,10 @@ void _historySerialize(
   writer.writeString(offsets[0], object.author);
   writer.writeString(offsets[1], object.catalogueUrl);
   writer.writeString(offsets[2], object.category);
-  writer.writeObjectList<Catalogue>(
+  writer.writeObjectList<Chapter>(
     offsets[3],
     allOffsets,
-    CatalogueSchema.serialize,
+    ChapterSchema.serialize,
     object.chapters,
   );
   writer.writeString(offsets[4], object.cover);
@@ -198,11 +198,11 @@ History _historyDeserialize(
   object.author = reader.readString(offsets[0]);
   object.catalogueUrl = reader.readString(offsets[1]);
   object.category = reader.readString(offsets[2]);
-  object.chapters = reader.readObjectList<Catalogue>(
+  object.chapters = reader.readObjectList<Chapter>(
         offsets[3],
-        CatalogueSchema.deserialize,
+        ChapterSchema.deserialize,
         allOffsets,
-        Catalogue(),
+        Chapter(),
       ) ??
       [];
   object.cover = reader.readString(offsets[4]);
@@ -241,11 +241,11 @@ P _historyDeserializeProp<P>(
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readObjectList<Catalogue>(
+      return (reader.readObjectList<Chapter>(
             offset,
-            CatalogueSchema.deserialize,
+            ChapterSchema.deserialize,
             allOffsets,
-            Catalogue(),
+            Chapter(),
           ) ??
           []) as P;
     case 4:
@@ -2191,7 +2191,7 @@ extension HistoryQueryFilter
 extension HistoryQueryObject
     on QueryBuilder<History, History, QFilterCondition> {
   QueryBuilder<History, History, QAfterFilterCondition> chaptersElement(
-      FilterQuery<Catalogue> q) {
+      FilterQuery<Chapter> q) {
     return QueryBuilder.apply(this, (query) {
       return query.object(q, r'chapters');
     });
@@ -2686,7 +2686,7 @@ extension HistoryQueryProperty
     });
   }
 
-  QueryBuilder<History, List<Catalogue>, QQueryOperations> chaptersProperty() {
+  QueryBuilder<History, List<Chapter>, QQueryOperations> chaptersProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'chapters');
     });
@@ -2773,9 +2773,9 @@ extension HistoryQueryProperty
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
 
-const CatalogueSchema = Schema(
-  name: r'catalogues',
-  id: -5524434975210401736,
+const ChapterSchema = Schema(
+  name: r'chapters',
+  id: 1212950281587324136,
   properties: {
     r'name': PropertySchema(
       id: 0,
@@ -2788,14 +2788,14 @@ const CatalogueSchema = Schema(
       type: IsarType.string,
     )
   },
-  estimateSize: _catalogueEstimateSize,
-  serialize: _catalogueSerialize,
-  deserialize: _catalogueDeserialize,
-  deserializeProp: _catalogueDeserializeProp,
+  estimateSize: _chapterEstimateSize,
+  serialize: _chapterSerialize,
+  deserialize: _chapterDeserialize,
+  deserializeProp: _chapterDeserializeProp,
 );
 
-int _catalogueEstimateSize(
-  Catalogue object,
+int _chapterEstimateSize(
+  Chapter object,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
@@ -2805,8 +2805,8 @@ int _catalogueEstimateSize(
   return bytesCount;
 }
 
-void _catalogueSerialize(
-  Catalogue object,
+void _chapterSerialize(
+  Chapter object,
   IsarWriter writer,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
@@ -2815,19 +2815,19 @@ void _catalogueSerialize(
   writer.writeString(offsets[1], object.url);
 }
 
-Catalogue _catalogueDeserialize(
+Chapter _chapterDeserialize(
   Id id,
   IsarReader reader,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = Catalogue();
+  final object = Chapter();
   object.name = reader.readString(offsets[0]);
   object.url = reader.readString(offsets[1]);
   return object;
 }
 
-P _catalogueDeserializeProp<P>(
+P _chapterDeserializeProp<P>(
   IsarReader reader,
   int propertyId,
   int offset,
@@ -2843,9 +2843,9 @@ P _catalogueDeserializeProp<P>(
   }
 }
 
-extension CatalogueQueryFilter
-    on QueryBuilder<Catalogue, Catalogue, QFilterCondition> {
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameEqualTo(
+extension ChapterQueryFilter
+    on QueryBuilder<Chapter, Chapter, QFilterCondition> {
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> nameEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2858,7 +2858,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameGreaterThan(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> nameGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -2873,7 +2873,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameLessThan(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> nameLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -2888,7 +2888,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameBetween(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> nameBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -2907,7 +2907,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameStartsWith(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> nameStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2920,7 +2920,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameEndsWith(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> nameEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2933,7 +2933,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameContains(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> nameContains(
       String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2945,7 +2945,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameMatches(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> nameMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2957,7 +2957,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameIsEmpty() {
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> nameIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'name',
@@ -2966,7 +2966,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> nameIsNotEmpty() {
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> nameIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'name',
@@ -2975,7 +2975,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlEqualTo(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> urlEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2988,7 +2988,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlGreaterThan(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> urlGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -3003,7 +3003,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlLessThan(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> urlLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -3018,7 +3018,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlBetween(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> urlBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -3037,7 +3037,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlStartsWith(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> urlStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -3050,7 +3050,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlEndsWith(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> urlEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -3063,7 +3063,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlContains(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> urlContains(
       String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3075,7 +3075,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlMatches(
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> urlMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3087,7 +3087,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlIsEmpty() {
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> urlIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'url',
@@ -3096,7 +3096,7 @@ extension CatalogueQueryFilter
     });
   }
 
-  QueryBuilder<Catalogue, Catalogue, QAfterFilterCondition> urlIsNotEmpty() {
+  QueryBuilder<Chapter, Chapter, QAfterFilterCondition> urlIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'url',
@@ -3106,8 +3106,8 @@ extension CatalogueQueryFilter
   }
 }
 
-extension CatalogueQueryObject
-    on QueryBuilder<Catalogue, Catalogue, QFilterCondition> {}
+extension ChapterQueryObject
+    on QueryBuilder<Chapter, Chapter, QFilterCondition> {}
 
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types

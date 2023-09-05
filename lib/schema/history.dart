@@ -9,7 +9,7 @@ class History {
   String author = '';
   String catalogueUrl = '';
   String category = '';
-  List<Catalogue> chapters = [];
+  List<Chapter> chapters = [];
   String cover = '';
   int cursor = 0;
   int index = 0;
@@ -30,11 +30,11 @@ class History {
   History();
 
   factory History.fromJson(Map<String, dynamic> json) {
-    List<Catalogue> chapters = [];
+    List<Chapter> chapters = [];
     if (json['chapters'] is List) {
-      chapters = (json['chapters'] as List)
-          .map((chapter) => Catalogue.fromJson(chapter))
-          .toList();
+      chapters = (json['chapters'] as List).map((chapter) {
+        return Chapter.fromJson(chapter);
+      }).toList();
     }
     List<AvailableSource> sources = [];
     if (json['sources'] is List) {
@@ -90,17 +90,17 @@ class History {
 }
 
 @embedded
-@Name('catalogues')
-class Catalogue {
+@Name('chapters')
+class Chapter {
   String name = '';
   String url = '';
 
-  Catalogue();
+  Chapter();
 
-  factory Catalogue.fromJson(Map<String, dynamic> json) {
-    return Catalogue()
-      ..name = json['name'] as String
-      ..url = json['url'] as String;
+  factory Chapter.fromJson(Map<String, dynamic> json) {
+    return Chapter()
+      ..name = json['name'] ?? ''
+      ..url = json['url'] ?? '';
   }
 
   Map<String, dynamic> toJson() {
@@ -124,9 +124,9 @@ class AvailableSource {
 
   factory AvailableSource.fromJson(Map<String, dynamic> json) {
     return AvailableSource()
-      ..id = json['id'] as int
-      ..name = json['name'] as String
-      ..url = json['url'] as String;
+      ..id = json['id'] ?? 0
+      ..name = json['name'] ?? ''
+      ..url = json['url'] ?? '';
   }
 
   Map<String, dynamic> toJson() {

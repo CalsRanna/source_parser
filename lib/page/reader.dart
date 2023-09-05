@@ -139,9 +139,7 @@ class _ReaderState extends State<Reader> {
     history.url = book.url;
     history.sourceId = book.sourceId;
     history.sources = book.sources;
-    history.chapters = book.chapters.map((chapter) {
-      return Catalogue.fromJson(chapter.toJson());
-    }).toList();
+    history.chapters = book.chapters;
     history.cursor = cursor;
     history.index = index;
     await isar.writeTxn(() async {
