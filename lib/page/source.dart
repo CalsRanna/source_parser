@@ -93,15 +93,15 @@ class _AvailableSourcesState extends State<AvailableSources> {
             availableSource.url = book.url;
             sources.add(availableSource);
             ref.set(currentBookCreator, currentBook.copyWith(sources: sources));
-            var history = await isar.books
+            var exist = await isar.books
                 .filter()
                 .nameEqualTo(book.name)
                 .authorEqualTo(book.author)
                 .findFirst();
-            if (history != null) {
-              history.sources = sources;
+            if (exist != null) {
+              book.sources = sources;
               await isar.writeTxn(() async {
-                isar.books.put(history);
+                isar.books.put(book);
               });
             }
           }
@@ -166,18 +166,18 @@ class _AvailableSourcesState extends State<AvailableSources> {
         ref.set(currentChapterIndexCreator, length - 1);
         ref.set(currentCursorCreator, 0);
       }
-      var history = await isar.books
+      var exist = await isar.books
           .filter()
           .nameEqualTo(book.name)
           .authorEqualTo(book.author)
           .findFirst();
-      if (history != null) {
-        history.url = url;
-        history.catalogueUrl = catalogueUrl;
-        history.chapters = chapters;
-        history.sourceId = sourceId;
+      if (exist != null) {
+        book.url = url;
+        book.catalogueUrl = catalogueUrl;
+        book.chapters = chapters;
+        book.sourceId = sourceId;
         await isar.writeTxn(() async {
-          isar.books.put(history);
+          isar.books.put(book);
         });
       }
       navigator.pop();

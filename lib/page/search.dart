@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
-import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -62,8 +61,7 @@ class _SearchState extends State<Search> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Watcher((context, ref, child) {
-              final histories =
-                  ref.watch(hotHistoriesEmitter.asyncData).data ?? [];
+              final books = ref.watch(topSearchEmitter.asyncData).data ?? [];
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -72,12 +70,12 @@ class _SearchState extends State<Search> {
                   Wrap(
                     runSpacing: 8,
                     spacing: 8,
-                    children: histories.map((history) {
+                    children: books.map((book) {
                       return ActionChip(
-                        label: Text(history.name),
+                        label: Text(book.name),
                         labelPadding: EdgeInsets.zero,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        onPressed: () => search(context, history.name),
+                        onPressed: () => search(context, book.name),
                       );
                     }).toList(),
                   ),

@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
-import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/schema/book.dart';
@@ -14,7 +13,6 @@ import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
-import 'package:source_parser/util/message.dart';
 
 class BookInformation extends StatefulWidget {
   const BookInformation({super.key});
@@ -369,31 +367,11 @@ class _BottomBar extends StatelessWidget {
   void startReader(BuildContext context) async {
     final ref = context.ref;
     final router = GoRouter.of(context);
-    final message = Message.of(context);
     final book = ref.read(currentBookCreator);
-    final source =
-        await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
-    var history = await isar.books
-        .filter()
-        .nameEqualTo(book.name)
-        .authorEqualTo(book.author)
-        .findFirst();
-    var cursor = 0;
-    var index = 0;
-    if (history != null) {
-      cursor = history.cursor;
-      index = history.index;
-    }
-    ref.set(currentChapterIndexCreator, index);
-    ref.set(currentCursorCreator, cursor);
+    final builder = isar.books.filter();
+    final source = await builder.idEqualTo(book.sourceId).findFirst();
     if (source != null) {
       ref.set(currentSourceCreator, source);
-      final parser = Parser();
-      final chapters = await parser.getChapters(book.catalogueUrl, source);
-      if (chapters.isEmpty) {
-        message.show('未找到章节');
-        return;
-      }
     }
     router.push('/book-reader');
   }
@@ -471,18 +449,18 @@ class __CoverSelectorState extends State<_CoverSelector> {
     final ref = context.ref;
     final navigator = Navigator.of(context);
     final book = ref.read(currentBookCreator);
-    ref.set(currentBookCreator, book.copyWith(cover: cover));
-    var history = await isar.books
+    final updatedBook = book.copyWith(cover: cover);
+    ref.set(currentBookCreator, updatedBook);
+    navigator.pop();
+    var exist = await isar.books
         .filter()
         .nameEqualTo(book.name)
         .authorEqualTo(book.author)
         .findFirst();
-    if (history != null) {
-      history.cover = cover;
+    if (exist != null) {
       await isar.writeTxn(() async {
-        isar.books.put(history);
+        isar.books.put(updatedBook);
       });
     }
-    navigator.pop();
   }
 }

@@ -7,7 +7,6 @@ import 'package:isar/isar.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
-import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/creator/source.dart';
@@ -28,7 +27,7 @@ class Reader extends StatefulWidget {
 class _ReaderState extends State<Reader> {
   @override
   void deactivate() {
-    updateHistories();
+    updateBooks();
     super.deactivate();
   }
 
@@ -166,7 +165,7 @@ class _ReaderState extends State<Reader> {
 
   void handlePop(int index, int cursor) async {
     context.pop();
-    updateHistories();
+    updateBooks();
   }
 
   void handleDarkModePressed() async {
@@ -181,15 +180,15 @@ class _ReaderState extends State<Reader> {
     });
   }
 
-  void updateHistories() async {
+  void updateBooks() async {
     final ref = context.ref;
-    final histories = await isar.books.where().findAll();
-    histories.sort((a, b) {
+    final books = await isar.books.where().findAll();
+    books.sort((a, b) {
       final first = PinyinHelper.getPinyin(a.name);
       final second = PinyinHelper.getPinyin(b.name);
       return first.compareTo(second);
     });
-    ref.set(historiesCreator, histories);
+    ref.set(booksCreator, books);
   }
 
   void handleCached(int amount) async {

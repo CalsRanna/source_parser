@@ -5,7 +5,6 @@ import 'package:isar/isar.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
-import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
@@ -31,14 +30,14 @@ class _ShelfViewState extends State<ShelfView> {
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child) {
-      final histories = ref.watch(historiesCreator);
+      final books = ref.watch(booksCreator);
       return RefreshIndicator(
         onRefresh: refresh,
         child: ListView.builder(
           itemBuilder: (context, index) {
-            return _ShelfTile(history: histories.elementAt(index));
+            return _ShelfTile(book: books.elementAt(index));
           },
-          itemCount: histories.length,
+          itemCount: books.length,
         ),
       );
     });
@@ -46,32 +45,32 @@ class _ShelfViewState extends State<ShelfView> {
 
   Future<void> refresh() async {
     final ref = context.ref;
-    final histories = await isar.books.where().findAll();
-    histories.sort((a, b) {
+    final books = await isar.books.where().findAll();
+    books.sort((a, b) {
       final first = PinyinHelper.getPinyin(a.name);
       final second = PinyinHelper.getPinyin(b.name);
       return first.compareTo(second);
     });
     final parser = Parser();
-    for (var history in histories) {
+    for (var book in books) {
       final source =
-          await isar.sources.filter().idEqualTo(history.sourceId).findFirst();
+          await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
       if (source != null) {
-        final chapters = await parser.getChapters(history.catalogueUrl, source);
-        history.chapters = chapters;
+        final chapters = await parser.getChapters(book.catalogueUrl, source);
+        book.chapters = chapters;
         await isar.writeTxn(() async {
-          isar.books.put(history);
+          isar.books.put(book);
         });
       }
     }
-    ref.set(historiesCreator, histories);
+    ref.set(booksCreator, books);
   }
 }
 
 class _ShelfTile extends StatelessWidget {
-  const _ShelfTile({Key? key, required this.history}) : super(key: key);
+  const _ShelfTile({Key? key, required this.book}) : super(key: key);
 
-  final Book history;
+  final Book book;
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +89,7 @@ class _ShelfTile extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
         child: Row(
           children: [
-            BookCover(url: history.cover, height: 64, width: 48),
+            BookCover(url: book.cover, height: 64, width: 48),
             const SizedBox(width: 16),
             Expanded(
               child: SizedBox(
@@ -101,7 +100,7 @@ class _ShelfTile extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Text(
-                      history.name,
+                      book.name,
                       style: bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                     ),
                     Text(
@@ -156,28 +155,27 @@ class _ShelfTile extends StatelessWidget {
     final ref = context.ref;
     final navigator = Navigator.of(context);
     await isar.writeTxn(() async {
-      await isar.books.delete(history.id);
+      await isar.books.delete(book.id);
     });
     navigator.pop();
-    final histories = await isar.books.where().findAll();
-    histories.sort((a, b) {
+    final books = await isar.books.where().findAll();
+    books.sort((a, b) {
       final first = PinyinHelper.getPinyin(a.name);
       final second = PinyinHelper.getPinyin(b.name);
       return first.compareTo(second);
     });
-    ref.set(historiesCreator, histories);
+    ref.set(booksCreator, books);
   }
 
   void _handleTap(BuildContext context) async {
     final ref = context.ref;
     final router = GoRouter.of(context);
     final message = Message.of(context);
-    final book = Book.fromJson(history.toJson());
     ref.set(currentBookCreator, book);
-    ref.set(currentChapterIndexCreator, history.index);
-    ref.set(currentCursorCreator, history.cursor);
+    ref.set(currentChapterIndexCreator, book.index);
+    ref.set(currentCursorCreator, book.cursor);
     final source =
-        await isar.sources.filter().idEqualTo(history.sourceId).findFirst();
+        await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
     if (source != null) {
       ref.set(currentSourceCreator, source);
       final parser = Parser();
@@ -191,15 +189,15 @@ class _ShelfTile extends StatelessWidget {
   }
 
   int _calculateUnreadChapters() {
-    final chapters = history.chapters.length;
-    final current = history.index;
+    final chapters = book.chapters.length;
+    final current = book.index;
     return chapters - current - 1;
   }
 
   String? _buildSubtitle() {
     final spans = <String>[];
-    if (history.author.isNotEmpty) {
-      spans.add(history.author);
+    if (book.author.isNotEmpty) {
+      spans.add(book.author);
     }
     final chapters = _calculateUnreadChapters();
     if (chapters > 0) {
@@ -214,12 +212,12 @@ class _ShelfTile extends StatelessWidget {
 
   String? _buildLatestChapter() {
     final spans = <String>[];
-    if (history.updatedAt.isNotEmpty) {
-      spans.add(history.updatedAt);
+    if (book.updatedAt.isNotEmpty) {
+      spans.add(book.updatedAt);
     }
 
-    if (history.chapters.isNotEmpty) {
-      spans.add(history.chapters.last.name);
+    if (book.chapters.isNotEmpty) {
+      spans.add(book.chapters.last.name);
     }
     return spans.isNotEmpty ? spans.join(' · ') : null;
   }
