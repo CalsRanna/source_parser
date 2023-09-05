@@ -1,5 +1,5 @@
 import 'package:creator/creator.dart';
-import 'package:source_parser/model/book.dart';
+import 'package:source_parser/schema/book.dart';
 
 final currentBookCreator = Creator.value(
   Book(),

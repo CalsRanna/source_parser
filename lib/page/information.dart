@@ -9,8 +9,7 @@ import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/model/book.dart';
-import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
@@ -374,7 +373,7 @@ class _BottomBar extends StatelessWidget {
     final book = ref.read(currentBookCreator);
     final source =
         await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
-    var history = await isar.histories
+    var history = await isar.books
         .filter()
         .nameEqualTo(book.name)
         .authorEqualTo(book.author)
@@ -473,7 +472,7 @@ class __CoverSelectorState extends State<_CoverSelector> {
     final navigator = Navigator.of(context);
     final book = ref.read(currentBookCreator);
     ref.set(currentBookCreator, book.copyWith(cover: cover));
-    var history = await isar.histories
+    var history = await isar.books
         .filter()
         .nameEqualTo(book.name)
         .authorEqualTo(book.author)
@@ -481,7 +480,7 @@ class __CoverSelectorState extends State<_CoverSelector> {
     if (history != null) {
       history.cover = cover;
       await isar.writeTxn(() async {
-        isar.histories.put(history);
+        isar.books.put(history);
       });
     }
     navigator.pop();

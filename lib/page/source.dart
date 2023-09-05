@@ -6,7 +6,7 @@ import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/message.dart';
@@ -93,7 +93,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
             availableSource.url = book.url;
             sources.add(availableSource);
             ref.set(currentBookCreator, currentBook.copyWith(sources: sources));
-            var history = await isar.histories
+            var history = await isar.books
                 .filter()
                 .nameEqualTo(book.name)
                 .authorEqualTo(book.author)
@@ -101,7 +101,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
             if (history != null) {
               history.sources = sources;
               await isar.writeTxn(() async {
-                isar.histories.put(history);
+                isar.books.put(history);
               });
             }
           }
@@ -166,7 +166,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
         ref.set(currentChapterIndexCreator, length - 1);
         ref.set(currentCursorCreator, 0);
       }
-      var history = await isar.histories
+      var history = await isar.books
           .filter()
           .nameEqualTo(book.name)
           .authorEqualTo(book.author)
@@ -177,7 +177,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
         history.chapters = chapters;
         history.sourceId = sourceId;
         await isar.writeTxn(() async {
-          isar.histories.put(history);
+          isar.books.put(history);
         });
       }
       navigator.pop();

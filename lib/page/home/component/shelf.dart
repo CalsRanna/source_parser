@@ -7,8 +7,7 @@ import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/model/book.dart';
-import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
@@ -47,7 +46,7 @@ class _ShelfViewState extends State<ShelfView> {
 
   Future<void> refresh() async {
     final ref = context.ref;
-    final histories = await isar.histories.where().findAll();
+    final histories = await isar.books.where().findAll();
     histories.sort((a, b) {
       final first = PinyinHelper.getPinyin(a.name);
       final second = PinyinHelper.getPinyin(b.name);
@@ -61,7 +60,7 @@ class _ShelfViewState extends State<ShelfView> {
         final chapters = await parser.getChapters(history.catalogueUrl, source);
         history.chapters = chapters;
         await isar.writeTxn(() async {
-          isar.histories.put(history);
+          isar.books.put(history);
         });
       }
     }
@@ -72,7 +71,7 @@ class _ShelfViewState extends State<ShelfView> {
 class _ShelfTile extends StatelessWidget {
   const _ShelfTile({Key? key, required this.history}) : super(key: key);
 
-  final History history;
+  final Book history;
 
   @override
   Widget build(BuildContext context) {
@@ -157,10 +156,10 @@ class _ShelfTile extends StatelessWidget {
     final ref = context.ref;
     final navigator = Navigator.of(context);
     await isar.writeTxn(() async {
-      await isar.histories.delete(history.id);
+      await isar.books.delete(history.id);
     });
     navigator.pop();
-    final histories = await isar.histories.where().findAll();
+    final histories = await isar.books.where().findAll();
     histories.sort((a, b) {
       final first = PinyinHelper.getPinyin(a.name);
       final second = PinyinHelper.getPinyin(b.name);

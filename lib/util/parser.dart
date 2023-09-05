@@ -7,9 +7,8 @@ import 'package:charset/charset.dart';
 import 'package:html_parser_plus/html_parser_plus.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:source_parser/model/book.dart';
 import 'package:source_parser/model/debug.dart';
-import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 
@@ -26,11 +25,12 @@ class Parser {
       '//div[@class="container-bg_lQ801"]/div/div[@class="category-wrap_iQLoo"]',
     );
     return nodes.map((node) {
-      final name = parser.query(
+      var book = Book();
+      book.name = parser.query(
         node,
         '/div[@class="content_1YWBm"]/a/div@text',
       );
-      return Book(name: name.trim());
+      return book;
     }).toList();
   }
 
@@ -122,18 +122,16 @@ class Parser {
           availableSource.id = source.id;
           availableSource.name = source.name;
           availableSource.url = url;
-          send.send(
-            Book(
-              author: author,
-              category: category,
-              cover: cover,
-              introduction: introduction,
-              name: name,
-              sourceId: source.id,
-              sources: [availableSource],
-              url: url,
-            ),
-          );
+          var book = Book();
+          book.author = author;
+          book.category = category;
+          book.cover = cover;
+          book.introduction = introduction;
+          book.name = name;
+          book.sourceId = source.id;
+          book.sources = [availableSource];
+          book.url = url;
+          send.send(book);
         }
       }
       send.send('close');
@@ -162,16 +160,16 @@ class Parser {
         parser.query(document, source.informationLatestChapter);
     final name = parser.query(document, source.informationName);
     final words = parser.query(document, source.informationWordCount);
-    return Book(
-      author: author,
-      catalogueUrl: catalogueUrl,
-      category: category,
-      cover: cover,
-      introduction: introduction,
-      latestChapter: latestChapter,
-      name: name,
-      words: words,
-    );
+    var book = Book();
+    book.author = author;
+    book.catalogueUrl = catalogueUrl;
+    book.category = category;
+    book.cover = cover;
+    book.introduction = introduction;
+    book.latestChapter = latestChapter;
+    book.name = name;
+    book.words = words;
+    return book;
   }
 
   Future<List<Chapter>> getChapters(String url, Source source) async {
@@ -281,18 +279,16 @@ class Parser {
         availableSource.id = source.id;
         availableSource.name = source.name;
         availableSource.url = url;
-        books.add(
-          Book(
-            author: author,
-            category: category,
-            cover: cover,
-            introduction: introduction,
-            name: name,
-            sourceId: source.id,
-            sources: [availableSource],
-            url: url,
-          ),
-        );
+        var book = Book();
+        book.author = author;
+        book.category = category;
+        book.cover = cover;
+        book.introduction = introduction;
+        book.name = name;
+        book.sourceId = source.id;
+        book.sources = [availableSource];
+        book.url = url;
+        books.add(book);
       }
     }
     result.searchBooks = books;
@@ -322,17 +318,16 @@ class Parser {
       availableSource.id = source.id;
       availableSource.name = source.name;
       availableSource.url = books.first.url;
-      final book = Book(
-        name: name,
-        author: author,
-        category: category,
-        cover: cover,
-        catalogueUrl: catalogueUrl,
-        introduction: introduction,
-        sourceId: source.id,
-        sources: [availableSource],
-        url: books.first.url,
-      );
+      var book = Book();
+      book.author = author;
+      book.catalogueUrl = catalogueUrl;
+      book.category = category;
+      book.cover = cover;
+      book.introduction = introduction;
+      book.name = name;
+      book.sourceId = source.id;
+      book.sources = [availableSource];
+      book.url = books.first.url;
       result.informationBook = [book];
       // 调试目录解析规则
       if (catalogueUrl.isEmpty) {

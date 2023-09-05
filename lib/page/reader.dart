@@ -11,7 +11,7 @@ import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/parser.dart';
@@ -126,24 +126,10 @@ class _ReaderState extends State<Reader> {
     final ref = context.ref;
     final book = ref.read(currentBookCreator);
     final index = ref.read(currentChapterIndexCreator);
-    var history = await isar.histories
-        .filter()
-        .nameEqualTo(book.name)
-        .authorEqualTo(book.author)
-        .findFirst();
-    history ??= History();
-    history.author = book.author;
-    history.cover = book.cover;
-    history.name = book.name;
-    history.introduction = book.introduction;
-    history.url = book.url;
-    history.sourceId = book.sourceId;
-    history.sources = book.sources;
-    history.chapters = book.chapters;
-    history.cursor = cursor;
-    history.index = index;
+    book.cursor = cursor;
+    book.index = index;
     await isar.writeTxn(() async {
-      isar.histories.put(history!);
+      isar.books.put(book);
     });
   }
 
@@ -197,7 +183,7 @@ class _ReaderState extends State<Reader> {
 
   void updateHistories() async {
     final ref = context.ref;
-    final histories = await isar.histories.where().findAll();
+    final histories = await isar.books.where().findAll();
     histories.sort((a, b) {
       final first = PinyinHelper.getPinyin(a.name);
       final second = PinyinHelper.getPinyin(b.name);

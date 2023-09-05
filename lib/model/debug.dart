@@ -1,5 +1,4 @@
-import 'package:source_parser/model/book.dart';
-import 'package:source_parser/schema/history.dart';
+import 'package:source_parser/schema/book.dart';
 
 class DebugResult {
   DebugResult({
