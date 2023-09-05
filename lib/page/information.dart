@@ -11,7 +11,6 @@ import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/model/book.dart';
 import 'package:source_parser/model/chapter.dart';
-import 'package:source_parser/model/source.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';

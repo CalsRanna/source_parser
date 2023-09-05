@@ -8,7 +8,6 @@ import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/model/book.dart';
-import 'package:source_parser/model/source.dart';
 import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -178,10 +177,10 @@ class _ShelfTile extends StatelessWidget {
     final ref = context.ref;
     final router = GoRouter.of(context);
     final message = Message.of(context);
-    ref.set(currentBookCreator, Book.fromJson(history.toJson()));
+    final book = Book.fromJson(history.toJson());
+    ref.set(currentBookCreator, book);
     ref.set(currentChapterIndexCreator, history.index);
     ref.set(currentCursorCreator, history.cursor);
-    final book = ref.read(currentBookCreator);
     final source =
         await isar.sources.filter().idEqualTo(history.sourceId).findFirst();
     if (source != null) {
@@ -192,14 +191,6 @@ class _ShelfTile extends StatelessWidget {
         message.show('未找到章节');
         return;
       }
-    }
-    if (book.sources.isEmpty) {
-      final currentSource = ref.read(currentSourceCreator);
-      final availableSource = AvailableSource();
-      availableSource.id = currentSource.id;
-      availableSource.name = currentSource.name;
-      availableSource.url = currentSource.url;
-      ref.set(currentBookCreator, book.copyWith(sources: [availableSource]));
     }
     router.push('/book-reader');
   }

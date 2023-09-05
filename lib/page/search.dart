@@ -6,7 +6,7 @@ import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/chapter.dart';
 import 'package:source_parser/creator/history.dart';
 import 'package:source_parser/model/book.dart';
-import 'package:source_parser/model/source.dart';
+import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
@@ -187,13 +187,11 @@ class _SearchState extends State<Search> {
                 .idEqualTo(book.sourceId)
                 .findFirst();
             if (source != null) {
-              exist.sources.add(
-                AvailableSource(
-                  id: source.id,
-                  name: source.name,
-                  url: book.url,
-                ),
-              );
+              var availableSource = AvailableSource();
+              availableSource.id = source.id;
+              availableSource.name = source.name;
+              availableSource.url = book.url;
+              exist.sources.add(availableSource);
             }
             books[index] = exist;
             setState(() {

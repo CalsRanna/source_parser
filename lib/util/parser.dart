@@ -10,7 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/model/book.dart';
 import 'package:source_parser/model/chapter.dart';
 import 'package:source_parser/model/debug.dart';
-import 'package:source_parser/model/source.dart';
+import 'package:source_parser/schema/history.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 
@@ -119,6 +119,10 @@ class Parser {
           url = '${source.url}$url';
         }
         if (name.isNotEmpty) {
+          var availableSource = AvailableSource();
+          availableSource.id = source.id;
+          availableSource.name = source.name;
+          availableSource.url = url;
           send.send(
             Book(
               author: author,
@@ -127,9 +131,7 @@ class Parser {
               introduction: introduction,
               name: name,
               sourceId: source.id,
-              sources: [
-                AvailableSource(id: source.id, name: source.name, url: url)
-              ],
+              sources: [availableSource],
               url: url,
             ),
           );
@@ -273,6 +275,10 @@ class Parser {
         url = '${source.url}$url';
       }
       if (name.isNotEmpty) {
+        var availableSource = AvailableSource();
+        availableSource.id = source.id;
+        availableSource.name = source.name;
+        availableSource.url = url;
         books.add(
           Book(
             author: author,
@@ -281,9 +287,7 @@ class Parser {
             introduction: introduction,
             name: name,
             sourceId: source.id,
-            sources: [
-              AvailableSource(id: source.id, name: source.name, url: url)
-            ],
+            sources: [availableSource],
             url: url,
           ),
         );
@@ -311,6 +315,11 @@ class Parser {
         catalogueUrl = informationUrl;
       }
       var introduction = parser.query(document, source.informationIntroduction);
+
+      var availableSource = AvailableSource();
+      availableSource.id = source.id;
+      availableSource.name = source.name;
+      availableSource.url = books.first.url;
       final book = Book(
         name: name,
         author: author,
@@ -319,13 +328,7 @@ class Parser {
         catalogueUrl: catalogueUrl,
         introduction: introduction,
         sourceId: source.id,
-        sources: [
-          AvailableSource(
-            id: source.id,
-            name: source.name,
-            url: books.first.url,
-          )
-        ],
+        sources: [availableSource],
         url: books.first.url,
       );
       result.informationBook = [book];

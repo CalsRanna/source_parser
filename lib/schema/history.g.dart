@@ -77,7 +77,7 @@ const HistorySchema = CollectionSchema(
       id: 11,
       name: r'sources',
       type: IsarType.objectList,
-      target: r'source_switchers',
+      target: r'available_sources',
     ),
     r'status': PropertySchema(
       id: 12,
@@ -109,7 +109,7 @@ const HistorySchema = CollectionSchema(
   links: {},
   embeddedSchemas: {
     r'catalogues': CatalogueSchema,
-    r'source_switchers': SourceSwitcherSchema
+    r'available_sources': AvailableSourceSchema
   },
   getId: _historyGetId,
   getLinks: _historyGetLinks,
@@ -140,11 +140,11 @@ int _historyEstimateSize(
   bytesCount += 3 + object.name.length * 3;
   bytesCount += 3 + object.sources.length * 3;
   {
-    final offsets = allOffsets[SourceSwitcher]!;
+    final offsets = allOffsets[AvailableSource]!;
     for (var i = 0; i < object.sources.length; i++) {
       final value = object.sources[i];
       bytesCount +=
-          SourceSwitcherSchema.estimateSize(value, offsets, allOffsets);
+          AvailableSourceSchema.estimateSize(value, offsets, allOffsets);
     }
   }
   bytesCount += 3 + object.status.length * 3;
@@ -176,10 +176,10 @@ void _historySerialize(
   writer.writeString(offsets[8], object.latestChapter);
   writer.writeString(offsets[9], object.name);
   writer.writeLong(offsets[10], object.sourceId);
-  writer.writeObjectList<SourceSwitcher>(
+  writer.writeObjectList<AvailableSource>(
     offsets[11],
     allOffsets,
-    SourceSwitcherSchema.serialize,
+    AvailableSourceSchema.serialize,
     object.sources,
   );
   writer.writeString(offsets[12], object.status);
@@ -213,11 +213,11 @@ History _historyDeserialize(
   object.latestChapter = reader.readString(offsets[8]);
   object.name = reader.readString(offsets[9]);
   object.sourceId = reader.readLong(offsets[10]);
-  object.sources = reader.readObjectList<SourceSwitcher>(
+  object.sources = reader.readObjectList<AvailableSource>(
         offsets[11],
-        SourceSwitcherSchema.deserialize,
+        AvailableSourceSchema.deserialize,
         allOffsets,
-        SourceSwitcher(),
+        AvailableSource(),
       ) ??
       [];
   object.status = reader.readString(offsets[12]);
@@ -263,11 +263,11 @@ P _historyDeserializeProp<P>(
     case 10:
       return (reader.readLong(offset)) as P;
     case 11:
-      return (reader.readObjectList<SourceSwitcher>(
+      return (reader.readObjectList<AvailableSource>(
             offset,
-            SourceSwitcherSchema.deserialize,
+            AvailableSourceSchema.deserialize,
             allOffsets,
-            SourceSwitcher(),
+            AvailableSource(),
           ) ??
           []) as P;
     case 12:
@@ -2198,7 +2198,7 @@ extension HistoryQueryObject
   }
 
   QueryBuilder<History, History, QAfterFilterCondition> sourcesElement(
-      FilterQuery<SourceSwitcher> q) {
+      FilterQuery<AvailableSource> q) {
     return QueryBuilder.apply(this, (query) {
       return query.object(q, r'sources');
     });
@@ -2734,7 +2734,7 @@ extension HistoryQueryProperty
     });
   }
 
-  QueryBuilder<History, List<SourceSwitcher>, QQueryOperations>
+  QueryBuilder<History, List<AvailableSource>, QQueryOperations>
       sourcesProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'sources');
@@ -3112,9 +3112,9 @@ extension CatalogueQueryObject
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
 
-const SourceSwitcherSchema = Schema(
-  name: r'source_switchers',
-  id: -816684252500291003,
+const AvailableSourceSchema = Schema(
+  name: r'available_sources',
+  id: 2456530648758287462,
   properties: {
     r'id': PropertySchema(
       id: 0,
@@ -3132,14 +3132,14 @@ const SourceSwitcherSchema = Schema(
       type: IsarType.string,
     )
   },
-  estimateSize: _sourceSwitcherEstimateSize,
-  serialize: _sourceSwitcherSerialize,
-  deserialize: _sourceSwitcherDeserialize,
-  deserializeProp: _sourceSwitcherDeserializeProp,
+  estimateSize: _availableSourceEstimateSize,
+  serialize: _availableSourceSerialize,
+  deserialize: _availableSourceDeserialize,
+  deserializeProp: _availableSourceDeserializeProp,
 );
 
-int _sourceSwitcherEstimateSize(
-  SourceSwitcher object,
+int _availableSourceEstimateSize(
+  AvailableSource object,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
@@ -3149,8 +3149,8 @@ int _sourceSwitcherEstimateSize(
   return bytesCount;
 }
 
-void _sourceSwitcherSerialize(
-  SourceSwitcher object,
+void _availableSourceSerialize(
+  AvailableSource object,
   IsarWriter writer,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
@@ -3160,20 +3160,20 @@ void _sourceSwitcherSerialize(
   writer.writeString(offsets[2], object.url);
 }
 
-SourceSwitcher _sourceSwitcherDeserialize(
+AvailableSource _availableSourceDeserialize(
   Id id,
   IsarReader reader,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = SourceSwitcher();
+  final object = AvailableSource();
   object.id = reader.readLong(offsets[0]);
   object.name = reader.readString(offsets[1]);
   object.url = reader.readString(offsets[2]);
   return object;
 }
 
-P _sourceSwitcherDeserializeProp<P>(
+P _availableSourceDeserializeProp<P>(
   IsarReader reader,
   int propertyId,
   int offset,
@@ -3191,10 +3191,10 @@ P _sourceSwitcherDeserializeProp<P>(
   }
 }
 
-extension SourceSwitcherQueryFilter
-    on QueryBuilder<SourceSwitcher, SourceSwitcher, QFilterCondition> {
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition> idEqualTo(
-      int value) {
+extension AvailableSourceQueryFilter
+    on QueryBuilder<AvailableSource, AvailableSource, QFilterCondition> {
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
+      idEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'id',
@@ -3203,7 +3203,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       idGreaterThan(
     int value, {
     bool include = false,
@@ -3217,7 +3217,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       idLessThan(
     int value, {
     bool include = false,
@@ -3231,7 +3231,8 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition> idBetween(
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
+      idBetween(
     int lower,
     int upper, {
     bool includeLower = true,
@@ -3248,7 +3249,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       nameEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -3262,7 +3263,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       nameGreaterThan(
     String value, {
     bool include = false,
@@ -3278,7 +3279,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       nameLessThan(
     String value, {
     bool include = false,
@@ -3294,7 +3295,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       nameBetween(
     String lower,
     String upper, {
@@ -3314,7 +3315,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       nameStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -3328,7 +3329,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       nameEndsWith(
     String value, {
     bool caseSensitive = true,
@@ -3342,7 +3343,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       nameContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -3353,7 +3354,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       nameMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -3364,7 +3365,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       nameIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -3374,7 +3375,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       nameIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -3384,7 +3385,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       urlEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -3398,7 +3399,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       urlGreaterThan(
     String value, {
     bool include = false,
@@ -3414,7 +3415,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       urlLessThan(
     String value, {
     bool include = false,
@@ -3430,7 +3431,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       urlBetween(
     String lower,
     String upper, {
@@ -3450,7 +3451,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       urlStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -3464,7 +3465,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       urlEndsWith(
     String value, {
     bool caseSensitive = true,
@@ -3478,7 +3479,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       urlContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -3489,7 +3490,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       urlMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -3500,7 +3501,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       urlIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -3510,7 +3511,7 @@ extension SourceSwitcherQueryFilter
     });
   }
 
-  QueryBuilder<SourceSwitcher, SourceSwitcher, QAfterFilterCondition>
+  QueryBuilder<AvailableSource, AvailableSource, QAfterFilterCondition>
       urlIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -3521,5 +3522,5 @@ extension SourceSwitcherQueryFilter
   }
 }
 
-extension SourceSwitcherQueryObject
-    on QueryBuilder<SourceSwitcher, SourceSwitcher, QFilterCondition> {}
+extension AvailableSourceQueryObject
+    on QueryBuilder<AvailableSource, AvailableSource, QFilterCondition> {}

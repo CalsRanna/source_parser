@@ -1,5 +1,5 @@
 import 'package:source_parser/model/chapter.dart';
-import 'package:source_parser/model/source.dart';
+import 'package:source_parser/schema/history.dart';
 
 class Book {
   String author;

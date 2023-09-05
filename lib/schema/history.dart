@@ -20,7 +20,7 @@ class History {
   @Name('source_id')
   int sourceId = 0;
   @Name('sources')
-  List<SourceSwitcher> sources = [];
+  List<AvailableSource> sources = [];
   String status = '';
   @Name('updated_at')
   String updatedAt = '';
@@ -36,11 +36,11 @@ class History {
           .map((chapter) => Catalogue.fromJson(chapter))
           .toList();
     }
-    List<SourceSwitcher> sources = [];
+    List<AvailableSource> sources = [];
     if (json['sources'] is List) {
-      sources = (json['sources'] as List)
-          .map((source) => SourceSwitcher.fromJson(source))
-          .toList();
+      sources = (json['sources'] as List).map((source) {
+        return AvailableSource.fromJson(source);
+      }).toList();
     }
     return History()
       ..author = json['author'] as String
@@ -114,16 +114,16 @@ class Catalogue {
 }
 
 @embedded
-@Name('source_switchers')
-class SourceSwitcher {
+@Name('available_sources')
+class AvailableSource {
   int id = 0;
   String name = '';
   String url = '';
 
-  SourceSwitcher();
+  AvailableSource();
 
-  factory SourceSwitcher.fromJson(Map<String, dynamic> json) {
-    return SourceSwitcher()
+  factory AvailableSource.fromJson(Map<String, dynamic> json) {
+    return AvailableSource()
       ..id = json['id'] as int
       ..name = json['name'] as String
       ..url = json['url'] as String;
@@ -131,6 +131,13 @@ class SourceSwitcher {
 
   Map<String, dynamic> toJson() {
     return {'id': id, 'name': name, 'url': url};
+  }
+
+  AvailableSource copyWith({int? id, String? name, String? url}) {
+    return AvailableSource()
+      ..id = id ?? this.id
+      ..url = url ?? this.url
+      ..name = name ?? this.name;
   }
 
   @override
