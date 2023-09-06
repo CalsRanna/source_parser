@@ -78,15 +78,15 @@ class _AvailableSourcesState extends State<AvailableSources> {
     final ref = context.ref;
     final currentBook = ref.read(currentBookCreator);
     final stream = await Parser.search(currentBook.name);
-    List<AvailableSource> sources = currentBook.sources;
+    List<AvailableSource> sources = [...currentBook.sources];
     stream.listen(
       (book) async {
         final sameAuthor = book.author == currentBook.author;
         final sameName = book.name == currentBook.name;
-        final differentSource = sources.where((source) {
-          return source.id != book.sourceId;
+        final sameSource = currentBook.sources.where((source) {
+          return source.id == book.sourceId;
         }).isNotEmpty;
-        if (sameAuthor && sameName && differentSource) {
+        if (sameAuthor && sameName && !sameSource) {
           final builder = isar.sources.filter();
           final source = await builder.idEqualTo(book.sourceId).findFirst();
           if (source != null) {

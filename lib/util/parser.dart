@@ -138,6 +138,38 @@ class Parser {
     });
   }
 
+  static Future<List<Book>> getExplore(
+    String url,
+    Map<String, dynamic> rule,
+    int id,
+  ) async {
+    final html = await CachedNetwork().request(
+      url,
+      charset: rule['charset'],
+      duration: const Duration(hours: 6),
+    );
+    final parser = HtmlParser();
+    final document = parser.parse(html);
+    final nodes = parser.queryNodes(document, rule['list']);
+    List<Book> books = [];
+    for (var node in nodes) {
+      final author = parser.query(node, rule['author']);
+      final cover = parser.query(node, rule['cover']);
+      final name = parser.query(node, rule['name']);
+      final introduction = parser.query(node, rule['introduction']);
+      url = parser.query(node, rule['url']);
+      var book = Book();
+      book.author = author;
+      book.cover = cover;
+      book.name = name;
+      book.introduction = introduction;
+      book.url = url;
+      book.sourceId = id;
+      books.add(book);
+    }
+    return books;
+  }
+
   Future<Book> getInformation(String url, Source source) async {
     final method = source.informationMethod.toUpperCase();
     final html = await CachedNetwork().request(
