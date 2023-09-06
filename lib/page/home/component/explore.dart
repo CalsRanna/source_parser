@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
+import 'package:source_parser/creator/explore.dart';
+import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/page/explore_list.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
@@ -22,77 +24,71 @@ class ExploreView extends StatefulWidget {
 }
 
 class _ExploreViewState extends State<ExploreView> {
-  late Future future;
-  List<String> layouts = [];
-  List<String> titles = [];
-  List<List<Book>> books = [];
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [];
-    for (var i = 0; i < layouts.length; i++) {
-      if (layouts[i] == 'banner') {
-        children.add(_ExploreBanner(books: books[i]));
-      } else {
-        children.add(_ExploreCard(books: books[i], title: titles[i]));
-      }
-      if (i < layouts.length - 1) {
-        children.add(const SizedBox(height: 16));
-      }
-    }
-    return FutureBuilder(
-      future: getExplore(),
-      builder: (_, snapshot) {
-        if (snapshot.hasData) {
-          return RefreshIndicator(
-            onRefresh: getExplore,
-            child: ListView(children: children),
-          );
-        } else if (snapshot.hasError) {
-          return Center(child: Text('${snapshot.error}'));
-        } else {
+    return Watcher((context, ref, child) {
+      final results = ref.watch(exploreBooksCreator);
+      if (results.isEmpty) {
+        if (loading) {
           return const Center(child: CircularProgressIndicator());
         }
-      },
-    );
+      }
+      List<Widget> children = [];
+      for (var i = 0; i < results.length; i++) {
+        final result = results[i];
+        if (result.layout == 'banner') {
+          children.add(_ExploreBanner(books: result.books));
+        } else {
+          children.add(
+            _ExploreCard(books: result.books, title: result.title),
+          );
+        }
+        if (i < results.length - 1) {
+          children.add(const SizedBox(height: 16));
+        }
+      }
+      return RefreshIndicator(
+        onRefresh: getExplore,
+        child: ListView(children: children),
+      );
+    });
   }
 
   @override
-  void initState() {
-    super.initState();
-    future = getExplore();
+  void didChangeDependencies() {
+    getExplore();
+    super.didChangeDependencies();
   }
 
-  // 必须要有一个返回值，当返回值为null或者void时，FutureBuilder会认为snapshot.hasData为false
-  Future<String> getExplore() async {
-    final builder = isar.sources.filter();
-    final sources = await builder.exploreEnabledEqualTo(true).findAll();
-    if (sources.isNotEmpty) {
-      final source = sources.first;
-      final exploreRule = jsonDecode(source.exploreJson);
-      List<String> layouts = [];
-      List<String> titles = [];
-      List<List<Book>> books = [];
-      for (var rule in exploreRule) {
-        final layout = rule['layout'] ?? '';
-        final title = rule['title'] ?? '';
-        final exploreUrl = rule['exploreUrl'] ?? '';
-        final booksPerRule = await Parser.getExplore(
-          exploreUrl,
-          rule,
-          source.id,
-        );
-        layouts.add(layout);
-        titles.add(title);
-        books.add(booksPerRule);
+  Future<void> getExplore() async {
+    final ref = context.ref;
+    if (ref.read(exploreBooksCreator).isEmpty) {
+      setState(() {
+        loading = true;
+      });
+      final builder = isar.sources.filter();
+      final sources = await builder.exploreEnabledEqualTo(true).findAll();
+      if (sources.isNotEmpty) {
+        final source = sources.first;
+        final exploreRule = jsonDecode(source.exploreJson);
+        List<ExploreResult> results = [];
+        for (var rule in exploreRule) {
+          final layout = rule['layout'] ?? '';
+          final title = rule['title'] ?? '';
+          final exploreUrl = rule['exploreUrl'] ?? '';
+          final books = await Parser.getExplore(exploreUrl, rule, source);
+          results.add(
+            ExploreResult(layout: layout, title: title, books: books),
+          );
+        }
+        ref.set(exploreBooksCreator, results);
       }
       setState(() {
-        this.layouts = layouts;
-        this.titles = titles;
-        this.books = books;
+        loading = false;
       });
     }
-    return 'Success';
   }
 }
 

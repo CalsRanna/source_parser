@@ -32,11 +32,11 @@ class _HomePageState extends State<HomePage> {
         icon: const Icon(Icons.more_vert_outlined),
       ),
     ];
-    final exploreActions = [
-      IconButton(
-        onPressed: () {},
-        icon: const Icon(Icons.filter_alt_outlined),
-      ),
+    final exploreActions = <Widget>[
+      // IconButton(
+      //   onPressed: () {},
+      //   icon: const Icon(Icons.filter_alt_outlined),
+      // ),
     ];
     final settingActions = <Widget>[
       Watcher((context, ref, child) {

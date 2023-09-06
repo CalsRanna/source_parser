@@ -9,6 +9,20 @@ final sourcesEmitter = Emitter<List<Source>>((ref, emit) async {
   emit(sources);
 }, keepAlive: true, name: 'sourcesEmitter');
 
+final exploreSourcesCreator = Creator<List<Source>>(
+  (ref) {
+    final sources = ref.watch(sourcesEmitter.asyncData).data;
+    if (sources == null) {
+      return [];
+    }
+    return sources.where((source) {
+      return source.exploreEnabled;
+    }).toList();
+  },
+  keepAlive: true,
+  name: 'exploreSourcesCreator',
+);
+
 /// 仅用于书源的编辑
 final currentSourceCreator = Creator<Source>.value(
   Source(),

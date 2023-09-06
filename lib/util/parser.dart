@@ -141,7 +141,7 @@ class Parser {
   static Future<List<Book>> getExplore(
     String url,
     Map<String, dynamic> rule,
-    int id,
+    Source source,
   ) async {
     final html = await CachedNetwork().request(
       url,
@@ -158,13 +158,18 @@ class Parser {
       final name = parser.query(node, rule['name']);
       final introduction = parser.query(node, rule['introduction']);
       url = parser.query(node, rule['url']);
+      var availableSource = AvailableSource();
+      availableSource.id = source.id;
+      availableSource.name = source.name;
+      availableSource.url = url;
       var book = Book();
       book.author = author;
       book.cover = cover;
       book.name = name;
       book.introduction = introduction;
       book.url = url;
-      book.sourceId = id;
+      book.sourceId = source.id;
+      book.sources = [availableSource];
       books.add(book);
     }
     return books;
