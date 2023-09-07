@@ -11,6 +11,7 @@ import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
+import 'package:source_parser/util/plain_string.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class BookInformation extends StatefulWidget {
@@ -23,6 +24,8 @@ class BookInformation extends StatefulWidget {
 }
 
 class _BookInformationState extends State<BookInformation> {
+  bool loading = false;
+
   @override
   void didChangeDependencies() {
     getInformation();
@@ -53,9 +56,9 @@ class _BookInformationState extends State<BookInformation> {
             ),
             SliverList(
               delegate: SliverChildListDelegate([
-                _Introduction(introduction: book.introduction),
+                _Introduction(book: book),
                 const SizedBox(height: 8),
-                _Catalogue(chapters: book.chapters),
+                _Catalogue(book: book, loading: loading),
                 const SizedBox(height: 8),
                 _Source(sources: book.sources),
               ]),
@@ -68,6 +71,9 @@ class _BookInformationState extends State<BookInformation> {
   }
 
   Future<void> getInformation() async {
+    setState(() {
+      loading = true;
+    });
     final ref = context.ref;
     final book = ref.read(currentBookCreator);
     final queryBuilder = isar.sources.filter();
@@ -104,6 +110,9 @@ class _BookInformationState extends State<BookInformation> {
       );
       ref.set(currentBookCreator, updatedBook);
     }
+    setState(() {
+      loading = false;
+    });
   }
 }
 
@@ -175,20 +184,6 @@ class _Information extends StatelessWidget {
                       color: Colors.white.withOpacity(0.85),
                     ),
                   ),
-                  if (book.words.isNotEmpty)
-                    Container(
-                      decoration: const ShapeDecoration(
-                        shape: StadiumBorder(
-                          side: BorderSide(color: Colors.white),
-                        ),
-                      ),
-                      margin: const EdgeInsets.only(top: 4),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      child: Text(book.words),
-                    ),
                 ],
               ),
             ),
@@ -219,41 +214,124 @@ class _Information extends StatelessWidget {
   }
 }
 
-class _Introduction extends StatelessWidget {
-  const _Introduction({required this.introduction});
+class _Introduction extends StatefulWidget {
+  const _Introduction({required this.book});
 
-  final String introduction;
+  final Book book;
+
+  @override
+  State<_Introduction> createState() => _IntroductionState();
+}
+
+class _IntroductionState extends State<_Introduction> {
+  bool expanded = false;
 
   @override
   Widget build(BuildContext context) {
-    const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
-
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final surfaceTint = colorScheme.surfaceTint;
+    var introduction = widget.book.introduction;
+    introduction = introduction
+        .replaceAll(' ', '')
+        .replaceAll(RegExp(r'\u2003'), '')
+        .replaceAll(RegExp(r'\n+'), '\n\u2003\u2003')
+        .trim();
+    introduction = '\u2003\u2003$introduction';
     return Card(
-      color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
+      color: surfaceTint.withOpacity(0.05),
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: const RoundedRectangleBorder(),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            const Row(
-              children: [Text('简介', style: boldTextStyle)],
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  children: [
+                    if (widget.book.words.isNotEmpty)
+                      _Tag(text: widget.book.words),
+                    if (widget.book.status.isNotEmpty)
+                      _Tag(text: widget.book.status),
+                  ],
+                ),
+                if (widget.book.words.isNotEmpty ||
+                    widget.book.status.isNotEmpty)
+                  const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: handleTap,
+                  child: Text(
+                    introduction,
+                    maxLines: expanded ? null : 4,
+                    overflow: expanded ? null : TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            Text(introduction),
+            if (!expanded)
+              Positioned(
+                bottom: 8,
+                right: 0,
+                child: Container(
+                  decoration: ShapeDecoration(
+                    color: surfaceTint.withOpacity(0.1),
+                    shape: const StadiumBorder(),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Icon(
+                    Icons.keyboard_arrow_down_outlined,
+                    color: surfaceTint,
+                    size: 12,
+                  ),
+                ),
+              )
           ],
         ),
       ),
     );
   }
+
+  void handleTap() {
+    setState(() {
+      expanded = !expanded;
+    });
+  }
+}
+
+class _Tag extends StatelessWidget {
+  const _Tag({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final surfaceTint = colorScheme.surfaceTint;
+    final textTheme = theme.textTheme;
+    final labelMedium = textTheme.labelMedium;
+    return Container(
+      decoration: ShapeDecoration(
+        color: surfaceTint.withOpacity(0.1),
+        shape: const StadiumBorder(),
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 4,
+      ),
+      child: Text(text, style: labelMedium),
+    );
+  }
 }
 
 class _Catalogue extends StatelessWidget {
-  const _Catalogue({required this.chapters});
+  const _Catalogue({required this.book, this.loading = false});
 
-  final List<Chapter> chapters;
+  final Book book;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -270,13 +348,21 @@ class _Catalogue extends StatelessWidget {
           child: Row(
             children: [
               const Text('目录', style: boldTextStyle),
-              Expanded(
-                child: Text(
-                  '共${chapters.length}章',
+              const Spacer(),
+              if (loading)
+                const SizedBox.square(
+                  dimension: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                  ),
+                ),
+              if (!loading) ...[
+                Text(
+                  '共${book.chapters.length}章',
                   textAlign: TextAlign.right,
                 ),
-              ),
-              const Icon(Icons.chevron_right_outlined)
+                const Icon(Icons.chevron_right_outlined)
+              ]
             ],
           ),
         ),
@@ -285,8 +371,10 @@ class _Catalogue extends StatelessWidget {
   }
 
   void handleTap(BuildContext context) {
-    context.ref.set(fromCreator, '/book-information');
-    context.push('/book-catalogue');
+    if (!loading) {
+      context.ref.set(fromCreator, '/book-information');
+      context.push('/book-catalogue');
+    }
   }
 }
 
@@ -340,9 +428,10 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final padding = MediaQuery.of(context).padding;
     return Container(
       color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: EdgeInsets.fromLTRB(16, 16, 16, padding.bottom),
       child: Row(
         children: [
           // TextButton(
