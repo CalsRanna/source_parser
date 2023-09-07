@@ -313,7 +313,7 @@ class _IntroductionState extends State<_Introduction> {
 }
 
 class _Tag extends StatelessWidget {
-  const _Tag({super.key, required this.text});
+  const _Tag({required this.text});
 
   final String text;
 

@@ -128,11 +128,12 @@ class _HomePageState extends State<HomePage> {
       }
       final builder = isar.settings.where();
       var setting = await builder.findFirst();
-      setting ??= Setting();
-      setting.exploreSource = value;
-      await isar.writeTxn(() async {
-        await isar.settings.put(setting!);
-      });
+      if (setting != null) {
+        setting.exploreSource = value;
+        await isar.writeTxn(() async {
+          await isar.settings.put(setting);
+        });
+      }
     }
   }
 
@@ -141,11 +142,12 @@ class _HomePageState extends State<HomePage> {
     final darkMode = ref.read(darkModeCreator);
     ref.set(darkModeCreator, !darkMode);
     var setting = await isar.settings.where().findFirst();
-    setting ??= Setting();
-    setting.darkMode = !darkMode;
-    await isar.writeTxn(() async {
-      isar.settings.put(setting!);
-    });
+    if (setting != null) {
+      setting.darkMode = !darkMode;
+      await isar.writeTxn(() async {
+        isar.settings.put(setting);
+      });
+    }
   }
 
   void handleDestinationSelected(int index) {

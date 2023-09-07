@@ -77,7 +77,8 @@ class _AvailableSourcesState extends State<AvailableSources> {
   Future<void> handleRefresh() async {
     final ref = context.ref;
     final currentBook = ref.read(currentBookCreator);
-    final stream = await Parser.search(currentBook.name);
+    var stream = await Parser.search(currentBook.name);
+    stream = stream.asBroadcastStream();
     List<AvailableSource> sources = [...currentBook.sources];
     stream.listen((book) async {
       final sameAuthor = book.author == currentBook.author;

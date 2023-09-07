@@ -148,7 +148,6 @@ class Parser {
       charset: rule['charset'],
       duration: const Duration(hours: 6),
     );
-    print('getExplore');
     final parser = HtmlParser();
     final document = parser.parse(html);
     final nodes = parser.queryNodes(document, rule['list']);

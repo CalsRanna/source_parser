@@ -60,10 +60,6 @@ class _SourceParserState extends State<SourceParser> {
     if (setting.lineSpace.isNaN) {
       setting.lineSpace = 1.0 + 0.618 * 2;
     }
-    print(setting.exploreSource.isNaN);
-    if (setting.exploreSource.isNaN) {
-      setting.exploreSource = 0;
-    }
     await isar.writeTxn(() async {
       await isar.settings.put(setting!);
     });

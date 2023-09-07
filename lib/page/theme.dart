@@ -52,11 +52,12 @@ class ReaderTheme extends StatelessWidget {
   void updateLineSpace(BuildContext context, double value) async {
     context.ref.set(lineSpaceCreator, value);
     var setting = await isar.settings.where().findFirst();
-    setting ??= Setting();
-    setting.lineSpace = value;
-    await isar.writeTxn(() async {
-      await isar.settings.put(setting!);
-    });
+    if (setting != null) {
+      setting.lineSpace = value;
+      await isar.writeTxn(() async {
+        isar.settings.put(setting);
+      });
+    }
   }
 }
 
