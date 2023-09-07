@@ -104,7 +104,7 @@ class _BookInformationState extends State<BookInformation> {
           final end = max(chapters.length - 1, 0);
           updatedChapters = chapters.getRange(start, end).toList();
         }
-        final updatedBook = book.copyWith(
+        var updatedBook = book.copyWith(
           catalogueUrl: information.catalogueUrl,
           category: information.category,
           chapters: [...book.chapters, ...updatedChapters],
@@ -113,6 +113,22 @@ class _BookInformationState extends State<BookInformation> {
           latestChapter: information.latestChapter,
           words: information.words,
         );
+        final builder = isar.books.filter();
+        final exist = await builder
+            .nameEqualTo(book.name)
+            .authorEqualTo(book.author)
+            .findFirst();
+        if (exist != null) {
+          updatedBook = exist.copyWith(
+            catalogueUrl: updatedBook.catalogueUrl,
+            category: updatedBook.category,
+            chapters: updatedBook.chapters,
+            cover: updatedBook.cover,
+            introduction: updatedBook.introduction,
+            latestChapter: updatedBook.latestChapter,
+            words: updatedBook.words,
+          );
+        }
         ref.set(currentBookCreator, updatedBook);
       }
       setState(() {
