@@ -50,7 +50,7 @@ class _ExploreViewState extends State<ExploreView> {
         }
       }
       return RefreshIndicator(
-        onRefresh: getExplore,
+        onRefresh: refreshExplore,
         child: ListView(children: children),
       );
     });
@@ -58,36 +58,45 @@ class _ExploreViewState extends State<ExploreView> {
 
   @override
   void didChangeDependencies() {
-    getExplore();
+    initExplore();
     super.didChangeDependencies();
   }
 
-  Future<void> getExplore() async {
+  void initExplore() async {
     final ref = context.ref;
     if (ref.read(exploreBooksCreator).isEmpty) {
       setState(() {
         loading = true;
       });
-      final builder = isar.sources.filter();
-      final sources = await builder.exploreEnabledEqualTo(true).findAll();
-      if (sources.isNotEmpty) {
-        final source = sources.first;
-        final exploreRule = jsonDecode(source.exploreJson);
-        List<ExploreResult> results = [];
-        for (var rule in exploreRule) {
-          final layout = rule['layout'] ?? '';
-          final title = rule['title'] ?? '';
-          final exploreUrl = rule['exploreUrl'] ?? '';
-          final books = await Parser.getExplore(exploreUrl, rule, source);
-          results.add(
-            ExploreResult(layout: layout, title: title, books: books),
-          );
-        }
-        ref.set(exploreBooksCreator, results);
-      }
+      await getExplore();
       setState(() {
         loading = false;
       });
+    }
+  }
+
+  Future<void> refreshExplore() async {
+    await getExplore();
+  }
+
+  Future<void> getExplore() async {
+    final ref = context.ref;
+    final builder = isar.sources.filter();
+    final sources = await builder.exploreEnabledEqualTo(true).findAll();
+    if (sources.isNotEmpty) {
+      final source = sources.first;
+      final exploreRule = jsonDecode(source.exploreJson);
+      List<ExploreResult> results = [];
+      for (var rule in exploreRule) {
+        final layout = rule['layout'] ?? '';
+        final title = rule['title'] ?? '';
+        final exploreUrl = rule['exploreUrl'] ?? '';
+        final books = await Parser.getExplore(exploreUrl, rule, source);
+        results.add(
+          ExploreResult(layout: layout, title: title, books: books),
+        );
+      }
+      ref.set(exploreBooksCreator, results);
     }
   }
 }
