@@ -13,6 +13,8 @@ class Setting {
   bool darkMode = false;
   @Name('debug_mode')
   bool debugMode = false;
+  @Name('explore_source')
+  int exploreSource = 0;
   @Name('line_space')
   double lineSpace = 1.0 + 0.618 * 2;
 }

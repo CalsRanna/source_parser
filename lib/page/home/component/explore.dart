@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/explore.dart';
+import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/page/explore_list.dart';
 import 'package:source_parser/schema/book.dart';
@@ -82,9 +83,15 @@ class _ExploreViewState extends State<ExploreView> {
   Future<void> getExplore() async {
     final ref = context.ref;
     final builder = isar.sources.filter();
-    final sources = await builder.exploreEnabledEqualTo(true).findAll();
-    if (sources.isNotEmpty) {
-      final source = sources.first;
+    final exploreSource = ref.read(exploreSourceCreator);
+    if (exploreSource == 0) {
+      final sources = await builder.exploreEnabledEqualTo(true).findAll();
+      if (sources.isNotEmpty) {
+        ref.set(exploreSourceCreator, sources.first.id);
+      }
+    }
+    final source = await builder.idEqualTo(exploreSource).findFirst();
+    if (source != null) {
       final exploreRule = jsonDecode(source.exploreJson);
       List<ExploreResult> results = [];
       for (var rule in exploreRule) {

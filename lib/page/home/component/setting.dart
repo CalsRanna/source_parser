@@ -85,8 +85,37 @@ class SettingView extends StatelessWidget {
   }
 
   void clearCache(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('清空缓存'),
+          content: const Text('确定清空所有已缓存的内容？'),
+          actions: [
+            TextButton(
+              onPressed: () => cancel(context),
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () => confirm(context),
+              child: const Text('确认'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void cancel(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
+  void confirm(BuildContext context) async {
+    final navigator = Navigator.of(context);
+
     final message = Message.of(context);
     final succeed = await CachedNetwork().clearCache();
+    navigator.pop();
     if (succeed) {
       message.show('已清空缓存');
     } else {

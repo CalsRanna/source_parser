@@ -35,6 +35,7 @@ dependencies:
   path_provider: ^2.0.14
   charset: ^2.0.1
   lpinyin: ^2.0.3
+  package_info_plus: ^4.1.0
 
 dev_dependencies:
   flutter_test:
@@ -49,4 +50,4 @@ flutter:
   uses-material-design: true
 
   assets:
-    - asset/image/default_cover.jpg
+    - asset/image/

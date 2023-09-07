@@ -7,3 +7,9 @@ final lineSpaceCreator = Creator.value(
   keepAlive: true,
   name: 'lineSpaceCreator',
 );
+
+final exploreSourceCreator = Creator.value(
+  0,
+  keepAlive: true,
+  name: 'exploreSource',
+);

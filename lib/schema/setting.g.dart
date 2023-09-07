@@ -32,8 +32,13 @@ const SettingSchema = CollectionSchema(
       name: r'debug_mode',
       type: IsarType.bool,
     ),
-    r'line_space': PropertySchema(
+    r'explore_source': PropertySchema(
       id: 3,
+      name: r'explore_source',
+      type: IsarType.long,
+    ),
+    r'line_space': PropertySchema(
+      id: 4,
       name: r'line_space',
       type: IsarType.double,
     )
@@ -70,7 +75,8 @@ void _settingSerialize(
   writer.writeLong(offsets[0], object.colorSeed);
   writer.writeBool(offsets[1], object.darkMode);
   writer.writeBool(offsets[2], object.debugMode);
-  writer.writeDouble(offsets[3], object.lineSpace);
+  writer.writeLong(offsets[3], object.exploreSource);
+  writer.writeDouble(offsets[4], object.lineSpace);
 }
 
 Setting _settingDeserialize(
@@ -83,8 +89,9 @@ Setting _settingDeserialize(
   object.colorSeed = reader.readLong(offsets[0]);
   object.darkMode = reader.readBool(offsets[1]);
   object.debugMode = reader.readBool(offsets[2]);
+  object.exploreSource = reader.readLong(offsets[3]);
   object.id = id;
-  object.lineSpace = reader.readDouble(offsets[3]);
+  object.lineSpace = reader.readDouble(offsets[4]);
   return object;
 }
 
@@ -102,6 +109,8 @@ P _settingDeserializeProp<P>(
     case 2:
       return (reader.readBool(offset)) as P;
     case 3:
+      return (reader.readLong(offset)) as P;
+    case 4:
       return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -270,6 +279,60 @@ extension SettingQueryFilter
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> exploreSourceEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'explore_source',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition>
+      exploreSourceGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'explore_source',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> exploreSourceLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'explore_source',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> exploreSourceBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'explore_source',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -428,6 +491,18 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByExploreSource() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'explore_source', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByExploreSourceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'explore_source', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByLineSpace() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'line_space', Sort.asc);
@@ -479,6 +554,18 @@ extension SettingQuerySortThenBy
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByExploreSource() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'explore_source', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByExploreSourceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'explore_source', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -524,6 +611,12 @@ extension SettingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Setting, Setting, QDistinct> distinctByExploreSource() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'explore_source');
+    });
+  }
+
   QueryBuilder<Setting, Setting, QDistinct> distinctByLineSpace() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'line_space');
@@ -554,6 +647,12 @@ extension SettingQueryProperty
   QueryBuilder<Setting, bool, QQueryOperations> debugModeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'debug_mode');
+    });
+  }
+
+  QueryBuilder<Setting, int, QQueryOperations> exploreSourceProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'explore_source');
     });
   }
 

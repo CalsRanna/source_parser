@@ -10,6 +10,7 @@ import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
@@ -73,48 +74,56 @@ class _BookInformationState extends State<BookInformation> {
   }
 
   Future<void> getInformation() async {
+    final message = Message.of(context);
     setState(() {
       loading = true;
     });
-    final ref = context.ref;
-    final book = ref.read(currentBookCreator);
-    final queryBuilder = isar.sources.filter();
-    final sourceId = book.sourceId;
-    final source = await queryBuilder.idEqualTo(sourceId).findFirst();
-    if (source != null) {
-      final information = await Parser().getInformation(book.url, source);
-      String? updatedIntroduction;
-      if (information.introduction.length > book.introduction.length) {
-        updatedIntroduction = information.introduction;
+    try {
+      final ref = context.ref;
+      final book = ref.read(currentBookCreator);
+      final queryBuilder = isar.sources.filter();
+      final sourceId = book.sourceId;
+      final source = await queryBuilder.idEqualTo(sourceId).findFirst();
+      if (source != null) {
+        final information = await Parser().getInformation(book.url, source);
+        String? updatedIntroduction;
+        if (information.introduction.length > book.introduction.length) {
+          updatedIntroduction = information.introduction;
+        }
+        final chapters = await Parser().getChapters(
+          information.catalogueUrl,
+          source,
+        );
+        String updatedCover = book.cover;
+        if (updatedCover.isEmpty) {
+          updatedCover = information.cover;
+        }
+        List<Chapter> updatedChapters = [];
+        if (chapters.length > book.chapters.length) {
+          final start = max(book.chapters.length - 1, 0);
+          final end = max(chapters.length - 1, 0);
+          updatedChapters = chapters.getRange(start, end).toList();
+        }
+        final updatedBook = book.copyWith(
+          catalogueUrl: information.catalogueUrl,
+          category: information.category,
+          chapters: [...book.chapters, ...updatedChapters],
+          cover: updatedCover,
+          introduction: updatedIntroduction,
+          latestChapter: information.latestChapter,
+          words: information.words,
+        );
+        ref.set(currentBookCreator, updatedBook);
       }
-      final chapters = await Parser().getChapters(
-        information.catalogueUrl,
-        source,
-      );
-      String updatedCover = book.cover;
-      if (updatedCover.isEmpty) {
-        updatedCover = information.cover;
-      }
-      List<Chapter> updatedChapters = [];
-      if (chapters.length > book.chapters.length) {
-        final start = max(book.chapters.length - 1, 0);
-        final end = max(chapters.length - 1, 0);
-        updatedChapters = chapters.getRange(start, end).toList();
-      }
-      final updatedBook = book.copyWith(
-        catalogueUrl: information.catalogueUrl,
-        category: information.category,
-        chapters: [...book.chapters, ...updatedChapters],
-        cover: updatedCover,
-        introduction: updatedIntroduction,
-        latestChapter: information.latestChapter,
-        words: information.words,
-      );
-      ref.set(currentBookCreator, updatedBook);
+      setState(() {
+        loading = false;
+      });
+    } catch (error) {
+      message.show(error.toString());
+      setState(() {
+        loading = false;
+      });
     }
-    setState(() {
-      loading = false;
-    });
   }
 }
 

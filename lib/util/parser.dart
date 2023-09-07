@@ -28,7 +28,7 @@ class Parser {
       var book = Book();
       book.name = parser.query(
         node,
-        '/div[@class="content_1YWBm"]/a/div@text',
+        '/div[@class="content_1YWBm"]/a/div@text|function:trim()',
       );
       return book;
     }).toList();
@@ -148,6 +148,7 @@ class Parser {
       charset: rule['charset'],
       duration: const Duration(hours: 6),
     );
+    print('getExplore');
     final parser = HtmlParser();
     final document = parser.parse(html);
     final nodes = parser.queryNodes(document, rule['list']);
