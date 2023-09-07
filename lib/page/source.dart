@@ -103,9 +103,9 @@ class _AvailableSourcesState extends State<AvailableSources> {
               .authorEqualTo(book.author)
               .findFirst();
           if (exist != null) {
-            book.sources = sources;
+            exist.sources = sources;
             await isar.writeTxn(() async {
-              isar.books.put(book);
+              isar.books.put(exist);
             });
           }
         }
