@@ -35,6 +35,7 @@ class _ShelfViewState extends State<ShelfView> {
             return _ShelfTile(book: books.elementAt(index));
           },
           itemCount: books.length,
+          itemExtent: 72,
         ),
       );
     });

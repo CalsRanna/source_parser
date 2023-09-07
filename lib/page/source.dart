@@ -58,6 +58,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
               );
             },
             itemCount: book.sources.length,
+            itemExtent: 72,
           );
         }),
       ),

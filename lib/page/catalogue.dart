@@ -81,6 +81,7 @@ class _CataloguePageState extends State<CataloguePage> {
               );
             },
             itemCount: book.chapters.length,
+            itemExtent: 56,
           );
         }),
       ),

@@ -36,6 +36,7 @@ class BookSourceList extends StatelessWidget {
                   onTap: (id) => editSource(context, id),
                 );
               },
+              itemExtent: 56,
             );
           } else {
             return const Center(child: Text('空空如也'));
@@ -62,10 +63,7 @@ class BookSourceList extends StatelessWidget {
               onSubmitted: (value) => confirmImporting(context, value),
             ),
             const SizedBox(height: 8),
-            const SelectableText(
-              '目前仅支持GitHub仓库中文件的原始地址，例如https://raw.githubuserconten'
-              't.com/CalsRanna/rule_sample/master/sources.json',
-            ),
+            const SelectableText('目前仅支持GitHub仓库中文件的原始地址。'),
           ],
         ),
       ),

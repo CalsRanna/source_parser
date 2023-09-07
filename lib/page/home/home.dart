@@ -110,6 +110,8 @@ class _HomePageState extends State<HomePage> {
   void updateExploreSource(int value) async {
     final ref = context.ref;
     if (ref.read(exploreSourceCreator) != value) {
+      ref.set(exploreLoadingCreator, true);
+      ref.set(exploreBooksCreator, <ExploreResult>[]);
       ref.set(exploreSourceCreator, value);
       final source = await isar.sources.filter().idEqualTo(value).findFirst();
       if (source != null) {
@@ -125,6 +127,7 @@ class _HomePageState extends State<HomePage> {
           );
         }
         ref.set(exploreBooksCreator, results);
+        ref.set(exploreLoadingCreator, false);
       }
       final builder = isar.settings.where();
       var setting = await builder.findFirst();

@@ -25,16 +25,16 @@ class ExploreView extends StatefulWidget {
 }
 
 class _ExploreViewState extends State<ExploreView> {
-  bool loading = false;
-
   @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child) {
+      final loading = ref.watch(exploreLoadingCreator);
       final results = ref.watch(exploreBooksCreator);
+      if (loading) {
+        return const Center(child: CircularProgressIndicator());
+      }
       if (results.isEmpty) {
-        if (loading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        return const Center(child: Text('空空如也'));
       }
       List<Widget> children = [];
       for (var i = 0; i < results.length; i++) {
@@ -66,13 +66,9 @@ class _ExploreViewState extends State<ExploreView> {
   void initExplore() async {
     final ref = context.ref;
     if (ref.read(exploreBooksCreator).isEmpty) {
-      setState(() {
-        loading = true;
-      });
+      ref.set(exploreLoadingCreator, true);
       await getExplore();
-      setState(() {
-        loading = false;
-      });
+      ref.set(exploreLoadingCreator, false);
     }
   }
 

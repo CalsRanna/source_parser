@@ -261,6 +261,9 @@ class Parser {
     final parser = HtmlParser();
     final document = parser.parse(html);
     final content = parser.query(document, source.contentContent);
+    if (content.isEmpty) {
+      return content;
+    }
     return '$title\n\n$content';
   }
 
