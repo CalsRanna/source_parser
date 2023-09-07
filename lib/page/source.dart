@@ -79,38 +79,37 @@ class _AvailableSourcesState extends State<AvailableSources> {
     final currentBook = ref.read(currentBookCreator);
     final stream = await Parser.search(currentBook.name);
     List<AvailableSource> sources = [...currentBook.sources];
-    stream.listen(
-      (book) async {
-        final sameAuthor = book.author == currentBook.author;
-        final sameName = book.name == currentBook.name;
-        final sameSource = currentBook.sources.where((source) {
-          return source.id == book.sourceId;
-        }).isNotEmpty;
-        if (sameAuthor && sameName && !sameSource) {
-          final builder = isar.sources.filter();
-          final source = await builder.idEqualTo(book.sourceId).findFirst();
-          if (source != null) {
-            var availableSource = AvailableSource();
-            availableSource.id = source.id;
-            availableSource.name = source.name;
-            availableSource.url = book.url;
-            sources.add(availableSource);
-            ref.set(currentBookCreator, currentBook.copyWith(sources: sources));
-            var exist = await isar.books
-                .filter()
-                .nameEqualTo(book.name)
-                .authorEqualTo(book.author)
-                .findFirst();
-            if (exist != null) {
-              book.sources = sources;
-              await isar.writeTxn(() async {
-                isar.books.put(book);
-              });
-            }
+    stream.listen((book) async {
+      final sameAuthor = book.author == currentBook.author;
+      final sameName = book.name == currentBook.name;
+      final sameSource = currentBook.sources.where((source) {
+        return source.id == book.sourceId;
+      }).isNotEmpty;
+      if (sameAuthor && sameName && !sameSource) {
+        final builder = isar.sources.filter();
+        final source = await builder.idEqualTo(book.sourceId).findFirst();
+        if (source != null) {
+          var availableSource = AvailableSource();
+          availableSource.id = source.id;
+          availableSource.name = source.name;
+          availableSource.url = book.url;
+          sources.add(availableSource);
+          ref.set(currentBookCreator, currentBook.copyWith(sources: sources));
+          var exist = await isar.books
+              .filter()
+              .nameEqualTo(book.name)
+              .authorEqualTo(book.author)
+              .findFirst();
+          if (exist != null) {
+            book.sources = sources;
+            await isar.writeTxn(() async {
+              isar.books.put(book);
+            });
           }
         }
-      },
-    );
+      }
+    });
+    await stream.last;
   }
 
   void switchSource(int index) async {

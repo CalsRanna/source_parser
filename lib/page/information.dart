@@ -11,7 +11,6 @@ import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
-import 'package:source_parser/util/plain_string.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class BookInformation extends StatefulWidget {
@@ -36,36 +35,39 @@ class _BookInformationState extends State<BookInformation> {
   Widget build(BuildContext context) {
     return Watcher((context, ref, child) {
       final book = ref.watch(currentBookCreator);
-      return Scaffold(
-        body: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 200,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Stack(
-                  children: [
-                    _BackgroundImage(url: book.cover),
-                    const _ColorFilter(),
-                    _Information(book: book),
-                  ],
+      return RefreshIndicator(
+        onRefresh: getInformation,
+        child: Scaffold(
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 200,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    children: [
+                      _BackgroundImage(url: book.cover),
+                      const _ColorFilter(),
+                      _Information(book: book),
+                    ],
+                  ),
+                  collapseMode: CollapseMode.pin,
                 ),
-                collapseMode: CollapseMode.pin,
+                pinned: true,
+                stretch: true,
               ),
-              pinned: true,
-              stretch: true,
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate([
-                _Introduction(book: book),
-                const SizedBox(height: 8),
-                _Catalogue(book: book, loading: loading),
-                const SizedBox(height: 8),
-                _Source(sources: book.sources),
-              ]),
-            )
-          ],
+              SliverList(
+                delegate: SliverChildListDelegate([
+                  _Introduction(book: book),
+                  const SizedBox(height: 8),
+                  _Catalogue(book: book, loading: loading),
+                  const SizedBox(height: 8),
+                  _Source(sources: book.sources),
+                ]),
+              )
+            ],
+          ),
+          bottomNavigationBar: const _BottomBar(),
         ),
-        bottomNavigationBar: const _BottomBar(),
       );
     });
   }
