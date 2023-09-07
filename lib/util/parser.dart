@@ -190,6 +190,9 @@ class Parser {
     if (catalogueUrl.isEmpty) {
       catalogueUrl = url;
     }
+    if (!catalogueUrl.startsWith('http')) {
+      catalogueUrl = '${source.url}$catalogueUrl';
+    }
     final category = parser.query(document, source.informationCategory);
     final cover = parser.query(document, source.informationCover);
     final introduction = parser.query(document, source.informationIntroduction);
@@ -351,6 +354,9 @@ class Parser {
       var catalogueUrl = parser.query(document, source.informationCatalogueUrl);
       if (catalogueUrl.isEmpty) {
         catalogueUrl = informationUrl;
+      }
+      if (!catalogueUrl.startsWith('http')) {
+        catalogueUrl = '${source.url}$catalogueUrl';
       }
       var introduction = parser.query(document, source.informationIntroduction);
 

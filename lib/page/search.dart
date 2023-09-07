@@ -170,6 +170,10 @@ class _SearchState extends State<Search> {
       final stream = await Parser.search(credential);
       stream.listen(
         (book) async {
+          if (!book.name.contains(credential) &&
+              !book.author.contains(credential)) {
+            return;
+          }
           final index = books.indexWhere((item) {
             return item.name == book.name && item.author == book.author;
           });
@@ -177,6 +181,9 @@ class _SearchState extends State<Search> {
             var exist = books.elementAt(index);
             if (exist.introduction.length < book.introduction.length) {
               exist.introduction = book.introduction;
+            }
+            if (exist.cover.length < book.cover.length) {
+              exist.cover = book.cover;
             }
             final source = await isar.sources
                 .filter()
