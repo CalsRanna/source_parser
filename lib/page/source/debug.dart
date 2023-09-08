@@ -43,7 +43,7 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
       final map = e.toJson();
       return _remove(map, ['id']);
     }).toList();
-    Widget child = const Center(child: CircularProgressIndicator.adaptive());
+    Widget child = const Center(child: CircularProgressIndicator());
     if (!loading) {
       child = ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),

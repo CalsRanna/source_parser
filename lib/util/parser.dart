@@ -49,9 +49,9 @@ class Parser {
         [network, sources[i], credential, receiver.sendPort],
       );
       receiver.forEach((element) async {
-        if (element.runtimeType == Book) {
+        if (element is Book) {
           controller.add(element);
-        } else if (element == 'close') {
+        } else {
           isolate.kill();
           closed++;
           if (closed == sources.length) {
@@ -70,7 +70,7 @@ class Parser {
       final network = message[0] as CachedNetwork;
       final source = message[1] as Source;
       var credential = message[2] as String;
-      final send = message[3] as SendPort;
+      final sender = message[3] as SendPort;
       try {
         final header = jsonDecode(source.header);
         if (header['Content-Type'] == 'application/x-www-form-urlencoded') {
@@ -83,53 +83,54 @@ class Parser {
             credential = Uri.encodeComponent(credential);
           }
         }
+        final searchUrl = source.searchUrl
+            .replaceAll('{{credential}}', credential)
+            .replaceAll('{{page}}', '1');
+        final method = source.searchMethod.toUpperCase();
+        var html = await network.request(
+          searchUrl,
+          charset: source.charset,
+          duration: const Duration(hours: 6),
+          method: method,
+        );
+        final parser = HtmlParser();
+        var document = parser.parse(html);
+        var items = parser.queryNodes(document, source.searchBooks);
+        for (var i = 0; i < items.length; i++) {
+          final author = parser.query(items[i], source.searchAuthor);
+          final category = parser.query(items[i], source.searchCategory);
+          var cover = parser.query(items[i], source.searchCover);
+          if (!cover.startsWith('http')) {
+            cover = '${source.url}$cover';
+          }
+          final introduction =
+              parser.query(items[i], source.searchIntroduction);
+          final name = parser.query(items[i], source.searchName);
+          var url = parser.query(items[i], source.searchInformationUrl);
+          if (!url.startsWith('http')) {
+            url = '${source.url}$url';
+          }
+          if (name.isNotEmpty) {
+            var availableSource = AvailableSource();
+            availableSource.id = source.id;
+            availableSource.name = source.name;
+            availableSource.url = url;
+            var book = Book();
+            book.author = author;
+            book.category = category;
+            book.cover = cover;
+            book.introduction = introduction;
+            book.name = name;
+            book.sourceId = source.id;
+            book.sources = [availableSource];
+            book.url = url;
+            sender.send(book);
+          }
+        }
+        sender.send('close');
       } catch (error) {
-        // Do nothing
+        sender.send('close');
       }
-      final searchUrl = source.searchUrl
-          .replaceAll('{{credential}}', credential)
-          .replaceAll('{{page}}', '1');
-      final method = source.searchMethod.toUpperCase();
-      var html = await network.request(
-        searchUrl,
-        charset: source.charset,
-        duration: const Duration(hours: 6),
-        method: method,
-      );
-      final parser = HtmlParser();
-      var document = parser.parse(html);
-      var items = parser.queryNodes(document, source.searchBooks);
-      for (var i = 0; i < items.length; i++) {
-        final author = parser.query(items[i], source.searchAuthor);
-        final category = parser.query(items[i], source.searchCategory);
-        var cover = parser.query(items[i], source.searchCover);
-        if (!cover.startsWith('http')) {
-          cover = '${source.url}$cover';
-        }
-        final introduction = parser.query(items[i], source.searchIntroduction);
-        final name = parser.query(items[i], source.searchName);
-        var url = parser.query(items[i], source.searchInformationUrl);
-        if (!url.startsWith('http')) {
-          url = '${source.url}$url';
-        }
-        if (name.isNotEmpty) {
-          var availableSource = AvailableSource();
-          availableSource.id = source.id;
-          availableSource.name = source.name;
-          availableSource.url = url;
-          var book = Book();
-          book.author = author;
-          book.category = category;
-          book.cover = cover;
-          book.introduction = introduction;
-          book.name = name;
-          book.sourceId = source.id;
-          book.sources = [availableSource];
-          book.url = url;
-          send.send(book);
-        }
-      }
-      send.send('close');
     });
   }
 
@@ -174,40 +175,45 @@ class Parser {
       final exploreUrl = message[2] as String;
       final source = message[3] as Source;
       final sender = message[4] as SendPort;
-      final html = await network.request(
-        exploreUrl,
-        charset: rule['charset'],
-        duration: const Duration(hours: 6),
-      );
-      final parser = HtmlParser();
-      final document = parser.parse(html);
-      final nodes = parser.queryNodes(document, rule['list']);
-      List<Book> books = [];
-      for (var node in nodes) {
-        final author = parser.query(node, rule['author']);
-        final cover = parser.query(node, rule['cover']);
-        final name = parser.query(node, rule['name']);
-        final introduction = parser.query(node, rule['introduction']);
-        final url = parser.query(node, rule['url']);
-        var availableSource = AvailableSource();
-        availableSource.id = source.id;
-        availableSource.name = source.name;
-        availableSource.url = url;
-        var book = Book();
-        book.author = author;
-        book.cover = cover;
-        book.name = name;
-        book.introduction = introduction;
-        book.url = url;
-        book.sourceId = source.id;
-        book.sources = [availableSource];
-        books.add(book);
+      try {
+        final html = await network.request(
+          exploreUrl,
+          charset: rule['charset'],
+          duration: const Duration(hours: 6),
+        );
+        final parser = HtmlParser();
+        final document = parser.parse(html);
+        final nodes = parser.queryNodes(document, rule['list']);
+        List<Book> books = [];
+        for (var node in nodes) {
+          final author = parser.query(node, rule['author']);
+          final cover = parser.query(node, rule['cover']);
+          final name = parser.query(node, rule['name']);
+          final introduction = parser.query(node, rule['introduction']);
+          final url = parser.query(node, rule['url']);
+          var availableSource = AvailableSource();
+          availableSource.id = source.id;
+          availableSource.name = source.name;
+          availableSource.url = url;
+          var book = Book();
+          book.author = author;
+          book.cover = cover;
+          book.name = name;
+          book.introduction = introduction;
+          book.url = url;
+          book.sourceId = source.id;
+          book.sources = [availableSource];
+          books.add(book);
+        }
+        final layout = rule['layout'];
+        final title = rule['title'];
+        final result =
+            ExploreResult(layout: layout, title: title, books: books);
+        sender.send(result);
+        sender.send('close');
+      } catch (error) {
+        sender.send('close');
       }
-      final layout = rule['layout'];
-      final title = rule['title'];
-      final result = ExploreResult(layout: layout, title: title, books: books);
-      sender.send(result);
-      sender.send('close');
     });
   }
 
@@ -236,44 +242,49 @@ class Parser {
       final url = message[1] as String;
       final source = message[2] as Source;
       final sender = message[3] as SendPort;
-      final method = source.informationMethod.toUpperCase();
-      final html = await network.request(
-        url,
-        charset: source.charset,
-        duration: const Duration(hours: 6),
-        method: method,
-      );
-      final parser = HtmlParser();
-      final document = parser.parse(html);
-      final author = parser.query(document, source.informationAuthor);
-      var catalogueUrl = parser.query(document, source.informationCatalogueUrl);
-      if (catalogueUrl.isEmpty) {
-        catalogueUrl = url;
+      try {
+        final method = source.informationMethod.toUpperCase();
+        final html = await network.request(
+          url,
+          charset: source.charset,
+          duration: const Duration(hours: 6),
+          method: method,
+        );
+        final parser = HtmlParser();
+        final document = parser.parse(html);
+        final author = parser.query(document, source.informationAuthor);
+        var catalogueUrl =
+            parser.query(document, source.informationCatalogueUrl);
+        if (catalogueUrl.isEmpty) {
+          catalogueUrl = url;
+        }
+        if (!catalogueUrl.startsWith('http')) {
+          catalogueUrl = '${source.url}$catalogueUrl';
+        }
+        final category = parser.query(document, source.informationCategory);
+        final cover = parser.query(document, source.informationCover);
+        final introduction =
+            parser.query(document, source.informationIntroduction);
+        final latestChapter = parser.query(
+          document,
+          source.informationLatestChapter,
+        );
+        final name = parser.query(document, source.informationName);
+        final words = parser.query(document, source.informationWordCount);
+        var book = Book();
+        book.author = author;
+        book.catalogueUrl = catalogueUrl;
+        book.category = category;
+        book.cover = cover;
+        book.introduction = introduction;
+        book.latestChapter = latestChapter;
+        book.name = name;
+        book.words = words;
+        sender.send(book);
+        sender.send('close');
+      } catch (error) {
+        sender.send('close');
       }
-      if (!catalogueUrl.startsWith('http')) {
-        catalogueUrl = '${source.url}$catalogueUrl';
-      }
-      final category = parser.query(document, source.informationCategory);
-      final cover = parser.query(document, source.informationCover);
-      final introduction =
-          parser.query(document, source.informationIntroduction);
-      final latestChapter = parser.query(
-        document,
-        source.informationLatestChapter,
-      );
-      final name = parser.query(document, source.informationName);
-      final words = parser.query(document, source.informationWordCount);
-      var book = Book();
-      book.author = author;
-      book.catalogueUrl = catalogueUrl;
-      book.category = category;
-      book.cover = cover;
-      book.introduction = introduction;
-      book.latestChapter = latestChapter;
-      book.name = name;
-      book.words = words;
-      sender.send(book);
-      sender.send('close');
     });
   }
 
@@ -306,30 +317,34 @@ class Parser {
       final url = message[1] as String;
       final source = message[2] as Source;
       final sender = message[3] as SendPort;
-      final charset = source.charset;
-      const duration = Duration(hours: 6);
-      final method = source.catalogueMethod.toUpperCase();
-      final html = await network.request(
-        url,
-        charset: charset,
-        duration: duration,
-        method: method,
-      );
-      final parser = HtmlParser();
-      final document = parser.parse(html);
-      final items = parser.queryNodes(document, source.catalogueChapters);
-      for (var i = 0; i < items.length; i++) {
-        final name = parser.query(items[i], source.catalogueName);
-        var url = parser.query(items[i], source.catalogueUrl);
-        if (!url.startsWith('http')) {
-          url = '${source.url}$url';
+      try {
+        final charset = source.charset;
+        const duration = Duration(hours: 6);
+        final method = source.catalogueMethod.toUpperCase();
+        final html = await network.request(
+          url,
+          charset: charset,
+          duration: duration,
+          method: method,
+        );
+        final parser = HtmlParser();
+        final document = parser.parse(html);
+        final items = parser.queryNodes(document, source.catalogueChapters);
+        for (var i = 0; i < items.length; i++) {
+          final name = parser.query(items[i], source.catalogueName);
+          var url = parser.query(items[i], source.catalogueUrl);
+          if (!url.startsWith('http')) {
+            url = '${source.url}$url';
+          }
+          var chapter = Chapter();
+          chapter.name = name;
+          chapter.url = url;
+          sender.send(chapter);
         }
-        var chapter = Chapter();
-        chapter.name = name;
-        chapter.url = url;
-        sender.send(chapter);
+        sender.send('close');
+      } catch (error) {
+        sender.send('close');
       }
-      sender.send('close');
     });
   }
 
@@ -367,153 +382,186 @@ class Parser {
   }
 
   static Future<DebugResult> debug(String credential, Source source) async {
-    var result = DebugResult();
-    final network = CachedNetwork();
-    // // 调试搜索解析规则
+    final cacheDirectory = await getTemporaryDirectory();
+    final network = CachedNetwork(cacheDirectory: cacheDirectory);
+    final sender = ReceivePort();
+    final receiver = ReceivePort();
+    final isolate = await Isolate.spawn(_debugInIsolate, sender.sendPort);
     try {
-      final header = jsonDecode(source.header);
-      if (header['Content-Type'] == 'application/x-www-form-urlencoded') {
-        if (source.charset == 'gbk') {
-          final codeUnits = gbk.encode(credential);
-          credential = codeUnits.map((codeUnit) {
-            return '%${codeUnit.toRadixString(16).padLeft(2, '0').toUpperCase()}';
-          }).join();
-        } else {
-          credential = Uri.encodeComponent(credential);
-        }
-      }
+      (await sender.first as SendPort).send(
+        [network, credential, source, receiver.sendPort],
+      );
+      final result = await receiver.first as DebugResult;
+      isolate.kill();
+      return result;
     } catch (error) {
-      // Do nothing
+      isolate.kill();
+      return DebugResult(searchRaw: error.toString());
     }
-    final searchUrl = source.searchUrl
-        .replaceAll('{{credential}}', credential)
-        .replaceAll('{{page}}', '1');
-    var html = await network.request(
-      searchUrl,
-      charset: source.charset,
-      duration: const Duration(hours: 6),
-      method: source.searchMethod.toUpperCase(),
-      reacquire: true,
-    );
-    result.searchRaw = html;
-    final parser = HtmlParser();
-    var document = parser.parse(html);
-    var items = parser.queryNodes(document, source.searchBooks);
-    var books = <Book>[];
-    for (var i = 0; i < items.length; i++) {
-      final author = parser.query(items[i], source.searchAuthor);
-      final category = parser.query(items[i], source.searchCategory);
-      var cover = parser.query(items[i], source.searchCover);
-      if (!cover.startsWith('http')) {
-        cover = '${source.url}$cover';
-      }
-      final introduction = parser.query(items[i], source.searchIntroduction);
-      final name = parser.query(items[i], source.searchName);
-      var url = parser.query(items[i], source.searchInformationUrl);
-      if (!url.startsWith('http')) {
-        url = '${source.url}$url';
-      }
-      if (name.isNotEmpty) {
-        var availableSource = AvailableSource();
-        availableSource.id = source.id;
-        availableSource.name = source.name;
-        availableSource.url = url;
-        var book = Book();
-        book.author = author;
-        book.category = category;
-        book.cover = cover;
-        book.introduction = introduction;
-        book.name = name;
-        book.sourceId = source.id;
-        book.sources = [availableSource];
-        book.url = url;
-        books.add(book);
-      }
-    }
-    result.searchBooks = books;
-    if (books.isNotEmpty) {
-      // 调试详情规则解析
-      var informationUrl = books.first.url;
-      html = await network.request(
-        informationUrl,
-        charset: source.charset,
-        duration: const Duration(hours: 6),
-        method: source.informationMethod.toUpperCase(),
-        reacquire: true,
-      );
-      result.informationRaw = html;
-      document = parser.parse(html);
-      var name = parser.query(document, source.informationName);
-      var author = parser.query(document, source.informationAuthor);
-      var cover = parser.query(document, source.informationCover);
-      var category = parser.query(document, source.informationCategory);
-      var catalogueUrl = parser.query(document, source.informationCatalogueUrl);
-      if (catalogueUrl.isEmpty) {
-        catalogueUrl = informationUrl;
-      }
-      if (!catalogueUrl.startsWith('http')) {
-        catalogueUrl = '${source.url}$catalogueUrl';
-      }
-      var introduction = parser.query(document, source.informationIntroduction);
+  }
 
-      var availableSource = AvailableSource();
-      availableSource.id = source.id;
-      availableSource.name = source.name;
-      availableSource.url = books.first.url;
-      var book = Book();
-      book.author = author;
-      book.catalogueUrl = catalogueUrl;
-      book.category = category;
-      book.cover = cover;
-      book.introduction = introduction;
-      book.name = name;
-      book.sourceId = source.id;
-      book.sources = [availableSource];
-      book.url = books.first.url;
-      result.informationBook = [book];
-      // 调试目录解析规则
-      if (catalogueUrl.isEmpty) {
-        catalogueUrl = informationUrl;
-      }
-      html = await network.request(
-        catalogueUrl,
-        charset: source.charset,
-        duration: const Duration(hours: 6),
-        method: source.catalogueMethod.toUpperCase(),
-        reacquire: true,
-      );
-      result.catalogueRaw = html;
-      document = parser.parse(html);
-      items = parser.queryNodes(document, source.catalogueChapters);
-      var chapters = <Chapter>[];
-      for (var i = 0; i < items.length; i++) {
-        final name = parser.query(items[i], source.catalogueName);
-        var url = parser.query(items[i], source.catalogueUrl);
-        if (!url.startsWith('http')) {
-          url = '${source.url}$url';
+  static void _debugInIsolate(SendPort message) {
+    final port = ReceivePort();
+    message.send(port.sendPort);
+    port.listen((message) async {
+      final network = message[0] as CachedNetwork;
+      var credential = message[1] as String;
+      final source = message[2] as Source;
+      final sender = message[3] as SendPort;
+      try {
+        var result = DebugResult();
+        // // 调试搜索解析规则
+        try {
+          final header = jsonDecode(source.header);
+          if (header['Content-Type'] == 'application/x-www-form-urlencoded') {
+            if (source.charset == 'gbk') {
+              final codeUnits = gbk.encode(credential);
+              credential = codeUnits.map((codeUnit) {
+                return '%${codeUnit.toRadixString(16).padLeft(2, '0').toUpperCase()}';
+              }).join();
+            } else {
+              credential = Uri.encodeComponent(credential);
+            }
+          }
+        } catch (error) {
+          // Do nothing
         }
-        var chapter = Chapter();
-        chapter.name = name;
-        chapter.url = url;
-        chapters.add(chapter);
-      }
-      result.catalogueChapters = chapters;
-      // 调试正文解析规则
-      if (chapters.isNotEmpty) {
-        html = await network.request(
-          chapters.first.url,
+        final searchUrl = source.searchUrl
+            .replaceAll('{{credential}}', credential)
+            .replaceAll('{{page}}', '1');
+        var html = await network.request(
+          searchUrl,
           charset: source.charset,
           duration: const Duration(hours: 6),
-          method: source.contentMethod.toUpperCase(),
-          reacquire: false,
+          method: source.searchMethod.toUpperCase(),
+          reacquire: true,
         );
-        result.contentRaw = html;
-        document = parser.parse(html);
-        var content = parser.query(document, source.contentContent);
-        result.contentContent = content;
+        result.searchRaw = html;
+        final parser = HtmlParser();
+        var document = parser.parse(html);
+        var items = parser.queryNodes(document, source.searchBooks);
+        var books = <Book>[];
+        for (var i = 0; i < items.length; i++) {
+          final author = parser.query(items[i], source.searchAuthor);
+          final category = parser.query(items[i], source.searchCategory);
+          var cover = parser.query(items[i], source.searchCover);
+          if (!cover.startsWith('http')) {
+            cover = '${source.url}$cover';
+          }
+          final introduction =
+              parser.query(items[i], source.searchIntroduction);
+          final name = parser.query(items[i], source.searchName);
+          var url = parser.query(items[i], source.searchInformationUrl);
+          if (!url.startsWith('http')) {
+            url = '${source.url}$url';
+          }
+          if (name.isNotEmpty) {
+            var availableSource = AvailableSource();
+            availableSource.id = source.id;
+            availableSource.name = source.name;
+            availableSource.url = url;
+            var book = Book();
+            book.author = author;
+            book.category = category;
+            book.cover = cover;
+            book.introduction = introduction;
+            book.name = name;
+            book.sourceId = source.id;
+            book.sources = [availableSource];
+            book.url = url;
+            books.add(book);
+          }
+        }
+        result.searchBooks = books;
+        if (books.isNotEmpty) {
+          // 调试详情规则解析
+          var informationUrl = books.first.url;
+          html = await network.request(
+            informationUrl,
+            charset: source.charset,
+            duration: const Duration(hours: 6),
+            method: source.informationMethod.toUpperCase(),
+            reacquire: true,
+          );
+          result.informationRaw = html;
+          document = parser.parse(html);
+          var name = parser.query(document, source.informationName);
+          var author = parser.query(document, source.informationAuthor);
+          var cover = parser.query(document, source.informationCover);
+          var category = parser.query(document, source.informationCategory);
+          var catalogueUrl =
+              parser.query(document, source.informationCatalogueUrl);
+          if (catalogueUrl.isEmpty) {
+            catalogueUrl = informationUrl;
+          }
+          if (!catalogueUrl.startsWith('http')) {
+            catalogueUrl = '${source.url}$catalogueUrl';
+          }
+          var introduction =
+              parser.query(document, source.informationIntroduction);
+
+          var availableSource = AvailableSource();
+          availableSource.id = source.id;
+          availableSource.name = source.name;
+          availableSource.url = books.first.url;
+          var book = Book();
+          book.author = author;
+          book.catalogueUrl = catalogueUrl;
+          book.category = category;
+          book.cover = cover;
+          book.introduction = introduction;
+          book.name = name;
+          book.sourceId = source.id;
+          book.sources = [availableSource];
+          book.url = books.first.url;
+          result.informationBook = [book];
+          // 调试目录解析规则
+          if (catalogueUrl.isEmpty) {
+            catalogueUrl = informationUrl;
+          }
+          html = await network.request(
+            catalogueUrl,
+            charset: source.charset,
+            duration: const Duration(hours: 6),
+            method: source.catalogueMethod.toUpperCase(),
+            reacquire: true,
+          );
+          result.catalogueRaw = html;
+          document = parser.parse(html);
+          items = parser.queryNodes(document, source.catalogueChapters);
+          var chapters = <Chapter>[];
+          for (var i = 0; i < items.length; i++) {
+            final name = parser.query(items[i], source.catalogueName);
+            var url = parser.query(items[i], source.catalogueUrl);
+            if (!url.startsWith('http')) {
+              url = '${source.url}$url';
+            }
+            var chapter = Chapter();
+            chapter.name = name;
+            chapter.url = url;
+            chapters.add(chapter);
+          }
+          result.catalogueChapters = chapters;
+          // 调试正文解析规则
+          if (chapters.isNotEmpty) {
+            html = await network.request(
+              chapters.first.url,
+              charset: source.charset,
+              duration: const Duration(hours: 6),
+              method: source.contentMethod.toUpperCase(),
+              reacquire: false,
+            );
+            result.contentRaw = html;
+            document = parser.parse(html);
+            var content = parser.query(document, source.contentContent);
+            result.contentContent = content;
+          }
+        }
+        sender.send(result);
+      } catch (error) {
+        sender.send('close');
       }
-    }
-    return result;
+    });
   }
 
   static Future<List<Source>> importNetworkSource(String url) async {
