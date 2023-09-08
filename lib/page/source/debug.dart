@@ -29,6 +29,49 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
 
   @override
   Widget build(BuildContext context) {
+    final keys = ['chapters', 'cursor', 'id', 'index', 'source_id', 'sources'];
+    final searchBooksJson = result.searchBooks.map((e) {
+      final map = e.toJson();
+      return _remove(map, [...keys, 'catalogue_url']);
+    }).toList();
+    var informationBookJson = {};
+    if (result.informationBook.isNotEmpty) {
+      final map = result.informationBook.first.toJson();
+      informationBookJson = _remove(map, keys);
+    }
+    final catalogueJson = result.catalogueChapters.map((e) {
+      final map = e.toJson();
+      return _remove(map, ['id']);
+    }).toList();
+    Widget child = const Center(child: CircularProgressIndicator.adaptive());
+    if (!loading) {
+      child = ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        children: [
+          _DebugResultTile(
+            response: result.searchRaw.plain(),
+            result: searchBooksJson,
+            title: '搜索',
+          ),
+          // const _DebugResultTile(title: '发现'),
+          _DebugResultTile(
+            response: result.informationRaw.plain(),
+            result: informationBookJson,
+            title: '详情',
+          ),
+          _DebugResultTile(
+            response: result.catalogueRaw.plain(),
+            result: catalogueJson,
+            title: '目录',
+          ),
+          _DebugResultTile(
+            response: result.contentRaw.plain(),
+            result: {'content': result.contentContent},
+            title: '正文',
+          ),
+        ],
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -39,37 +82,7 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
         ],
         title: const Text('书源调试'),
       ),
-      body: loading
-          ? const Center(child: CircularProgressIndicator.adaptive())
-          : ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              children: [
-                _DebugResultTile(
-                  response: result.searchRaw.plain(),
-                  result: result.searchBooks.map((e) => e.toJson()).toList(),
-                  title: '搜索',
-                ),
-                // const _DebugResultTile(title: '发现'),
-                _DebugResultTile(
-                  response: result.informationRaw.plain(),
-                  result: result.informationBook.isNotEmpty
-                      ? result.informationBook.first.toJson()
-                      : {},
-                  title: '详情',
-                ),
-                _DebugResultTile(
-                  response: result.catalogueRaw.plain(),
-                  result:
-                      result.catalogueChapters.map((e) => e.toJson()).toList(),
-                  title: '目录',
-                ),
-                _DebugResultTile(
-                  response: result.contentRaw.plain(),
-                  result: {'content': result.contentContent},
-                  title: '正文',
-                ),
-              ],
-            ),
+      body: child,
     );
   }
 
@@ -91,6 +104,13 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
       });
       message.show(e.toString());
     }
+  }
+
+  Map<String, dynamic> _remove(Map<String, dynamic> map, List<String> keys) {
+    for (var key in keys) {
+      map.remove(key);
+    }
+    return map;
   }
 }
 

@@ -16,7 +16,7 @@ class Message {
       backgroundColor: primary,
       behavior: SnackBarBehavior.floating,
       content: Text(message, style: TextStyle(color: onPrimary)),
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(seconds: 1),
     ));
   }
 }
