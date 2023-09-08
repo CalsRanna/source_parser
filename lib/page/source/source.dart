@@ -98,7 +98,7 @@ class BookSourceList extends StatelessWidget {
     );
     final message = Message.of(context);
     try {
-      var sources = await Parser().importNetworkSource(value);
+      var sources = await Parser.importNetworkSource(value);
       final sourcesInDatabase = await isar.sources.where().findAll();
       List<Source> newSources = [];
       List<Source> oldSources = [];

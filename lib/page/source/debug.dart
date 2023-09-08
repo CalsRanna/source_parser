@@ -80,7 +80,7 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
     final message = Message.of(context);
     try {
       final source = context.ref.read(currentSourceCreator);
-      var debug = await Parser().debug(defaultCredential, source);
+      var debug = await Parser.debug(defaultCredential, source);
       setState(() {
         result = debug;
         loading = false;

@@ -175,7 +175,7 @@ class Parser {
     return books;
   }
 
-  Future<Book> getInformation(String url, Source source) async {
+  static Future<Book> getInformation(String url, Source source) async {
     final method = source.informationMethod.toUpperCase();
     final html = await CachedNetwork().request(
       url,
@@ -212,7 +212,7 @@ class Parser {
     return book;
   }
 
-  Future<List<Chapter>> getChapters(String url, Source source) async {
+  static Future<List<Chapter>> getChapters(String url, Source source) async {
     final method = source.catalogueMethod.toUpperCase();
     final html = await CachedNetwork().request(
       url,
@@ -238,7 +238,7 @@ class Parser {
     return chapters;
   }
 
-  Future<String> getLatestChapter(String url, Source source) async {
+  static Future<String> getLatestChapter(String url, Source source) async {
     final book = await getInformation(url, source);
     final chapters = await getChapters(book.catalogueUrl, source);
     if (chapters.isNotEmpty) {
@@ -248,7 +248,7 @@ class Parser {
     }
   }
 
-  Future<String> getContent({
+  static Future<String> getContent({
     required String url,
     required Source source,
     required String title,
@@ -270,7 +270,7 @@ class Parser {
     return '$title\n\n$content';
   }
 
-  Future<DebugResult> debug(String credential, Source source) async {
+  static Future<DebugResult> debug(String credential, Source source) async {
     var result = DebugResult();
     final network = CachedNetwork();
     // // 调试搜索解析规则
@@ -420,7 +420,7 @@ class Parser {
     return result;
   }
 
-  Future<List<Source>> importNetworkSource(String url) async {
+  static Future<List<Source>> importNetworkSource(String url) async {
     final network = CachedNetwork();
     final html = await network.request(url, reacquire: true);
     final parser = HtmlParser();

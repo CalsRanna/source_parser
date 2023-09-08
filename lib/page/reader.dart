@@ -24,8 +24,6 @@ class Reader extends StatefulWidget {
 }
 
 class _ReaderState extends State<Reader> {
-  Parser parser = Parser();
-
   @override
   void deactivate() {
     updateBooks();
@@ -97,7 +95,7 @@ class _ReaderState extends State<Reader> {
       final chapter = book.chapters.elementAt(index);
       final title = chapter.name;
       final url = chapter.url;
-      return parser.getContent(source: source, title: title, url: url);
+      return Parser.getContent(source: source, title: title, url: url);
     } else {
       return '';
     }
@@ -116,7 +114,7 @@ class _ReaderState extends State<Reader> {
       final chapter = book.chapters.elementAt(index);
       final title = chapter.name;
       final url = chapter.url;
-      return parser.getContent(
+      return Parser.getContent(
         reacquire: true,
         source: source,
         title: title,

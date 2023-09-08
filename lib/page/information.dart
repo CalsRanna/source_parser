@@ -85,12 +85,12 @@ class _BookInformationState extends State<BookInformation> {
       final sourceId = book.sourceId;
       final source = await queryBuilder.idEqualTo(sourceId).findFirst();
       if (source != null) {
-        final information = await Parser().getInformation(book.url, source);
+        final information = await Parser.getInformation(book.url, source);
         String? updatedIntroduction;
         if (information.introduction.length > book.introduction.length) {
           updatedIntroduction = information.introduction;
         }
-        final chapters = await Parser().getChapters(
+        final chapters = await Parser.getChapters(
           information.catalogueUrl,
           source,
         );
@@ -538,7 +538,7 @@ class __CoverSelectorState extends State<_CoverSelector> {
           await isar.sources.filter().idEqualTo(availableSource.id).findFirst();
       if (source != null) {
         final information =
-            await Parser().getInformation(availableSource.url, source);
+            await Parser.getInformation(availableSource.url, source);
         final cover = information.cover;
         if (cover.isNotEmpty) {
           setState(() {

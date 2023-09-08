@@ -49,12 +49,11 @@ class _ShelfViewState extends State<ShelfView> {
       final second = PinyinHelper.getPinyin(b.name);
       return first.compareTo(second);
     });
-    final parser = Parser();
     for (var book in books) {
       final source =
           await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
       if (source != null) {
-        final chapters = await parser.getChapters(book.catalogueUrl, source);
+        final chapters = await Parser.getChapters(book.catalogueUrl, source);
         book.chapters = chapters;
         await isar.writeTxn(() async {
           isar.books.put(book);

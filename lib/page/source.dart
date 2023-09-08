@@ -18,8 +18,6 @@ class AvailableSources extends StatefulWidget {
 }
 
 class _AvailableSourcesState extends State<AvailableSources> {
-  Parser parser = Parser();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,7 +67,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
     final builder = isar.sources.filter();
     final currentSource = await builder.idEqualTo(source.id).findFirst();
     if (currentSource != null) {
-      return parser.getLatestChapter(source.url, currentSource);
+      return Parser.getLatestChapter(source.url, currentSource);
     } else {
       return '加载失败';
     }
@@ -152,9 +150,9 @@ class _AvailableSourcesState extends State<AvailableSources> {
     final source = await builder.idEqualTo(sourceId).findFirst();
     if (source != null) {
       final url = book.sources[index].url;
-      final information = await Parser().getInformation(url, source);
+      final information = await Parser.getInformation(url, source);
       final catalogueUrl = information.catalogueUrl;
-      final chapters = await Parser().getChapters(catalogueUrl, source);
+      final chapters = await Parser.getChapters(catalogueUrl, source);
       final length = chapters.length;
       var chapterIndex = book.index;
       var cursor = book.cursor;

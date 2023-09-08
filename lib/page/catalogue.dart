@@ -94,7 +94,7 @@ class _CataloguePageState extends State<CataloguePage> {
     final source =
         await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
     if (source != null) {
-      final chapters = await Parser().getChapters(book.catalogueUrl, source);
+      final chapters = await Parser.getChapters(book.catalogueUrl, source);
       ref.set(currentBookCreator, book.copyWith(chapters: chapters));
     }
   }
