@@ -20,7 +20,7 @@ class ShelfView extends StatefulWidget {
 class _ShelfViewState extends State<ShelfView> {
   @override
   void didChangeDependencies() {
-    refresh();
+    getBooks();
     super.didChangeDependencies();
   }
 
@@ -41,7 +41,7 @@ class _ShelfViewState extends State<ShelfView> {
     });
   }
 
-  Future<void> refresh() async {
+  void getBooks() async {
     final ref = context.ref;
     final books = await isar.books.where().findAll();
     books.sort((a, b) {
@@ -49,18 +49,39 @@ class _ShelfViewState extends State<ShelfView> {
       final second = PinyinHelper.getPinyin(b.name);
       return first.compareTo(second);
     });
-    for (var book in books) {
-      final source =
-          await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
-      if (source != null) {
-        final chapters = await Parser.getChapters(book.catalogueUrl, source);
-        book.chapters = chapters;
-        await isar.writeTxn(() async {
-          isar.books.put(book);
-        });
-      }
-    }
+
     ref.set(booksCreator, books);
+  }
+
+  Future<void> refresh() async {
+    try {
+      final ref = context.ref;
+      final books = ref.read(booksCreator);
+      for (var book in books) {
+        final builder = isar.sources.filter();
+        final source = await builder.idEqualTo(book.sourceId).findFirst();
+        if (source != null) {
+          var stream = await Parser.getChapters(book.catalogueUrl, source);
+          stream = stream.asBroadcastStream();
+          List<Chapter> chapters = [];
+          stream.listen(
+            (chapter) {
+              chapters.add(chapter);
+            },
+            onDone: () async {
+              book.chapters = chapters;
+              await isar.writeTxn(() async {
+                isar.books.put(book);
+              });
+            },
+          );
+          await stream.last;
+        }
+      }
+      ref.set(booksCreator, books);
+    } catch (error) {
+      // Do nothing
+    }
   }
 }
 

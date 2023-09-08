@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/router.dart';
+import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
@@ -89,13 +90,27 @@ class _CataloguePageState extends State<CataloguePage> {
   }
 
   Future<void> handleRefresh() async {
-    final ref = context.ref;
-    final book = ref.read(currentBookCreator);
-    final source =
-        await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
-    if (source != null) {
-      final chapters = await Parser.getChapters(book.catalogueUrl, source);
-      ref.set(currentBookCreator, book.copyWith(chapters: chapters));
+    try {
+      final ref = context.ref;
+      final book = ref.read(currentBookCreator);
+      final builder = isar.sources.filter();
+      final source = await builder.idEqualTo(book.sourceId).findFirst();
+      if (source != null) {
+        var stream = await Parser.getChapters(book.catalogueUrl, source);
+        stream = stream.asBroadcastStream();
+        List<Chapter> chapters = [];
+        stream.listen(
+          (chapter) {
+            chapters.add(chapter);
+          },
+          onDone: () {
+            ref.set(currentBookCreator, book.copyWith(chapters: chapters));
+          },
+        );
+        await stream.last;
+      }
+    } catch (error) {
+      // Do nothing
     }
   }
 

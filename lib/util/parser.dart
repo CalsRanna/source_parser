@@ -45,12 +45,9 @@ class Parser {
       final sender = ReceivePort();
       final receiver = ReceivePort();
       final isolate = await Isolate.spawn(_searchInIsolate, sender.sendPort);
-      (await sender.first as SendPort).send([
-        network,
-        sources[i],
-        credential,
-        receiver.sendPort,
-      ]);
+      (await sender.first as SendPort).send(
+        [network, sources[i], credential, receiver.sendPort],
+      );
       receiver.forEach((element) async {
         if (element.runtimeType == Book) {
           controller.add(element);
@@ -136,9 +133,7 @@ class Parser {
     });
   }
 
-  static Future<Stream<ExploreResult>> getExplore(
-    Source source,
-  ) async {
+  static Future<Stream<ExploreResult>> getExplore(Source source) async {
     final cacheDirectory = await getTemporaryDirectory();
     final network = CachedNetwork(cacheDirectory: cacheDirectory);
     var closed = 0;
@@ -152,13 +147,9 @@ class Parser {
         sender.sendPort,
       );
       final exploreUrl = rule['exploreUrl'];
-      (await sender.first as SendPort).send([
-        network,
-        rule,
-        exploreUrl,
-        source,
-        receiver.sendPort,
-      ]);
+      (await sender.first as SendPort).send(
+        [network, rule, exploreUrl, source, receiver.sendPort],
+      );
       receiver.forEach((element) async {
         if (element.runtimeType == ExploreResult) {
           controller.add(element);
@@ -221,74 +212,134 @@ class Parser {
   }
 
   static Future<Book> getInformation(String url, Source source) async {
-    final method = source.informationMethod.toUpperCase();
-    final html = await CachedNetwork().request(
-      url,
-      charset: source.charset,
-      duration: const Duration(hours: 6),
-      method: method,
+    final cacheDirectory = await getTemporaryDirectory();
+    final network = CachedNetwork(cacheDirectory: cacheDirectory);
+    final sender = ReceivePort();
+    final receiver = ReceivePort();
+    final isolate = await Isolate.spawn(
+      _getInformationInIsolate,
+      sender.sendPort,
     );
-    final parser = HtmlParser();
-    final document = parser.parse(html);
-    final author = parser.query(document, source.informationAuthor);
-    var catalogueUrl = parser.query(document, source.informationCatalogueUrl);
-    if (catalogueUrl.isEmpty) {
-      catalogueUrl = url;
-    }
-    if (!catalogueUrl.startsWith('http')) {
-      catalogueUrl = '${source.url}$catalogueUrl';
-    }
-    final category = parser.query(document, source.informationCategory);
-    final cover = parser.query(document, source.informationCover);
-    final introduction = parser.query(document, source.informationIntroduction);
-    final latestChapter =
-        parser.query(document, source.informationLatestChapter);
-    final name = parser.query(document, source.informationName);
-    final words = parser.query(document, source.informationWordCount);
-    var book = Book();
-    book.author = author;
-    book.catalogueUrl = catalogueUrl;
-    book.category = category;
-    book.cover = cover;
-    book.introduction = introduction;
-    book.latestChapter = latestChapter;
-    book.name = name;
-    book.words = words;
+    (await sender.first as SendPort).send(
+      [network, url, source, receiver.sendPort],
+    );
+    final book = await receiver.first as Book;
+    isolate.kill();
     return book;
   }
 
-  static Future<List<Chapter>> getChapters(String url, Source source) async {
-    final method = source.catalogueMethod.toUpperCase();
-    final html = await CachedNetwork().request(
-      url,
-      charset: source.charset,
-      duration: const Duration(hours: 6),
-      method: method,
-    );
-    final parser = HtmlParser();
-    final document = parser.parse(html);
-    final items = parser.queryNodes(document, source.catalogueChapters);
-    List<Chapter> chapters = [];
-    for (var i = 0; i < items.length; i++) {
-      final name = parser.query(items[i], source.catalogueName);
-      var url = parser.query(items[i], source.catalogueUrl);
-      if (!url.startsWith('http')) {
-        url = '${source.url}$url';
+  static void _getInformationInIsolate(SendPort message) {
+    final port = ReceivePort();
+    message.send(port.sendPort);
+    port.listen((message) async {
+      final network = message[0] as CachedNetwork;
+      final url = message[1] as String;
+      final source = message[2] as Source;
+      final sender = message[3] as SendPort;
+      final method = source.informationMethod.toUpperCase();
+      final html = await network.request(
+        url,
+        charset: source.charset,
+        duration: const Duration(hours: 6),
+        method: method,
+      );
+      final parser = HtmlParser();
+      final document = parser.parse(html);
+      final author = parser.query(document, source.informationAuthor);
+      var catalogueUrl = parser.query(document, source.informationCatalogueUrl);
+      if (catalogueUrl.isEmpty) {
+        catalogueUrl = url;
       }
-      var chapter = Chapter();
-      chapter.name = name;
-      chapter.url = url;
-      chapters.add(chapter);
-    }
-    return chapters;
+      if (!catalogueUrl.startsWith('http')) {
+        catalogueUrl = '${source.url}$catalogueUrl';
+      }
+      final category = parser.query(document, source.informationCategory);
+      final cover = parser.query(document, source.informationCover);
+      final introduction =
+          parser.query(document, source.informationIntroduction);
+      final latestChapter = parser.query(
+        document,
+        source.informationLatestChapter,
+      );
+      final name = parser.query(document, source.informationName);
+      final words = parser.query(document, source.informationWordCount);
+      var book = Book();
+      book.author = author;
+      book.catalogueUrl = catalogueUrl;
+      book.category = category;
+      book.cover = cover;
+      book.introduction = introduction;
+      book.latestChapter = latestChapter;
+      book.name = name;
+      book.words = words;
+      sender.send(book);
+      sender.send('close');
+    });
+  }
+
+  static Future<Stream<Chapter>> getChapters(String url, Source source) async {
+    final cacheDirectory = await getTemporaryDirectory();
+    final network = CachedNetwork(cacheDirectory: cacheDirectory);
+    final controller = StreamController<Chapter>();
+    final sender = ReceivePort();
+    final receiver = ReceivePort();
+    final isolate = await Isolate.spawn(_getChaptersInIsolate, sender.sendPort);
+    (await sender.first as SendPort).send(
+      [network, url, source, receiver.sendPort],
+    );
+    receiver.forEach((element) async {
+      if (element is Chapter) {
+        controller.add(element);
+      } else if (element == 'close') {
+        isolate.kill();
+        controller.close();
+      }
+    });
+    return controller.stream;
+  }
+
+  static void _getChaptersInIsolate(SendPort message) {
+    final port = ReceivePort();
+    message.send(port.sendPort);
+    port.listen((message) async {
+      final network = message[0] as CachedNetwork;
+      final url = message[1] as String;
+      final source = message[2] as Source;
+      final sender = message[3] as SendPort;
+      final charset = source.charset;
+      const duration = Duration(hours: 6);
+      final method = source.catalogueMethod.toUpperCase();
+      final html = await network.request(
+        url,
+        charset: charset,
+        duration: duration,
+        method: method,
+      );
+      final parser = HtmlParser();
+      final document = parser.parse(html);
+      final items = parser.queryNodes(document, source.catalogueChapters);
+      for (var i = 0; i < items.length; i++) {
+        final name = parser.query(items[i], source.catalogueName);
+        var url = parser.query(items[i], source.catalogueUrl);
+        if (!url.startsWith('http')) {
+          url = '${source.url}$url';
+        }
+        var chapter = Chapter();
+        chapter.name = name;
+        chapter.url = url;
+        sender.send(chapter);
+      }
+      sender.send('close');
+    });
   }
 
   static Future<String> getLatestChapter(String url, Source source) async {
     final book = await getInformation(url, source);
-    final chapters = await getChapters(book.catalogueUrl, source);
-    if (chapters.isNotEmpty) {
-      return chapters.last.name;
-    } else {
+    final stream = await getChapters(book.catalogueUrl, source);
+    try {
+      final chapter = await stream.last;
+      return chapter.name;
+    } catch (error) {
       return '解析失败';
     }
   }

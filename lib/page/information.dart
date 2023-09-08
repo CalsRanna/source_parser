@@ -90,10 +90,18 @@ class _BookInformationState extends State<BookInformation> {
         if (information.introduction.length > book.introduction.length) {
           updatedIntroduction = information.introduction;
         }
-        final chapters = await Parser.getChapters(
+        var stream = await Parser.getChapters(
           information.catalogueUrl,
           source,
         );
+        stream = stream.asBroadcastStream();
+        List<Chapter> chapters = [];
+        stream.listen(
+          (chapter) {
+            chapters.add(chapter);
+          },
+        );
+        await stream.last;
         String updatedCover = book.cover;
         if (updatedCover.isEmpty) {
           updatedCover = information.cover;
@@ -376,14 +384,14 @@ class _Catalogue extends StatelessWidget {
             children: [
               const Text('目录', style: boldTextStyle),
               const Spacer(),
-              if (loading)
+              if (loading && book.chapters.isEmpty)
                 const SizedBox.square(
                   dimension: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                   ),
                 ),
-              if (!loading) ...[
+              if (!loading || book.chapters.isNotEmpty) ...[
                 Text(
                   '共${book.chapters.length}章',
                   textAlign: TextAlign.right,
