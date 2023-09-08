@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -115,18 +113,12 @@ class _HomePageState extends State<HomePage> {
       ref.set(exploreSourceCreator, value);
       final source = await isar.sources.filter().idEqualTo(value).findFirst();
       if (source != null) {
-        final exploreRule = jsonDecode(source.exploreJson);
         List<ExploreResult> results = [];
-        for (var rule in exploreRule) {
-          final layout = rule['layout'] ?? '';
-          final title = rule['title'] ?? '';
-          final exploreUrl = rule['exploreUrl'] ?? '';
-          final books = await Parser.getExplore(exploreUrl, rule, source);
-          results.add(
-            ExploreResult(layout: layout, title: title, books: books),
-          );
-        }
-        ref.set(exploreBooksCreator, results);
+        final stream = await Parser.getExplore(source);
+        stream.listen((result) {
+          results.add(result);
+          ref.set(exploreBooksCreator, results);
+        });
         ref.set(exploreLoadingCreator, false);
       }
       final builder = isar.settings.where();

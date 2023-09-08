@@ -8,6 +8,7 @@ import 'package:html_parser_plus/html_parser_plus.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/model/debug.dart';
+import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -34,20 +35,17 @@ class Parser {
     }).toList();
   }
 
-  static Future<Stream<Book>> search(
-    String credential,
-  ) async {
-    final controller = StreamController<Book>();
+  static Future<Stream<Book>> search(String credential) async {
     final sources = await isar.sources.filter().enabledEqualTo(true).findAll();
     final cacheDirectory = await getTemporaryDirectory();
     final network = CachedNetwork(cacheDirectory: cacheDirectory);
     var closed = 0;
+    final controller = StreamController<Book>();
     for (var i = 0; i < sources.length; i++) {
-      var sender = ReceivePort();
-      var isolate = await Isolate.spawn(_searchInIsolate, sender.sendPort);
-      var sendPort = await sender.first as SendPort;
-      var receiver = ReceivePort();
-      sendPort.send([
+      final sender = ReceivePort();
+      final receiver = ReceivePort();
+      final isolate = await Isolate.spawn(_searchInIsolate, sender.sendPort);
+      (await sender.first as SendPort).send([
         network,
         sources[i],
         credential,
@@ -138,41 +136,88 @@ class Parser {
     });
   }
 
-  static Future<List<Book>> getExplore(
-    String url,
-    Map<String, dynamic> rule,
+  static Future<Stream<ExploreResult>> getExplore(
     Source source,
   ) async {
-    final html = await CachedNetwork().request(
-      url,
-      charset: rule['charset'],
-      duration: const Duration(hours: 6),
-    );
-    final parser = HtmlParser();
-    final document = parser.parse(html);
-    final nodes = parser.queryNodes(document, rule['list']);
-    List<Book> books = [];
-    for (var node in nodes) {
-      final author = parser.query(node, rule['author']);
-      final cover = parser.query(node, rule['cover']);
-      final name = parser.query(node, rule['name']);
-      final introduction = parser.query(node, rule['introduction']);
-      url = parser.query(node, rule['url']);
-      var availableSource = AvailableSource();
-      availableSource.id = source.id;
-      availableSource.name = source.name;
-      availableSource.url = url;
-      var book = Book();
-      book.author = author;
-      book.cover = cover;
-      book.name = name;
-      book.introduction = introduction;
-      book.url = url;
-      book.sourceId = source.id;
-      book.sources = [availableSource];
-      books.add(book);
+    final cacheDirectory = await getTemporaryDirectory();
+    final network = CachedNetwork(cacheDirectory: cacheDirectory);
+    var closed = 0;
+    final controller = StreamController<ExploreResult>();
+    final rules = jsonDecode(source.exploreJson);
+    for (var rule in rules) {
+      final sender = ReceivePort();
+      final receiver = ReceivePort();
+      final isolate = await Isolate.spawn(
+        _getExploreInIsolate,
+        sender.sendPort,
+      );
+      final exploreUrl = rule['exploreUrl'];
+      (await sender.first as SendPort).send([
+        network,
+        rule,
+        exploreUrl,
+        source,
+        receiver.sendPort,
+      ]);
+      receiver.forEach((element) async {
+        if (element.runtimeType == ExploreResult) {
+          controller.add(element);
+        } else if (element == 'close') {
+          isolate.kill();
+          closed++;
+          if (closed == rules.length) {
+            controller.close();
+          }
+        }
+      });
     }
-    return books;
+    return controller.stream;
+  }
+
+  static void _getExploreInIsolate(SendPort message) {
+    final port = ReceivePort();
+    message.send(port.sendPort);
+    port.listen((message) async {
+      final network = message[0] as CachedNetwork;
+      final rule = message[1] as Map<String, dynamic>;
+      final exploreUrl = message[2] as String;
+      final source = message[3] as Source;
+      final sender = message[4] as SendPort;
+      final html = await network.request(
+        exploreUrl,
+        charset: rule['charset'],
+        duration: const Duration(hours: 6),
+      );
+      final parser = HtmlParser();
+      final document = parser.parse(html);
+      final nodes = parser.queryNodes(document, rule['list']);
+      List<Book> books = [];
+      for (var node in nodes) {
+        final author = parser.query(node, rule['author']);
+        final cover = parser.query(node, rule['cover']);
+        final name = parser.query(node, rule['name']);
+        final introduction = parser.query(node, rule['introduction']);
+        final url = parser.query(node, rule['url']);
+        var availableSource = AvailableSource();
+        availableSource.id = source.id;
+        availableSource.name = source.name;
+        availableSource.url = url;
+        var book = Book();
+        book.author = author;
+        book.cover = cover;
+        book.name = name;
+        book.introduction = introduction;
+        book.url = url;
+        book.sourceId = source.id;
+        book.sources = [availableSource];
+        books.add(book);
+      }
+      final layout = rule['layout'];
+      final title = rule['title'];
+      final result = ExploreResult(layout: layout, title: title, books: books);
+      sender.send(result);
+      sender.send('close');
+    });
   }
 
   static Future<Book> getInformation(String url, Source source) async {
