@@ -72,16 +72,20 @@ class Parser {
       var credential = message[2] as String;
       final sender = message[3] as SendPort;
       try {
-        final header = jsonDecode(source.header);
-        if (header['Content-Type'] == 'application/x-www-form-urlencoded') {
-          if (source.charset == 'gbk') {
-            final codeUnits = gbk.encode(credential);
-            credential = codeUnits.map((codeUnit) {
-              return '%${codeUnit.toRadixString(16).padLeft(2, '0').toUpperCase()}';
-            }).join();
-          } else {
-            credential = Uri.encodeComponent(credential);
+        try {
+          final header = jsonDecode(source.header);
+          if (header['Content-Type'] == 'application/x-www-form-urlencoded') {
+            if (source.charset == 'gbk') {
+              final codeUnits = gbk.encode(credential);
+              credential = codeUnits.map((codeUnit) {
+                return '%${codeUnit.toRadixString(16).padLeft(2, '0').toUpperCase()}';
+              }).join();
+            } else {
+              credential = Uri.encodeComponent(credential);
+            }
           }
+        } catch (error) {
+          // Do nothing
         }
         final searchUrl = source.searchUrl
             .replaceAll('{{credential}}', credential)
@@ -129,7 +133,7 @@ class Parser {
         }
         sender.send('close');
       } catch (error) {
-        sender.send('close');
+        sender.send(error.toString());
       }
     });
   }
