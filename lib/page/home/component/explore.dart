@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -87,27 +88,21 @@ class _ExploreViewState extends State<ExploreView> {
     }
     final source = await builder.idEqualTo(exploreSource).findFirst();
     if (source != null) {
+      final json = jsonDecode(source.exploreJson);
+      final titles = json.map((item) {
+        return item['title'];
+      }).toList();
       List<ExploreResult> results = [];
       final stream = await Parser.getExplore(source);
       stream.listen((result) {
         results.add(result);
-        ref.set(exploreBooksCreator, results);
+        results.sort((a, b) {
+          final indexOfA = titles.indexOf(a.title);
+          final indexOfB = titles.indexOf(b.title);
+          return indexOfA.compareTo(indexOfB);
+        });
+        ref.set(exploreBooksCreator, [...results]);
       });
-      // final exploreRule = jsonDecode(source.exploreJson);
-      //   final stream = await Parser.getExplore(source);
-      //   stream.listen((result) {
-      //     results.add(result);
-      //     ref.set(exploreBooksCreator, results);
-      //   });
-      // for (var rule in exploreRule) {
-      //   final layout = rule['layout'] ?? '';
-      //   final title = rule['title'] ?? '';
-      //   final exploreUrl = rule['exploreUrl'] ?? '';
-      //   final books = await Parser.getExplore(exploreUrl, rule, source);
-      //   results.add(
-      //     ExploreResult(layout: layout, title: title, books: books),
-      //   );
-      // }
     }
   }
 }

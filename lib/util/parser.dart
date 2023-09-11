@@ -158,7 +158,7 @@ class Parser {
       receiver.forEach((element) async {
         if (element.runtimeType == ExploreResult) {
           controller.add(element);
-        } else if (element == 'close') {
+        } else {
           isolate.kill();
           closed++;
           if (closed == rules.length) {
@@ -216,7 +216,7 @@ class Parser {
         sender.send(result);
         sender.send('close');
       } catch (error) {
-        sender.send('close');
+        sender.send(error.toString());
       }
     });
   }
@@ -287,7 +287,7 @@ class Parser {
         sender.send(book);
         sender.send('close');
       } catch (error) {
-        sender.send('close');
+        sender.send(error.toString());
       }
     });
   }
@@ -305,7 +305,7 @@ class Parser {
     receiver.forEach((element) async {
       if (element is Chapter) {
         controller.add(element);
-      } else if (element == 'close') {
+      } else {
         isolate.kill();
         controller.close();
       }
@@ -347,7 +347,7 @@ class Parser {
         }
         sender.send('close');
       } catch (error) {
-        sender.send('close');
+        sender.send(error.toString());
       }
     });
   }
@@ -563,7 +563,7 @@ class Parser {
         }
         sender.send(result);
       } catch (error) {
-        sender.send('close');
+        sender.send(error.toString());
       }
     });
   }
