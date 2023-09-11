@@ -46,6 +46,11 @@ const SettingSchema = CollectionSchema(
       id: 5,
       name: r'line_space',
       type: IsarType.double,
+    ),
+    r'shelf_mode': PropertySchema(
+      id: 6,
+      name: r'shelf_mode',
+      type: IsarType.string,
     )
   },
   estimateSize: _settingEstimateSize,
@@ -68,6 +73,7 @@ int _settingEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.shelfMode.length * 3;
   return bytesCount;
 }
 
@@ -83,6 +89,7 @@ void _settingSerialize(
   writer.writeLong(offsets[3], object.exploreSource);
   writer.writeLong(offsets[4], object.fontSize);
   writer.writeDouble(offsets[5], object.lineSpace);
+  writer.writeString(offsets[6], object.shelfMode);
 }
 
 Setting _settingDeserialize(
@@ -99,6 +106,7 @@ Setting _settingDeserialize(
   object.fontSize = reader.readLong(offsets[4]);
   object.id = id;
   object.lineSpace = reader.readDouble(offsets[5]);
+  object.shelfMode = reader.readString(offsets[6]);
   return object;
 }
 
@@ -121,6 +129,8 @@ P _settingDeserializeProp<P>(
       return (reader.readLong(offset)) as P;
     case 5:
       return (reader.readDouble(offset)) as P;
+    case 6:
+      return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -508,6 +518,136 @@ extension SettingQueryFilter
       ));
     });
   }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> shelfModeEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'shelf_mode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> shelfModeGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'shelf_mode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> shelfModeLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'shelf_mode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> shelfModeBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'shelf_mode',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> shelfModeStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'shelf_mode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> shelfModeEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'shelf_mode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> shelfModeContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'shelf_mode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> shelfModeMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'shelf_mode',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> shelfModeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'shelf_mode',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> shelfModeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'shelf_mode',
+        value: '',
+      ));
+    });
+  }
 }
 
 extension SettingQueryObject
@@ -586,6 +726,18 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByLineSpaceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'line_space', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByShelfMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'shelf_mode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByShelfModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'shelf_mode', Sort.desc);
     });
   }
 }
@@ -675,6 +827,18 @@ extension SettingQuerySortThenBy
       return query.addSortBy(r'line_space', Sort.desc);
     });
   }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByShelfMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'shelf_mode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByShelfModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'shelf_mode', Sort.desc);
+    });
+  }
 }
 
 extension SettingQueryWhereDistinct
@@ -712,6 +876,13 @@ extension SettingQueryWhereDistinct
   QueryBuilder<Setting, Setting, QDistinct> distinctByLineSpace() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'line_space');
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QDistinct> distinctByShelfMode(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'shelf_mode', caseSensitive: caseSensitive);
     });
   }
 }
@@ -757,6 +928,12 @@ extension SettingQueryProperty
   QueryBuilder<Setting, double, QQueryOperations> lineSpaceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'line_space');
+    });
+  }
+
+  QueryBuilder<Setting, String, QQueryOperations> shelfModeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'shelf_mode');
     });
   }
 }

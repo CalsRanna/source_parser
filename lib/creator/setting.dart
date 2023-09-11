@@ -15,3 +15,9 @@ final exploreSourceCreator = Creator.value(
   keepAlive: true,
   name: 'exploreSource',
 );
+
+final shelfModeCreator = Creator.value(
+  'list',
+  keepAlive: true,
+  name: 'shelfMode',
+);

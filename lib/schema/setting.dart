@@ -19,4 +19,6 @@ class Setting {
   int fontSize = 18;
   @Name('line_space')
   double lineSpace = 1.0 + 0.618 * 2;
+  @Name('shelf_mode')
+  String shelfMode = 'list';
 }

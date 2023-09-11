@@ -63,6 +63,9 @@ class _SourceParserState extends State<SourceParser> {
     if (setting.fontSize.isNegative) {
       setting.fontSize = 18;
     }
+    if (setting.shelfMode.isEmpty) {
+      setting.shelfMode = 'list';
+    }
     await isar.writeTxn(() async {
       await isar.settings.put(setting!);
     });
@@ -70,5 +73,6 @@ class _SourceParserState extends State<SourceParser> {
     ref.set(fontSizeCreator, setting.fontSize);
     ref.set(lineSpaceCreator, setting.lineSpace);
     ref.set(exploreSourceCreator, setting.exploreSource);
+    ref.set(shelfModeCreator, setting.shelfMode);
   }
 }

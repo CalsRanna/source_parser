@@ -26,17 +26,29 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final titles = ['书架', '发现', '我的'];
+    final padding = MediaQuery.of(context).padding;
     final shelfActions = [
       IconButton(
         onPressed: handlePressed,
         icon: const Icon(Icons.search),
       ),
-      IconButton(
-        onPressed: () {},
-        icon: const Icon(Icons.more_vert_outlined),
-      ),
+      Watcher((context, ref, child) {
+        final mode = ref.watch(shelfModeCreator);
+        return PopupMenuButton(
+          icon: const Icon(Icons.more_vert_outlined),
+          itemBuilder: (_) {
+            return [
+              PopupMenuItem(
+                value: mode == 'list' ? 'grid' : 'list',
+                child: Text(mode == 'list' ? '网格模式' : '列表模式'),
+              )
+            ];
+          },
+          offset: Offset(0, padding.top + 8),
+          onSelected: updateShelfMode,
+        );
+      }),
     ];
-    final padding = MediaQuery.of(context).padding;
     final exploreActions = <Widget>[
       Watcher((_, ref, child) {
         final source = ref.watch(exploreSourceCreator);
@@ -103,6 +115,18 @@ class _HomePageState extends State<HomePage> {
 
   void handlePressed() {
     context.push('/search');
+  }
+
+  void updateShelfMode(String value) async {
+    context.ref.set(shelfModeCreator, value);
+    final builder = isar.settings.where();
+    var setting = await builder.findFirst();
+    if (setting != null) {
+      setting.shelfMode = value;
+      await isar.writeTxn(() async {
+        await isar.settings.put(setting);
+      });
+    }
   }
 
   void updateExploreSource(int value) async {

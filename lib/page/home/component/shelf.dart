@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:source_parser/creator/book.dart';
+import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -28,15 +29,16 @@ class _ShelfViewState extends State<ShelfView> {
   Widget build(BuildContext context) {
     return Watcher((context, ref, child) {
       final books = ref.watch(booksCreator);
+      final mode = ref.watch(shelfModeCreator);
+      Widget child;
+      if (mode == 'list') {
+        child = _ShelfListView(books: books);
+      } else {
+        child = _ShelfGridView(books: books);
+      }
       return RefreshIndicator(
         onRefresh: refresh,
-        child: ListView.builder(
-          itemBuilder: (context, index) {
-            return _ShelfTile(book: books.elementAt(index));
-          },
-          itemCount: books.length,
-          itemExtent: 72,
-        ),
+        child: child,
       );
     });
   }
@@ -82,6 +84,23 @@ class _ShelfViewState extends State<ShelfView> {
     } catch (error) {
       // Do nothing
     }
+  }
+}
+
+class _ShelfListView extends StatelessWidget {
+  const _ShelfListView({super.key, required this.books});
+
+  final List<Book> books;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemBuilder: (context, index) {
+        return _ShelfTile(book: books.elementAt(index));
+      },
+      itemCount: books.length,
+      itemExtent: 72,
+    );
   }
 }
 
@@ -222,6 +241,152 @@ class _ShelfTile extends StatelessWidget {
 
     if (book.chapters.isNotEmpty) {
       spans.add(book.chapters.last.name);
+    }
+    return spans.isNotEmpty ? spans.join(' · ') : null;
+  }
+}
+
+class _ShelfGridView extends StatelessWidget {
+  const _ShelfGridView({required this.books});
+
+  final List<Book> books;
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQueryData = MediaQuery.of(context);
+    final coverWidth = (mediaQueryData.size.width - 96) / 3;
+    final coverHeight = coverWidth * 4 / 3;
+    const labelHeight = (8 + 14 * 1.2 * 2 + 12 * 1.2);
+    return GridView.custom(
+      childrenDelegate: SliverChildBuilderDelegate(
+        (context, index) {
+          return _ShelfGridTile(
+            book: books[index],
+            coverHeight: coverHeight,
+            coverWidth: coverWidth,
+          );
+        },
+        childCount: books.length,
+      ),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        childAspectRatio: coverWidth / (coverHeight + labelHeight),
+        crossAxisCount: 3,
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 32,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+    );
+  }
+}
+
+class _ShelfGridTile extends StatelessWidget {
+  const _ShelfGridTile({
+    required this.book,
+    required this.coverHeight,
+    required this.coverWidth,
+  });
+
+  final Book book;
+  final double coverHeight;
+  final double coverWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final onBackground = colorScheme.onBackground;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPress: () => _handleLongPress(context),
+      onTap: () => _handleTap(context),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BookCover(url: book.cover, height: coverHeight, width: coverWidth),
+          const SizedBox(height: 8),
+          Text(
+            book.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 14, height: 1.2),
+          ),
+          Text(
+            _buildSubtitle() ?? '',
+            style: TextStyle(
+              fontSize: 12,
+              height: 1.2,
+              color: onBackground.withOpacity(0.5),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleLongPress(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('移出书架'),
+          content: const Text('确认将本书移出书架？'),
+          actions: [
+            TextButton(
+              onPressed: () => cancel(context),
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () => confirm(context),
+              child: const Text('确认'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void cancel(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
+  void confirm(BuildContext context) async {
+    final ref = context.ref;
+    final navigator = Navigator.of(context);
+    await isar.writeTxn(() async {
+      await isar.books.delete(book.id);
+    });
+    navigator.pop();
+    final books = await isar.books.where().findAll();
+    books.sort((a, b) {
+      final first = PinyinHelper.getPinyin(a.name);
+      final second = PinyinHelper.getPinyin(b.name);
+      return first.compareTo(second);
+    });
+    ref.set(booksCreator, books);
+  }
+
+  void _handleTap(BuildContext context) async {
+    final ref = context.ref;
+    final router = GoRouter.of(context);
+    ref.set(currentBookCreator, book);
+    router.push('/book-reader');
+  }
+
+  int _calculateUnreadChapters() {
+    final chapters = book.chapters.length;
+    final current = book.index;
+    return chapters - current - 1;
+  }
+
+  String? _buildSubtitle() {
+    final spans = <String>[];
+    final chapters = _calculateUnreadChapters();
+    if (chapters > 0) {
+      spans.add('$chapters章未读');
+    } else if (chapters == 0) {
+      spans.add('已读完');
+    } else {
+      spans.add('未找到章节');
     }
     return spans.isNotEmpty ? spans.join(' · ') : null;
   }
