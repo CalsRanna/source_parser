@@ -41,9 +41,13 @@ class _ExploreViewState extends State<ExploreView> {
         final result = results[i];
         if (result.layout == 'banner') {
           children.add(_ExploreBanner(books: result.books));
-        } else {
+        } else if (result.layout == 'card') {
           children.add(
             _ExploreCard(books: result.books, title: result.title),
+          );
+        } else {
+          children.add(
+            _ExploreGrid(books: result.books, title: result.title),
           );
         }
         if (i < results.length - 1) {
@@ -279,5 +283,136 @@ class _ExploreTile extends StatelessWidget {
       spans.add(book.words);
     }
     return spans.isNotEmpty ? spans.join(' · ') : null;
+  }
+}
+
+class _ExploreGrid extends StatelessWidget {
+  const _ExploreGrid({required this.books, required this.title});
+
+  final List<Book> books;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final background = colorScheme.background;
+    final shadow = colorScheme.shadow;
+    final textTheme = theme.textTheme;
+    final titleMedium = textTheme.titleMedium;
+    final itemCount = min(books.length, 4);
+    final mediaQueryData = MediaQuery.of(context);
+    final width = mediaQueryData.size.width;
+    final widthPerBookCover = ((width - 16 * 4 - 8 * 3) / 4);
+    final heightPerBookCover = widthPerBookCover * 4 / 3;
+    const heightPerBookName = 14 * 1.2 * 2 + 1; // extra 1 for line gap
+    final heightPerBook = heightPerBookCover + heightPerBookName + 8;
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 16,
+            color: shadow.withOpacity(0.05),
+            offset: const Offset(8, 8),
+          ),
+        ],
+        color: background,
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      child: Column(children: [
+        Row(
+          children: [
+            Text(title, style: titleMedium),
+            const Spacer(),
+            OutlinedButton(
+              style: const ButtonStyle(
+                minimumSize: MaterialStatePropertyAll(Size.zero),
+                padding: MaterialStatePropertyAll(
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                ),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: () => handleTap(context),
+              child: const Text('更多'),
+            )
+          ],
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: heightPerBook + 1,
+          child: GridView.custom(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              childAspectRatio: widthPerBookCover / heightPerBook,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+            ),
+            childrenDelegate: SliverChildBuilderDelegate(
+              (context, index) {
+                return _ExploreGridTile(book: books[index]);
+              },
+              childCount: itemCount,
+            ),
+            physics: const NeverScrollableScrollPhysics(),
+          ),
+        )
+      ]),
+    );
+  }
+
+  void handleTap(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+      return ExploreListPage(books: books, title: title);
+    }));
+  }
+}
+
+class _ExploreGridTile extends StatelessWidget {
+  const _ExploreGridTile({required this.book});
+
+  final Book book;
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQueryData = MediaQuery.of(context);
+    final width = mediaQueryData.size.width;
+    final widthPerBookCover = ((width - 16 * 4 - 8 * 3) / 4);
+    final heightPerBookCover = widthPerBookCover * 4 / 3;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final bodyMedium = textTheme.bodyMedium;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => handleTap(context),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BookCover(
+            url: book.cover,
+            height: heightPerBookCover,
+            width: widthPerBookCover,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            book.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: bodyMedium?.copyWith(fontSize: 14),
+            strutStyle: const StrutStyle(
+              fontSize: 14,
+              height: 1.2,
+              forceStrutHeight: true,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void handleTap(BuildContext context) {
+    context.ref.set(currentBookCreator, book);
+    context.push('/book-information');
   }
 }
