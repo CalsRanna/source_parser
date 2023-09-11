@@ -15,6 +15,8 @@ class Setting {
   bool debugMode = false;
   @Name('explore_source')
   int exploreSource = 0;
+  @Name('font_size')
+  int fontSize = 18;
   @Name('line_space')
   double lineSpace = 1.0 + 0.618 * 2;
 }

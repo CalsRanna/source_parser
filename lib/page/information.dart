@@ -297,11 +297,15 @@ class _IntroductionState extends State<_Introduction> {
                     widget.book.status.isNotEmpty)
                   const SizedBox(height: 16),
                 GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: handleTap,
-                  child: Text(
-                    introduction,
-                    maxLines: expanded ? null : 4,
-                    overflow: expanded ? null : TextOverflow.ellipsis,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Text(
+                      introduction,
+                      maxLines: expanded ? null : 4,
+                      overflow: expanded ? null : TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ],

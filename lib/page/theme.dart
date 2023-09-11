@@ -10,6 +10,9 @@ class ReaderTheme extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final bodyLarge = textTheme.bodyLarge;
     return Scaffold(
       appBar: AppBar(
         title: const Text('阅读主题'),
@@ -19,29 +22,56 @@ class ReaderTheme extends StatelessWidget {
         children: [
           Watcher((context, ref, child) {
             final lineSpace = ref.watch(lineSpaceCreator);
-
-            return Row(
-              children: [
-                const Text('行间距'),
-                const Spacer(),
-                _LineSpaceTile(
-                  active: lineSpace == 1.0 + 0.618 * 3,
-                  label: '较大',
-                  onTap: () => updateLineSpace(context, 1.0 + 0.618 * 3),
-                ),
-                const SizedBox(width: 8),
-                _LineSpaceTile(
-                  active: lineSpace == 1.0 + 0.618 * 2,
-                  label: '适中',
-                  onTap: () => updateLineSpace(context, 1.0 + 0.618 * 2),
-                ),
-                const SizedBox(width: 8),
-                _LineSpaceTile(
-                  active: lineSpace == 1.0 + 0.618 * 1,
-                  label: '较小',
-                  onTap: () => updateLineSpace(context, 1.0 + 0.618 * 1),
-                ),
-              ],
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  Text('行间距', style: bodyLarge),
+                  const Spacer(),
+                  _LineSpaceTile(
+                    active: lineSpace == 1.0 + 0.618 * 3,
+                    label: '较大',
+                    onTap: () => updateLineSpace(context, 1.0 + 0.618 * 3),
+                  ),
+                  const SizedBox(width: 8),
+                  _LineSpaceTile(
+                    active: lineSpace == 1.0 + 0.618 * 2,
+                    label: '适中',
+                    onTap: () => updateLineSpace(context, 1.0 + 0.618 * 2),
+                  ),
+                  const SizedBox(width: 8),
+                  _LineSpaceTile(
+                    active: lineSpace == 1.0 + 0.618 * 1,
+                    label: '较小',
+                    onTap: () => updateLineSpace(context, 1.0 + 0.618 * 1),
+                  ),
+                ],
+              ),
+            );
+          }),
+          Watcher((context, ref, child) {
+            final fontSize = ref.watch(fontSizeCreator);
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  Text('字号', style: bodyLarge),
+                  const Spacer(),
+                  _LineSpaceTile(
+                    label: 'A-',
+                    onTap: () => updateFontSize(context, -1),
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    width: 40,
+                    child: Text(fontSize.toString()),
+                  ),
+                  _LineSpaceTile(
+                    label: 'A+',
+                    onTap: () => updateFontSize(context, 1),
+                  ),
+                ],
+              ),
             );
           }),
         ],
@@ -58,6 +88,13 @@ class ReaderTheme extends StatelessWidget {
         isar.settings.put(setting);
       });
     }
+  }
+
+  void updateFontSize(BuildContext context, int step) async {
+    final ref = context.ref;
+    var fontSize = ref.watch(fontSizeCreator);
+    fontSize = (fontSize + step).clamp(12, 48);
+    ref.set(fontSizeCreator, fontSize);
   }
 }
 

@@ -119,7 +119,11 @@ class _CataloguePageState extends State<CataloguePage> {
     if (!atTop) {
       position = controller.position.minScrollExtent;
     }
-    controller.jumpTo(position);
+    controller.animateTo(
+      position,
+      curve: Curves.linear,
+      duration: const Duration(milliseconds: 200),
+    );
     setState(() {
       atTop = !atTop;
     });

@@ -2,6 +2,8 @@ import 'package:creator/creator.dart';
 
 final darkModeCreator = Creator.value(false, keepAlive: true, name: 'darkMode');
 
+final fontSizeCreator = Creator.value(18, keepAlive: true, name: 'fontSize');
+
 final lineSpaceCreator = Creator.value(
   1.0 + 0.618 * 2,
   keepAlive: true,

@@ -47,8 +47,12 @@ class _ReaderState extends State<Reader> {
       }
       var theme = ReaderTheme();
       final lineSpace = ref.watch(lineSpaceCreator);
+      final fontSize = ref.watch(fontSizeCreator);
       theme = theme.copyWith(
-        pageStyle: theme.pageStyle.copyWith(height: lineSpace),
+        pageStyle: theme.pageStyle.copyWith(
+          fontSize: fontSize.toDouble(),
+          height: lineSpace,
+        ),
       );
       if (darkMode) {
         final scheme = Theme.of(context).colorScheme;

@@ -60,10 +60,14 @@ class _SourceParserState extends State<SourceParser> {
     if (setting.lineSpace.isNaN) {
       setting.lineSpace = 1.0 + 0.618 * 2;
     }
+    if (setting.fontSize.isNegative) {
+      setting.fontSize = 18;
+    }
     await isar.writeTxn(() async {
       await isar.settings.put(setting!);
     });
     ref.set(darkModeCreator, setting.darkMode);
+    ref.set(fontSizeCreator, setting.fontSize);
     ref.set(lineSpaceCreator, setting.lineSpace);
     ref.set(exploreSourceCreator, setting.exploreSource);
   }

@@ -37,8 +37,13 @@ const SettingSchema = CollectionSchema(
       name: r'explore_source',
       type: IsarType.long,
     ),
-    r'line_space': PropertySchema(
+    r'font_size': PropertySchema(
       id: 4,
+      name: r'font_size',
+      type: IsarType.long,
+    ),
+    r'line_space': PropertySchema(
+      id: 5,
       name: r'line_space',
       type: IsarType.double,
     )
@@ -76,7 +81,8 @@ void _settingSerialize(
   writer.writeBool(offsets[1], object.darkMode);
   writer.writeBool(offsets[2], object.debugMode);
   writer.writeLong(offsets[3], object.exploreSource);
-  writer.writeDouble(offsets[4], object.lineSpace);
+  writer.writeLong(offsets[4], object.fontSize);
+  writer.writeDouble(offsets[5], object.lineSpace);
 }
 
 Setting _settingDeserialize(
@@ -90,8 +96,9 @@ Setting _settingDeserialize(
   object.darkMode = reader.readBool(offsets[1]);
   object.debugMode = reader.readBool(offsets[2]);
   object.exploreSource = reader.readLong(offsets[3]);
+  object.fontSize = reader.readLong(offsets[4]);
   object.id = id;
-  object.lineSpace = reader.readDouble(offsets[4]);
+  object.lineSpace = reader.readDouble(offsets[5]);
   return object;
 }
 
@@ -111,6 +118,8 @@ P _settingDeserializeProp<P>(
     case 3:
       return (reader.readLong(offset)) as P;
     case 4:
+      return (reader.readLong(offset)) as P;
+    case 5:
       return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -333,6 +342,59 @@ extension SettingQueryFilter
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> fontSizeEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'font_size',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> fontSizeGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'font_size',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> fontSizeLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'font_size',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> fontSizeBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'font_size',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -503,6 +565,18 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByFontSize() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'font_size', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByFontSizeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'font_size', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByLineSpace() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'line_space', Sort.asc);
@@ -566,6 +640,18 @@ extension SettingQuerySortThenBy
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByFontSize() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'font_size', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByFontSizeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'font_size', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -617,6 +703,12 @@ extension SettingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Setting, Setting, QDistinct> distinctByFontSize() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'font_size');
+    });
+  }
+
   QueryBuilder<Setting, Setting, QDistinct> distinctByLineSpace() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'line_space');
@@ -653,6 +745,12 @@ extension SettingQueryProperty
   QueryBuilder<Setting, int, QQueryOperations> exploreSourceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'explore_source');
+    });
+  }
+
+  QueryBuilder<Setting, int, QQueryOperations> fontSizeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'font_size');
     });
   }
 
