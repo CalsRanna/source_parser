@@ -95,6 +95,13 @@ class ReaderTheme extends StatelessWidget {
     var fontSize = ref.watch(fontSizeCreator);
     fontSize = (fontSize + step).clamp(12, 48);
     ref.set(fontSizeCreator, fontSize);
+    var setting = await isar.settings.where().findFirst();
+    if (setting != null) {
+      setting.fontSize = fontSize;
+      await isar.writeTxn(() async {
+        isar.settings.put(setting);
+      });
+    }
   }
 }
 

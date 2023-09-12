@@ -67,6 +67,14 @@ class _ReaderState extends State<Reader> {
           pageStyle: theme.pageStyle.copyWith(color: scheme.onBackground),
         );
       }
+      List<PageTurningMode> modes = [];
+      final turningMode = ref.watch(turningModeCreator);
+      if (turningMode & 1 != 0) {
+        modes.add(PageTurningMode.drag);
+      }
+      if (turningMode & 2 != 0) {
+        modes.add(PageTurningMode.tap);
+      }
 
       return BookReader(
         author: book.author,
@@ -75,6 +83,7 @@ class _ReaderState extends State<Reader> {
         darkMode: darkMode,
         future: getContent,
         index: index,
+        modes: modes,
         name: book.name,
         theme: theme,
         title: book.chapters.elementAt(index).name,

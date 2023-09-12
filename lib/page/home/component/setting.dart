@@ -31,11 +31,6 @@ class SettingView extends StatelessWidget {
                 route: '/book-source',
                 title: '书源管理',
               ),
-              SettingTile(
-                icon: Icons.format_color_text_outlined,
-                route: '/reader-theme',
-                title: '阅读主题',
-              ),
             ],
           ),
         ),
@@ -65,6 +60,16 @@ class SettingView extends StatelessWidget {
             elevation: 0,
             child: Column(
               children: [
+                const SettingTile(
+                  icon: Icons.format_color_text_outlined,
+                  route: '/reader-theme',
+                  title: '阅读主题',
+                ),
+                SettingTile(
+                  icon: Icons.auto_stories_outlined,
+                  title: '翻页方式',
+                  onTap: () => updateTurningMode(context),
+                ),
                 Watcher((context, ref, child) {
                   final eInkMode = ref.watch(eInkModeCreator);
                   return ListTile(
@@ -78,7 +83,7 @@ class SettingView extends StatelessWidget {
                       onChanged: (value) => updateEInkMode(context, value),
                     ),
                   );
-                })
+                }),
               ],
             ),
           ),
@@ -121,6 +126,54 @@ class SettingView extends StatelessWidget {
     var setting = await builder.findFirst();
     if (setting != null) {
       setting.eInkMode = value;
+      await isar.writeTxn(() async {
+        await isar.settings.put(setting);
+      });
+    }
+  }
+
+  void updateTurningMode(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Watcher((context, ref, child) {
+          final turningMode = ref.watch(turningModeCreator);
+          const checked = Icon(Icons.check);
+          return SizedBox(
+            height: 112,
+            child: Column(
+              children: [
+                ListTile(
+                  title: const Text('滑动翻页'),
+                  trailing: turningMode & 1 != 0 ? checked : null,
+                  onTap: () => confirmUpdateTurningMode(context, 1),
+                ),
+                ListTile(
+                  title: const Text('点击翻页'),
+                  trailing: turningMode & 2 != 0 ? checked : null,
+                  onTap: () => confirmUpdateTurningMode(context, 2),
+                ),
+              ],
+            ),
+          );
+        });
+      },
+    );
+  }
+
+  void confirmUpdateTurningMode(BuildContext context, int value) async {
+    final ref = context.ref;
+    var turningMode = ref.read(turningModeCreator);
+    if (turningMode & value != 0) {
+      turningMode = turningMode - value;
+    } else {
+      turningMode = turningMode + value;
+    }
+    ref.set(turningModeCreator, turningMode);
+    final builder = isar.settings.where();
+    var setting = await builder.findFirst();
+    if (setting != null) {
+      setting.turningMode = turningMode;
       await isar.writeTxn(() async {
         await isar.settings.put(setting);
       });

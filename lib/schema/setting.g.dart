@@ -56,6 +56,11 @@ const SettingSchema = CollectionSchema(
       id: 7,
       name: r'shelf_mode',
       type: IsarType.string,
+    ),
+    r'turning_mode': PropertySchema(
+      id: 8,
+      name: r'turning_mode',
+      type: IsarType.long,
     )
   },
   estimateSize: _settingEstimateSize,
@@ -96,6 +101,7 @@ void _settingSerialize(
   writer.writeLong(offsets[5], object.fontSize);
   writer.writeDouble(offsets[6], object.lineSpace);
   writer.writeString(offsets[7], object.shelfMode);
+  writer.writeLong(offsets[8], object.turningMode);
 }
 
 Setting _settingDeserialize(
@@ -114,6 +120,7 @@ Setting _settingDeserialize(
   object.id = id;
   object.lineSpace = reader.readDouble(offsets[6]);
   object.shelfMode = reader.readString(offsets[7]);
+  object.turningMode = reader.readLong(offsets[8]);
   return object;
 }
 
@@ -140,6 +147,8 @@ P _settingDeserializeProp<P>(
       return (reader.readDouble(offset)) as P;
     case 7:
       return (reader.readString(offset)) as P;
+    case 8:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -667,6 +676,59 @@ extension SettingQueryFilter
       ));
     });
   }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> turningModeEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'turning_mode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> turningModeGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'turning_mode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> turningModeLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'turning_mode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> turningModeBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'turning_mode',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension SettingQueryObject
@@ -769,6 +831,18 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByShelfModeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shelf_mode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByTurningMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'turning_mode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByTurningModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'turning_mode', Sort.desc);
     });
   }
 }
@@ -882,6 +956,18 @@ extension SettingQuerySortThenBy
       return query.addSortBy(r'shelf_mode', Sort.desc);
     });
   }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByTurningMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'turning_mode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByTurningModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'turning_mode', Sort.desc);
+    });
+  }
 }
 
 extension SettingQueryWhereDistinct
@@ -932,6 +1018,12 @@ extension SettingQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'shelf_mode', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QDistinct> distinctByTurningMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'turning_mode');
     });
   }
 }
@@ -989,6 +1081,12 @@ extension SettingQueryProperty
   QueryBuilder<Setting, String, QQueryOperations> shelfModeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'shelf_mode');
+    });
+  }
+
+  QueryBuilder<Setting, int, QQueryOperations> turningModeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'turning_mode');
     });
   }
 }

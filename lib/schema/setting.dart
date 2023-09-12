@@ -23,4 +23,6 @@ class Setting {
   double lineSpace = 1.0 + 0.618 * 2;
   @Name('shelf_mode')
   String shelfMode = 'list';
+  @Name('turning_mode')
+  int turningMode = 3;
 }

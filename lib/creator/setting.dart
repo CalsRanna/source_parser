@@ -23,3 +23,8 @@ final shelfModeCreator = Creator.value(
   keepAlive: true,
   name: 'shelfMode',
 );
+final turningModeCreator = Creator.value(
+  3,
+  keepAlive: true,
+  name: 'turningModeCreator',
+);

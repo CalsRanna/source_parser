@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  book_reader: ^0.1.1
+  book_reader: ^0.1.4
   # book_reader:
   #   path: ../book_reader
   cached_network: ^1.0.5
