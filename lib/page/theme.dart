@@ -28,19 +28,19 @@ class ReaderTheme extends StatelessWidget {
                 children: [
                   Text('行间距', style: bodyLarge),
                   const Spacer(),
-                  _LineSpaceTile(
+                  _ThemeTile(
                     active: lineSpace == 1.0 + 0.618 * 3,
                     label: '较大',
                     onTap: () => updateLineSpace(context, 1.0 + 0.618 * 3),
                   ),
                   const SizedBox(width: 8),
-                  _LineSpaceTile(
+                  _ThemeTile(
                     active: lineSpace == 1.0 + 0.618 * 2,
                     label: '适中',
                     onTap: () => updateLineSpace(context, 1.0 + 0.618 * 2),
                   ),
                   const SizedBox(width: 8),
-                  _LineSpaceTile(
+                  _ThemeTile(
                     active: lineSpace == 1.0 + 0.618 * 1,
                     label: '较小',
                     onTap: () => updateLineSpace(context, 1.0 + 0.618 * 1),
@@ -57,7 +57,7 @@ class ReaderTheme extends StatelessWidget {
                 children: [
                   Text('字号', style: bodyLarge),
                   const Spacer(),
-                  _LineSpaceTile(
+                  _ThemeTile(
                     label: 'A-',
                     onTap: () => updateFontSize(context, -1),
                   ),
@@ -66,7 +66,7 @@ class ReaderTheme extends StatelessWidget {
                     width: 40,
                     child: Text(fontSize.toString()),
                   ),
-                  _LineSpaceTile(
+                  _ThemeTile(
                     label: 'A+',
                     onTap: () => updateFontSize(context, 1),
                   ),
@@ -98,8 +98,8 @@ class ReaderTheme extends StatelessWidget {
   }
 }
 
-class _LineSpaceTile extends StatelessWidget {
-  const _LineSpaceTile({
+class _ThemeTile extends StatelessWidget {
+  const _ThemeTile({
     this.active = false,
     required this.label,
     this.onTap,

@@ -45,10 +45,10 @@ packages:
     dependency: "direct main"
     description:
       name: book_reader
-      sha256: "7a5488e904024aff33d9d427f0f655d77f847b6adf5e63df47149272bcce5739"
+      sha256: "6c41bf790e841380f3a18f8f7d2361716ca5a28d4efd7c97cdfb86ced7b360ff"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.23"
+    version: "0.1.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -321,6 +321,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0"
+  file_picker:
+    dependency: "direct main"
+    description:
+      name: file_picker
+      sha256: be325344c1f3070354a1d84a231a1ba75ea85d413774ec4bdf444c023342e030
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.5.0"
   fixnum:
     dependency: transitive
     description:
@@ -334,6 +342,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_android_volume_keydown:
+    dependency: "direct main"
+    description:
+      name: flutter_android_volume_keydown
+      sha256: f07fa3e4362262ccf32be6522c8445cbac5a046c18f82c8bd7ba11391d057e9a
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   flutter_blurhash:
     dependency: transitive
     description:
@@ -374,6 +390,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      sha256: f185ac890306b5779ecbd611f52502d8d4d63d27703ef73161ca0407e815f02c
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.16"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -1007,4 +1031,4 @@ packages:
     version: "3.1.2"
 sdks:
   dart: ">=3.1.0-185.0.dev <4.0.0"
-  flutter: ">=3.3.0"
+  flutter: ">=3.7.0"

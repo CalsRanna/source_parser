@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:creator/creator.dart';
 import 'package:creator_watcher/creator_watcher.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
@@ -54,13 +57,37 @@ class BookSourceList extends StatelessWidget {
   void importSource(BuildContext context) async {
     showModalBottomSheet(
       context: context,
+      builder: (_) {
+        return ListView(children: [
+          ListTile(
+            title: const Text('网络导入'),
+            onTap: () => importNetworkSource(context),
+          ),
+          ListTile(
+            title: const Text('本地导入'),
+            onTap: () => importLocalSource(context),
+          ),
+        ]);
+      },
+    );
+  }
+
+  void importNetworkSource(BuildContext context) async {
+    final router = GoRouter.of(context);
+    router.pop();
+    showModalBottomSheet(
+      context: context,
       builder: (_) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
             TextField(
               decoration: const InputDecoration(hintText: '导入网络书源'),
-              onSubmitted: (value) => confirmImporting(context, value),
+              onSubmitted: (value) => confirmImporting(
+                context,
+                value,
+                from: 'network',
+              ),
             ),
             const SizedBox(height: 8),
             const SelectableText('目前仅支持GitHub仓库中文件的原始地址。'),
@@ -68,11 +95,27 @@ class BookSourceList extends StatelessWidget {
         ),
       ),
     );
+    router.pop();
   }
 
-  void confirmImporting(BuildContext context, String value) async {
-    final router = Navigator.of(context);
+  void importLocalSource(BuildContext context) async {
+    final router = GoRouter.of(context);
     router.pop();
+    final result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      final file = File(result.files.single.path!);
+      final content = await file.readAsString();
+      // ignore: use_build_context_synchronously
+      confirmImporting(context, content, from: 'local');
+    }
+  }
+
+  void confirmImporting(
+    BuildContext context,
+    String value, {
+    String from = 'local',
+  }) async {
+    final router = Navigator.of(context);
     showDialog(
       barrierDismissible: false,
       builder: (_) {
@@ -98,7 +141,12 @@ class BookSourceList extends StatelessWidget {
     );
     final message = Message.of(context);
     try {
-      var sources = await Parser.importNetworkSource(value);
+      List<Source> sources;
+      if (from == 'network') {
+        sources = await Parser.importNetworkSource(value);
+      } else {
+        sources = await Parser.importLocalSource(value);
+      }
       final sourcesInDatabase = await isar.sources.where().findAll();
       List<Source> newSources = [];
       List<Source> oldSources = [];

@@ -585,4 +585,17 @@ class Parser {
     }
     return sources;
   }
+
+  static Future<List<Source>> importLocalSource(String value) async {
+    final json = jsonDecode(value);
+    List<Source> sources = [];
+    if (json is List) {
+      for (var element in json) {
+        sources.add(Source.fromJson(element));
+      }
+    } else {
+      sources.add(Source.fromJson(json));
+    }
+    return sources;
+  }
 }
