@@ -13,6 +13,8 @@ class Setting {
   bool darkMode = false;
   @Name('debug_mode')
   bool debugMode = false;
+  @Name('e_ink_mode')
+  bool eInkMode = false;
   @Name('explore_source')
   int exploreSource = 0;
   @Name('font_size')

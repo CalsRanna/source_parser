@@ -13,6 +13,7 @@ import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
+import 'package:source_parser/widget/loading.dart';
 
 class BookInformation extends StatefulWidget {
   const BookInformation({super.key});
@@ -391,9 +392,7 @@ class _Catalogue extends StatelessWidget {
               if (loading && book.chapters.isEmpty)
                 const SizedBox.square(
                   dimension: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                  ),
+                  child: LoadingIndicator(strokeWidth: 2),
                 ),
               if (!loading || book.chapters.isNotEmpty) ...[
                 Text(
@@ -512,9 +511,7 @@ class __CoverSelectorState extends State<_CoverSelector> {
   @override
   Widget build(BuildContext context) {
     if (loading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: LoadingIndicator());
     }
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

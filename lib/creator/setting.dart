@@ -10,6 +10,8 @@ final lineSpaceCreator = Creator.value(
   name: 'lineSpaceCreator',
 );
 
+final eInkModeCreator = Creator.value(false, keepAlive: true, name: 'eInkMode');
+
 final exploreSourceCreator = Creator.value(
   0,
   keepAlive: true,

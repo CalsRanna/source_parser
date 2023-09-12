@@ -9,6 +9,7 @@ import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/parser.dart';
+import 'package:source_parser/widget/loading.dart';
 
 class AvailableSources extends StatefulWidget {
   const AvailableSources({super.key});
@@ -139,7 +140,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
+                  LoadingIndicator(),
                   SizedBox(height: 16),
                   Text('正在加载'),
                 ],

@@ -1,6 +1,13 @@
+import 'dart:io';
+
 import 'package:cached_network/cached_network.dart';
+import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:isar/isar.dart';
+import 'package:source_parser/creator/setting.dart';
+import 'package:source_parser/schema/isar.dart';
+import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
 
 class SettingView extends StatelessWidget {
@@ -51,6 +58,30 @@ class SettingView extends StatelessWidget {
         //     ],
         //   ),
         // ),
+        if (Platform.isAndroid) const SizedBox(height: 8),
+        if (Platform.isAndroid)
+          Card(
+            color: surfaceVariant,
+            elevation: 0,
+            child: Column(
+              children: [
+                Watcher((context, ref, child) {
+                  final eInkMode = ref.watch(eInkModeCreator);
+                  return ListTile(
+                    leading: Icon(
+                      Icons.chrome_reader_mode_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: const Text('墨水屏模式'),
+                    trailing: Switch(
+                      value: eInkMode,
+                      onChanged: (value) => updateEInkMode(context, value),
+                    ),
+                  );
+                })
+              ],
+            ),
+          ),
         const SizedBox(height: 8),
         Card(
           color: surfaceVariant,
@@ -82,6 +113,18 @@ class SettingView extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void updateEInkMode(BuildContext context, bool value) async {
+    context.ref.set(eInkModeCreator, value);
+    final builder = isar.settings.where();
+    var setting = await builder.findFirst();
+    if (setting != null) {
+      setting.eInkMode = value;
+      await isar.writeTxn(() async {
+        await isar.settings.put(setting);
+      });
+    }
   }
 
   void clearCache(BuildContext context) async {

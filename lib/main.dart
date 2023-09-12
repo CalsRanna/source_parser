@@ -41,11 +41,16 @@ class _SourceParserState extends State<SourceParser> {
   Widget build(BuildContext context) {
     return Watcher((context, ref, child) {
       final darkMode = ref.watch(darkModeCreator);
-
+      final eInkMode = ref.watch(eInkModeCreator);
+      final pageTransitionsTheme = PageTransitionsTheme(
+        builders: {TargetPlatform.android: NoAnimationPageTransitionBuilder()},
+      );
       return MaterialApp.router(
         routerConfig: router,
         theme: ThemeData(
           brightness: darkMode ? Brightness.dark : Brightness.light,
+          pageTransitionsTheme: eInkMode ? pageTransitionsTheme : null,
+          splashFactory: eInkMode ? NoSplash.splashFactory : null,
           useMaterial3: true,
         ),
         title: '元夕',
@@ -70,9 +75,23 @@ class _SourceParserState extends State<SourceParser> {
       await isar.settings.put(setting!);
     });
     ref.set(darkModeCreator, setting.darkMode);
+    ref.set(eInkModeCreator, setting.eInkMode);
     ref.set(fontSizeCreator, setting.fontSize);
     ref.set(lineSpaceCreator, setting.lineSpace);
     ref.set(exploreSourceCreator, setting.exploreSource);
     ref.set(shelfModeCreator, setting.shelfMode);
+  }
+}
+
+class NoAnimationPageTransitionBuilder extends PageTransitionsBuilder {
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return child;
   }
 }

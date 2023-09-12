@@ -11,6 +11,7 @@ import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/parser.dart';
+import 'package:source_parser/widget/loading.dart';
 
 class BookSourceList extends StatelessWidget {
   const BookSourceList({Key? key}) : super(key: key);
@@ -95,7 +96,7 @@ class BookSourceList extends StatelessWidget {
         ),
       ),
     );
-    router.pop();
+    // router.pop();
   }
 
   void importLocalSource(BuildContext context) async {
@@ -116,6 +117,9 @@ class BookSourceList extends StatelessWidget {
     String from = 'local',
   }) async {
     final router = Navigator.of(context);
+    if (from == 'network') {
+      router.pop();
+    }
     showDialog(
       barrierDismissible: false,
       builder: (_) {
@@ -128,7 +132,7 @@ class BookSourceList extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
+                  LoadingIndicator(),
                   SizedBox(height: 16),
                   Text('正在加载'),
                 ],

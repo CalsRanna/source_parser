@@ -8,6 +8,7 @@ import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/plain_string.dart';
 import 'package:source_parser/util/message.dart';
+import 'package:source_parser/widget/loading.dart';
 
 class BookSourceDebug extends StatefulWidget {
   const BookSourceDebug({Key? key}) : super(key: key);
@@ -43,7 +44,7 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
       final map = e.toJson();
       return _remove(map, ['id']);
     }).toList();
-    Widget child = const Center(child: CircularProgressIndicator());
+    Widget child = const Center(child: LoadingIndicator());
     if (!loading) {
       child = ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),

@@ -16,6 +16,7 @@ import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
+import 'package:source_parser/widget/loading.dart';
 
 class ExploreView extends StatefulWidget {
   const ExploreView({super.key});
@@ -31,7 +32,7 @@ class _ExploreViewState extends State<ExploreView> {
       final loading = ref.watch(exploreLoadingCreator);
       final results = ref.watch(exploreBooksCreator);
       if (loading) {
-        return const Center(child: CircularProgressIndicator());
+        return const Center(child: LoadingIndicator());
       }
       if (results.isEmpty) {
         return const Center(child: Text('空空如也'));

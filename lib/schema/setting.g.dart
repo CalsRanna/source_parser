@@ -32,23 +32,28 @@ const SettingSchema = CollectionSchema(
       name: r'debug_mode',
       type: IsarType.bool,
     ),
-    r'explore_source': PropertySchema(
+    r'e_ink_mode': PropertySchema(
       id: 3,
+      name: r'e_ink_mode',
+      type: IsarType.bool,
+    ),
+    r'explore_source': PropertySchema(
+      id: 4,
       name: r'explore_source',
       type: IsarType.long,
     ),
     r'font_size': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'font_size',
       type: IsarType.long,
     ),
     r'line_space': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'line_space',
       type: IsarType.double,
     ),
     r'shelf_mode': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'shelf_mode',
       type: IsarType.string,
     )
@@ -86,10 +91,11 @@ void _settingSerialize(
   writer.writeLong(offsets[0], object.colorSeed);
   writer.writeBool(offsets[1], object.darkMode);
   writer.writeBool(offsets[2], object.debugMode);
-  writer.writeLong(offsets[3], object.exploreSource);
-  writer.writeLong(offsets[4], object.fontSize);
-  writer.writeDouble(offsets[5], object.lineSpace);
-  writer.writeString(offsets[6], object.shelfMode);
+  writer.writeBool(offsets[3], object.eInkMode);
+  writer.writeLong(offsets[4], object.exploreSource);
+  writer.writeLong(offsets[5], object.fontSize);
+  writer.writeDouble(offsets[6], object.lineSpace);
+  writer.writeString(offsets[7], object.shelfMode);
 }
 
 Setting _settingDeserialize(
@@ -102,11 +108,12 @@ Setting _settingDeserialize(
   object.colorSeed = reader.readLong(offsets[0]);
   object.darkMode = reader.readBool(offsets[1]);
   object.debugMode = reader.readBool(offsets[2]);
-  object.exploreSource = reader.readLong(offsets[3]);
-  object.fontSize = reader.readLong(offsets[4]);
+  object.eInkMode = reader.readBool(offsets[3]);
+  object.exploreSource = reader.readLong(offsets[4]);
+  object.fontSize = reader.readLong(offsets[5]);
   object.id = id;
-  object.lineSpace = reader.readDouble(offsets[5]);
-  object.shelfMode = reader.readString(offsets[6]);
+  object.lineSpace = reader.readDouble(offsets[6]);
+  object.shelfMode = reader.readString(offsets[7]);
   return object;
 }
 
@@ -124,12 +131,14 @@ P _settingDeserializeProp<P>(
     case 2:
       return (reader.readBool(offset)) as P;
     case 3:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 4:
       return (reader.readLong(offset)) as P;
     case 5:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 6:
+      return (reader.readDouble(offset)) as P;
+    case 7:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -293,6 +302,16 @@ extension SettingQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'debug_mode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> eInkModeEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'e_ink_mode',
         value: value,
       ));
     });
@@ -693,6 +712,18 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByEInkMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'e_ink_mode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByEInkModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'e_ink_mode', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByExploreSource() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'explore_source', Sort.asc);
@@ -780,6 +811,18 @@ extension SettingQuerySortThenBy
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByEInkMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'e_ink_mode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByEInkModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'e_ink_mode', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> thenByExploreSource() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'explore_source', Sort.asc);
@@ -861,6 +904,12 @@ extension SettingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Setting, Setting, QDistinct> distinctByEInkMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'e_ink_mode');
+    });
+  }
+
   QueryBuilder<Setting, Setting, QDistinct> distinctByExploreSource() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'explore_source');
@@ -910,6 +959,12 @@ extension SettingQueryProperty
   QueryBuilder<Setting, bool, QQueryOperations> debugModeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'debug_mode');
+    });
+  }
+
+  QueryBuilder<Setting, bool, QQueryOperations> eInkModeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'e_ink_mode');
     });
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:source_parser/widget/loading.dart';
 
 class BookSourceImport extends StatefulWidget {
   const BookSourceImport({Key? key, required this.by}) : super(key: key);
@@ -46,7 +47,7 @@ class _InternetImportState extends State<_InternetImport> {
   Widget build(BuildContext context) {
     var controller = TextEditingController();
 
-    Widget body = const Center(child: CircularProgressIndicator());
+    Widget body = const Center(child: LoadingIndicator());
 
     if (!loading) {
       body = ListView(
