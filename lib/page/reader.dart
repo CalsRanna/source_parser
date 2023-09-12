@@ -48,7 +48,11 @@ class _ReaderState extends State<Reader> {
       var theme = ReaderTheme();
       final lineSpace = ref.watch(lineSpaceCreator);
       final fontSize = ref.watch(fontSizeCreator);
+      final mediaQueryData = MediaQuery.of(context);
+      final padding = mediaQueryData.padding;
       theme = theme.copyWith(
+        footerPadding: theme.footerPadding.copyWith(bottom: padding.bottom + 4),
+        headerPadding: theme.headerPadding.copyWith(top: padding.top + 4),
         pageStyle: theme.pageStyle.copyWith(
           fontSize: fontSize.toDouble(),
           height: lineSpace,
