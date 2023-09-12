@@ -12,6 +12,7 @@ import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/util/semaphore.dart';
 
 class Parser {
   static Future<List<Book>> topSearch() async {
@@ -41,12 +42,14 @@ class Parser {
     final network = CachedNetwork(cacheDirectory: cacheDirectory);
     var closed = 0;
     final controller = StreamController<Book>();
-    for (var i = 0; i < sources.length; i++) {
+    final semaphore = Semaphore(16);
+    for (var source in sources) {
+      await semaphore.acquire();
       final sender = ReceivePort();
       final receiver = ReceivePort();
       final isolate = await Isolate.spawn(_searchInIsolate, sender.sendPort);
       (await sender.first as SendPort).send(
-        [network, sources[i], credential, receiver.sendPort],
+        [network, source, credential, receiver.sendPort],
       );
       receiver.forEach((element) async {
         if (element is Book) {
@@ -54,6 +57,7 @@ class Parser {
         } else {
           isolate.kill();
           closed++;
+          semaphore.release();
           if (closed == sources.length) {
             controller.close();
           }
