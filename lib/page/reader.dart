@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:book_reader/book_reader.dart';
 import 'package:cached_network/cached_network.dart';
 import 'package:creator/creator.dart';
@@ -50,9 +52,11 @@ class _ReaderState extends State<Reader> {
       final fontSize = ref.watch(fontSizeCreator);
       final mediaQueryData = MediaQuery.of(context);
       final padding = mediaQueryData.padding;
+      final bottom = max(padding.bottom + 4, 16.0);
+      final top = max(padding.top + 4, 16.0);
       theme = theme.copyWith(
-        footerPadding: theme.footerPadding.copyWith(bottom: padding.bottom + 4),
-        headerPadding: theme.headerPadding.copyWith(top: padding.top + 4),
+        footerPadding: theme.footerPadding.copyWith(bottom: bottom),
+        headerPadding: theme.headerPadding.copyWith(top: top),
         pageStyle: theme.pageStyle.copyWith(
           fontSize: fontSize.toDouble(),
           height: lineSpace,
