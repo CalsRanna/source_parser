@@ -81,12 +81,14 @@ class _ReaderState extends State<Reader> {
       if (turningMode & 2 != 0) {
         modes.add(PageTurningMode.tap);
       }
+      final eInkMode = ref.watch(eInkModeCreator);
 
       return BookReader(
         author: book.author,
         cover: BookCover(height: 48, width: 36, url: book.cover),
         cursor: cursor,
         darkMode: darkMode,
+        eInkMode: eInkMode,
         future: getContent,
         index: index,
         modes: modes,
