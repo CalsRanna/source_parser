@@ -53,23 +53,23 @@ class SettingView extends StatelessWidget {
         //     ],
         //   ),
         // ),
-        if (Platform.isAndroid) const SizedBox(height: 8),
-        if (Platform.isAndroid)
-          Card(
-            color: surfaceVariant,
-            elevation: 0,
-            child: Column(
-              children: [
-                const SettingTile(
-                  icon: Icons.format_color_text_outlined,
-                  route: '/reader-theme',
-                  title: '阅读主题',
-                ),
-                SettingTile(
-                  icon: Icons.auto_stories_outlined,
-                  title: '翻页方式',
-                  onTap: () => updateTurningMode(context),
-                ),
+        const SizedBox(height: 8),
+        Card(
+          color: surfaceVariant,
+          elevation: 0,
+          child: Column(
+            children: [
+              const SettingTile(
+                icon: Icons.format_color_text_outlined,
+                route: '/reader-theme',
+                title: '阅读主题',
+              ),
+              SettingTile(
+                icon: Icons.auto_stories_outlined,
+                title: '翻页方式',
+                onTap: () => updateTurningMode(context),
+              ),
+              if (Platform.isAndroid)
                 Watcher((context, ref, child) {
                   final eInkMode = ref.watch(eInkModeCreator);
                   return ListTile(
@@ -84,9 +84,9 @@ class SettingView extends StatelessWidget {
                     ),
                   );
                 }),
-              ],
-            ),
+            ],
           ),
+        ),
         const SizedBox(height: 8),
         Card(
           color: surfaceVariant,

@@ -50,7 +50,7 @@
 ## 🔗 基础组件
 
 - [CalsRanna/book_reader](https://github.com/CalsRanna/book_reader)： 小说阅读器核心组件
-- [CalsRanna/html_parser_plus](https://github.com/CalsRanna/html_parser_plus)： 在 [html_parser](https://pub.dev/packages/http_parser) 基础上增加了更适用于书源解析的规则和函数
+- [CalsRanna/html_parser_plus](https://github.com/CalsRanna/html_parser_plus)： 用于书源解析,支持 xPath 和 jsonPath 语法，通过管道连接自定义函数
 
 ## 🔧 Building
 

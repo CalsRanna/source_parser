@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/router.dart';
+import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -37,6 +38,7 @@ class _BookInformationState extends State<BookInformation> {
   Widget build(BuildContext context) {
     return Watcher((context, ref, child) {
       final book = ref.watch(currentBookCreator);
+      final eInkMode = ref.watch(eInkModeCreator);
       return RefreshIndicator(
         onRefresh: getInformation,
         child: Scaffold(
@@ -61,7 +63,7 @@ class _BookInformationState extends State<BookInformation> {
                 delegate: SliverChildListDelegate([
                   _Introduction(book: book),
                   const SizedBox(height: 8),
-                  _Catalogue(book: book, loading: loading),
+                  _Catalogue(book: book, eInkMode: eInkMode, loading: loading),
                   const SizedBox(height: 8),
                   _Source(sources: book.sources),
                 ]),
@@ -368,9 +370,14 @@ class _Tag extends StatelessWidget {
 }
 
 class _Catalogue extends StatelessWidget {
-  const _Catalogue({required this.book, this.loading = false});
+  const _Catalogue({
+    required this.book,
+    this.eInkMode = false,
+    this.loading = false,
+  });
 
   final Book book;
+  final bool eInkMode;
   final bool loading;
 
   @override
@@ -390,9 +397,10 @@ class _Catalogue extends StatelessWidget {
               const Text('目录', style: boldTextStyle),
               const Spacer(),
               if (loading && book.chapters.isEmpty)
-                const SizedBox.square(
-                  dimension: 24,
-                  child: LoadingIndicator(strokeWidth: 2),
+                SizedBox(
+                  height: 24,
+                  width: eInkMode ? null : 24,
+                  child: const LoadingIndicator(strokeWidth: 2),
                 ),
               if (!loading || book.chapters.isNotEmpty) ...[
                 Text(
