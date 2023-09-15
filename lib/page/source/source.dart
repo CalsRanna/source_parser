@@ -183,12 +183,23 @@ class BookSourceList extends StatelessWidget {
               title: Text('发现${oldSources.length}个同名书源书源'),
               actions: [
                 TextButton(
-                  onPressed: () => handleImport(context, newSources),
+                  onPressed: () {
+                    handleImport(
+                      context,
+                      newSources,
+                      shouldPop: true,
+                    );
+                  },
                   child: const Text('保持原有'),
                 ),
                 TextButton(
                   onPressed: () {
-                    handleImport(context, newSources, oldSources);
+                    handleImport(
+                      context,
+                      newSources,
+                      oldSources: oldSources,
+                      shouldPop: true,
+                    );
                   },
                   child: const Text('直接覆盖'),
                 ),
@@ -198,7 +209,7 @@ class BookSourceList extends StatelessWidget {
         );
       } else {
         // ignore: use_build_context_synchronously
-        handleImport(context, newSources, oldSources);
+        handleImport(context, newSources, oldSources: oldSources);
       }
     } catch (error) {
       router.pop();
@@ -208,9 +219,10 @@ class BookSourceList extends StatelessWidget {
 
   void handleImport(
     BuildContext context,
-    List<Source> newSources, [
+    List<Source> newSources, {
     List<Source> oldSources = const [],
-  ]) async {
+    bool shouldPop = false,
+  }) async {
     final router = Navigator.of(context);
     final ref = context.ref;
     if (oldSources.isNotEmpty) {
@@ -232,7 +244,9 @@ class BookSourceList extends StatelessWidget {
     });
     final sources = await isar.sources.where().findAll();
     ref.emit(sourcesEmitter, sources);
-    router.pop();
+    if (shouldPop) {
+      router.pop();
+    }
   }
 
   void exportSource(BuildContext context) async {
@@ -292,7 +306,12 @@ class _SourceTile extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: onBackground),
-                child: Text(source.name, style: const TextStyle(fontSize: 16)),
+                child: Text.rich(
+                  TextSpan(text: source.name, children: [
+                    WidgetSpan(child: _SourceTag(source.comment))
+                  ]),
+                  style: const TextStyle(fontSize: 16),
+                ),
               ),
             ),
             IconTheme.merge(
@@ -314,5 +333,31 @@ class _SourceTile extends StatelessWidget {
 
   void handleTap() {
     onTap?.call(source.id);
+  }
+}
+
+class _SourceTag extends StatelessWidget {
+  const _SourceTag(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    if (label.isEmpty) {
+      return const SizedBox();
+    }
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final primary = colorScheme.primary;
+    final onPrimary = colorScheme.onPrimary;
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        color: primary.withOpacity(0.5),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: Text(label, style: TextStyle(fontSize: 12, color: onPrimary)),
+    );
   }
 }
