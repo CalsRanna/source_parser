@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:book_reader/book_reader.dart';
@@ -54,7 +55,12 @@ class _ReaderState extends State<Reader> {
       final fontSize = ref.watch(fontSizeCreator);
       final mediaQueryData = MediaQuery.of(context);
       final padding = mediaQueryData.padding;
-      final bottom = max(padding.bottom + 4, 16.0);
+      double bottom;
+      if (Platform.isAndroid) {
+        bottom = max(padding.bottom + 4, 16.0);
+      } else {
+        bottom = 20;
+      }
       final top = max(padding.top + 4, 16.0);
       theme = theme.copyWith(
         footerPadding: theme.footerPadding.copyWith(bottom: bottom),
