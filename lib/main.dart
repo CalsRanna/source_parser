@@ -49,6 +49,7 @@ class _SourceParserState extends State<SourceParser> {
         routerConfig: router,
         theme: ThemeData(
           brightness: darkMode ? Brightness.dark : Brightness.light,
+          colorSchemeSeed: const Color(0xFF63BBD0),
           pageTransitionsTheme: eInkMode ? pageTransitionsTheme : null,
           splashFactory: eInkMode ? NoSplash.splashFactory : null,
           useMaterial3: true,

@@ -88,7 +88,7 @@ class _ShelfViewState extends State<ShelfView> {
 }
 
 class _ShelfListView extends StatelessWidget {
-  const _ShelfListView({super.key, required this.books});
+  const _ShelfListView({required this.books});
 
   final List<Book> books;
 
