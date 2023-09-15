@@ -27,7 +27,7 @@ class SettingView extends StatelessWidget {
           child: const Column(
             children: [
               SettingTile(
-                icon: Icons.library_books_outlined,
+                icon: Icons.view_agenda_outlined,
                 route: '/book-source',
                 title: '书源管理',
               ),

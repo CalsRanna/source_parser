@@ -45,10 +45,10 @@ packages:
     dependency: "direct main"
     description:
       name: book_reader
-      sha256: "2e318b2ee488cdc109a1bba5f2a49765c37df341571fabe5ecfe499535f05ea3"
+      sha256: "39798c7d559ab925d6bd9af10f39af50a5672502e3c47f49fa2316112d355c76"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.9"
+    version: "0.1.10"
   boolean_selector:
     dependency: transitive
     description:

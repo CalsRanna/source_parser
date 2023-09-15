@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
       Watcher((_, ref, child) {
         final source = ref.watch(exploreSourceCreator);
         return PopupMenuButton(
-          icon: const Icon(Icons.filter_alt_outlined),
+          icon: const Icon(Icons.tune_outlined),
           initialValue: source,
           itemBuilder: (_) {
             final builder = isar.sources.filter();
@@ -81,17 +81,23 @@ class _HomePageState extends State<HomePage> {
         );
       }),
     ];
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final primary = colorScheme.primary;
     final destinations = [
-      const NavigationDestination(
-        icon: Icon(Icons.menu_book_outlined),
+      NavigationDestination(
+        icon: const Icon(Icons.local_library_outlined),
+        selectedIcon: Icon(Icons.local_library, color: primary),
         label: '书架',
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.explore_outlined),
+      NavigationDestination(
+        icon: const Icon(Icons.explore_outlined),
+        selectedIcon: Icon(Icons.explore, color: primary),
         label: '发现',
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.person_outline),
+      NavigationDestination(
+        icon: const Icon(Icons.person_outline),
+        selectedIcon: Icon(Icons.person, color: primary),
         label: '我的',
       ),
     ];
@@ -105,7 +111,7 @@ class _HomePageState extends State<HomePage> {
       body: const [ShelfView(), ExploreView(), SettingView()][_index],
       bottomNavigationBar: NavigationBar(
         destinations: destinations,
-        height: 56,
+        height: 64,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
         selectedIndex: _index,
         onDestinationSelected: handleDestinationSelected,
