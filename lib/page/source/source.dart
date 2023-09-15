@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:creator/creator.dart';
@@ -6,6 +7,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -23,7 +27,7 @@ class BookSourceList extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () => importSource(context),
-            icon: const Icon(Icons.file_download_outlined),
+            icon: const Icon(Icons.more_horiz_outlined),
           )
         ],
         title: const Text('书源管理'),
@@ -67,6 +71,10 @@ class BookSourceList extends StatelessWidget {
           ListTile(
             title: const Text('本地导入'),
             onTap: () => importLocalSource(context),
+          ),
+          ListTile(
+            title: const Text('导出所有书源'),
+            onTap: () => exportSource(context),
           ),
         ]);
       },
@@ -225,6 +233,21 @@ class BookSourceList extends StatelessWidget {
     final sources = await isar.sources.where().findAll();
     ref.emit(sourcesEmitter, sources);
     router.pop();
+  }
+
+  void exportSource(BuildContext context) async {
+    final router = Navigator.of(context);
+    router.pop();
+    final sources = await isar.sources.where().findAll();
+    final json = sources.map((source) {
+      final string = source.toJson();
+      string.remove('id');
+      return string;
+    }).toList();
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = path.join(directory.path, 'sources.json');
+    await File(filePath).writeAsString(jsonEncode(json));
+    Share.shareXFiles([XFile(filePath)], subject: 'sources.json');
   }
 
   void editSource(BuildContext context, int id) async {

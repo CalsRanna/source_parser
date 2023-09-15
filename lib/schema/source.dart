@@ -206,4 +206,48 @@ class Source {
       ..contentPagination = contentPagination ?? this.contentPagination
       ..exploreJson = exploreJson ?? this.exploreJson;
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'url': url,
+      'enabled': enabled,
+      'explore_enabled': exploreEnabled,
+      'type': type,
+      'comment': comment,
+      'header': header,
+      'charset': charset,
+      'search_url': searchUrl,
+      'search_method': searchMethod,
+      'search_books': searchBooks,
+      'search_name': searchName,
+      'search_author': searchAuthor,
+      'search_category': searchCategory,
+      'search_word_count': searchWordCount,
+      'search_introduction': searchIntroduction,
+      'search_cover': searchCover,
+      'search_information_url': searchInformationUrl,
+      'search_latest_chapter': searchLatestChapter,
+      'information_method': informationMethod,
+      'information_name': informationName,
+      'information_author': informationAuthor,
+      'information_category': informationCategory,
+      'information_word_count': informationWordCount,
+      'information_latest_chapter': informationLatestChapter,
+      'information_introduction': informationIntroduction,
+      'information_cover': informationCover,
+      'information_catalogue_url': informationCatalogueUrl,
+      'catalogue_method': catalogueMethod,
+      'catalogue_chapters': catalogueChapters,
+      'catalogue_name': catalogueName,
+      'catalogue_url': catalogueUrl,
+      'catalogue_updated_at': catalogueUpdatedAt,
+      'catalogue_pagination': cataloguePagination,
+      'content_method': contentMethod,
+      'content_content': contentContent,
+      'content_pagination': contentPagination,
+      'explore_json': exploreJson,
+    };
+  }
 }
