@@ -33,11 +33,18 @@ class _AboutPageState extends State<AboutPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('asset/image/logo.png', height: 96, width: 96),
-              Text('$name$version', style: titleLarge),
+              Image.asset('asset/image/logo.jpg', height: 96, width: 96),
+              Text(name, style: titleLarge),
               const Spacer(),
               Text(
                 '凤箫声动，玉壶光转，一夜鱼龙舞。',
+                style: labelSmall?.copyWith(
+                  color: labelSmall.color?.withOpacity(0.5),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                version,
                 style: labelSmall?.copyWith(
                   color: labelSmall.color?.withOpacity(0.5),
                 ),
