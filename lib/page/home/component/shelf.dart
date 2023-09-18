@@ -8,6 +8,7 @@ import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
@@ -56,6 +57,7 @@ class _ShelfViewState extends State<ShelfView> {
   }
 
   Future<void> refresh() async {
+    final message = Message.of(context);
     try {
       final ref = context.ref;
       final books = ref.read(booksCreator);
@@ -67,10 +69,9 @@ class _ShelfViewState extends State<ShelfView> {
           stream = stream.asBroadcastStream();
           List<Chapter> chapters = [];
           stream.listen(
-            (chapter) {
-              chapters.add(chapter);
-            },
+            (chapter) => chapters.add(chapter),
             onDone: () async {
+              if (chapters.isEmpty) return;
               book.chapters = chapters;
               await isar.writeTxn(() async {
                 isar.books.put(book);
@@ -82,7 +83,7 @@ class _ShelfViewState extends State<ShelfView> {
       }
       ref.set(booksCreator, books);
     } catch (error) {
-      // Do nothing
+      message.show(error.toString());
     }
   }
 }

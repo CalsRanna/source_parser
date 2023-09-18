@@ -10,6 +10,7 @@ import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/parser.dart';
 
 class CataloguePage extends StatefulWidget {
@@ -90,6 +91,7 @@ class _CataloguePageState extends State<CataloguePage> {
   }
 
   Future<void> handleRefresh() async {
+    final message = Message.of(context);
     try {
       final ref = context.ref;
       final book = ref.read(currentBookCreator);
@@ -110,7 +112,7 @@ class _CataloguePageState extends State<CataloguePage> {
         await stream.last;
       }
     } catch (error) {
-      // Do nothing
+      message.show(error.toString());
     }
   }
 

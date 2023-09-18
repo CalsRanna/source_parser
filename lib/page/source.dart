@@ -75,6 +75,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
   }
 
   Future<void> handleRefresh() async {
+    final message = Message.of(context);
     try {
       final ref = context.ref;
       final currentBook = ref.read(currentBookCreator);
@@ -113,7 +114,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
       });
       await stream.last;
     } catch (error) {
-      // Do nothing
+      message.show(error.toString());
     }
   }
 
@@ -142,7 +143,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
                 children: [
                   LoadingIndicator(),
                   SizedBox(height: 16),
-                  Text('正在加载'),
+                  Text('正在切换书源'),
                 ],
               ),
             ),
@@ -154,50 +155,55 @@ class _AvailableSourcesState extends State<AvailableSources> {
     final builder = isar.sources.filter();
     final source = await builder.idEqualTo(sourceId).findFirst();
     if (source != null) {
-      final url = book.sources[index].url;
-      final information = await Parser.getInformation(url, source);
-      final catalogueUrl = information.catalogueUrl;
-      var stream = await Parser.getChapters(catalogueUrl, source);
-      stream = stream.asBroadcastStream();
-      List<Chapter> chapters = [];
-      stream.listen(
-        (chapter) {
-          chapters.add(chapter);
-        },
-      );
-      await stream.last;
-      final length = chapters.length;
-      var chapterIndex = book.index;
-      var cursor = book.cursor;
-      if (length <= chapterIndex) {
-        chapterIndex = length - 1;
-        cursor = 0;
-      }
-      final updatedBook = book.copyWith(
-        catalogueUrl: catalogueUrl,
-        chapters: chapters,
-        cursor: cursor,
-        index: chapterIndex,
-        sourceId: sourceId,
-        url: url,
-      );
-      ref.set(currentBookCreator, updatedBook);
-      var exist = await isar.books
-          .filter()
-          .nameEqualTo(book.name)
-          .authorEqualTo(book.author)
-          .findFirst();
-      if (exist != null) {
-        await isar.writeTxn(() async {
-          isar.books.put(updatedBook);
-        });
-      }
-      navigator.pop();
-      final from = ref.read(fromCreator);
-      router.pop();
-      if (from == '/book-reader') {
-        router.pushReplacement('/book-reader');
-        message.show('切换成功');
+      try {
+        final url = book.sources[index].url;
+        final information = await Parser.getInformation(url, source);
+        final catalogueUrl = information.catalogueUrl;
+        var stream = await Parser.getChapters(catalogueUrl, source);
+        stream = stream.asBroadcastStream();
+        List<Chapter> chapters = [];
+        stream.listen(
+          (chapter) {
+            chapters.add(chapter);
+          },
+        );
+        await stream.last;
+        final length = chapters.length;
+        var chapterIndex = book.index;
+        var cursor = book.cursor;
+        if (length <= chapterIndex) {
+          chapterIndex = length - 1;
+          cursor = 0;
+        }
+        final updatedBook = book.copyWith(
+          catalogueUrl: catalogueUrl,
+          chapters: chapters,
+          cursor: cursor,
+          index: chapterIndex,
+          sourceId: sourceId,
+          url: url,
+        );
+        ref.set(currentBookCreator, updatedBook);
+        var exist = await isar.books
+            .filter()
+            .nameEqualTo(book.name)
+            .authorEqualTo(book.author)
+            .findFirst();
+        if (exist != null) {
+          await isar.writeTxn(() async {
+            isar.books.put(updatedBook);
+          });
+        }
+        navigator.pop();
+        final from = ref.read(fromCreator);
+        router.pop();
+        if (from == '/book-reader') {
+          router.pushReplacement('/book-reader');
+          message.show('切换成功');
+        }
+      } catch (error) {
+        navigator.pop();
+        message.show('切换失败');
       }
     } else {
       navigator.pop();
