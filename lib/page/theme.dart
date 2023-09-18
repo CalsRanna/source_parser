@@ -74,6 +74,50 @@ class ReaderTheme extends StatelessWidget {
               ),
             );
           }),
+          Watcher((context, ref, child) {
+            final backgroundColor = ref.watch(backgroundColorCreator);
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  Text('背景', style: bodyLarge),
+                  const Spacer(),
+                  _BackgroundTile(
+                    active: backgroundColor == Colors.white.value,
+                    color: Colors.white,
+                    onTap: () => updateBackgroundColor(
+                      context,
+                      Colors.white.value,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _BackgroundTile(
+                    active: backgroundColor == 0xFFF0F5E5,
+                    color: const Color(0xFFF0F5E5),
+                    onTap: () => updateBackgroundColor(context, 0xFFF0F5E5),
+                  ),
+                  const SizedBox(width: 8),
+                  _BackgroundTile(
+                    active: backgroundColor == 0xFFB9DEC9,
+                    color: const Color(0xFFB9DEC9),
+                    onTap: () => updateBackgroundColor(context, 0xFFB9DEC9),
+                  ),
+                  const SizedBox(width: 8),
+                  _BackgroundTile(
+                    active: backgroundColor == 0xFFF8C387,
+                    color: const Color(0xFFF8C387),
+                    onTap: () => updateBackgroundColor(context, 0xFFF8C387),
+                  ),
+                  const SizedBox(width: 8),
+                  _BackgroundTile(
+                    active: backgroundColor == 0xFFE3BD8D,
+                    color: const Color(0xFFE3BD8D),
+                    onTap: () => updateBackgroundColor(context, 0xFFE3BD8D),
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -103,6 +147,18 @@ class ReaderTheme extends StatelessWidget {
       });
     }
   }
+
+  void updateBackgroundColor(BuildContext context, int colorValue) async {
+    final ref = context.ref;
+    ref.set(backgroundColorCreator, colorValue);
+    var setting = await isar.settings.where().findFirst();
+    if (setting != null) {
+      setting.backgroundColor = colorValue;
+      await isar.writeTxn(() async {
+        isar.settings.put(setting);
+      });
+    }
+  }
 }
 
 class _ThemeTile extends StatelessWidget {
@@ -126,12 +182,48 @@ class _ThemeTile extends StatelessWidget {
       child: Container(
         decoration: ShapeDecoration(
           shape: StadiumBorder(
-            side:
-                BorderSide(color: active ? primary : outline.withOpacity(0.5)),
+            side: BorderSide(
+              color: active ? primary : outline.withOpacity(0.5),
+            ),
           ),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Text(label),
+      ),
+    );
+  }
+}
+
+class _BackgroundTile extends StatelessWidget {
+  const _BackgroundTile({
+    this.active = false,
+    required this.color,
+    this.onTap,
+  });
+
+  final bool active;
+  final Color color;
+  final void Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final primary = colorScheme.primary;
+    final outline = colorScheme.outline;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: ShapeDecoration(
+          color: color,
+          shape: CircleBorder(
+            side:
+                BorderSide(color: active ? primary : outline.withOpacity(0.5)),
+          ),
+        ),
+        height: 28,
+        padding: const EdgeInsets.all(1),
+        width: 28,
       ),
     );
   }

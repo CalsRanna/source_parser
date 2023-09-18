@@ -1,4 +1,11 @@
 import 'package:creator/creator.dart';
+import 'package:flutter/material.dart';
+
+final backgroundColorCreator = Creator.value(
+  Colors.white.value,
+  keepAlive: true,
+  name: 'backgroundColorCreator',
+);
 
 final darkModeCreator = Creator.value(false, keepAlive: true, name: 'darkMode');
 

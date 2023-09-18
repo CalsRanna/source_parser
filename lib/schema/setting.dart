@@ -7,6 +7,8 @@ part 'setting.g.dart';
 @Name('settings')
 class Setting {
   Id id = Isar.autoIncrement;
+  @Name('background_color')
+  int backgroundColor = Colors.white.value;
   @Name('color_seed')
   int colorSeed = Colors.blue.value;
   @Name('dark_mode')

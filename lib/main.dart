@@ -63,6 +63,9 @@ class _SourceParserState extends State<SourceParser> {
     final ref = context.ref;
     var setting = await isar.settings.where().findFirst();
     setting ??= Setting();
+    if (setting.backgroundColor.isNegative) {
+      setting.backgroundColor = Colors.white.value;
+    }
     if (setting.lineSpace.isNaN) {
       setting.lineSpace = 1.0 + 0.618 * 2;
     }
@@ -78,6 +81,7 @@ class _SourceParserState extends State<SourceParser> {
     await isar.writeTxn(() async {
       await isar.settings.put(setting!);
     });
+    ref.set(backgroundColorCreator, setting.backgroundColor);
     ref.set(darkModeCreator, setting.darkMode);
     ref.set(eInkModeCreator, setting.eInkMode);
     ref.set(fontSizeCreator, setting.fontSize);

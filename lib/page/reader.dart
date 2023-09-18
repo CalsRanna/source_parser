@@ -41,7 +41,6 @@ class _ReaderState extends State<Reader> {
       final book = ref.watch(currentBookCreator);
       var index = book.index;
       var cursor = book.cursor;
-      final darkMode = ref.watch(darkModeCreator);
       final length = book.chapters.length;
       if (length <= index) {
         index = length - 1;
@@ -51,6 +50,8 @@ class _ReaderState extends State<Reader> {
         cursor = 0;
       }
       var theme = ReaderTheme();
+      final backgroundColor = ref.watch(backgroundColorCreator);
+      final darkMode = ref.watch(darkModeCreator);
       final lineSpace = ref.watch(lineSpaceCreator);
       final fontSize = ref.watch(fontSizeCreator);
       final mediaQueryData = MediaQuery.of(context);
@@ -63,6 +64,7 @@ class _ReaderState extends State<Reader> {
       }
       final top = max(padding.top + 4, 16.0);
       theme = theme.copyWith(
+        backgroundColor: Color(backgroundColor),
         footerPadding: theme.footerPadding.copyWith(bottom: bottom),
         headerPadding: theme.headerPadding.copyWith(top: top),
         pageStyle: theme.pageStyle.copyWith(
