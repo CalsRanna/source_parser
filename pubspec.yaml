@@ -29,7 +29,7 @@ dependencies:
   flutter_colorpicker: ^1.0.3
   flutter_native_splash: ^2.3.2
   go_router: ^7.0.0
-  html_parser_plus: ^0.1.2
+  html_parser_plus: ^0.1.3
   # html_parser_plus:
   #   path: ../html_parser_plus
   isar: ^3.0.5
