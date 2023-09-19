@@ -3,7 +3,7 @@ description: A parser use to do everything you want to.
 
 publish_to: none
 
-version: 1.0.0+50
+version: 1.0.0+51
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -29,7 +29,7 @@ dependencies:
   flutter_colorpicker: ^1.0.3
   flutter_native_splash: ^2.3.2
   go_router: ^7.0.0
-  html_parser_plus: ^0.1.1
+  html_parser_plus: ^0.1.2
   # html_parser_plus:
   #   path: ../html_parser_plus
   isar: ^3.0.5

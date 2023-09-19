@@ -468,10 +468,10 @@ packages:
     dependency: "direct main"
     description:
       name: html_parser_plus
-      sha256: b208815f7cab8df3f479d6ed6bc10a0cfe3c3977d178f18e8af5c2271eb74307
+      sha256: cb21d873ec609e6ec415ca48e3550c776bc8be3b3a4caad410b3d621e48ba465
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.1.2"
   http:
     dependency: transitive
     description:

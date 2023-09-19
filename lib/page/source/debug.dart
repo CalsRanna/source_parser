@@ -74,8 +74,7 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
           if (Platform.isMacOS)
             _DebugResultTile(
               response: result.contentContent.codeUnits.toString(),
-              result: const {},
-              title: 'UNICODE',
+              title: '正文Unicode编码',
             )
         ],
       );
@@ -163,16 +162,17 @@ class _DebugResultTile extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right_outlined),
             onTap: () => showRawData(context),
           ),
-          ListTile(
-            title: const Text('解析数据'),
-            subtitle: Text(
-              jsonEncode(result),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+          if (result != null)
+            ListTile(
+              title: const Text('解析数据'),
+              subtitle: Text(
+                jsonEncode(result),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              trailing: const Icon(Icons.chevron_right_outlined),
+              onTap: () => showJsonData(context),
             ),
-            trailing: const Icon(Icons.chevron_right_outlined),
-            onTap: () => showJsonData(context),
-          ),
         ],
       ),
     );
