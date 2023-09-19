@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
@@ -70,6 +71,12 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
             result: {'content': result.contentContent},
             title: '正文',
           ),
+          if (Platform.isMacOS)
+            _DebugResultTile(
+              response: result.contentContent.codeUnits.toString(),
+              result: const {},
+              title: 'UNICODE',
+            )
         ],
       );
     }
