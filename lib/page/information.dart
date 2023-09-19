@@ -477,7 +477,7 @@ class _BottomBar extends StatelessWidget {
     final padding = MediaQuery.of(context).padding;
     return Container(
       color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
-      padding: EdgeInsets.fromLTRB(16, 16, 16, padding.bottom),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, padding.bottom + 8),
       child: Row(
         children: [
           // TextButton(

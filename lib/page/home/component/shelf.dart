@@ -1,5 +1,6 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:lpinyin/lpinyin.dart';
@@ -52,8 +53,8 @@ class _ShelfViewState extends State<ShelfView> {
       final second = PinyinHelper.getPinyin(b.name);
       return first.compareTo(second);
     });
-
     ref.set(booksCreator, books);
+    FlutterNativeSplash.remove();
   }
 
   Future<void> refresh() async {

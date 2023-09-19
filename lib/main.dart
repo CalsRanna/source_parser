@@ -1,5 +1,6 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/creator/setting.dart';
@@ -10,7 +11,8 @@ import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/router/router.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: binding);
   final directory = await getApplicationDocumentsDirectory();
   isar = await Isar.open([
     BookSchema,

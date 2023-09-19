@@ -19,7 +19,6 @@ class _AboutPageState extends State<AboutPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    final titleLarge = textTheme.titleLarge;
     final labelSmall = textTheme.labelSmall;
     return Scaffold(
       appBar: AppBar(
@@ -33,8 +32,8 @@ class _AboutPageState extends State<AboutPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('asset/image/logo.jpg', height: 96, width: 96),
-              Text(name, style: titleLarge),
+              Image.asset('asset/image/logo.jpg', height: 160, width: 160),
+              Image.asset('asset/image/name.jpg', height: 80, width: 80),
               const Spacer(),
               Text(
                 '凤箫声动，玉壶光转，一夜鱼龙舞。',
