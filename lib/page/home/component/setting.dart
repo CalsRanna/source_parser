@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_network/cached_network.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +7,6 @@ import 'package:isar/isar.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
-import 'package:source_parser/util/message.dart';
 
 class SettingView extends StatelessWidget {
   const SettingView({super.key});
@@ -91,14 +89,14 @@ class SettingView extends StatelessWidget {
         Card(
           color: surfaceVariant,
           elevation: 0,
-          child: Column(
+          child: const Column(
             children: [
               SettingTile(
                 icon: Icons.cached_outlined,
-                title: '清空缓存',
-                onTap: () => clearCache(context),
+                route: '/setting/cache',
+                title: '缓存',
               ),
-              const SettingTile(
+              SettingTile(
                 icon: Icons.info_outline_rounded,
                 route: '/setting/about',
                 title: '关于元夕',
@@ -177,45 +175,6 @@ class SettingView extends StatelessWidget {
       await isar.writeTxn(() async {
         await isar.settings.put(setting);
       });
-    }
-  }
-
-  void clearCache(BuildContext context) async {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('清空缓存'),
-          content: const Text('确定清空所有已缓存的内容？'),
-          actions: [
-            TextButton(
-              onPressed: () => cancel(context),
-              child: const Text('取消'),
-            ),
-            TextButton(
-              onPressed: () => confirm(context),
-              child: const Text('确认'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void cancel(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-
-  void confirm(BuildContext context) async {
-    final navigator = Navigator.of(context);
-
-    final message = Message.of(context);
-    final succeed = await CachedNetwork().clearCache();
-    navigator.pop();
-    if (succeed) {
-      message.show('已清空缓存');
-    } else {
-      message.show('清空缓存失败');
     }
   }
 

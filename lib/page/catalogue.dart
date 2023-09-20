@@ -52,7 +52,7 @@ class _CataloguePageState extends State<CataloguePage> {
           final theme = Theme.of(context);
           final primary = theme.colorScheme.primary;
           final onSurface = theme.colorScheme.onSurface;
-          final network = CachedNetwork();
+          final network = CachedNetwork(prefix: book.name);
 
           return ListView.builder(
             controller: controller,
@@ -98,7 +98,11 @@ class _CataloguePageState extends State<CataloguePage> {
       final builder = isar.sources.filter();
       final source = await builder.idEqualTo(book.sourceId).findFirst();
       if (source != null) {
-        var stream = await Parser.getChapters(book.catalogueUrl, source);
+        var stream = await Parser.getChapters(
+          book.name,
+          book.catalogueUrl,
+          source,
+        );
         stream = stream.asBroadcastStream();
         List<Chapter> chapters = [];
         stream.listen(
@@ -150,9 +154,10 @@ class _CataloguePageState extends State<CataloguePage> {
   void cacheChapters(int index) async {
     final book = context.ref.read(currentBookCreator);
     final length = book.chapters.length;
+    final network = CachedNetwork(prefix: book.name);
     for (var i = 1; i <= 3; i++) {
       if (index + i < length) {
-        await CachedNetwork().request(book.chapters.elementAt(index + i).url);
+        await network.request(book.chapters.elementAt(index + i).url);
       }
     }
   }

@@ -1,3 +1,4 @@
+import 'package:cached_network/cached_network.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -66,7 +67,11 @@ class _ShelfViewState extends State<ShelfView> {
         final builder = isar.sources.filter();
         final source = await builder.idEqualTo(book.sourceId).findFirst();
         if (source != null) {
-          var stream = await Parser.getChapters(book.catalogueUrl, source);
+          var stream = await Parser.getChapters(
+            book.name,
+            book.catalogueUrl,
+            source,
+          );
           stream = stream.asBroadcastStream();
           List<Chapter> chapters = [];
           stream.listen(
@@ -204,6 +209,7 @@ class _ShelfTile extends StatelessWidget {
       return first.compareTo(second);
     });
     ref.set(booksCreator, books);
+    CachedNetwork(prefix: book.name).clearCache();
   }
 
   void _handleTap(BuildContext context) async {

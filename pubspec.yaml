@@ -3,7 +3,7 @@ description: A parser use to do everything you want to.
 
 publish_to: none
 
-version: 1.0.0+51
+version: 1.0.0+52
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -15,7 +15,7 @@ dependencies:
   book_reader: ^0.1.13
   # book_reader:
   #   path: ../book_reader
-  cached_network: ^1.0.5
+  cached_network: ^2.0.0
   # cached_network:
   #   path: ../cached_network
   cached_network_image: ^3.2.3

@@ -38,8 +38,8 @@ class Parser {
 
   static Future<Stream<Book>> search(String credential) async {
     final sources = await isar.sources.filter().enabledEqualTo(true).findAll();
-    final cacheDirectory = await getTemporaryDirectory();
-    final network = CachedNetwork(cacheDirectory: cacheDirectory);
+    final temporaryDirectory = await getTemporaryDirectory();
+    final network = CachedNetwork(temporaryDirectory: temporaryDirectory);
     var closed = 0;
     final controller = StreamController<Book>();
     final semaphore = Semaphore(16);
@@ -143,8 +143,8 @@ class Parser {
   }
 
   static Future<Stream<ExploreResult>> getExplore(Source source) async {
-    final cacheDirectory = await getTemporaryDirectory();
-    final network = CachedNetwork(cacheDirectory: cacheDirectory);
+    final temporaryDirectory = await getTemporaryDirectory();
+    final network = CachedNetwork(temporaryDirectory: temporaryDirectory);
     var closed = 0;
     final controller = StreamController<ExploreResult>();
     final rules = jsonDecode(source.exploreJson);
@@ -225,9 +225,16 @@ class Parser {
     });
   }
 
-  static Future<Book> getInformation(String url, Source source) async {
-    final cacheDirectory = await getTemporaryDirectory();
-    final network = CachedNetwork(cacheDirectory: cacheDirectory);
+  static Future<Book> getInformation(
+    String name,
+    String url,
+    Source source,
+  ) async {
+    final temporaryDirectory = await getTemporaryDirectory();
+    final network = CachedNetwork(
+      prefix: name,
+      temporaryDirectory: temporaryDirectory,
+    );
     final sender = ReceivePort();
     final receiver = ReceivePort();
     final isolate = await Isolate.spawn(
@@ -237,9 +244,14 @@ class Parser {
     (await sender.first as SendPort).send(
       [network, url, source, receiver.sendPort],
     );
-    final book = await receiver.first as Book;
-    isolate.kill();
-    return book;
+    try {
+      final book = await receiver.first as Book;
+      isolate.kill();
+      return book;
+    } catch (error) {
+      isolate.kill();
+      rethrow;
+    }
   }
 
   static void _getInformationInIsolate(SendPort message) {
@@ -296,9 +308,16 @@ class Parser {
     });
   }
 
-  static Future<Stream<Chapter>> getChapters(String url, Source source) async {
-    final cacheDirectory = await getTemporaryDirectory();
-    final network = CachedNetwork(cacheDirectory: cacheDirectory);
+  static Future<Stream<Chapter>> getChapters(
+    String name,
+    String url,
+    Source source,
+  ) async {
+    final temporaryDirectory = await getTemporaryDirectory();
+    final network = CachedNetwork(
+      prefix: name,
+      temporaryDirectory: temporaryDirectory,
+    );
     final controller = StreamController<Chapter>();
     final sender = ReceivePort();
     final receiver = ReceivePort();
@@ -356,9 +375,13 @@ class Parser {
     });
   }
 
-  static Future<String> getLatestChapter(String url, Source source) async {
-    final book = await getInformation(url, source);
-    final stream = await getChapters(book.catalogueUrl, source);
+  static Future<String> getLatestChapter(
+    String name,
+    String url,
+    Source source,
+  ) async {
+    final book = await getInformation(name, url, source);
+    final stream = await getChapters(name, book.catalogueUrl, source);
     try {
       final chapter = await stream.last;
       return chapter.name;
@@ -368,13 +391,14 @@ class Parser {
   }
 
   static Future<String> getContent({
+    required String name,
     required String url,
     required Source source,
     required String title,
     bool reacquire = false,
   }) async {
     final method = source.contentMethod.toUpperCase();
-    final html = await CachedNetwork().request(
+    final html = await CachedNetwork(prefix: name).request(
       url,
       charset: source.charset,
       method: method,
@@ -390,8 +414,8 @@ class Parser {
   }
 
   static Future<DebugResult> debug(String credential, Source source) async {
-    final cacheDirectory = await getTemporaryDirectory();
-    final network = CachedNetwork(cacheDirectory: cacheDirectory);
+    final temporaryDirectory = await getTemporaryDirectory();
+    final network = CachedNetwork(temporaryDirectory: temporaryDirectory);
     final sender = ReceivePort();
     final receiver = ReceivePort();
     final isolate = await Isolate.spawn(_debugInIsolate, sender.sendPort);

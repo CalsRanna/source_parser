@@ -46,7 +46,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
                       return const Text('正在加载');
                     }
                   },
-                  future: getLatestChapter(book.sources[index]),
+                  future: getLatestChapter(book.name, book.sources[index]),
                 ),
                 title: Text(
                   book.sources[index].name,
@@ -64,11 +64,11 @@ class _AvailableSourcesState extends State<AvailableSources> {
     );
   }
 
-  Future<String> getLatestChapter(AvailableSource source) async {
+  Future<String> getLatestChapter(String name, AvailableSource source) async {
     final builder = isar.sources.filter();
     final currentSource = await builder.idEqualTo(source.id).findFirst();
     if (currentSource != null) {
-      return Parser.getLatestChapter(source.url, currentSource);
+      return Parser.getLatestChapter(name, source.url, currentSource);
     } else {
       return '加载失败';
     }
@@ -156,10 +156,11 @@ class _AvailableSourcesState extends State<AvailableSources> {
     final source = await builder.idEqualTo(sourceId).findFirst();
     if (source != null) {
       try {
+        final name = book.name;
         final url = book.sources[index].url;
-        final information = await Parser.getInformation(url, source);
+        final information = await Parser.getInformation(name, url, source);
         final catalogueUrl = information.catalogueUrl;
-        var stream = await Parser.getChapters(catalogueUrl, source);
+        var stream = await Parser.getChapters(name, catalogueUrl, source);
         stream = stream.asBroadcastStream();
         List<Chapter> chapters = [];
         stream.listen(

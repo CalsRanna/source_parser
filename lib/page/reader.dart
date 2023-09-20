@@ -128,7 +128,12 @@ class _ReaderState extends State<Reader> {
       final chapter = book.chapters.elementAt(index);
       final title = chapter.name;
       final url = chapter.url;
-      return Parser.getContent(source: source, title: title, url: url);
+      return Parser.getContent(
+        name: book.name,
+        source: source,
+        title: title,
+        url: url,
+      );
     } else {
       return '';
     }
@@ -148,6 +153,7 @@ class _ReaderState extends State<Reader> {
       final title = chapter.name;
       final url = chapter.url;
       return Parser.getContent(
+        name: book.name,
         reacquire: true,
         source: source,
         title: title,
@@ -185,9 +191,10 @@ class _ReaderState extends State<Reader> {
     final builder = isar.sources.filter();
     final source = await builder.idEqualTo(book.sourceId).findFirst();
     if (source != null) {
+      final network = CachedNetwork(prefix: book.name);
       for (var i = 1; i <= 3; i++) {
         if (index + i < length) {
-          await CachedNetwork().request(
+          await network.request(
             book.chapters.elementAt(index + i).url,
             charset: source.charset,
             method: source.contentMethod,
@@ -276,7 +283,7 @@ class _ReaderState extends State<Reader> {
     await semaphore.acquire();
     try {
       final url = book.chapters.elementAt(chapterIndex).url;
-      final network = CachedNetwork();
+      final network = CachedNetwork(prefix: book.name);
       final cached = await network.cached(url);
       if (!cached) {
         await network.request(
