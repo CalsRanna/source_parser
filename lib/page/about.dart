@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({Key? key}) : super(key: key);
@@ -23,7 +24,10 @@ class _AboutPageState extends State<AboutPage> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(icon: const Icon(Icons.help_outline), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: navigateGithub,
+          ),
         ],
       ),
       body: SafeArea(
@@ -67,6 +71,11 @@ class _AboutPageState extends State<AboutPage> {
       name = information.appName;
       version = '${information.version}+${information.buildNumber}';
     });
+  }
+
+  void navigateGithub() {
+    final url = Uri.parse('https://github.com/CalsRanna/source_parser');
+    launchUrl(url);
   }
 
   // void handleTap(BuildContext context) async {

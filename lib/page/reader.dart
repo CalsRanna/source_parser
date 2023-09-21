@@ -350,22 +350,19 @@ class _CacheIndicator extends StatelessWidget {
       ),
       height: 160,
       width: 8,
-      child: UnconstrainedBox(
-        child: Watcher((context, ref, child) {
-          final total = ref.watch(cachingTotalCreator);
-          final succeed = ref.watch(cachingSucceedCreator);
-          final failed = ref.watch(cachingFailedCreator);
-          final progress = (succeed + failed) / total;
-          return Container(
-            decoration: ShapeDecoration(
-              color: primary,
-              shape: const StadiumBorder(),
-            ),
-            height: 160 * progress,
-            width: 8,
-          );
-        }),
-      ),
+      child: Watcher((context, ref, child) {
+        final total = ref.watch(cachingTotalCreator);
+        final succeed = ref.watch(cachingSucceedCreator);
+        final failed = ref.watch(cachingFailedCreator);
+        final progress = (succeed + failed) / total;
+        return DecoratedBox(
+          decoration: ShapeDecoration(
+            color: primary,
+            shape: const StadiumBorder(),
+          ),
+          child: SizedBox(height: 160 * progress, width: 8),
+        );
+      }),
     );
   }
 }
