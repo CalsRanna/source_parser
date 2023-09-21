@@ -366,10 +366,13 @@ class Parser {
         );
         final parser = HtmlParser();
         final document = parser.parse(html);
+        var preset = parser.query(document, source.cataloguePreset);
         final items = parser.queryNodes(document, source.catalogueChapters);
+        var catalogueUrlRule = source.catalogueUrl;
+        catalogueUrlRule = catalogueUrlRule.replaceAll('{{preset}}', preset);
         for (var i = 0; i < items.length; i++) {
           final name = parser.query(items[i], source.catalogueName);
-          var url = parser.query(items[i], source.catalogueUrl);
+          var url = parser.query(items[i], catalogueUrlRule);
           if (!url.startsWith('http')) {
             url = '${source.url}$url';
           }
@@ -429,16 +432,16 @@ class Parser {
     final sender = ReceivePort();
     final receiver = ReceivePort();
     final isolate = await Isolate.spawn(_debugInIsolate, sender.sendPort);
-    try {
-      (await sender.first as SendPort).send(
-        [network, credential, source, receiver.sendPort],
-      );
-      final result = await receiver.first as DebugResult;
+    (await sender.first as SendPort).send(
+      [network, credential, source, receiver.sendPort],
+    );
+    final response = await receiver.first;
+    if (response.runtimeType == DebugResult) {
       isolate.kill();
-      return result;
-    } catch (error) {
+      return response;
+    } else {
       isolate.kill();
-      return DebugResult(searchRaw: error.toString());
+      return DebugResult(searchRaw: response.toString());
     }
   }
 
@@ -570,11 +573,14 @@ class Parser {
           );
           result.catalogueRaw = html;
           document = parser.parse(html);
+          var preset = parser.query(document, source.cataloguePreset);
           items = parser.queryNodes(document, source.catalogueChapters);
+          var catalogueUrlRule = source.catalogueUrl;
+          catalogueUrlRule = catalogueUrlRule.replaceAll('{{preset}}', preset);
           var chapters = <Chapter>[];
           for (var i = 0; i < items.length; i++) {
             final name = parser.query(items[i], source.catalogueName);
-            var url = parser.query(items[i], source.catalogueUrl);
+            var url = parser.query(items[i], catalogueUrlRule);
             if (!url.startsWith('http')) {
               url = '${source.url}$url';
             }

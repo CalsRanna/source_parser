@@ -67,6 +67,8 @@ class Source {
   String catalogueUpdatedAt = '';
   @Name('catalogue_pagination')
   String cataloguePagination = '';
+  @Name('catalogue_preset')
+  String cataloguePreset = '';
   @Name('content_method')
   String contentMethod = 'get';
   @Name('content_content')
@@ -115,6 +117,7 @@ class Source {
       ..catalogueUrl = json['catalogue_url'] ?? ''
       ..catalogueUpdatedAt = json['catalogue_updated_at'] ?? ''
       ..cataloguePagination = json['catalogue_pagination'] ?? ''
+      ..cataloguePreset = json['catalogue_preset'] ?? ''
       ..contentMethod = json['content_method'] ?? 'get'
       ..contentContent = json['content_content'] ?? ''
       ..contentPagination = json['content_pagination'] ?? ''
@@ -157,6 +160,7 @@ class Source {
     String? catalogueUrl,
     String? catalogueUpdatedAt,
     String? cataloguePagination,
+    String? cataloguePreset,
     String? contentMethod,
     String? contentContent,
     String? contentPagination,
@@ -201,6 +205,7 @@ class Source {
       ..catalogueUrl = catalogueUrl ?? this.catalogueUrl
       ..catalogueUpdatedAt = catalogueUpdatedAt ?? this.catalogueUpdatedAt
       ..cataloguePagination = cataloguePagination ?? this.cataloguePagination
+      ..cataloguePreset = cataloguePreset ?? this.cataloguePreset
       ..contentMethod = contentMethod ?? this.contentMethod
       ..contentContent = contentContent ?? this.contentContent
       ..contentPagination = contentPagination ?? this.contentPagination
@@ -244,6 +249,7 @@ class Source {
       'catalogue_url': catalogueUrl,
       'catalogue_updated_at': catalogueUpdatedAt,
       'catalogue_pagination': cataloguePagination,
+      'catalogue_preset': cataloguePreset,
       'content_method': contentMethod,
       'content_content': contentContent,
       'content_pagination': contentPagination,

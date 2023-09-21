@@ -6,6 +6,7 @@ class RuleTile extends StatelessWidget {
   const RuleTile({
     Key? key,
     this.bordered,
+    this.placeholder,
     required this.title,
     this.trailing,
     this.value,
@@ -14,6 +15,7 @@ class RuleTile extends StatelessWidget {
   }) : super(key: key);
 
   final bool? bordered;
+  final String? placeholder;
   final String title;
   final Widget? trailing;
   final String? value;
@@ -66,7 +68,11 @@ class RuleTile extends StatelessWidget {
       onTap?.call();
     } else {
       var newValue = await Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => RuleInput(title: title, text: value),
+        builder: (context) => RuleInput(
+          placeholder: placeholder,
+          title: title,
+          text: value,
+        ),
       ));
       onChange?.call(newValue);
     }

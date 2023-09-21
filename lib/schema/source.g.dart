@@ -37,173 +37,178 @@ const SourceSchema = CollectionSchema(
       name: r'catalogue_pagination',
       type: IsarType.string,
     ),
-    r'catalogue_updated_at': PropertySchema(
+    r'catalogue_preset': PropertySchema(
       id: 4,
+      name: r'catalogue_preset',
+      type: IsarType.string,
+    ),
+    r'catalogue_updated_at': PropertySchema(
+      id: 5,
       name: r'catalogue_updated_at',
       type: IsarType.string,
     ),
     r'catalogue_url': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'catalogue_url',
       type: IsarType.string,
     ),
     r'charset': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'charset',
       type: IsarType.string,
     ),
     r'comment': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'comment',
       type: IsarType.string,
     ),
     r'content_content': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'content_content',
       type: IsarType.string,
     ),
     r'content_method': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'content_method',
       type: IsarType.string,
     ),
     r'content_pagination': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'content_pagination',
       type: IsarType.string,
     ),
     r'enabled': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'enabled',
       type: IsarType.bool,
     ),
     r'explore_enabled': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'explore_enabled',
       type: IsarType.bool,
     ),
     r'explore_json': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'explore_json',
       type: IsarType.string,
     ),
     r'header': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'header',
       type: IsarType.string,
     ),
     r'information_author': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'information_author',
       type: IsarType.string,
     ),
     r'information_catalogue_url': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'information_catalogue_url',
       type: IsarType.string,
     ),
     r'information_category': PropertySchema(
-      id: 17,
+      id: 18,
       name: r'information_category',
       type: IsarType.string,
     ),
     r'information_cover': PropertySchema(
-      id: 18,
+      id: 19,
       name: r'information_cover',
       type: IsarType.string,
     ),
     r'information_introduction': PropertySchema(
-      id: 19,
+      id: 20,
       name: r'information_introduction',
       type: IsarType.string,
     ),
     r'information_latest_chapter': PropertySchema(
-      id: 20,
+      id: 21,
       name: r'information_latest_chapter',
       type: IsarType.string,
     ),
     r'information_method': PropertySchema(
-      id: 21,
+      id: 22,
       name: r'information_method',
       type: IsarType.string,
     ),
     r'information_name': PropertySchema(
-      id: 22,
+      id: 23,
       name: r'information_name',
       type: IsarType.string,
     ),
     r'information_word_count': PropertySchema(
-      id: 23,
+      id: 24,
       name: r'information_word_count',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 24,
+      id: 25,
       name: r'name',
       type: IsarType.string,
     ),
     r'search_author': PropertySchema(
-      id: 25,
+      id: 26,
       name: r'search_author',
       type: IsarType.string,
     ),
     r'search_books': PropertySchema(
-      id: 26,
+      id: 27,
       name: r'search_books',
       type: IsarType.string,
     ),
     r'search_category': PropertySchema(
-      id: 27,
+      id: 28,
       name: r'search_category',
       type: IsarType.string,
     ),
     r'search_cover': PropertySchema(
-      id: 28,
+      id: 29,
       name: r'search_cover',
       type: IsarType.string,
     ),
     r'search_information_url': PropertySchema(
-      id: 29,
+      id: 30,
       name: r'search_information_url',
       type: IsarType.string,
     ),
     r'search_introduction': PropertySchema(
-      id: 30,
+      id: 31,
       name: r'search_introduction',
       type: IsarType.string,
     ),
     r'search_latest_chapter': PropertySchema(
-      id: 31,
+      id: 32,
       name: r'search_latest_chapter',
       type: IsarType.string,
     ),
     r'search_method': PropertySchema(
-      id: 32,
+      id: 33,
       name: r'search_method',
       type: IsarType.string,
     ),
     r'search_name': PropertySchema(
-      id: 33,
+      id: 34,
       name: r'search_name',
       type: IsarType.string,
     ),
     r'search_url': PropertySchema(
-      id: 34,
+      id: 35,
       name: r'search_url',
       type: IsarType.string,
     ),
     r'search_word_count': PropertySchema(
-      id: 35,
+      id: 36,
       name: r'search_word_count',
       type: IsarType.string,
     ),
     r'type': PropertySchema(
-      id: 36,
+      id: 37,
       name: r'type',
       type: IsarType.string,
     ),
     r'url': PropertySchema(
-      id: 37,
+      id: 38,
       name: r'url',
       type: IsarType.string,
     )
@@ -232,6 +237,7 @@ int _sourceEstimateSize(
   bytesCount += 3 + object.catalogueMethod.length * 3;
   bytesCount += 3 + object.catalogueName.length * 3;
   bytesCount += 3 + object.cataloguePagination.length * 3;
+  bytesCount += 3 + object.cataloguePreset.length * 3;
   bytesCount += 3 + object.catalogueUpdatedAt.length * 3;
   bytesCount += 3 + object.catalogueUrl.length * 3;
   bytesCount += 3 + object.charset.length * 3;
@@ -277,40 +283,41 @@ void _sourceSerialize(
   writer.writeString(offsets[1], object.catalogueMethod);
   writer.writeString(offsets[2], object.catalogueName);
   writer.writeString(offsets[3], object.cataloguePagination);
-  writer.writeString(offsets[4], object.catalogueUpdatedAt);
-  writer.writeString(offsets[5], object.catalogueUrl);
-  writer.writeString(offsets[6], object.charset);
-  writer.writeString(offsets[7], object.comment);
-  writer.writeString(offsets[8], object.contentContent);
-  writer.writeString(offsets[9], object.contentMethod);
-  writer.writeString(offsets[10], object.contentPagination);
-  writer.writeBool(offsets[11], object.enabled);
-  writer.writeBool(offsets[12], object.exploreEnabled);
-  writer.writeString(offsets[13], object.exploreJson);
-  writer.writeString(offsets[14], object.header);
-  writer.writeString(offsets[15], object.informationAuthor);
-  writer.writeString(offsets[16], object.informationCatalogueUrl);
-  writer.writeString(offsets[17], object.informationCategory);
-  writer.writeString(offsets[18], object.informationCover);
-  writer.writeString(offsets[19], object.informationIntroduction);
-  writer.writeString(offsets[20], object.informationLatestChapter);
-  writer.writeString(offsets[21], object.informationMethod);
-  writer.writeString(offsets[22], object.informationName);
-  writer.writeString(offsets[23], object.informationWordCount);
-  writer.writeString(offsets[24], object.name);
-  writer.writeString(offsets[25], object.searchAuthor);
-  writer.writeString(offsets[26], object.searchBooks);
-  writer.writeString(offsets[27], object.searchCategory);
-  writer.writeString(offsets[28], object.searchCover);
-  writer.writeString(offsets[29], object.searchInformationUrl);
-  writer.writeString(offsets[30], object.searchIntroduction);
-  writer.writeString(offsets[31], object.searchLatestChapter);
-  writer.writeString(offsets[32], object.searchMethod);
-  writer.writeString(offsets[33], object.searchName);
-  writer.writeString(offsets[34], object.searchUrl);
-  writer.writeString(offsets[35], object.searchWordCount);
-  writer.writeString(offsets[36], object.type);
-  writer.writeString(offsets[37], object.url);
+  writer.writeString(offsets[4], object.cataloguePreset);
+  writer.writeString(offsets[5], object.catalogueUpdatedAt);
+  writer.writeString(offsets[6], object.catalogueUrl);
+  writer.writeString(offsets[7], object.charset);
+  writer.writeString(offsets[8], object.comment);
+  writer.writeString(offsets[9], object.contentContent);
+  writer.writeString(offsets[10], object.contentMethod);
+  writer.writeString(offsets[11], object.contentPagination);
+  writer.writeBool(offsets[12], object.enabled);
+  writer.writeBool(offsets[13], object.exploreEnabled);
+  writer.writeString(offsets[14], object.exploreJson);
+  writer.writeString(offsets[15], object.header);
+  writer.writeString(offsets[16], object.informationAuthor);
+  writer.writeString(offsets[17], object.informationCatalogueUrl);
+  writer.writeString(offsets[18], object.informationCategory);
+  writer.writeString(offsets[19], object.informationCover);
+  writer.writeString(offsets[20], object.informationIntroduction);
+  writer.writeString(offsets[21], object.informationLatestChapter);
+  writer.writeString(offsets[22], object.informationMethod);
+  writer.writeString(offsets[23], object.informationName);
+  writer.writeString(offsets[24], object.informationWordCount);
+  writer.writeString(offsets[25], object.name);
+  writer.writeString(offsets[26], object.searchAuthor);
+  writer.writeString(offsets[27], object.searchBooks);
+  writer.writeString(offsets[28], object.searchCategory);
+  writer.writeString(offsets[29], object.searchCover);
+  writer.writeString(offsets[30], object.searchInformationUrl);
+  writer.writeString(offsets[31], object.searchIntroduction);
+  writer.writeString(offsets[32], object.searchLatestChapter);
+  writer.writeString(offsets[33], object.searchMethod);
+  writer.writeString(offsets[34], object.searchName);
+  writer.writeString(offsets[35], object.searchUrl);
+  writer.writeString(offsets[36], object.searchWordCount);
+  writer.writeString(offsets[37], object.type);
+  writer.writeString(offsets[38], object.url);
 }
 
 Source _sourceDeserialize(
@@ -324,41 +331,42 @@ Source _sourceDeserialize(
   object.catalogueMethod = reader.readString(offsets[1]);
   object.catalogueName = reader.readString(offsets[2]);
   object.cataloguePagination = reader.readString(offsets[3]);
-  object.catalogueUpdatedAt = reader.readString(offsets[4]);
-  object.catalogueUrl = reader.readString(offsets[5]);
-  object.charset = reader.readString(offsets[6]);
-  object.comment = reader.readString(offsets[7]);
-  object.contentContent = reader.readString(offsets[8]);
-  object.contentMethod = reader.readString(offsets[9]);
-  object.contentPagination = reader.readString(offsets[10]);
-  object.enabled = reader.readBool(offsets[11]);
-  object.exploreEnabled = reader.readBool(offsets[12]);
-  object.exploreJson = reader.readString(offsets[13]);
-  object.header = reader.readString(offsets[14]);
+  object.cataloguePreset = reader.readString(offsets[4]);
+  object.catalogueUpdatedAt = reader.readString(offsets[5]);
+  object.catalogueUrl = reader.readString(offsets[6]);
+  object.charset = reader.readString(offsets[7]);
+  object.comment = reader.readString(offsets[8]);
+  object.contentContent = reader.readString(offsets[9]);
+  object.contentMethod = reader.readString(offsets[10]);
+  object.contentPagination = reader.readString(offsets[11]);
+  object.enabled = reader.readBool(offsets[12]);
+  object.exploreEnabled = reader.readBool(offsets[13]);
+  object.exploreJson = reader.readString(offsets[14]);
+  object.header = reader.readString(offsets[15]);
   object.id = id;
-  object.informationAuthor = reader.readString(offsets[15]);
-  object.informationCatalogueUrl = reader.readString(offsets[16]);
-  object.informationCategory = reader.readString(offsets[17]);
-  object.informationCover = reader.readString(offsets[18]);
-  object.informationIntroduction = reader.readString(offsets[19]);
-  object.informationLatestChapter = reader.readString(offsets[20]);
-  object.informationMethod = reader.readString(offsets[21]);
-  object.informationName = reader.readString(offsets[22]);
-  object.informationWordCount = reader.readString(offsets[23]);
-  object.name = reader.readString(offsets[24]);
-  object.searchAuthor = reader.readString(offsets[25]);
-  object.searchBooks = reader.readString(offsets[26]);
-  object.searchCategory = reader.readString(offsets[27]);
-  object.searchCover = reader.readString(offsets[28]);
-  object.searchInformationUrl = reader.readString(offsets[29]);
-  object.searchIntroduction = reader.readString(offsets[30]);
-  object.searchLatestChapter = reader.readString(offsets[31]);
-  object.searchMethod = reader.readString(offsets[32]);
-  object.searchName = reader.readString(offsets[33]);
-  object.searchUrl = reader.readString(offsets[34]);
-  object.searchWordCount = reader.readString(offsets[35]);
-  object.type = reader.readString(offsets[36]);
-  object.url = reader.readString(offsets[37]);
+  object.informationAuthor = reader.readString(offsets[16]);
+  object.informationCatalogueUrl = reader.readString(offsets[17]);
+  object.informationCategory = reader.readString(offsets[18]);
+  object.informationCover = reader.readString(offsets[19]);
+  object.informationIntroduction = reader.readString(offsets[20]);
+  object.informationLatestChapter = reader.readString(offsets[21]);
+  object.informationMethod = reader.readString(offsets[22]);
+  object.informationName = reader.readString(offsets[23]);
+  object.informationWordCount = reader.readString(offsets[24]);
+  object.name = reader.readString(offsets[25]);
+  object.searchAuthor = reader.readString(offsets[26]);
+  object.searchBooks = reader.readString(offsets[27]);
+  object.searchCategory = reader.readString(offsets[28]);
+  object.searchCover = reader.readString(offsets[29]);
+  object.searchInformationUrl = reader.readString(offsets[30]);
+  object.searchIntroduction = reader.readString(offsets[31]);
+  object.searchLatestChapter = reader.readString(offsets[32]);
+  object.searchMethod = reader.readString(offsets[33]);
+  object.searchName = reader.readString(offsets[34]);
+  object.searchUrl = reader.readString(offsets[35]);
+  object.searchWordCount = reader.readString(offsets[36]);
+  object.type = reader.readString(offsets[37]);
+  object.url = reader.readString(offsets[38]);
   return object;
 }
 
@@ -392,11 +400,11 @@ P _sourceDeserializeProp<P>(
     case 10:
       return (reader.readString(offset)) as P;
     case 11:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 12:
       return (reader.readBool(offset)) as P;
     case 13:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 14:
       return (reader.readString(offset)) as P;
     case 15:
@@ -444,6 +452,8 @@ P _sourceDeserializeProp<P>(
     case 36:
       return (reader.readString(offset)) as P;
     case 37:
+      return (reader.readString(offset)) as P;
+    case 38:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1066,6 +1076,138 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'catalogue_pagination',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition> cataloguePresetEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogue_preset',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      cataloguePresetGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'catalogue_preset',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition> cataloguePresetLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'catalogue_preset',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition> cataloguePresetBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'catalogue_preset',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition> cataloguePresetStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'catalogue_preset',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition> cataloguePresetEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'catalogue_preset',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition> cataloguePresetContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'catalogue_preset',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition> cataloguePresetMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'catalogue_preset',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition> cataloguePresetIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogue_preset',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      cataloguePresetIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'catalogue_preset',
         value: '',
       ));
     });
@@ -5434,6 +5576,18 @@ extension SourceQuerySortBy on QueryBuilder<Source, Source, QSortBy> {
     });
   }
 
+  QueryBuilder<Source, Source, QAfterSortBy> sortByCataloguePreset() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogue_preset', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterSortBy> sortByCataloguePresetDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogue_preset', Sort.desc);
+    });
+  }
+
   QueryBuilder<Source, Source, QAfterSortBy> sortByCatalogueUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'catalogue_updated_at', Sort.asc);
@@ -5895,6 +6049,18 @@ extension SourceQuerySortThenBy on QueryBuilder<Source, Source, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Source, Source, QAfterSortBy> thenByCataloguePreset() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogue_preset', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterSortBy> thenByCataloguePresetDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogue_preset', Sort.desc);
+    });
+  }
+
   QueryBuilder<Source, Source, QAfterSortBy> thenByCatalogueUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'catalogue_updated_at', Sort.asc);
@@ -6352,6 +6518,14 @@ extension SourceQueryWhereDistinct on QueryBuilder<Source, Source, QDistinct> {
     });
   }
 
+  QueryBuilder<Source, Source, QDistinct> distinctByCataloguePreset(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'catalogue_preset',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Source, Source, QDistinct> distinctByCatalogueUpdatedAt(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -6638,6 +6812,12 @@ extension SourceQueryProperty on QueryBuilder<Source, Source, QQueryProperty> {
   QueryBuilder<Source, String, QQueryOperations> cataloguePaginationProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'catalogue_pagination');
+    });
+  }
+
+  QueryBuilder<Source, String, QQueryOperations> cataloguePresetProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'catalogue_preset');
     });
   }
 

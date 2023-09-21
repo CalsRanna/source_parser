@@ -22,6 +22,21 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
               child: Column(
                 children: [
                   RuleTile(
+                    placeholder: '解析后的值使用{{preset}}代替，仅章节URL规则可用',
+                    title: '预设',
+                    value: source.cataloguePreset,
+                    onChange: (value) => updateCataloguePreset(context, value),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
                     title: '目录列表规则',
                     value: source.catalogueChapters,
                     onChange: (value) =>
@@ -71,6 +86,12 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
         creator: currentSourceCreator,
       ),
     );
+  }
+
+  void updateCataloguePreset(BuildContext context, String value) {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(currentSourceCreator, source.copyWith(cataloguePreset: value));
   }
 
   void selectMethod(BuildContext context) {
