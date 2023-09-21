@@ -87,7 +87,7 @@ class _ShelfViewState extends State<ShelfView> {
           await stream.last;
         }
       }
-      ref.set(booksCreator, books);
+      ref.set(booksCreator, [...books]);
     } catch (error) {
       message.show(error.toString());
     }
