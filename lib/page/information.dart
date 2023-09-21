@@ -1,10 +1,12 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:cached_network/cached_network.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
+import 'package:lpinyin/lpinyin.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/setting.dart';
@@ -474,9 +476,14 @@ class _Source extends StatelessWidget {
   }
 }
 
-class _BottomBar extends StatelessWidget {
+class _BottomBar extends StatefulWidget {
   const _BottomBar();
 
+  @override
+  State<StatefulWidget> createState() => __BottomBarState();
+}
+
+class __BottomBarState extends State<_BottomBar> {
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.of(context).padding;
@@ -485,13 +492,24 @@ class _BottomBar extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(16, 8, 16, padding.bottom + 8),
       child: Row(
         children: [
-          // TextButton(
-          //   onPressed: () {},
-          //   child: const Row(
-          //     children: [Icon(Icons.library_add_outlined), Text('加入书架')],
-          //   ),
-          // ),
-          // const SizedBox(width: 8),
+          TextButton(
+            onPressed: () => updateShelf(context),
+            child: FutureBuilder(
+              future: exist(context),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return const Row(
+                    children: [Icon(Icons.check_outlined), Text('已在书架')],
+                  );
+                } else {
+                  return const Row(
+                    children: [Icon(Icons.library_add_outlined), Text('加入书架')],
+                  );
+                }
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: ElevatedButton(
               onPressed: () => startReader(context),
@@ -501,6 +519,41 @@ class _BottomBar extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void updateShelf(BuildContext context) async {
+    final ref = context.ref;
+    final book = await exist(context);
+    if (book != null) {
+      await isar.writeTxn(() async {
+        await isar.books.delete(book.id);
+      });
+      final books = await isar.books.where().findAll();
+      books.sort((a, b) {
+        final first = PinyinHelper.getPinyin(a.name);
+        final second = PinyinHelper.getPinyin(b.name);
+        return first.compareTo(second);
+      });
+      ref.set(booksCreator, books);
+      CachedNetwork(prefix: book.name).clearCache();
+    } else {
+      final currentBook = ref.read(currentBookCreator);
+      await isar.writeTxn(() async {
+        isar.books.put(currentBook);
+      });
+    }
+    setState(() {});
+  }
+
+  Future<Book?> exist(BuildContext context) async {
+    final ref = context.ref;
+    final book = ref.read(currentBookCreator);
+    final name = book.name;
+    final author = book.author;
+    var builder = isar.books.filter();
+    builder = builder.nameEqualTo(name);
+    final exist = await builder.authorEqualTo(author).findFirst();
+    return exist;
   }
 
   void startReader(BuildContext context) async {
