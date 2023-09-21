@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:source_parser/creator/setting.dart';
 
 class LoadingIndicator extends StatelessWidget {
-  const LoadingIndicator({super.key, this.strokeWidth});
-
-  final double? strokeWidth;
+  const LoadingIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +12,7 @@ class LoadingIndicator extends StatelessWidget {
       if (eInkMode) {
         return const Text('正在加载');
       } else {
-        return CircularProgressIndicator(strokeWidth: strokeWidth ?? 4);
+        return const CircularProgressIndicator();
       }
     });
   }

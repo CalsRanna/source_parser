@@ -84,12 +84,13 @@ class _ExploreViewState extends State<ExploreView> {
   Future<void> getExplore() async {
     final ref = context.ref;
     final builder = isar.sources.filter();
-    final exploreSource = ref.read(exploreSourceCreator);
+    var exploreSource = ref.read(exploreSourceCreator);
     if (exploreSource == 0) {
       final sources = await builder.exploreEnabledEqualTo(true).findAll();
       if (sources.isNotEmpty) {
         ref.set(exploreSourceCreator, sources.first.id);
       }
+      exploreSource = ref.read(exploreSourceCreator);
     }
     final source = await builder.idEqualTo(exploreSource).findFirst();
     if (source != null) {

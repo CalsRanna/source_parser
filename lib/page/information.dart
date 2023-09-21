@@ -405,7 +405,7 @@ class _Catalogue extends StatelessWidget {
                 SizedBox(
                   height: 24,
                   width: eInkMode ? null : 24,
-                  child: const LoadingIndicator(strokeWidth: 2),
+                  child: const LoadingIndicator(),
                 ),
               if (!loading || book.chapters.isNotEmpty) ...[
                 Text(

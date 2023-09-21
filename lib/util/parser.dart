@@ -244,13 +244,13 @@ class Parser {
     (await sender.first as SendPort).send(
       [network, url, source, receiver.sendPort],
     );
-    try {
-      final book = await receiver.first as Book;
+    final response = await receiver.first;
+    if (response.runtimeType == Book) {
       isolate.kill();
-      return book;
-    } catch (error) {
+      return response;
+    } else {
       isolate.kill();
-      rethrow;
+      throw Exception(response);
     }
   }
 
