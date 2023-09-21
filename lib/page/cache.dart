@@ -29,10 +29,20 @@ class _CacheListState extends State<CacheList> {
         itemBuilder: (context, index) {
           final cache = caches[index];
           final name = getName(cache);
-          final size = getSize(cache);
           return ListTile(
-            title: Text(name),
-            trailing: Text(size),
+            title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
+            trailing: FutureBuilder(
+                future: getSize(cache),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text(snapshot.error.toString());
+                  }
+                  if (snapshot.hasData) {
+                    return Text(snapshot.data.toString());
+                  } else {
+                    return const SizedBox();
+                  }
+                }),
             onLongPress: () => _handleLongPress(name),
           );
         },
@@ -136,16 +146,21 @@ class _CacheListState extends State<CacheList> {
     return entity.path.split('/').last;
   }
 
-  String getSize(FileSystemEntity entity) {
+  Future<String> getSize(FileSystemEntity entity) async {
     final files = Directory(entity.path).listSync(recursive: true);
-    var size = files.fold(0, (value, file) => value + file.statSync().size);
+    List<int> sizes = [];
+    for (var file in files) {
+      final stat = await file.stat();
+      sizes.add(stat.size);
+    }
+    final total = sizes.reduce((value, size) => value + size);
     String string;
-    if (size < 1024) {
-      string = '$size Bytes';
-    } else if (size >= 1024 && size < 1024 * 1024) {
-      string = '${(size / 1024).toStringAsFixed(2)} KB';
+    if (total < 1024) {
+      string = '$total Bytes';
+    } else if (total >= 1024 && total < 1024 * 1024) {
+      string = '${(total / 1024).toStringAsFixed(2)} KB';
     } else {
-      string = '${(size / 1024 / 1024).toStringAsFixed(2)} MB';
+      string = '${(total / 1024 / 1024).toStringAsFixed(2)} MB';
     }
     return string;
   }
