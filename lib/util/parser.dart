@@ -213,10 +213,14 @@ class Parser {
           book.sources = [availableSource];
           books.add(book);
         }
+        books.shuffle();
         final layout = rule['layout'];
         final title = rule['title'];
-        final result =
-            ExploreResult(layout: layout, title: title, books: books);
+        final result = ExploreResult(
+          layout: layout,
+          title: title,
+          books: books,
+        );
         sender.send(result);
         sender.send('close');
       } catch (error) {
