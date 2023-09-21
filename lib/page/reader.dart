@@ -94,7 +94,10 @@ class _ReaderState extends State<Reader> {
         modes.add(PageTurningMode.tap);
       }
       final eInkMode = ref.watch(eInkModeCreator);
-
+      String title = '';
+      if (book.chapters.isNotEmpty) {
+        title = book.chapters.elementAt(index).name;
+      }
       return Stack(
         children: [
           BookReader(
@@ -108,7 +111,7 @@ class _ReaderState extends State<Reader> {
             modes: modes,
             name: book.name,
             theme: theme,
-            title: book.chapters.elementAt(index).name,
+            title: title,
             total: book.chapters.length,
             onCached: handleCached,
             onCataloguePressed: handleCataloguePressed,
