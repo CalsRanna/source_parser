@@ -195,10 +195,16 @@ class Parser {
         List<Book> books = [];
         for (var node in nodes) {
           final author = parser.query(node, rule['author']);
-          final cover = parser.query(node, rule['cover']);
+          var cover = parser.query(node, rule['cover']);
+          if (!cover.startsWith('http')) {
+            cover = '${source.url}$cover';
+          }
           final name = parser.query(node, rule['name']);
           final introduction = parser.query(node, rule['introduction']);
-          final url = parser.query(node, rule['url']);
+          var url = parser.query(node, rule['url']);
+          if (!url.startsWith('http')) {
+            url = '${source.url}$url';
+          }
           var availableSource = AvailableSource();
           availableSource.id = source.id;
           availableSource.name = source.name;
