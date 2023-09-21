@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:source_parser/creator/book.dart';
+import 'package:source_parser/creator/cache.dart';
 import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/schema/book.dart';
@@ -29,6 +30,9 @@ class Reader extends StatefulWidget {
 }
 
 class _ReaderState extends State<Reader> {
+  bool caching = false;
+  double progress = 0;
+
   @override
   void deactivate() {
     updateBooks();
@@ -91,30 +95,42 @@ class _ReaderState extends State<Reader> {
       }
       final eInkMode = ref.watch(eInkModeCreator);
 
-      return BookReader(
-        author: book.author,
-        cover: BookCover(height: 48, width: 36, url: book.cover),
-        cursor: cursor,
-        darkMode: darkMode,
-        eInkMode: eInkMode,
-        future: getContent,
-        index: index,
-        modes: modes,
-        name: book.name,
-        theme: theme,
-        title: book.chapters.elementAt(index).name,
-        total: book.chapters.length,
-        onCached: handleCached,
-        onCataloguePressed: handleCataloguePressed,
-        onChapterChanged: handleChapterChanged,
-        onDarkModePressed: handleDarkModePressed,
-        onDetailPressed: handleDetailPressed,
-        onMessage: handleMessage,
-        onPop: handlePop,
-        onProgressChanged: handleProgressChanged,
-        onRefresh: handleRefresh,
-        onSettingPressed: handleSettingPressed,
-        onSourcePressed: handleSourcePressed,
+      return Stack(
+        children: [
+          BookReader(
+            author: book.author,
+            cover: BookCover(height: 48, width: 36, url: book.cover),
+            cursor: cursor,
+            darkMode: darkMode,
+            eInkMode: eInkMode,
+            future: getContent,
+            index: index,
+            modes: modes,
+            name: book.name,
+            theme: theme,
+            title: book.chapters.elementAt(index).name,
+            total: book.chapters.length,
+            onCached: handleCached,
+            onCataloguePressed: handleCataloguePressed,
+            onChapterChanged: handleChapterChanged,
+            onDarkModePressed: handleDarkModePressed,
+            onDetailPressed: handleDetailPressed,
+            onMessage: handleMessage,
+            onPop: handlePop,
+            onProgressChanged: handleProgressChanged,
+            onRefresh: handleRefresh,
+            onSettingPressed: handleSettingPressed,
+            onSourcePressed: handleSourcePressed,
+          ),
+          if (caching)
+            const Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: _CacheIndicator(),
+              ),
+            ),
+        ],
       );
     });
   }
@@ -244,34 +260,36 @@ class _ReaderState extends State<Reader> {
   }
 
   void handleCached(int amount) async {
+    setState(() {
+      caching = true;
+    });
     final ref = context.ref;
     final message = Message.of(context);
     final book = ref.read(currentBookCreator);
     final builder = isar.sources.filter();
     final source = await builder.idEqualTo(book.sourceId).findFirst();
     if (source == null) return;
-
     if (amount == 0) {
       amount = book.chapters.length;
     }
-
+    ref.set(cachingSucceedCreator, 0);
+    ref.set(cachingFailedCreator, 0);
+    ref.set(cachingTotalCreator, amount);
     final startIndex = book.index;
     final endIndex = min(startIndex + amount, book.chapters.length);
-    var failed = 0;
-
     final semaphore = Semaphore(16);
     final futures = <Future>[];
     for (var i = startIndex; i < endIndex; i++) {
-      futures.add(
-        cacheChapter(book, source, i, semaphore).catchError((error) {
-          failed++;
-        }),
-      );
+      futures.add(cacheChapter(book, source, i, semaphore));
     }
-
     await Future.wait(futures);
-
-    message.show('缓存完毕，${amount - failed}章成功，$failed章失败');
+    final succeed = ref.read(cachingSucceedCreator);
+    final failed = ref.read(cachingFailedCreator);
+    message.show('缓存完毕，$succeed章成功，$failed章失败');
+    await Future.delayed(const Duration(seconds: 1));
+    setState(() {
+      caching = false;
+    });
   }
 
   Future<void> cacheChapter(
@@ -280,6 +298,7 @@ class _ReaderState extends State<Reader> {
     int chapterIndex,
     Semaphore semaphore,
   ) async {
+    final ref = context.ref;
     await semaphore.acquire();
     try {
       final url = book.chapters.elementAt(chapterIndex).url;
@@ -292,8 +311,11 @@ class _ReaderState extends State<Reader> {
           method: source.contentMethod,
         );
       }
+      final succeed = ref.read(cachingSucceedCreator);
+      ref.set(cachingSucceedCreator, succeed + 1);
     } catch (error) {
-      rethrow;
+      final failed = ref.read(cachingFailedCreator);
+      ref.set(cachingFailedCreator, failed + 1);
     } finally {
       semaphore.release();
     }
@@ -305,5 +327,42 @@ class _ReaderState extends State<Reader> {
 
   void handleSettingPressed() {
     context.push('/reader-theme');
+  }
+}
+
+class _CacheIndicator extends StatelessWidget {
+  const _CacheIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final surfaceVariant = colorScheme.surfaceVariant;
+    final primary = colorScheme.primary;
+    return Container(
+      alignment: Alignment.bottomCenter,
+      decoration: ShapeDecoration(
+        color: surfaceVariant,
+        shape: const StadiumBorder(),
+      ),
+      height: 160,
+      width: 8,
+      child: UnconstrainedBox(
+        child: Watcher((context, ref, child) {
+          final total = ref.watch(cachingTotalCreator);
+          final succeed = ref.watch(cachingSucceedCreator);
+          final failed = ref.watch(cachingFailedCreator);
+          final progress = (succeed + failed) / total;
+          return Container(
+            decoration: ShapeDecoration(
+              color: primary,
+              shape: const StadiumBorder(),
+            ),
+            height: 160 * progress,
+            width: 8,
+          );
+        }),
+      ),
+    );
   }
 }
