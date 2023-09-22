@@ -51,7 +51,7 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Card(
               color: Theme.of(context).colorScheme.surfaceVariant,
               elevation: 0,

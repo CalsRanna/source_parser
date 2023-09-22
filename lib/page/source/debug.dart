@@ -7,9 +7,8 @@ import 'package:json_view/json_view.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/util/parser.dart';
-import 'package:source_parser/util/plain_string.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:source_parser/widget/loading.dart';
+import 'package:source_parser/util/string_extension.dart';
 
 class BookSourceDebug extends StatefulWidget {
   const BookSourceDebug({Key? key}) : super(key: key);
@@ -20,8 +19,10 @@ class BookSourceDebug extends StatefulWidget {
 
 class _BookSourceDebugState extends State<BookSourceDebug> {
   String defaultCredential = '都市';
+  final keys = ['chapters', 'cursor', 'id', 'index', 'source_id', 'sources'];
   bool loading = false;
   DebugResult result = DebugResult();
+  List<DebugResultNew> results = [];
 
   @override
   void didChangeDependencies() {
@@ -31,54 +32,35 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
 
   @override
   Widget build(BuildContext context) {
-    final keys = ['chapters', 'cursor', 'id', 'index', 'source_id', 'sources'];
-    final searchBooksJson = result.searchBooks.map((e) {
-      final map = e.toJson();
-      return _remove(map, [...keys, 'catalogue_url']);
-    }).toList();
-    var informationBookJson = {};
-    if (result.informationBook.isNotEmpty) {
-      final map = result.informationBook.first.toJson();
-      informationBookJson = _remove(map, keys);
-    }
-    final catalogueJson = result.catalogueChapters.map((e) {
-      final map = e.toJson();
-      return _remove(map, ['id']);
-    }).toList();
-    Widget child = const Center(child: LoadingIndicator());
-    if (!loading) {
-      child = ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        children: [
-          _DebugResultTile(
-            response: result.searchRaw.plain(),
-            result: searchBooksJson,
-            title: '搜索',
-          ),
-          // const _DebugResultTile(title: '发现'),
-          _DebugResultTile(
-            response: result.informationRaw.plain(),
-            result: informationBookJson,
-            title: '详情',
-          ),
-          _DebugResultTile(
-            response: result.catalogueRaw.plain(),
-            result: catalogueJson,
-            title: '目录',
-          ),
-          _DebugResultTile(
-            response: result.contentRaw.plain(),
-            result: {'content': result.contentContent},
-            title: '正文',
-          ),
-          if (Platform.isMacOS)
-            _DebugResultTile(
-              response: result.contentContent.codeUnits.toString(),
-              title: '正文Unicode编码',
-            )
-        ],
-      );
-    }
+    Widget child = ListView.builder(
+      itemBuilder: (context, index) {
+        dynamic json = jsonDecode(results[index].json);
+        switch (results[index].title) {
+          case '搜索':
+            for (var item in json) {
+              _remove(item, [...keys, 'catalogue_url']);
+            }
+            break;
+          case '详情':
+            _remove(json, keys);
+            break;
+          case '目录':
+            for (var item in json) {
+              _remove(item, ['id']);
+            }
+            break;
+          default:
+            break;
+        }
+        return _DebugResultTile(
+          response: results[index].raw,
+          result: json,
+          title: results[index].title,
+        );
+      },
+      itemCount: results.length,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+    );
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -89,21 +71,51 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
         ],
         title: const Text('书源调试'),
       ),
-      body: child,
+      body: Column(
+        children: [
+          if (loading) const LinearProgressIndicator(),
+          Expanded(child: child)
+        ],
+      ),
     );
   }
 
   void debug() async {
     setState(() {
       loading = true;
+      results = [];
     });
     final message = Message.of(context);
     try {
       final source = context.ref.read(currentSourceCreator);
-      var debug = await Parser.debug(defaultCredential, source);
-      setState(() {
-        result = debug;
-        loading = false;
+      var stream = await Parser.debug(defaultCredential, source);
+      stream.listen((result) {
+        setState(() {
+          results.add(result);
+        });
+        final isMacOS = Platform.isMacOS;
+        final isWindows = Platform.isWindows;
+        final isLinux = Platform.isLinux;
+        final showExtra = isMacOS || isWindows || isLinux;
+        if (showExtra && result.title == '正文') {
+          setState(() {
+            results.add(DebugResultNew(
+              json: result.json,
+              raw: jsonDecode(result.json)['content'].codeUnits.toString(),
+              title: '正文Unicode编码',
+            ));
+            loading = false;
+          });
+        }
+      }, onDone: () {
+        setState(() {
+          loading = false;
+        });
+      }, onError: (error) {
+        setState(() {
+          loading = false;
+        });
+        message.show(error);
       });
     } catch (e) {
       setState(() {
@@ -154,7 +166,7 @@ class _DebugResultTile extends StatelessWidget {
           ),
           ListTile(
             subtitle: Text(
-              response != null && response!.isNotEmpty ? response! : '解析失败',
+              response.plain() ?? '解析失败',
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),

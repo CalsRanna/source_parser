@@ -22,15 +22,30 @@ class BookSourceInformationConfiguration extends StatelessWidget {
               child: Column(
                 children: [
                   RuleTile(
-                    title: '书名规则',
-                    value: source.informationName,
-                    onChange: (value) => updateInformationName(context, value),
+                    title: '请求方法',
+                    value: source.informationMethod,
+                    onTap: () => selectMethod(context),
                   ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
                   RuleTile(
                     title: '作者规则',
                     value: source.informationAuthor,
                     onChange: (value) =>
                         updateInformationAuthor(context, value),
+                  ),
+                  RuleTile(
+                    title: '目录URL规则',
+                    value: source.informationCatalogueUrl,
+                    onChange: (value) =>
+                        updateInformationCatalogueUrl(context, value),
                   ),
                   RuleTile(
                     title: '分类规则',
@@ -39,16 +54,9 @@ class BookSourceInformationConfiguration extends StatelessWidget {
                         updateInformationCategory(context, value),
                   ),
                   RuleTile(
-                    title: '字数规则',
-                    value: source.informationWordCount,
-                    onChange: (value) =>
-                        updateInformationWordCount(context, value),
-                  ),
-                  RuleTile(
-                    title: '最新章节规则',
-                    value: source.informationLatestChapter,
-                    onChange: (value) =>
-                        updateInformationLatestChapter(context, value),
+                    title: '封面规则',
+                    value: source.informationCover,
+                    onChange: (value) => updateInformationCover(context, value),
                   ),
                   RuleTile(
                     title: '简介规则',
@@ -57,29 +65,21 @@ class BookSourceInformationConfiguration extends StatelessWidget {
                         updateInformationIntroduction(context, value),
                   ),
                   RuleTile(
-                    title: '封面规则',
-                    value: source.informationCover,
-                    onChange: (value) => updateInformationCover(context, value),
-                  ),
-                  RuleTile(
-                    title: '目录URL规则',
-                    value: source.informationCatalogueUrl,
+                    title: '最新章节规则',
+                    value: source.informationLatestChapter,
                     onChange: (value) =>
-                        updateInformationCatalogueUrl(context, value),
+                        updateInformationLatestChapter(context, value),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              elevation: 0,
-              child: Column(
-                children: [
                   RuleTile(
-                    title: '请求方法',
-                    value: source.informationMethod,
-                    onTap: () => selectMethod(context),
+                    title: '书名规则',
+                    value: source.informationName,
+                    onChange: (value) => updateInformationName(context, value),
+                  ),
+                  RuleTile(
+                    title: '字数规则',
+                    value: source.informationWordCount,
+                    onChange: (value) =>
+                        updateInformationWordCount(context, value),
                   ),
                 ],
               ),

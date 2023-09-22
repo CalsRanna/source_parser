@@ -36,7 +36,7 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Card(
               color: Theme.of(context).colorScheme.surfaceVariant,
               elevation: 0,
@@ -47,12 +47,6 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                     title: '书籍列表规则',
                     value: source.searchBooks,
                     onChange: (value) => updateSearchBooks(context, value),
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '书名规则',
-                    value: source.searchName,
-                    onChange: (value) => updateSearchName(context, value),
                   ),
                   RuleTile(
                     bordered: false,
@@ -68,9 +62,9 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                   ),
                   RuleTile(
                     bordered: false,
-                    title: '字数规则',
-                    value: source.searchWordCount,
-                    onChange: (value) => updateSearchWordCount(context, value),
+                    title: '封面规则',
+                    value: source.searchCover,
+                    onChange: (value) => updateSearchCover(context, value),
                   ),
                   RuleTile(
                     bordered: false,
@@ -81,9 +75,16 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                   ),
                   RuleTile(
                     bordered: false,
-                    title: '封面规则',
-                    value: source.searchCover,
-                    onChange: (value) => updateSearchCover(context, value),
+                    title: '最新章节规则',
+                    value: source.searchLatestChapter,
+                    onChange: (value) =>
+                        updateSearchLatestChapter(context, value),
+                  ),
+                  RuleTile(
+                    bordered: false,
+                    title: '书名规则',
+                    value: source.searchName,
+                    onChange: (value) => updateSearchName(context, value),
                   ),
                   RuleTile(
                     bordered: false,
@@ -94,10 +95,9 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                   ),
                   RuleTile(
                     bordered: false,
-                    title: '最新章节规则',
-                    value: source.searchLatestChapter,
-                    onChange: (value) =>
-                        updateSearchLatestChapter(context, value),
+                    title: '字数规则',
+                    value: source.searchWordCount,
+                    onChange: (value) => updateSearchWordCount(context, value),
                   ),
                 ],
               ),

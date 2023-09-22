@@ -22,6 +22,11 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
               child: Column(
                 children: [
                   RuleTile(
+                    title: '请求方法',
+                    value: source.catalogueMethod,
+                    onTap: () => selectMethod(context),
+                  ),
+                  RuleTile(
                     placeholder: '解析后的值使用{{preset}}代替，仅章节URL规则可用',
                     title: '预设',
                     value: source.cataloguePreset,
@@ -30,7 +35,7 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Card(
               color: Theme.of(context).colorScheme.surfaceVariant,
               elevation: 0,
@@ -43,14 +48,15 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
                         updateCatalogueChapters(context, value),
                   ),
                   RuleTile(
+                    title: '下一页URL规则',
+                    value: source.cataloguePagination,
+                    onChange: (value) =>
+                        updateCataloguePagination(context, value),
+                  ),
+                  RuleTile(
                     title: '章节名称规则',
                     value: source.catalogueName,
                     onChange: (value) => updateCatalogueName(context, value),
-                  ),
-                  RuleTile(
-                    title: '章节URL规则',
-                    value: source.catalogueUrl,
-                    onChange: (value) => updateCatalogueUrl(context, value),
                   ),
                   RuleTile(
                     title: '更新时间规则',
@@ -59,24 +65,9 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
                         updateCatalogueUpdatedAt(context, value),
                   ),
                   RuleTile(
-                    title: '下一页URL规则',
-                    value: source.cataloguePagination,
-                    onChange: (value) =>
-                        updateCataloguePagination(context, value),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              elevation: 0,
-              child: Column(
-                children: [
-                  RuleTile(
-                    title: '请求方法',
-                    value: source.catalogueMethod,
-                    onTap: () => selectMethod(context),
+                    title: '章节URL规则',
+                    value: source.catalogueUrl,
+                    onChange: (value) => updateCatalogueUrl(context, value),
                   ),
                 ],
               ),

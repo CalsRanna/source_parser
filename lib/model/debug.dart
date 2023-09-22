@@ -21,3 +21,15 @@ class DebugResult {
   String contentRaw;
   String contentContent;
 }
+
+class DebugResultNew {
+  DebugResultNew({
+    this.title = '',
+    this.raw = '',
+    this.json = '',
+  });
+
+  String title;
+  String raw;
+  String json;
+}

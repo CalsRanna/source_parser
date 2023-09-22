@@ -22,29 +22,29 @@ class BookSourceContentConfiguration extends StatelessWidget {
               child: Column(
                 children: [
                   RuleTile(
-                    title: '正文规则',
-                    value: source.contentContent,
-                    onChange: (value) => updateContentContent(context, value),
-                  ),
-                  RuleTile(
-                    title: '下一页URL规则',
-                    value: source.contentPagination,
-                    onChange: (value) =>
-                        updateContentPagination(context, value),
+                    title: '请求方法',
+                    value: source.contentMethod,
+                    onTap: () => selectMethod(context),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Card(
               color: Theme.of(context).colorScheme.surfaceVariant,
               elevation: 0,
               child: Column(
                 children: [
                   RuleTile(
-                    title: '请求方法',
-                    value: source.contentMethod,
-                    onTap: () => selectMethod(context),
+                    title: '下一页URL规则',
+                    value: source.contentPagination,
+                    onChange: (value) =>
+                        updateContentPagination(context, value),
+                  ),
+                  RuleTile(
+                    title: '正文规则',
+                    value: source.contentContent,
+                    onChange: (value) => updateContentContent(context, value),
                   ),
                 ],
               ),
