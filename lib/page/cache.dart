@@ -66,11 +66,8 @@ class _CacheListState extends State<CacheList> {
 
   void clearCache() async {
     showDialog(
-      context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('清空缓存'),
-          content: const Text('确定清空所有已缓存的内容？'),
           actions: [
             TextButton(
               onPressed: cancelClear,
@@ -81,8 +78,11 @@ class _CacheListState extends State<CacheList> {
               child: const Text('确认'),
             ),
           ],
+          content: const Text('确定清空所有已缓存的内容？'),
+          title: const Text('清空缓存'),
         );
       },
+      context: context,
     );
   }
 
@@ -105,11 +105,8 @@ class _CacheListState extends State<CacheList> {
 
   void _handleLongPress(String name) async {
     showDialog(
-      context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('删除缓存'),
-          content: const Text('确认删除本书所有缓存？'),
           actions: [
             TextButton(
               onPressed: cancel,
@@ -120,8 +117,11 @@ class _CacheListState extends State<CacheList> {
               child: const Text('确认'),
             ),
           ],
+          content: const Text('确认删除本书所有缓存？'),
+          title: const Text('删除缓存'),
         );
       },
+      context: context,
     );
   }
 

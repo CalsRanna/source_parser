@@ -130,7 +130,7 @@ class BookSourceList extends StatelessWidget {
     }
     showDialog(
       barrierDismissible: false,
-      builder: (_) {
+      builder: (context) {
         return const UnconstrainedBox(
           child: SizedBox(
             height: 160,
@@ -175,37 +175,28 @@ class BookSourceList extends StatelessWidget {
       }
       router.pop();
       if (oldSources.isNotEmpty) {
+        final keepButton = TextButton(
+          onPressed: () => handleImport(context, newSources, shouldPop: true),
+          child: const Text('保持原有'),
+        );
+        final overrideButton = TextButton(
+          onPressed: () => handleImport(
+            context,
+            newSources,
+            oldSources: oldSources,
+            shouldPop: true,
+          ),
+          child: const Text('直接覆盖'),
+        );
         // ignore: use_build_context_synchronously
         showDialog(
-          context: context,
           builder: (_) {
             return AlertDialog(
+              actions: [keepButton, overrideButton],
               title: Text('发现${oldSources.length}个同名书源书源'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    handleImport(
-                      context,
-                      newSources,
-                      shouldPop: true,
-                    );
-                  },
-                  child: const Text('保持原有'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    handleImport(
-                      context,
-                      newSources,
-                      oldSources: oldSources,
-                      shouldPop: true,
-                    );
-                  },
-                  child: const Text('直接覆盖'),
-                ),
-              ],
             );
           },
+          context: context,
         );
       } else {
         // ignore: use_build_context_synchronously
@@ -226,9 +217,9 @@ class BookSourceList extends StatelessWidget {
     final router = Navigator.of(context);
     final ref = context.ref;
     if (oldSources.isNotEmpty) {
+      final builder = isar.sources.filter();
       for (var oldSource in oldSources) {
-        final source = await isar.sources
-            .filter()
+        final source = await builder
             .nameEqualTo(oldSource.name)
             .urlEqualTo(oldSource.url)
             .findFirst();

@@ -171,11 +171,8 @@ class _ShelfTile extends StatelessWidget {
 
   void _handleLongPress(BuildContext context) async {
     showDialog(
-      context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('移出书架'),
-          content: const Text('确认将本书移出书架？'),
           actions: [
             TextButton(
               onPressed: () => cancel(context),
@@ -186,8 +183,11 @@ class _ShelfTile extends StatelessWidget {
               child: const Text('确认'),
             ),
           ],
+          content: const Text('确认将本书移出书架？'),
+          title: const Text('移出书架'),
         );
       },
+      context: context,
     );
   }
 
@@ -333,11 +333,8 @@ class _ShelfGridTile extends StatelessWidget {
 
   void _handleLongPress(BuildContext context) async {
     showDialog(
-      context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('移出书架'),
-          content: const Text('确认将本书移出书架？'),
           actions: [
             TextButton(
               onPressed: () => cancel(context),
@@ -348,8 +345,11 @@ class _ShelfGridTile extends StatelessWidget {
               child: const Text('确认'),
             ),
           ],
+          content: const Text('确认将本书移出书架？'),
+          title: const Text('移出书架'),
         );
       },
+      context: context,
     );
   }
 

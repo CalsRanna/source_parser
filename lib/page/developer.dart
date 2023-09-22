@@ -38,21 +38,23 @@ class Developer extends StatelessWidget {
 
   void emptyDatabase(BuildContext context, Ref ref) async {
     showDialog(
+      builder: (context) {
+        return AlertDialog(
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () {},
+              child: const Text('清空'),
+            ),
+          ],
+          content: const Text('确定清空数据库吗？'),
+          title: const Text('清空数据库'),
+        );
+      },
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('清空数据库'),
-        content: const Text('确定清空数据库吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('清空'),
-          ),
-        ],
-      ),
     );
   }
 
