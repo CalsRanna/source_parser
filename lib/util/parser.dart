@@ -393,9 +393,12 @@ class Parser {
     String url,
     Source source,
   ) async {
-    final book = await getInformation(name, url, source);
-    final stream = await getChapters(name, book.catalogueUrl, source);
     try {
+      final book = await getInformation(name, url, source);
+      if (book.latestChapter.isNotEmpty) {
+        return book.latestChapter;
+      }
+      final stream = await getChapters(name, book.catalogueUrl, source);
       final chapter = await stream.last;
       return chapter.name;
     } catch (error) {
@@ -641,7 +644,7 @@ class Parser {
               charset: source.charset,
               duration: const Duration(hours: 6),
               method: source.contentMethod.toUpperCase(),
-              reacquire: false,
+              reacquire: true,
             );
             result.raw = html;
             var document = parser.parse(html);
