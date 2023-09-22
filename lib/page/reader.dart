@@ -34,12 +34,6 @@ class _ReaderState extends State<Reader> {
   double progress = 0;
 
   @override
-  void deactivate() {
-    updateBooks();
-    super.deactivate();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Watcher((context, ref, child) {
       final book = ref.watch(currentBookCreator);
@@ -138,8 +132,16 @@ class _ReaderState extends State<Reader> {
     });
   }
 
+  @override
+  void deactivate() {
+    updateBooks();
+    super.deactivate();
+  }
+
   Future<String> getContent(int index) async {
     final ref = context.ref;
+    // HACK: get content while page animation stopped, should override the animation instead
+    await Future.delayed(const Duration(milliseconds: 300));
     final book = ref.read(currentBookCreator);
     final builder = isar.sources.filter();
     final source = await builder.idEqualTo(book.sourceId).findFirst();
