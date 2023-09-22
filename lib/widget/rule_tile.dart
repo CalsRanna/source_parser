@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:source_parser/util/plain_string.dart';
+import 'package:source_parser/util/string_extension.dart';
 import 'package:source_parser/widget/rule_input.dart';
 
 class RuleTile extends StatelessWidget {
@@ -67,14 +67,14 @@ class RuleTile extends StatelessWidget {
     if (onTap != null) {
       onTap?.call();
     } else {
-      var newValue = await Navigator.of(context).push(MaterialPageRoute(
+      Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => RuleInput(
           placeholder: placeholder,
           title: title,
           text: value,
+          onChange: onChange,
         ),
       ));
-      onChange?.call(newValue);
     }
   }
 }

@@ -1,33 +1,30 @@
 import 'package:flutter/material.dart';
 
-class RuleInput extends StatelessWidget {
+class RuleInput extends StatefulWidget {
   const RuleInput({
     Key? key,
     this.placeholder,
     this.text,
     required this.title,
+    this.onChange,
   }) : super(key: key);
 
   final String? placeholder;
   final String? text;
   final String title;
+  final void Function(String)? onChange;
+
+  @override
+  State<RuleInput> createState() => _RuleInputState();
+}
+
+class _RuleInputState extends State<RuleInput> {
+  TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    var navigator = Navigator.of(context);
-    var controller = TextEditingController()..text = text ?? '';
-
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () => handleTap(navigator, controller),
-            icon: const Icon(Icons.check_outlined),
-          )
-        ],
-        leading: BackButton(onPressed: () => handleTap(navigator, controller)),
-        title: Text(title),
-      ),
+      appBar: AppBar(title: Text(widget.title)),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
@@ -35,7 +32,7 @@ class RuleInput extends StatelessWidget {
             controller: controller,
             decoration: InputDecoration(
               border: InputBorder.none,
-              hintText: placeholder,
+              hintText: widget.placeholder,
             ),
             focusNode: FocusNode()..requestFocus(),
             maxLines: null,
@@ -45,7 +42,18 @@ class RuleInput extends StatelessWidget {
     );
   }
 
-  void handleTap(NavigatorState navigator, TextEditingController controller) {
-    navigator.pop(controller.text);
+  @override
+  void initState() {
+    super.initState();
+    controller.text = widget.text ?? '';
+    controller.addListener(() {
+      widget.onChange?.call(controller.text);
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }
