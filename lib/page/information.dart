@@ -528,13 +528,6 @@ class __BottomBarState extends State<_BottomBar> {
       await isar.writeTxn(() async {
         await isar.books.delete(book.id);
       });
-      final books = await isar.books.where().findAll();
-      books.sort((a, b) {
-        final first = PinyinHelper.getPinyin(a.name);
-        final second = PinyinHelper.getPinyin(b.name);
-        return first.compareTo(second);
-      });
-      ref.set(booksCreator, books);
       CachedNetwork(prefix: book.name).clearCache();
     } else {
       final currentBook = ref.read(currentBookCreator);
@@ -542,6 +535,13 @@ class __BottomBarState extends State<_BottomBar> {
         isar.books.put(currentBook);
       });
     }
+    final books = await isar.books.where().findAll();
+    books.sort((a, b) {
+      final first = PinyinHelper.getPinyin(a.name);
+      final second = PinyinHelper.getPinyin(b.name);
+      return first.compareTo(second);
+    });
+    ref.set(booksCreator, books);
     setState(() {});
   }
 
