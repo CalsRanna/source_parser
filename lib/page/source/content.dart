@@ -60,18 +60,17 @@ class BookSourceContentConfiguration extends StatelessWidget {
     const methods = ['get', 'post'];
     showModalBottomSheet(
       context: context,
-      builder: (context) => SizedBox(
-        height: 56 * 2 + MediaQuery.of(context).padding.bottom,
-        child: Column(
-          children: List.generate(
-            methods.length,
-            (index) => ListTile(
+      builder: (context) {
+        return ListView.builder(
+          itemBuilder: (context, index) {
+            return ListTile(
               title: Text(methods[index]),
               onTap: () => confirmSelect(context, methods[index]),
-            ),
-          ),
-        ),
-      ),
+            );
+          },
+          itemCount: methods.length,
+        );
+      },
     );
   }
 

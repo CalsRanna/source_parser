@@ -113,18 +113,17 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
     const encodings = ['utf8', 'gbk'];
     showModalBottomSheet(
       context: context,
-      builder: (context) => SizedBox(
-        height: 56 * 2 + MediaQuery.of(context).padding.bottom,
-        child: Column(
-          children: List.generate(
-            encodings.length,
-            (index) => ListTile(
+      builder: (context) {
+        return ListView.builder(
+          itemBuilder: (context, index) {
+            return ListTile(
               title: Text(encodings[index]),
               onTap: () => confirmSelect(context, encodings[index]),
-            ),
-          ),
-        ),
-      ),
+            );
+          },
+          itemCount: encodings.length,
+        );
+      },
     );
   }
 

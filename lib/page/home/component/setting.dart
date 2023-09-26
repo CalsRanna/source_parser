@@ -137,22 +137,19 @@ class SettingView extends StatelessWidget {
         return Watcher((context, ref, child) {
           final turningMode = ref.watch(turningModeCreator);
           const checked = Icon(Icons.check);
-          return SizedBox(
-            height: 112,
-            child: Column(
-              children: [
-                ListTile(
-                  title: const Text('滑动翻页'),
-                  trailing: turningMode & 1 != 0 ? checked : null,
-                  onTap: () => confirmUpdateTurningMode(context, 1),
-                ),
-                ListTile(
-                  title: const Text('点击翻页'),
-                  trailing: turningMode & 2 != 0 ? checked : null,
-                  onTap: () => confirmUpdateTurningMode(context, 2),
-                ),
-              ],
-            ),
+          return ListView(
+            children: [
+              ListTile(
+                title: const Text('滑动翻页'),
+                trailing: turningMode & 1 != 0 ? checked : null,
+                onTap: () => confirmUpdateTurningMode(context, 1),
+              ),
+              ListTile(
+                title: const Text('点击翻页'),
+                trailing: turningMode & 2 != 0 ? checked : null,
+                onTap: () => confirmUpdateTurningMode(context, 2),
+              ),
+            ],
           );
         });
       },
