@@ -48,7 +48,9 @@ class _ShelfViewState extends State<ShelfView> {
 
   void getBooks() async {
     final ref = context.ref;
-    final books = await isar.books.where().findAll();
+    var books = ref.read(booksCreator);
+    if (books.isNotEmpty) return;
+    books = await isar.books.where().findAll();
     books.sort((a, b) {
       final first = PinyinHelper.getPinyin(a.name);
       final second = PinyinHelper.getPinyin(b.name);
@@ -56,6 +58,7 @@ class _ShelfViewState extends State<ShelfView> {
     });
     ref.set(booksCreator, books);
     FlutterNativeSplash.remove();
+    refresh();
   }
 
   Future<void> refresh() async {
