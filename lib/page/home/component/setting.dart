@@ -92,7 +92,7 @@ class SettingView extends StatelessWidget {
           child: const Column(
             children: [
               SettingTile(
-                icon: Icons.cached_outlined,
+                icon: Icons.file_download_outlined,
                 route: '/setting/cache',
                 title: '缓存',
               ),

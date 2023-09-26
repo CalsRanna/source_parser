@@ -54,36 +54,39 @@ class _CataloguePageState extends State<CataloguePage> {
           final onSurface = theme.colorScheme.onSurface;
           final network = CachedNetwork(prefix: book.name);
 
-          return ListView.builder(
+          return Scrollbar(
             controller: controller,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: FutureBuilder(
-                  builder: (context, snapshot) {
-                    Color color;
-                    if (book.index == index) {
-                      color = primary;
-                    } else {
-                      color = onSurface.withOpacity(0.5);
-                      if (snapshot.hasData) {
-                        final cached = snapshot.data!;
-                        color = onSurface.withOpacity(cached ? 1 : 0.5);
+            child: ListView.builder(
+              controller: controller,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: FutureBuilder(
+                    builder: (context, snapshot) {
+                      Color color;
+                      if (book.index == index) {
+                        color = primary;
+                      } else {
+                        color = onSurface.withOpacity(0.5);
+                        if (snapshot.hasData) {
+                          final cached = snapshot.data!;
+                          color = onSurface.withOpacity(cached ? 1 : 0.5);
+                        }
                       }
-                    }
-                    return Text(
-                      book.chapters[index].name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: color),
-                    );
-                  },
-                  future: network.cached(book.chapters[index].url),
-                ),
-                onTap: () => startReader(index),
-              );
-            },
-            itemCount: book.chapters.length,
-            itemExtent: 56,
+                      return Text(
+                        book.chapters[index].name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: color),
+                      );
+                    },
+                    future: network.cached(book.chapters[index].url),
+                  ),
+                  onTap: () => startReader(index),
+                );
+              },
+              itemCount: book.chapters.length,
+              itemExtent: 56,
+            ),
           );
         }),
       ),
