@@ -50,6 +50,10 @@ class _HomePageState extends State<HomePage> {
       }),
     ];
     final exploreActions = <Widget>[
+      IconButton(
+        onPressed: handlePressed,
+        icon: const Icon(Icons.search),
+      ),
       Watcher((_, ref, child) {
         final source = ref.watch(exploreSourceCreator);
         return PopupMenuButton(
