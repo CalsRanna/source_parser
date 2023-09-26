@@ -2,7 +2,7 @@ import 'package:creator/creator.dart';
 import 'package:source_parser/model/explore.dart';
 
 final exploreLoadingCreator = Creator<bool>.value(
-  false,
+  true,
   keepAlive: true,
   name: 'exploreLoadingCreator',
 );
