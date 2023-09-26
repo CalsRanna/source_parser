@@ -275,12 +275,13 @@ class _ReaderState extends State<Reader> {
     final source = await builder.idEqualTo(book.sourceId).findFirst();
     if (source == null) return;
     if (amount == 0) {
-      amount = book.chapters.length;
+      amount = book.chapters.length - (book.index + 1);
     }
+    amount = min(amount, book.chapters.length - (book.index + 1));
     ref.set(cachingSucceedCreator, 0);
     ref.set(cachingFailedCreator, 0);
     ref.set(cachingTotalCreator, amount);
-    final startIndex = book.index;
+    final startIndex = book.index + 1;
     final endIndex = min(startIndex + amount, book.chapters.length);
     final semaphore = Semaphore(16);
     final futures = <Future>[];
@@ -356,7 +357,12 @@ class _CacheIndicator extends StatelessWidget {
         final total = ref.watch(cachingTotalCreator);
         final succeed = ref.watch(cachingSucceedCreator);
         final failed = ref.watch(cachingFailedCreator);
-        final progress = (succeed + failed) / total;
+        double progress;
+        if (total == 0) {
+          progress = 1;
+        } else {
+          progress = (succeed + failed) / total;
+        }
         return DecoratedBox(
           decoration: ShapeDecoration(
             color: primary,
