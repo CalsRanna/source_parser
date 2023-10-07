@@ -68,6 +68,8 @@ class _BookInformationState extends State<BookInformation> {
                   _Catalogue(book: book, eInkMode: eInkMode, loading: loading),
                   const SizedBox(height: 8),
                   _Source(sources: book.sources),
+                  const SizedBox(height: 8),
+                  const _Archive(),
                 ]),
               )
             ],
@@ -473,6 +475,56 @@ class _Source extends StatelessWidget {
   void handleTap(BuildContext context) {
     context.ref.set(fromCreator, '/book-information');
     context.push('/book-available-sources');
+  }
+}
+
+class _Archive extends StatelessWidget {
+  const _Archive();
+
+  @override
+  Widget build(BuildContext context) {
+    const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+    return GestureDetector(
+      onTap: () => handleTap(context),
+      child: Card(
+        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: const RoundedRectangleBorder(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Text('归档', style: boldTextStyle),
+                  const Spacer(),
+                  Watcher((context, ref, child) {
+                    final book = ref.watch(currentBookCreator);
+                    return Switch(
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      value: book.archive,
+                      onChanged: (value) => handleTap(context),
+                    );
+                  })
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void handleTap(BuildContext context) {
+    final ref = context.ref;
+    final book = ref.read(currentBookCreator);
+    final archivedBook = book.copyWith(archive: !book.archive);
+    ref.set(currentBookCreator, archivedBook);
+    isar.writeTxn(() async {
+      await isar.books.put(archivedBook);
+    });
   }
 }
 

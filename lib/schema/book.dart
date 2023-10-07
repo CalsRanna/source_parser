@@ -7,6 +7,7 @@ part 'book.g.dart';
 class Book {
   Id id = Isar.autoIncrement;
   String author = '';
+  bool archive = false;
   String catalogueUrl = '';
   String category = '';
   List<Chapter> chapters = [];
@@ -44,6 +45,7 @@ class Book {
     }
     return Book()
       ..author = json['author'] ?? ''
+      ..archive = json['archive'] ?? false
       ..catalogueUrl = json['catalogue_url'] ?? ''
       ..category = json['category'] ?? ''
       ..chapters = chapters
@@ -65,6 +67,7 @@ class Book {
     return {
       'id': id,
       'author': author,
+      'archive': archive,
       'catalogue_url': catalogueUrl,
       'category': category,
       'chapters': chapters.map((chapter) => chapter.toJson()).toList(),
@@ -86,6 +89,7 @@ class Book {
   Book copyWith({
     Id? id,
     String? author,
+    bool? archive,
     String? catalogueUrl,
     String? category,
     List<Chapter>? chapters,
@@ -105,6 +109,7 @@ class Book {
     return Book()
       ..id = id ?? this.id
       ..author = author ?? this.author
+      ..archive = archive ?? this.archive
       ..catalogueUrl = catalogueUrl ?? this.catalogueUrl
       ..category = category ?? this.category
       ..chapters = chapters ?? this.chapters

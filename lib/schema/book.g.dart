@@ -17,85 +17,90 @@ const BookSchema = CollectionSchema(
   name: r'books',
   id: -6274321545234461597,
   properties: {
-    r'author': PropertySchema(
+    r'archive': PropertySchema(
       id: 0,
+      name: r'archive',
+      type: IsarType.bool,
+    ),
+    r'author': PropertySchema(
+      id: 1,
       name: r'author',
       type: IsarType.string,
     ),
     r'catalogueUrl': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'catalogueUrl',
       type: IsarType.string,
     ),
     r'category': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'category',
       type: IsarType.string,
     ),
     r'chapters': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'chapters',
       type: IsarType.objectList,
       target: r'chapters',
     ),
     r'cover': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'cover',
       type: IsarType.string,
     ),
     r'cursor': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'cursor',
       type: IsarType.long,
     ),
     r'index': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'index',
       type: IsarType.long,
     ),
     r'introduction': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'introduction',
       type: IsarType.string,
     ),
     r'latest_chapter': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'latest_chapter',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'name',
       type: IsarType.string,
     ),
     r'source_id': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'source_id',
       type: IsarType.long,
     ),
     r'sources': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'sources',
       type: IsarType.objectList,
       target: r'available_sources',
     ),
     r'status': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'status',
       type: IsarType.string,
     ),
     r'updated_at': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'updated_at',
       type: IsarType.string,
     ),
     r'url': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'url',
       type: IsarType.string,
     ),
     r'words': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'words',
       type: IsarType.string,
     )
@@ -160,32 +165,33 @@ void _bookSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.author);
-  writer.writeString(offsets[1], object.catalogueUrl);
-  writer.writeString(offsets[2], object.category);
+  writer.writeBool(offsets[0], object.archive);
+  writer.writeString(offsets[1], object.author);
+  writer.writeString(offsets[2], object.catalogueUrl);
+  writer.writeString(offsets[3], object.category);
   writer.writeObjectList<Chapter>(
-    offsets[3],
+    offsets[4],
     allOffsets,
     ChapterSchema.serialize,
     object.chapters,
   );
-  writer.writeString(offsets[4], object.cover);
-  writer.writeLong(offsets[5], object.cursor);
-  writer.writeLong(offsets[6], object.index);
-  writer.writeString(offsets[7], object.introduction);
-  writer.writeString(offsets[8], object.latestChapter);
-  writer.writeString(offsets[9], object.name);
-  writer.writeLong(offsets[10], object.sourceId);
+  writer.writeString(offsets[5], object.cover);
+  writer.writeLong(offsets[6], object.cursor);
+  writer.writeLong(offsets[7], object.index);
+  writer.writeString(offsets[8], object.introduction);
+  writer.writeString(offsets[9], object.latestChapter);
+  writer.writeString(offsets[10], object.name);
+  writer.writeLong(offsets[11], object.sourceId);
   writer.writeObjectList<AvailableSource>(
-    offsets[11],
+    offsets[12],
     allOffsets,
     AvailableSourceSchema.serialize,
     object.sources,
   );
-  writer.writeString(offsets[12], object.status);
-  writer.writeString(offsets[13], object.updatedAt);
-  writer.writeString(offsets[14], object.url);
-  writer.writeString(offsets[15], object.words);
+  writer.writeString(offsets[13], object.status);
+  writer.writeString(offsets[14], object.updatedAt);
+  writer.writeString(offsets[15], object.url);
+  writer.writeString(offsets[16], object.words);
 }
 
 Book _bookDeserialize(
@@ -195,35 +201,36 @@ Book _bookDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Book();
-  object.author = reader.readString(offsets[0]);
-  object.catalogueUrl = reader.readString(offsets[1]);
-  object.category = reader.readString(offsets[2]);
+  object.archive = reader.readBool(offsets[0]);
+  object.author = reader.readString(offsets[1]);
+  object.catalogueUrl = reader.readString(offsets[2]);
+  object.category = reader.readString(offsets[3]);
   object.chapters = reader.readObjectList<Chapter>(
-        offsets[3],
+        offsets[4],
         ChapterSchema.deserialize,
         allOffsets,
         Chapter(),
       ) ??
       [];
-  object.cover = reader.readString(offsets[4]);
-  object.cursor = reader.readLong(offsets[5]);
+  object.cover = reader.readString(offsets[5]);
+  object.cursor = reader.readLong(offsets[6]);
   object.id = id;
-  object.index = reader.readLong(offsets[6]);
-  object.introduction = reader.readString(offsets[7]);
-  object.latestChapter = reader.readString(offsets[8]);
-  object.name = reader.readString(offsets[9]);
-  object.sourceId = reader.readLong(offsets[10]);
+  object.index = reader.readLong(offsets[7]);
+  object.introduction = reader.readString(offsets[8]);
+  object.latestChapter = reader.readString(offsets[9]);
+  object.name = reader.readString(offsets[10]);
+  object.sourceId = reader.readLong(offsets[11]);
   object.sources = reader.readObjectList<AvailableSource>(
-        offsets[11],
+        offsets[12],
         AvailableSourceSchema.deserialize,
         allOffsets,
         AvailableSource(),
       ) ??
       [];
-  object.status = reader.readString(offsets[12]);
-  object.updatedAt = reader.readString(offsets[13]);
-  object.url = reader.readString(offsets[14]);
-  object.words = reader.readString(offsets[15]);
+  object.status = reader.readString(offsets[13]);
+  object.updatedAt = reader.readString(offsets[14]);
+  object.url = reader.readString(offsets[15]);
+  object.words = reader.readString(offsets[16]);
   return object;
 }
 
@@ -235,12 +242,14 @@ P _bookDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
+      return (reader.readString(offset)) as P;
+    case 4:
       return (reader.readObjectList<Chapter>(
             offset,
             ChapterSchema.deserialize,
@@ -248,21 +257,21 @@ P _bookDeserializeProp<P>(
             Chapter(),
           ) ??
           []) as P;
-    case 4:
-      return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
       return (reader.readLong(offset)) as P;
     case 7:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 8:
       return (reader.readString(offset)) as P;
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 11:
+      return (reader.readLong(offset)) as P;
+    case 12:
       return (reader.readObjectList<AvailableSource>(
             offset,
             AvailableSourceSchema.deserialize,
@@ -270,13 +279,13 @@ P _bookDeserializeProp<P>(
             AvailableSource(),
           ) ??
           []) as P;
-    case 12:
-      return (reader.readString(offset)) as P;
     case 13:
       return (reader.readString(offset)) as P;
     case 14:
       return (reader.readString(offset)) as P;
     case 15:
+      return (reader.readString(offset)) as P;
+    case 16:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -371,6 +380,15 @@ extension BookQueryWhere on QueryBuilder<Book, Book, QWhereClause> {
 }
 
 extension BookQueryFilter on QueryBuilder<Book, Book, QFilterCondition> {
+  QueryBuilder<Book, Book, QAfterFilterCondition> archiveEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'archive',
+        value: value,
+      ));
+    });
+  }
+
   QueryBuilder<Book, Book, QAfterFilterCondition> authorEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -2184,6 +2202,18 @@ extension BookQueryObject on QueryBuilder<Book, Book, QFilterCondition> {
 extension BookQueryLinks on QueryBuilder<Book, Book, QFilterCondition> {}
 
 extension BookQuerySortBy on QueryBuilder<Book, Book, QSortBy> {
+  QueryBuilder<Book, Book, QAfterSortBy> sortByArchive() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'archive', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterSortBy> sortByArchiveDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'archive', Sort.desc);
+    });
+  }
+
   QueryBuilder<Book, Book, QAfterSortBy> sortByAuthor() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'author', Sort.asc);
@@ -2354,6 +2384,18 @@ extension BookQuerySortBy on QueryBuilder<Book, Book, QSortBy> {
 }
 
 extension BookQuerySortThenBy on QueryBuilder<Book, Book, QSortThenBy> {
+  QueryBuilder<Book, Book, QAfterSortBy> thenByArchive() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'archive', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterSortBy> thenByArchiveDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'archive', Sort.desc);
+    });
+  }
+
   QueryBuilder<Book, Book, QAfterSortBy> thenByAuthor() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'author', Sort.asc);
@@ -2536,6 +2578,12 @@ extension BookQuerySortThenBy on QueryBuilder<Book, Book, QSortThenBy> {
 }
 
 extension BookQueryWhereDistinct on QueryBuilder<Book, Book, QDistinct> {
+  QueryBuilder<Book, Book, QDistinct> distinctByArchive() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'archive');
+    });
+  }
+
   QueryBuilder<Book, Book, QDistinct> distinctByAuthor(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2637,6 +2685,12 @@ extension BookQueryProperty on QueryBuilder<Book, Book, QQueryProperty> {
   QueryBuilder<Book, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Book, bool, QQueryOperations> archiveProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'archive');
     });
   }
 
