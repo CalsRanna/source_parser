@@ -520,11 +520,17 @@ class _Archive extends StatelessWidget {
     );
   }
 
-  void handleTap(BuildContext context) {
+  void handleTap(BuildContext context) async {
     final ref = context.ref;
     final book = ref.read(currentBookCreator);
     final archivedBook = book.copyWith(archive: !book.archive);
     ref.set(currentBookCreator, archivedBook);
+    final name = book.name;
+    final author = book.author;
+    var builder = isar.books.filter();
+    builder = builder.nameEqualTo(name);
+    final exist = await builder.authorEqualTo(author).findFirst();
+    if (exist == null) return;
     isar.writeTxn(() async {
       await isar.books.put(archivedBook);
     });
