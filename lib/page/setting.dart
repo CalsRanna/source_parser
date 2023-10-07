@@ -88,8 +88,6 @@ class AdvancedSettingPage extends StatelessWidget {
   }
 
   void updateCacheDuration(BuildContext context, double duration) async {
-    print(duration);
-
     final ref = context.ref;
     ref.set(cacheDurationCreator, duration);
     var setting = await isar.settings.where().findFirst();
@@ -102,7 +100,6 @@ class AdvancedSettingPage extends StatelessWidget {
   }
 
   void updateMaxConcurrent(BuildContext context, double concurrent) async {
-    print(concurrent);
     final ref = context.ref;
     ref.set(maxConcurrentCreator, concurrent);
     var setting = await isar.settings.where().findFirst();

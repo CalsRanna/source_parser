@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cached_network/cached_network.dart';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
@@ -23,21 +21,35 @@ class CataloguePage extends StatefulWidget {
 class _CataloguePageState extends State<CataloguePage> {
   late ScrollController controller;
   bool atTop = true;
+  GlobalKey globalKey = GlobalKey();
 
   @override
-  void didChangeDependencies() {
-    final ref = context.ref;
-    final book = ref.watch(currentBookCreator);
-    // HACK: offset minus 344 to keep tile in the screen center
-    double offset = max(56.0 * book.index - 344, 0);
-    controller = ScrollController(initialScrollOffset: offset);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    controller = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final height = MediaQuery.of(context).size.height;
+      final padding = MediaQuery.of(context).padding;
+      final maxScrollExtent = controller.position.maxScrollExtent;
+      final appBarContext = globalKey.currentContext;
+      final appBarRenderBox = appBarContext!.findRenderObject() as RenderBox;
+      var listViewHeight = height - padding.vertical;
+      listViewHeight = listViewHeight - appBarRenderBox.size.height;
+      final halfHeight = listViewHeight / 2;
+      final ref = context.ref;
+      final book = ref.watch(currentBookCreator);
+      var offset = 56.0 * book.index;
+      offset = (offset - halfHeight);
+      offset = offset.clamp(0, maxScrollExtent);
+      controller.jumpTo(offset);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        key: globalKey,
         title: const Text('目录'),
         actions: [
           TextButton(
@@ -64,8 +76,10 @@ class _CataloguePageState extends State<CataloguePage> {
                   title: FutureBuilder(
                     builder: (context, snapshot) {
                       Color color;
+                      FontWeight? weight;
                       if (book.index == index) {
                         color = primary;
+                        weight = FontWeight.bold;
                       } else {
                         color = onSurface.withOpacity(0.5);
                         if (snapshot.hasData) {
@@ -77,7 +91,7 @@ class _CataloguePageState extends State<CataloguePage> {
                         book.chapters[index].name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: color),
+                        style: TextStyle(color: color, fontWeight: weight),
                       );
                     },
                     future: network.cached(book.chapters[index].url),
