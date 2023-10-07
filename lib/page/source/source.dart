@@ -282,7 +282,7 @@ class _SourceTile extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     var onBackground = colorScheme.onBackground;
     if (!source.enabled) {
-      onBackground = onBackground.withOpacity(0.75);
+      onBackground = onBackground.withOpacity(0.8);
     }
     final primary = colorScheme.primary;
     return InkWell(

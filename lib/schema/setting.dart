@@ -9,6 +9,8 @@ class Setting {
   Id id = Isar.autoIncrement;
   @Name('background_color')
   int backgroundColor = Colors.white.value;
+  @Name('cache_duration')
+  double cacheDuration = 6.0;
   @Name('color_seed')
   int colorSeed = Colors.blue.value;
   @Name('dark_mode')
@@ -23,6 +25,8 @@ class Setting {
   int fontSize = 18;
   @Name('line_space')
   double lineSpace = 1.0 + 0.618 * 2;
+  @Name('max_concurrent')
+  double maxConcurrent = 16.0;
   @Name('shelf_mode')
   String shelfMode = 'list';
   @Name('turning_mode')

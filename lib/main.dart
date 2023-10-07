@@ -68,11 +68,17 @@ class _SourceParserState extends State<SourceParser> {
     if (setting.backgroundColor.isNegative) {
       setting.backgroundColor = Colors.white.value;
     }
-    if (setting.lineSpace.isNaN) {
-      setting.lineSpace = 1.0 + 0.618 * 2;
+    if (setting.cacheDuration.isNaN) {
+      setting.cacheDuration = 6.0;
     }
     if (setting.fontSize.isNegative) {
       setting.fontSize = 18;
+    }
+    if (setting.lineSpace.isNaN) {
+      setting.lineSpace = 1.0 + 0.618 * 2;
+    }
+    if (setting.maxConcurrent.isNaN) {
+      setting.maxConcurrent = 16.0;
     }
     if (setting.shelfMode.isEmpty) {
       setting.shelfMode = 'list';
@@ -84,11 +90,13 @@ class _SourceParserState extends State<SourceParser> {
       await isar.settings.put(setting!);
     });
     ref.set(backgroundColorCreator, setting.backgroundColor);
+    ref.set(cacheDurationCreator, setting.cacheDuration);
     ref.set(darkModeCreator, setting.darkMode);
     ref.set(eInkModeCreator, setting.eInkMode);
+    ref.set(exploreSourceCreator, setting.exploreSource);
     ref.set(fontSizeCreator, setting.fontSize);
     ref.set(lineSpaceCreator, setting.lineSpace);
-    ref.set(exploreSourceCreator, setting.exploreSource);
+    ref.set(maxConcurrentCreator, setting.maxConcurrent);
     ref.set(shelfModeCreator, setting.shelfMode);
     ref.set(turningModeCreator, setting.turningMode);
   }

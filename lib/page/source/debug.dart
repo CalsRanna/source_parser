@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:json_view/json_view.dart';
+import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/util/parser.dart';
@@ -88,7 +89,12 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
     final message = Message.of(context);
     try {
       final source = context.ref.read(currentSourceCreator);
-      var stream = await Parser.debug(defaultCredential, source);
+      final duration = context.ref.read(cacheDurationCreator);
+      var stream = await Parser.debug(
+        defaultCredential,
+        source,
+        Duration(hours: duration.floor()),
+      );
       stream.listen((result) {
         setState(() {
           results.add(result);

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/router.dart';
+import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -65,10 +66,17 @@ class _AvailableSourcesState extends State<AvailableSources> {
   }
 
   Future<String> getLatestChapter(String name, AvailableSource source) async {
+    final ref = context.ref;
     final builder = isar.sources.filter();
     final currentSource = await builder.idEqualTo(source.id).findFirst();
     if (currentSource != null) {
-      return Parser.getLatestChapter(name, source.url, currentSource);
+      final duration = ref.read(cacheDurationCreator);
+      return Parser.getLatestChapter(
+        name,
+        source.url,
+        currentSource,
+        Duration(hours: duration.floor()),
+      );
     } else {
       return '加载失败';
     }
@@ -79,7 +87,13 @@ class _AvailableSourcesState extends State<AvailableSources> {
     try {
       final ref = context.ref;
       final currentBook = ref.read(currentBookCreator);
-      var stream = await Parser.search(currentBook.name);
+      final maxConcurrent = ref.read(maxConcurrentCreator);
+      final duration = ref.read(cacheDurationCreator);
+      var stream = await Parser.search(
+        currentBook.name,
+        maxConcurrent.floor(),
+        Duration(hours: duration.floor()),
+      );
       stream = stream.asBroadcastStream();
       List<AvailableSource> sources = [...currentBook.sources];
       stream.listen((book) async {
@@ -158,9 +172,20 @@ class _AvailableSourcesState extends State<AvailableSources> {
       try {
         final name = book.name;
         final url = book.sources[index].url;
-        final information = await Parser.getInformation(name, url, source);
+        final duration = ref.read(cacheDurationCreator);
+        final information = await Parser.getInformation(
+          name,
+          url,
+          source,
+          Duration(hours: duration.floor()),
+        );
         final catalogueUrl = information.catalogueUrl;
-        var stream = await Parser.getChapters(name, catalogueUrl, source);
+        var stream = await Parser.getChapters(
+          name,
+          catalogueUrl,
+          source,
+          Duration(hours: duration.floor()),
+        );
         stream = stream.asBroadcastStream();
         List<Chapter> chapters = [];
         stream.listen(

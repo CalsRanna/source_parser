@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:source_parser/page/cache.dart';
 import 'package:source_parser/page/information.dart';
+import 'package:source_parser/page/setting.dart';
 import 'package:source_parser/page/source/advanced.dart';
 import 'package:source_parser/page/source/catalogue.dart';
 import 'package:source_parser/page/source/content.dart';
@@ -85,6 +86,10 @@ final router = GoRouter(routes: [
   GoRoute(
     builder: (context, state) => const ReaderTheme(),
     path: '/reader-theme',
+  ),
+  GoRoute(
+    builder: (context, state) => const AdvancedSettingPage(),
+    path: '/setting/advanced',
   ),
   GoRoute(
     builder: (context, state) => const CacheList(),

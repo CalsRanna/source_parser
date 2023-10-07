@@ -7,6 +7,12 @@ final backgroundColorCreator = Creator.value(
   name: 'backgroundColorCreator',
 );
 
+final cacheDurationCreator = Creator.value(
+  6.0,
+  keepAlive: true,
+  name: 'cacheDurationCreator',
+);
+
 final darkModeCreator = Creator.value(false, keepAlive: true, name: 'darkMode');
 
 final fontSizeCreator = Creator.value(18, keepAlive: true, name: 'fontSize');
@@ -15,6 +21,12 @@ final lineSpaceCreator = Creator.value(
   1.0 + 0.618 * 2,
   keepAlive: true,
   name: 'lineSpaceCreator',
+);
+
+final maxConcurrentCreator = Creator.value(
+  16.0,
+  keepAlive: true,
+  name: 'maxConcurrentCreator',
 );
 
 final eInkModeCreator = Creator.value(false, keepAlive: true, name: 'eInkMode');

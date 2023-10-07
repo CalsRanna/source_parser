@@ -283,7 +283,8 @@ class _ReaderState extends State<Reader> {
     ref.set(cachingTotalCreator, amount);
     final startIndex = book.index + 1;
     final endIndex = min(startIndex + amount, book.chapters.length);
-    final semaphore = Semaphore(16);
+    final maxConcurrent = ref.read(maxConcurrentCreator);
+    final semaphore = Semaphore(maxConcurrent.floor());
     final futures = <Future>[];
     for (var i = startIndex; i < endIndex; i++) {
       futures.add(cacheChapter(book, source, i, semaphore));

@@ -1,4 +1,5 @@
 import 'package:creator/creator.dart';
+import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/util/parser.dart';
 
@@ -15,6 +16,7 @@ final currentBookCreator = Creator.value(
 );
 
 final topSearchEmitter = Emitter<List<Book>>((ref, emit) async {
-  final books = await Parser.topSearch();
+  final duration = ref.read(cacheDurationCreator);
+  final books = await Parser.topSearch(Duration(hours: duration.floor()));
   emit(books);
 }, name: 'topSearchEmitter');

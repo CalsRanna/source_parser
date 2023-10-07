@@ -71,10 +71,12 @@ class _ShelfViewState extends State<ShelfView> {
         final builder = isar.sources.filter();
         final source = await builder.idEqualTo(book.sourceId).findFirst();
         if (source != null) {
+          final duration = ref.read(cacheDurationCreator);
           var stream = await Parser.getChapters(
             book.name,
             book.catalogueUrl,
             source,
+            Duration(hours: duration.floor()),
           );
           stream = stream.asBroadcastStream();
           List<Chapter> chapters = [];

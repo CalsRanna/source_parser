@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/router.dart';
+import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -101,10 +102,12 @@ class _CataloguePageState extends State<CataloguePage> {
       final builder = isar.sources.filter();
       final source = await builder.idEqualTo(book.sourceId).findFirst();
       if (source != null) {
+        final duration = ref.read(cacheDurationCreator);
         var stream = await Parser.getChapters(
           book.name,
           book.catalogueUrl,
           source,
+          Duration(hours: duration.floor()),
         );
         stream = stream.asBroadcastStream();
         List<Chapter> chapters = [];

@@ -92,10 +92,12 @@ class _BookInformationState extends State<BookInformation> {
       final sourceId = book.sourceId;
       final source = await queryBuilder.idEqualTo(sourceId).findFirst();
       if (source != null) {
+        final duration = ref.read(cacheDurationCreator);
         final information = await Parser.getInformation(
           book.name,
           book.url,
           source,
+          Duration(hours: duration.floor()),
         );
         String? updatedIntroduction;
         if (information.introduction.length > book.introduction.length) {
@@ -105,6 +107,7 @@ class _BookInformationState extends State<BookInformation> {
           book.name,
           information.catalogueUrl,
           source,
+          Duration(hours: duration.floor()),
         );
         stream = stream.asBroadcastStream();
         List<Chapter> chapters = [];
@@ -659,15 +662,18 @@ class __CoverSelectorState extends State<_CoverSelector> {
     setState(() {
       loading = true;
     });
+    final ref = context.ref;
     final availableSources = widget.book.sources;
     for (var availableSource in availableSources) {
       final source =
           await isar.sources.filter().idEqualTo(availableSource.id).findFirst();
       if (source != null) {
+        final duration = ref.read(cacheDurationCreator);
         final information = await Parser.getInformation(
           widget.book.name,
           availableSource.url,
           source,
+          Duration(hours: duration.floor()),
         );
         final cover = information.cover;
         if (cover.isNotEmpty) {

@@ -148,7 +148,11 @@ class _HomePageState extends State<HomePage> {
       final source = await isar.sources.filter().idEqualTo(value).findFirst();
       if (source != null) {
         List<ExploreResult> results = [];
-        final stream = await Parser.getExplore(source);
+        final duration = ref.read(cacheDurationCreator);
+        final stream = await Parser.getExplore(
+          source,
+          Duration(hours: duration.floor()),
+        );
         stream.listen((result) {
           results.add(result);
           ref.set(exploreBooksCreator, results);

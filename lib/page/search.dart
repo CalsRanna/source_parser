@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/book.dart';
+import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -167,7 +168,13 @@ class _SearchState extends State<Search> {
     controller.text = credential;
     final message = Message.of(context);
     try {
-      final stream = await Parser.search(credential);
+      final maxConcurrent = context.ref.read(maxConcurrentCreator);
+      final duration = context.ref.read(cacheDurationCreator);
+      final stream = await Parser.search(
+        credential,
+        maxConcurrent.floor(),
+        Duration(hours: duration.floor()),
+      );
       stream.listen(
         (book) async {
           if (!book.name.contains(credential) &&

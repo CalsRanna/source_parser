@@ -99,7 +99,11 @@ class _ExploreViewState extends State<ExploreView> {
         return item['title'];
       }).toList();
       List<ExploreResult> results = [];
-      final stream = await Parser.getExplore(source);
+      final duration = ref.read(cacheDurationCreator);
+      final stream = await Parser.getExplore(
+        source,
+        Duration(hours: duration.floor()),
+      );
       stream.listen((result) {
         results.add(result);
         results.sort((a, b) {

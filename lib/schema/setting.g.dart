@@ -22,48 +22,58 @@ const SettingSchema = CollectionSchema(
       name: r'background_color',
       type: IsarType.long,
     ),
-    r'color_seed': PropertySchema(
+    r'cache_duration': PropertySchema(
       id: 1,
+      name: r'cache_duration',
+      type: IsarType.double,
+    ),
+    r'color_seed': PropertySchema(
+      id: 2,
       name: r'color_seed',
       type: IsarType.long,
     ),
     r'dark_mode': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'dark_mode',
       type: IsarType.bool,
     ),
     r'debug_mode': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'debug_mode',
       type: IsarType.bool,
     ),
     r'e_ink_mode': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'e_ink_mode',
       type: IsarType.bool,
     ),
     r'explore_source': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'explore_source',
       type: IsarType.long,
     ),
     r'font_size': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'font_size',
       type: IsarType.long,
     ),
     r'line_space': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'line_space',
       type: IsarType.double,
     ),
+    r'max_concurrent': PropertySchema(
+      id: 9,
+      name: r'max_concurrent',
+      type: IsarType.double,
+    ),
     r'shelf_mode': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'shelf_mode',
       type: IsarType.string,
     ),
     r'turning_mode': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'turning_mode',
       type: IsarType.long,
     )
@@ -99,15 +109,17 @@ void _settingSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeLong(offsets[0], object.backgroundColor);
-  writer.writeLong(offsets[1], object.colorSeed);
-  writer.writeBool(offsets[2], object.darkMode);
-  writer.writeBool(offsets[3], object.debugMode);
-  writer.writeBool(offsets[4], object.eInkMode);
-  writer.writeLong(offsets[5], object.exploreSource);
-  writer.writeLong(offsets[6], object.fontSize);
-  writer.writeDouble(offsets[7], object.lineSpace);
-  writer.writeString(offsets[8], object.shelfMode);
-  writer.writeLong(offsets[9], object.turningMode);
+  writer.writeDouble(offsets[1], object.cacheDuration);
+  writer.writeLong(offsets[2], object.colorSeed);
+  writer.writeBool(offsets[3], object.darkMode);
+  writer.writeBool(offsets[4], object.debugMode);
+  writer.writeBool(offsets[5], object.eInkMode);
+  writer.writeLong(offsets[6], object.exploreSource);
+  writer.writeLong(offsets[7], object.fontSize);
+  writer.writeDouble(offsets[8], object.lineSpace);
+  writer.writeDouble(offsets[9], object.maxConcurrent);
+  writer.writeString(offsets[10], object.shelfMode);
+  writer.writeLong(offsets[11], object.turningMode);
 }
 
 Setting _settingDeserialize(
@@ -118,16 +130,18 @@ Setting _settingDeserialize(
 ) {
   final object = Setting();
   object.backgroundColor = reader.readLong(offsets[0]);
-  object.colorSeed = reader.readLong(offsets[1]);
-  object.darkMode = reader.readBool(offsets[2]);
-  object.debugMode = reader.readBool(offsets[3]);
-  object.eInkMode = reader.readBool(offsets[4]);
-  object.exploreSource = reader.readLong(offsets[5]);
-  object.fontSize = reader.readLong(offsets[6]);
+  object.cacheDuration = reader.readDouble(offsets[1]);
+  object.colorSeed = reader.readLong(offsets[2]);
+  object.darkMode = reader.readBool(offsets[3]);
+  object.debugMode = reader.readBool(offsets[4]);
+  object.eInkMode = reader.readBool(offsets[5]);
+  object.exploreSource = reader.readLong(offsets[6]);
+  object.fontSize = reader.readLong(offsets[7]);
   object.id = id;
-  object.lineSpace = reader.readDouble(offsets[7]);
-  object.shelfMode = reader.readString(offsets[8]);
-  object.turningMode = reader.readLong(offsets[9]);
+  object.lineSpace = reader.readDouble(offsets[8]);
+  object.maxConcurrent = reader.readDouble(offsets[9]);
+  object.shelfMode = reader.readString(offsets[10]);
+  object.turningMode = reader.readLong(offsets[11]);
   return object;
 }
 
@@ -141,22 +155,26 @@ P _settingDeserializeProp<P>(
     case 0:
       return (reader.readLong(offset)) as P;
     case 1:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 2:
-      return (reader.readBool(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 3:
       return (reader.readBool(offset)) as P;
     case 4:
       return (reader.readBool(offset)) as P;
     case 5:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 6:
       return (reader.readLong(offset)) as P;
     case 7:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 9:
+      return (reader.readDouble(offset)) as P;
+    case 10:
+      return (reader.readString(offset)) as P;
+    case 11:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -302,6 +320,69 @@ extension SettingQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> cacheDurationEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'cache_duration',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition>
+      cacheDurationGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'cache_duration',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> cacheDurationLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'cache_duration',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> cacheDurationBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'cache_duration',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -610,6 +691,69 @@ extension SettingQueryFilter
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> maxConcurrentEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'max_concurrent',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition>
+      maxConcurrentGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'max_concurrent',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> maxConcurrentLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'max_concurrent',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> maxConcurrentBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'max_concurrent',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterFilterCondition> shelfModeEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -813,6 +957,18 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByCacheDuration() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cache_duration', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByCacheDurationDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cache_duration', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByColorSeed() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'color_seed', Sort.asc);
@@ -897,6 +1053,18 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByMaxConcurrent() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'max_concurrent', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByMaxConcurrentDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'max_concurrent', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByShelfMode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shelf_mode', Sort.asc);
@@ -933,6 +1101,18 @@ extension SettingQuerySortThenBy
   QueryBuilder<Setting, Setting, QAfterSortBy> thenByBackgroundColorDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'background_color', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByCacheDuration() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cache_duration', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByCacheDurationDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cache_duration', Sort.desc);
     });
   }
 
@@ -1032,6 +1212,18 @@ extension SettingQuerySortThenBy
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByMaxConcurrent() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'max_concurrent', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByMaxConcurrentDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'max_concurrent', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> thenByShelfMode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shelf_mode', Sort.asc);
@@ -1062,6 +1254,12 @@ extension SettingQueryWhereDistinct
   QueryBuilder<Setting, Setting, QDistinct> distinctByBackgroundColor() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'background_color');
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QDistinct> distinctByCacheDuration() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'cache_duration');
     });
   }
 
@@ -1107,6 +1305,12 @@ extension SettingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Setting, Setting, QDistinct> distinctByMaxConcurrent() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'max_concurrent');
+    });
+  }
+
   QueryBuilder<Setting, Setting, QDistinct> distinctByShelfMode(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1132,6 +1336,12 @@ extension SettingQueryProperty
   QueryBuilder<Setting, int, QQueryOperations> backgroundColorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'background_color');
+    });
+  }
+
+  QueryBuilder<Setting, double, QQueryOperations> cacheDurationProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'cache_duration');
     });
   }
 
@@ -1174,6 +1384,12 @@ extension SettingQueryProperty
   QueryBuilder<Setting, double, QQueryOperations> lineSpaceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'line_space');
+    });
+  }
+
+  QueryBuilder<Setting, double, QQueryOperations> maxConcurrentProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'max_concurrent');
     });
   }
 

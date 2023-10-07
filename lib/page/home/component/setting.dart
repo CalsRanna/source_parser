@@ -97,6 +97,11 @@ class SettingView extends StatelessWidget {
                 title: '缓存',
               ),
               SettingTile(
+                icon: Icons.settings_outlined,
+                route: '/setting/advanced',
+                title: '设置',
+              ),
+              SettingTile(
                 icon: Icons.info_outline_rounded,
                 route: '/setting/about',
                 title: '关于元夕',

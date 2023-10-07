@@ -15,10 +15,10 @@ import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/semaphore.dart';
 
 class Parser {
-  static Future<List<Book>> topSearch() async {
+  static Future<List<Book>> topSearch(Duration duration) async {
     final html = await CachedNetwork().request(
       'https://top.baidu.com/board?tab=novel',
-      duration: const Duration(hours: 6),
+      duration: duration,
     );
     final parser = HtmlParser();
     final node = parser.parse(html);
@@ -36,20 +36,24 @@ class Parser {
     }).toList();
   }
 
-  static Future<Stream<Book>> search(String credential) async {
+  static Future<Stream<Book>> search(
+    String credential,
+    int maxConcurrent,
+    Duration duration,
+  ) async {
     final sources = await isar.sources.filter().enabledEqualTo(true).findAll();
     final temporaryDirectory = await getTemporaryDirectory();
     final network = CachedNetwork(temporaryDirectory: temporaryDirectory);
     var closed = 0;
     final controller = StreamController<Book>();
-    final semaphore = Semaphore(16);
+    final semaphore = Semaphore(maxConcurrent);
     for (var source in sources) {
       await semaphore.acquire();
       final sender = ReceivePort();
       final receiver = ReceivePort();
       final isolate = await Isolate.spawn(_searchInIsolate, sender.sendPort);
       (await sender.first as SendPort).send(
-        [network, source, credential, receiver.sendPort],
+        [network, duration, source, credential, receiver.sendPort],
       );
       receiver.forEach((element) async {
         if (element is Book) {
@@ -72,9 +76,10 @@ class Parser {
     message.send(port.sendPort);
     port.listen((message) async {
       final network = message[0] as CachedNetwork;
-      final source = message[1] as Source;
-      var credential = message[2] as String;
-      final sender = message[3] as SendPort;
+      final duration = message[1] as Duration;
+      final source = message[2] as Source;
+      var credential = message[3] as String;
+      final sender = message[4] as SendPort;
       try {
         try {
           final header = jsonDecode(source.header);
@@ -98,7 +103,7 @@ class Parser {
         var html = await network.request(
           searchUrl,
           charset: source.charset,
-          duration: const Duration(hours: 6),
+          duration: duration,
           method: method,
         );
         final parser = HtmlParser();
@@ -142,7 +147,10 @@ class Parser {
     });
   }
 
-  static Future<Stream<ExploreResult>> getExplore(Source source) async {
+  static Future<Stream<ExploreResult>> getExplore(
+    Source source,
+    Duration duration,
+  ) async {
     final temporaryDirectory = await getTemporaryDirectory();
     final network = CachedNetwork(temporaryDirectory: temporaryDirectory);
     var closed = 0;
@@ -157,7 +165,7 @@ class Parser {
       );
       final exploreUrl = rule['exploreUrl'];
       (await sender.first as SendPort).send(
-        [network, rule, exploreUrl, source, receiver.sendPort],
+        [network, duration, rule, exploreUrl, source, receiver.sendPort],
       );
       receiver.forEach((element) async {
         if (element.runtimeType == ExploreResult) {
@@ -179,15 +187,16 @@ class Parser {
     message.send(port.sendPort);
     port.listen((message) async {
       final network = message[0] as CachedNetwork;
-      final rule = message[1] as Map<String, dynamic>;
-      final exploreUrl = message[2] as String;
-      final source = message[3] as Source;
-      final sender = message[4] as SendPort;
+      final duration = message[1] as Duration;
+      final rule = message[2] as Map<String, dynamic>;
+      final exploreUrl = message[3] as String;
+      final source = message[4] as Source;
+      final sender = message[5] as SendPort;
       try {
         final html = await network.request(
           exploreUrl,
           charset: rule['charset'],
-          duration: const Duration(hours: 6),
+          duration: duration,
         );
         final parser = HtmlParser();
         final document = parser.parse(html);
@@ -239,6 +248,7 @@ class Parser {
     String name,
     String url,
     Source source,
+    Duration duration,
   ) async {
     final temporaryDirectory = await getTemporaryDirectory();
     final network = CachedNetwork(
@@ -252,7 +262,7 @@ class Parser {
       sender.sendPort,
     );
     (await sender.first as SendPort).send(
-      [network, url, source, receiver.sendPort],
+      [network, duration, url, source, receiver.sendPort],
     );
     final response = await receiver.first;
     if (response.runtimeType == Book) {
@@ -269,15 +279,16 @@ class Parser {
     message.send(port.sendPort);
     port.listen((message) async {
       final network = message[0] as CachedNetwork;
-      final url = message[1] as String;
-      final source = message[2] as Source;
-      final sender = message[3] as SendPort;
+      final duration = message[1] as Duration;
+      final url = message[2] as String;
+      final source = message[3] as Source;
+      final sender = message[4] as SendPort;
       try {
         final method = source.informationMethod.toUpperCase();
         final html = await network.request(
           url,
           charset: source.charset,
-          duration: const Duration(hours: 6),
+          duration: duration,
           method: method,
         );
         final parser = HtmlParser();
@@ -322,6 +333,7 @@ class Parser {
     String name,
     String url,
     Source source,
+    Duration duration,
   ) async {
     final temporaryDirectory = await getTemporaryDirectory();
     final network = CachedNetwork(
@@ -333,7 +345,7 @@ class Parser {
     final receiver = ReceivePort();
     final isolate = await Isolate.spawn(_getChaptersInIsolate, sender.sendPort);
     (await sender.first as SendPort).send(
-      [network, url, source, receiver.sendPort],
+      [network, duration, url, source, receiver.sendPort],
     );
     receiver.forEach((element) async {
       if (element is Chapter) {
@@ -351,12 +363,12 @@ class Parser {
     message.send(port.sendPort);
     port.listen((message) async {
       final network = message[0] as CachedNetwork;
-      final url = message[1] as String;
-      final source = message[2] as Source;
-      final sender = message[3] as SendPort;
+      final duration = message[1] as Duration;
+      final url = message[2] as String;
+      final source = message[3] as Source;
+      final sender = message[4] as SendPort;
       try {
         final charset = source.charset;
-        const duration = Duration(hours: 6);
         final method = source.catalogueMethod.toUpperCase();
         final html = await network.request(
           url,
@@ -392,13 +404,19 @@ class Parser {
     String name,
     String url,
     Source source,
+    Duration duration,
   ) async {
     try {
-      final book = await getInformation(name, url, source);
+      final book = await getInformation(name, url, source, duration);
       if (book.latestChapter.isNotEmpty) {
         return book.latestChapter;
       }
-      final stream = await getChapters(name, book.catalogueUrl, source);
+      final stream = await getChapters(
+        name,
+        book.catalogueUrl,
+        source,
+        duration,
+      );
       final chapter = await stream.last;
       return chapter.name;
     } catch (error) {
@@ -430,14 +448,17 @@ class Parser {
   }
 
   static Future<Stream<DebugResultNew>> debug(
-      String credential, Source source) async {
+    String credential,
+    Source source,
+    Duration duration,
+  ) async {
     final temporaryDirectory = await getTemporaryDirectory();
     final network = CachedNetwork(temporaryDirectory: temporaryDirectory);
     final sender = ReceivePort();
     final receiver = ReceivePort();
     final isolate = await Isolate.spawn(_debugInIsolate, sender.sendPort);
     (await sender.first as SendPort).send(
-      [network, credential, source, receiver.sendPort],
+      [network, duration, credential, source, receiver.sendPort],
     );
     final controller = StreamController<DebugResultNew>();
     var count = 0;
@@ -463,9 +484,10 @@ class Parser {
     message.send(port.sendPort);
     port.listen((message) async {
       final network = message[0] as CachedNetwork;
-      var credential = message[1] as String;
-      final source = message[2] as Source;
-      final sender = message[3] as SendPort;
+      var duration = message[1] as Duration;
+      var credential = message[2] as String;
+      final source = message[3] as Source;
+      final sender = message[4] as SendPort;
 
       final parser = HtmlParser();
       var result = DebugResultNew();
@@ -497,7 +519,7 @@ class Parser {
         var html = await network.request(
           searchUrl,
           charset: source.charset,
-          duration: const Duration(hours: 6),
+          duration: duration,
           method: source.searchMethod.toUpperCase(),
           reacquire: true,
         );
@@ -557,7 +579,7 @@ class Parser {
           var html = await network.request(
             informationUrl,
             charset: source.charset,
-            duration: const Duration(hours: 6),
+            duration: duration,
             method: source.informationMethod.toUpperCase(),
             reacquire: true,
           );
@@ -608,7 +630,7 @@ class Parser {
           var html = await network.request(
             catalogueUrl,
             charset: source.charset,
-            duration: const Duration(hours: 6),
+            duration: duration,
             method: source.catalogueMethod.toUpperCase(),
             reacquire: true,
           );
@@ -642,7 +664,6 @@ class Parser {
             var html = await network.request(
               chapters.first.url,
               charset: source.charset,
-              duration: const Duration(hours: 6),
               method: source.contentMethod.toUpperCase(),
               reacquire: true,
             );
