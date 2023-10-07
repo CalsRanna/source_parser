@@ -67,6 +67,7 @@ class _ShelfViewState extends State<ShelfView> {
       final ref = context.ref;
       final books = ref.read(booksCreator);
       for (var book in books) {
+        if (book.archive) continue;
         final builder = isar.sources.filter();
         final source = await builder.idEqualTo(book.sourceId).findFirst();
         if (source != null) {
