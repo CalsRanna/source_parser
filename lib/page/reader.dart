@@ -203,27 +203,27 @@ class _ReaderState extends State<Reader> {
     await isar.writeTxn(() async {
       isar.books.put(updatedBook);
     });
-    cacheChapters(index);
+    // cacheChapters(index);
   }
 
-  void cacheChapters(int index) async {
-    final book = context.ref.read(currentBookCreator);
-    final length = book.chapters.length;
-    final builder = isar.sources.filter();
-    final source = await builder.idEqualTo(book.sourceId).findFirst();
-    if (source != null) {
-      final network = CachedNetwork(prefix: book.name);
-      for (var i = 1; i <= 3; i++) {
-        if (index + i < length) {
-          await network.request(
-            book.chapters.elementAt(index + i).url,
-            charset: source.charset,
-            method: source.contentMethod,
-          );
-        }
-      }
-    }
-  }
+  // void cacheChapters(int index) async {
+  //   final book = context.ref.read(currentBookCreator);
+  //   final length = book.chapters.length;
+  //   final builder = isar.sources.filter();
+  //   final source = await builder.idEqualTo(book.sourceId).findFirst();
+  //   if (source != null) {
+  //     final network = CachedNetwork(prefix: book.name);
+  //     for (var i = 1; i <= 3; i++) {
+  //       if (index + i < length) {
+  //         await network.request(
+  //           book.chapters.elementAt(index + i).url,
+  //           charset: source.charset,
+  //           method: source.contentMethod,
+  //         );
+  //       }
+  //     }
+  //   }
+  // }
 
   void handleCataloguePressed() {
     context.ref.set(fromCreator, '/book-reader');
