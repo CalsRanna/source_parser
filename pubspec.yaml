@@ -3,7 +3,7 @@ description: A parser use to do everything you want to.
 
 publish_to: none
 
-version: 1.0.2+67
+version: 1.0.2+68
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -58,7 +58,7 @@ flutter:
   assets:
     - asset/image/
 
-flutter_icons:
+flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   remove_alpha_ios: true
@@ -73,7 +73,7 @@ flutter_icons:
     icon_size: 48
   macos:
     generate: true
-    image_path: "asset/image/icon.jpg"
+    image_path: "asset/image/launcher_Icon_macos_512.png"
 
 flutter_native_splash:
   color: "#ffffff"
