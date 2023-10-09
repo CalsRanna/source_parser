@@ -53,7 +53,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
                 title: FutureBuilder(
                   future: getSource(book.sources[index].id),
                   builder: (context, snapshot) {
-                    if (snapshot.hasData) {
+                    if (snapshot.connectionState == ConnectionState.done) {
                       final source = snapshot.data;
                       final name = source?.name ?? '没找到源';
                       final comment = source?.comment ?? '';
@@ -116,7 +116,14 @@ class _AvailableSourcesState extends State<AvailableSources> {
         Duration(hours: duration.floor()),
       );
       stream = stream.asBroadcastStream();
-      List<AvailableSource> sources = [...currentBook.sources];
+      List<AvailableSource> sources = [];
+      for (var source in currentBook.sources) {
+        final builder = isar.sources.filter();
+        final exist = await builder.idEqualTo(source.id).findFirst();
+        if (exist != null) {
+          sources.add(source);
+        }
+      }
       stream.listen((book) async {
         final sameAuthor = book.author == currentBook.author;
         final sameName = book.name == currentBook.name;
