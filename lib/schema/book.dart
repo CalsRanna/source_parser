@@ -161,7 +161,6 @@ class Chapter {
 @Name('available_sources')
 class AvailableSource {
   int id = 0;
-  String name = '';
   String url = '';
 
   AvailableSource();
@@ -169,19 +168,17 @@ class AvailableSource {
   factory AvailableSource.fromJson(Map<String, dynamic> json) {
     return AvailableSource()
       ..id = json['id'] ?? 0
-      ..name = json['name'] ?? ''
       ..url = json['url'] ?? '';
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'name': name, 'url': url};
+    return {'id': id, 'url': url};
   }
 
-  AvailableSource copyWith({int? id, String? name, String? url}) {
+  AvailableSource copyWith({int? id, String? url}) {
     return AvailableSource()
       ..id = id ?? this.id
-      ..url = url ?? this.url
-      ..name = name ?? this.name;
+      ..url = url ?? this.url;
   }
 
   @override

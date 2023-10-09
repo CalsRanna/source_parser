@@ -16,6 +16,7 @@ import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/loading.dart';
+import 'package:source_parser/widget/source_tag.dart';
 
 class BookSourceList extends StatelessWidget {
   const BookSourceList({Key? key}) : super(key: key);
@@ -298,9 +299,10 @@ class _SourceTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: onBackground),
                 child: Text.rich(
-                  TextSpan(text: source.name, children: [
-                    WidgetSpan(child: _SourceTag(source.comment))
-                  ]),
+                  TextSpan(
+                    text: source.name,
+                    children: [WidgetSpan(child: SourceTag(source.comment))],
+                  ),
                   style: const TextStyle(fontSize: 16),
                 ),
               ),
@@ -324,31 +326,5 @@ class _SourceTile extends StatelessWidget {
 
   void handleTap() {
     onTap?.call(source.id);
-  }
-}
-
-class _SourceTag extends StatelessWidget {
-  const _SourceTag(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    if (label.isEmpty) {
-      return const SizedBox();
-    }
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final primary = colorScheme.primary;
-    final onPrimary = colorScheme.onPrimary;
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        color: primary.withOpacity(0.5),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      child: Text(label, style: TextStyle(fontSize: 12, color: onPrimary)),
-    );
   }
 }

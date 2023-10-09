@@ -199,7 +199,6 @@ class _SearchState extends State<Search> {
             if (source != null) {
               var availableSource = AvailableSource();
               availableSource.id = source.id;
-              availableSource.name = source.name;
               availableSource.url = book.url;
               exist.sources.add(availableSource);
             }

@@ -11,6 +11,7 @@ import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/loading.dart';
+import 'package:source_parser/widget/source_tag.dart';
 
 class AvailableSources extends StatefulWidget {
   const AvailableSources({super.key});
@@ -49,9 +50,23 @@ class _AvailableSourcesState extends State<AvailableSources> {
                   },
                   future: getLatestChapter(book.name, book.sources[index]),
                 ),
-                title: Text(
-                  book.sources[index].name,
-                  style: TextStyle(color: active ? primary : null),
+                title: FutureBuilder(
+                  future: getSource(book.sources[index].id),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final source = snapshot.data;
+                      final name = source?.name ?? '没找到源';
+                      final comment = source?.comment ?? '';
+                      return Text.rich(
+                        TextSpan(
+                          text: name,
+                          children: [WidgetSpan(child: SourceTag(comment))],
+                        ),
+                        style: TextStyle(color: active ? primary : null),
+                      );
+                    }
+                    return const SizedBox();
+                  },
                 ),
                 trailing: active ? const Icon(Icons.check) : null,
                 onTap: () => switchSource(index),
@@ -82,6 +97,12 @@ class _AvailableSourcesState extends State<AvailableSources> {
     }
   }
 
+  Future<Source?> getSource(int id) async {
+    final builder = isar.sources.filter();
+    final source = await builder.idEqualTo(id).findFirst();
+    return source;
+  }
+
   Future<void> handleRefresh() async {
     final message = Message.of(context);
     try {
@@ -108,7 +129,6 @@ class _AvailableSourcesState extends State<AvailableSources> {
           if (source != null) {
             var availableSource = AvailableSource();
             availableSource.id = source.id;
-            availableSource.name = source.name;
             availableSource.url = book.url;
             sources.add(availableSource);
             ref.set(currentBookCreator, currentBook.copyWith(sources: sources));

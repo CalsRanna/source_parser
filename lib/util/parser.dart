@@ -126,7 +126,6 @@ class Parser {
           if (name.isNotEmpty) {
             var availableSource = AvailableSource();
             availableSource.id = source.id;
-            availableSource.name = source.name;
             availableSource.url = url;
             var book = Book();
             book.author = author;
@@ -216,7 +215,6 @@ class Parser {
           }
           var availableSource = AvailableSource();
           availableSource.id = source.id;
-          availableSource.name = source.name;
           availableSource.url = url;
           var book = Book();
           book.author = author;
@@ -551,7 +549,6 @@ class Parser {
 
           var availableSource = AvailableSource();
           availableSource.id = source.id;
-          availableSource.name = source.name;
           availableSource.url = url;
           var book = Book();
           book.author = author;
@@ -610,7 +607,6 @@ class Parser {
           final words = parser.query(document, source.informationWordCount);
           var availableSource = AvailableSource();
           availableSource.id = source.id;
-          availableSource.name = source.name;
           availableSource.url = books.first.url;
           var book = Book();
           book.author = author;
