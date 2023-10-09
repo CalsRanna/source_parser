@@ -10,7 +10,7 @@ class Setting {
   @Name('background_color')
   int backgroundColor = Colors.white.value;
   @Name('cache_duration')
-  double cacheDuration = 6.0;
+  double cacheDuration = 8.0;
   @Name('color_seed')
   int colorSeed = Colors.blue.value;
   @Name('dark_mode')
