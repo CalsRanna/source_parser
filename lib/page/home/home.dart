@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -26,7 +28,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final titles = ['书架', '发现', '我的'];
-    final padding = MediaQuery.of(context).padding;
     final shelfActions = [
       IconButton(
         onPressed: handlePressed,
@@ -44,7 +45,6 @@ class _HomePageState extends State<HomePage> {
               )
             ];
           },
-          offset: Offset(0, padding.top + 8),
           onSelected: updateShelfMode,
         );
       }),
@@ -69,7 +69,6 @@ class _HomePageState extends State<HomePage> {
               );
             }).toList();
           },
-          offset: Offset(0, padding.top + 8),
           onSelected: updateExploreSource,
         );
       }),
@@ -147,6 +146,10 @@ class _HomePageState extends State<HomePage> {
       ref.set(exploreSourceCreator, value);
       final source = await isar.sources.filter().idEqualTo(value).findFirst();
       if (source != null) {
+        final json = jsonDecode(source.exploreJson);
+        final titles = json.map((item) {
+          return item['title'];
+        }).toList();
         List<ExploreResult> results = [];
         final duration = ref.read(cacheDurationCreator);
         final stream = await Parser.getExplore(
@@ -155,6 +158,11 @@ class _HomePageState extends State<HomePage> {
         );
         stream.listen((result) {
           results.add(result);
+          results.sort((a, b) {
+            final indexOfA = titles.indexOf(a.title);
+            final indexOfB = titles.indexOf(b.title);
+            return indexOfA.compareTo(indexOfB);
+          });
           ref.set(exploreBooksCreator, results);
         });
         ref.set(exploreLoadingCreator, false);
