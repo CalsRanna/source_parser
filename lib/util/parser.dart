@@ -303,7 +303,10 @@ class Parser {
           catalogueUrl = '${source.url}$catalogueUrl';
         }
         final category = parser.query(document, source.informationCategory);
-        final cover = parser.query(document, source.informationCover);
+        var cover = parser.query(document, source.informationCover);
+        if (!cover.startsWith('http')) {
+          cover = '${source.url}$cover';
+        }
         final introduction =
             parser.query(document, source.informationIntroduction);
         final latestChapter = parser.query(
@@ -594,6 +597,9 @@ class Parser {
             catalogueUrl = '${source.url}$catalogueUrl';
           }
           var cover = parser.query(document, source.informationCover);
+          if (!cover.startsWith('http')) {
+            cover = '${source.url}$cover';
+          }
           var category = parser.query(document, source.informationCategory);
           var introduction =
               parser.query(document, source.informationIntroduction);
