@@ -31,13 +31,11 @@ class BookSourceInformation extends StatelessWidget {
           ),
         ],
         centerTitle: true,
-        title: CreatorWatcher<Source>(
-          builder: (context, source) {
-            final prefix = id == null ? '新建' : '编辑';
-            return Text('$prefix书源');
-          },
-          creator: currentSourceCreator,
-        ),
+        title: Watcher((context, ref, child) {
+          final source = ref.watch(currentSourceCreator);
+          final prefix = source.id.isNegative ? '新建' : '编辑';
+          return Text('$prefix书源');
+        }),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -121,24 +119,53 @@ class BookSourceInformation extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: ElevatedButton(
-              onPressed: () => handleTap(context),
-              child: Text('删除', style: TextStyle(color: error)),
-            ),
-          )
+          Watcher((context, ref, child) {
+            final source = ref.watch(currentSourceCreator);
+            if (source.id.isNegative) return const SizedBox();
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: ElevatedButton(
+                onPressed: () => deleteSource(context),
+                child: Text('删除', style: TextStyle(color: error)),
+              ),
+            );
+          })
         ],
       ),
     );
+  }
+
+  Future<bool> validate(BuildContext context) async {
+    final ref = context.ref;
+    final message = Message.of(context);
+    final source = ref.read(currentSourceCreator);
+    if (source.name.isEmpty) {
+      message.show('名称不能为空');
+      return false;
+    }
+    if (source.url.isEmpty) {
+      message.show('网址不能为空');
+      return false;
+    }
+    final filter = isar.sources.filter();
+    var builder = filter.nameEqualTo(source.name);
+    final exist = await builder.findFirst();
+    if (exist != null) {
+      message.show('书源名称已存在');
+      return false;
+    }
+    return true;
   }
 
   void storeBookSource(BuildContext context) async {
     final ref = context.ref;
     final message = Message.of(context);
     final source = ref.read(currentSourceCreator);
+    final valid = await validate(context);
+    if (!valid) return;
     isar.writeTxn(() async {
-      await isar.sources.put(source);
+      final id = await isar.sources.put(source);
+      ref.set(currentSourceCreator, source.copyWith(id: id));
       message.show('书源保存成功');
       final sources = await isar.sources.where().findAll();
       ref.emit(sourcesEmitter, [...sources]);
@@ -167,7 +194,34 @@ class BookSourceInformation extends StatelessWidget {
     context.push('/book-source/$route');
   }
 
-  void handleTap(BuildContext context) async {
+  void deleteSource(BuildContext context) async {
+    showDialog(
+      builder: (context) {
+        return AlertDialog(
+          actions: [
+            TextButton(
+              onPressed: () => cancel(context),
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () => confirmDelete(context),
+              child: const Text('确认'),
+            ),
+          ],
+          content: const Text('确认删除该书源？'),
+          title: const Text('删除书源'),
+        );
+      },
+      context: context,
+    );
+  }
+
+  void cancel(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
+  void confirmDelete(BuildContext context) async {
+    Navigator.of(context).pop();
     final router = GoRouter.of(context);
     final ref = context.ref;
     final source = ref.read(currentSourceCreator);
