@@ -17,6 +17,6 @@ final currentBookCreator = Creator.value(
 
 final topSearchEmitter = Emitter<List<Book>>((ref, emit) async {
   final duration = ref.read(cacheDurationCreator);
-  final books = await Parser.topSearch(Duration(hours: duration.floor()));
+  final books = await Parser.today(Duration(hours: duration.floor()));
   emit(books);
 }, name: 'topSearchEmitter');

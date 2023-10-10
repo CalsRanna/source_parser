@@ -150,7 +150,7 @@ class BookSourceInformation extends StatelessWidget {
     final filter = isar.sources.filter();
     var builder = filter.nameEqualTo(source.name);
     final exist = await builder.findFirst();
-    if (exist != null) {
+    if (exist != null && exist.id != source.id) {
       message.show('书源名称已存在');
       return false;
     }

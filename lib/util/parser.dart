@@ -36,6 +36,24 @@ class Parser {
     }).toList();
   }
 
+  static Future<List<Book>> today(Duration duration) async {
+    final html = await CachedNetwork().request(
+      'https://www.yousuu.com/rank/today',
+      duration: duration,
+    );
+    final parser = HtmlParser();
+    final node = parser.parse(html);
+    const listRule =
+        '//div[contains(@class,"result-item-layout")]@nodes|dart.sublist(0,15)';
+    var nodes = parser.queryNodes(node, listRule);
+    print(nodes);
+    return nodes.toSet().map((node) {
+      var book = Book();
+      book.name = parser.query(node, '//a[@class="book-name"]@text');
+      return book;
+    }).toList();
+  }
+
   static Future<Stream<Book>> search(
     String credential,
     int maxConcurrent,
