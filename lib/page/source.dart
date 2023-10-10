@@ -24,7 +24,10 @@ class _AvailableSourcesState extends State<AvailableSources> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('可用书源')),
+      appBar: AppBar(
+        actions: [TextButton(onPressed: reset, child: const Text('重置'))],
+        title: const Text('可用书源'),
+      ),
       body: RefreshIndicator(
         onRefresh: handleRefresh,
         child: Watcher((context, ref, child) {
@@ -80,10 +83,26 @@ class _AvailableSourcesState extends State<AvailableSources> {
     );
   }
 
+  void reset() async {
+    final ref = context.ref;
+    final book = ref.read(currentBookCreator);
+    List<AvailableSource> sources = [];
+    ref.set(currentBookCreator, book.copyWith(sources: sources));
+    final filter = isar.books.filter();
+    var builder = filter.nameEqualTo(book.name);
+    builder = builder.authorEqualTo(book.author);
+    var exist = await builder.findFirst();
+    if (exist != null) {
+      exist.sources = sources;
+      await isar.writeTxn(() async {
+        isar.books.put(exist);
+      });
+    }
+  }
+
   Future<String> getLatestChapter(String name, AvailableSource source) async {
     final ref = context.ref;
-    final builder = isar.sources.filter();
-    final currentSource = await builder.idEqualTo(source.id).findFirst();
+    final currentSource = await getSource(source.id);
     if (currentSource != null) {
       final duration = ref.read(cacheDurationCreator);
       return Parser.getLatestChapter(
@@ -110,50 +129,47 @@ class _AvailableSourcesState extends State<AvailableSources> {
       final currentBook = ref.read(currentBookCreator);
       final maxConcurrent = ref.read(maxConcurrentCreator);
       final duration = ref.read(cacheDurationCreator);
+      List<AvailableSource> sources = [];
+      for (var source in currentBook.sources) {
+        final exist = await getSource(source.id);
+        if (exist != null) {
+          sources.add(source);
+        }
+      }
       var stream = await Parser.search(
         currentBook.name,
         maxConcurrent.floor(),
         Duration(hours: duration.floor()),
       );
       stream = stream.asBroadcastStream();
-      List<AvailableSource> sources = [];
-      for (var source in currentBook.sources) {
-        final builder = isar.sources.filter();
-        final exist = await builder.idEqualTo(source.id).findFirst();
-        if (exist != null) {
-          sources.add(source);
-        }
-      }
       stream.listen((book) async {
         final sameAuthor = book.author == currentBook.author;
         final sameName = book.name == currentBook.name;
-        final sameSource = currentBook.sources.where((source) {
+        final sameSource = sources.where((source) {
           return source.id == book.sourceId;
         }).isNotEmpty;
         if (sameAuthor && sameName && !sameSource) {
-          final builder = isar.sources.filter();
-          final source = await builder.idEqualTo(book.sourceId).findFirst();
+          final source = await getSource(book.sourceId);
           if (source != null) {
             var availableSource = AvailableSource();
             availableSource.id = source.id;
             availableSource.url = book.url;
             sources.add(availableSource);
             ref.set(currentBookCreator, currentBook.copyWith(sources: sources));
-            var exist = await isar.books
-                .filter()
-                .nameEqualTo(book.name)
-                .authorEqualTo(book.author)
-                .findFirst();
-            if (exist != null) {
-              exist.sources = sources;
-              await isar.writeTxn(() async {
-                isar.books.put(exist);
-              });
-            }
           }
         }
       });
       await stream.last;
+      final filter = isar.books.filter();
+      var builder = filter.nameEqualTo(currentBook.name);
+      builder = builder.authorEqualTo(currentBook.author);
+      var exist = await builder.findFirst();
+      if (exist != null) {
+        exist.sources = sources;
+        await isar.writeTxn(() async {
+          isar.books.put(exist);
+        });
+      }
     } catch (error) {
       message.show(error.toString());
     }

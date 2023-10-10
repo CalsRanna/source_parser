@@ -36,7 +36,7 @@ class _AboutPageState extends State<AboutPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('asset/image/logo.jpg', height: 160, width: 160),
+              // Image.asset('asset/image/logo.jpg', height: 160, width: 160),
               Image.asset('asset/image/name.jpg', height: 80, width: 80),
               const Spacer(),
               Text(
