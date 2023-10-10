@@ -521,10 +521,14 @@ class _Archive extends StatelessWidget {
   }
 
   void handleTap(BuildContext context) async {
+    final message = Message.of(context);
     final ref = context.ref;
     final book = ref.read(currentBookCreator);
     final archivedBook = book.copyWith(archive: !book.archive);
     ref.set(currentBookCreator, archivedBook);
+    if (archivedBook.archive) {
+      message.show('归档后，书架不再更新');
+    }
     final name = book.name;
     final author = book.author;
     var builder = isar.books.filter();
@@ -554,9 +558,9 @@ class __BottomBarState extends State<_BottomBar> {
       child: Row(
         children: [
           TextButton(
-            onPressed: () => updateShelf(context),
+            onPressed: updateShelf,
             child: FutureBuilder(
-              future: exist(context),
+              future: exist(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return const Row(
@@ -574,7 +578,12 @@ class __BottomBarState extends State<_BottomBar> {
           Expanded(
             child: ElevatedButton(
               onPressed: () => startReader(context),
-              child: const Text('立即阅读'),
+              child: Watcher((context, ref, child) {
+                final book = ref.watch(currentBookCreator);
+                final hasProgress = book.cursor != 0 || book.index != 0;
+                String text = hasProgress ? '继续阅读' : '立即阅读';
+                return Text(text);
+              }),
             ),
           ),
         ],
@@ -582,9 +591,9 @@ class __BottomBarState extends State<_BottomBar> {
     );
   }
 
-  void updateShelf(BuildContext context) async {
+  void updateShelf() async {
     final ref = context.ref;
-    final book = await exist(context);
+    final book = await exist();
     if (book != null) {
       await isar.writeTxn(() async {
         await isar.books.delete(book.id);
@@ -606,7 +615,7 @@ class __BottomBarState extends State<_BottomBar> {
     setState(() {});
   }
 
-  Future<Book?> exist(BuildContext context) async {
+  Future<Book?> exist() async {
     final ref = context.ref;
     final book = ref.read(currentBookCreator);
     final name = book.name;
