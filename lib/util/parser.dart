@@ -703,10 +703,7 @@ class Parser {
   static Future<List<Source>> importNetworkSource(String url) async {
     final network = CachedNetwork();
     final html = await network.request(url, reacquire: true);
-    final parser = HtmlParser();
-    final document = parser.parse(html);
-    final raw = parser.query(document, '/@text');
-    final json = jsonDecode(raw);
+    final json = jsonDecode(html);
     List<Source> sources = [];
     if (json is List) {
       for (var element in json) {
