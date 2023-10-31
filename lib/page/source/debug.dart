@@ -20,7 +20,15 @@ class BookSourceDebug extends StatefulWidget {
 
 class _BookSourceDebugState extends State<BookSourceDebug> {
   String defaultCredential = '都市';
-  final keys = ['chapters', 'cursor', 'id', 'index', 'source_id', 'sources'];
+  final keys = [
+    'archive',
+    'chapters',
+    'cursor',
+    'id',
+    'index',
+    'source_id',
+    'sources',
+  ];
   bool loading = false;
   DebugResult result = DebugResult();
   List<DebugResultNew> results = [];
