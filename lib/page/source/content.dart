@@ -36,15 +36,30 @@ class BookSourceContentConfiguration extends StatelessWidget {
               child: Column(
                 children: [
                   RuleTile(
+                    title: '正文规则',
+                    value: source.contentContent,
+                    onChange: (value) => updateContentContent(context, value),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
                     title: '下一页URL规则',
                     value: source.contentPagination,
                     onChange: (value) =>
                         updateContentPagination(context, value),
                   ),
                   RuleTile(
-                    title: '正文规则',
-                    value: source.contentContent,
-                    onChange: (value) => updateContentContent(context, value),
+                    title: '校验规则',
+                    value: source.contentPaginationValidation,
+                    onChange: (value) =>
+                        updateContentPaginationValidation(context, value),
                   ),
                 ],
               ),
@@ -91,5 +106,14 @@ class BookSourceContentConfiguration extends StatelessWidget {
     final ref = context.ref;
     final source = ref.read(currentSourceCreator);
     ref.set(currentSourceCreator, source.copyWith(contentPagination: value));
+  }
+
+  void updateContentPaginationValidation(BuildContext context, String value) {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(
+      currentSourceCreator,
+      source.copyWith(contentPaginationValidation: value),
+    );
   }
 }

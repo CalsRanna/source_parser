@@ -48,12 +48,6 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
                         updateCatalogueChapters(context, value),
                   ),
                   RuleTile(
-                    title: '下一页URL规则',
-                    value: source.cataloguePagination,
-                    onChange: (value) =>
-                        updateCataloguePagination(context, value),
-                  ),
-                  RuleTile(
                     title: '章节名称规则',
                     value: source.catalogueName,
                     onChange: (value) => updateCatalogueName(context, value),
@@ -68,6 +62,27 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
                     title: '章节URL规则',
                     value: source.catalogueUrl,
                     onChange: (value) => updateCatalogueUrl(context, value),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Card(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              elevation: 0,
+              child: Column(
+                children: [
+                  RuleTile(
+                    title: '下一页URL规则',
+                    value: source.cataloguePagination,
+                    onChange: (value) =>
+                        updateCataloguePagination(context, value),
+                  ),
+                  RuleTile(
+                    title: '校验规则',
+                    value: source.cataloguePaginationValidation,
+                    onChange: (value) =>
+                        updateCataloguePaginationValidation(context, value),
                   ),
                 ],
               ),
@@ -138,5 +153,14 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
     final ref = context.ref;
     final source = ref.read(currentSourceCreator);
     ref.set(currentSourceCreator, source.copyWith(cataloguePagination: value));
+  }
+
+  void updateCataloguePaginationValidation(BuildContext context, String value) {
+    final ref = context.ref;
+    final source = ref.read(currentSourceCreator);
+    ref.set(
+      currentSourceCreator,
+      source.copyWith(cataloguePaginationValidation: value),
+    );
   }
 }

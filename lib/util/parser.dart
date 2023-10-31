@@ -46,7 +46,6 @@ class Parser {
     const listRule =
         '//div[contains(@class,"result-item-layout")]@nodes|dart.sublist(0,15)';
     var nodes = parser.queryNodes(node, listRule);
-    print(nodes);
     return nodes.toSet().map((node) {
       var book = Book();
       book.name = parser.query(node, '//a[@class="book-name"]@text');
@@ -396,7 +395,7 @@ class Parser {
           method: method,
         );
         final parser = HtmlParser();
-        final document = parser.parse(html);
+        var document = parser.parse(html);
         var preset = parser.query(document, source.cataloguePreset);
         final items = parser.queryNodes(document, source.catalogueChapters);
         var catalogueUrlRule = source.catalogueUrl;
@@ -411,6 +410,50 @@ class Parser {
           chapter.name = name;
           chapter.url = url;
           sender.send(chapter);
+        }
+        if (source.cataloguePagination.isNotEmpty) {
+          var validation = parser.query(
+            document,
+            source.cataloguePaginationValidation,
+          );
+          while (validation.contains('下一页')) {
+            var nextUrl = parser.query(document, source.cataloguePagination);
+            if (!nextUrl.startsWith('http')) {
+              nextUrl = '${source.url}$nextUrl';
+            }
+            var nextHtml = await network.request(
+              nextUrl,
+              charset: source.charset,
+              method: source.catalogueMethod.toUpperCase(),
+              reacquire: true,
+            );
+            document = parser.parse(nextHtml);
+            var preset = parser.query(document, source.cataloguePreset);
+            var items = parser.queryNodes(
+              document,
+              source.catalogueChapters,
+            );
+            var catalogueUrlRule = source.catalogueUrl;
+            catalogueUrlRule = catalogueUrlRule.replaceAll(
+              '{{preset}}',
+              preset,
+            );
+            for (var i = 0; i < items.length; i++) {
+              final name = parser.query(items[i], source.catalogueName);
+              var url = parser.query(items[i], catalogueUrlRule);
+              if (!url.startsWith('http')) {
+                url = '${source.url}$url';
+              }
+              var chapter = Chapter();
+              chapter.name = name;
+              chapter.url = url;
+              sender.send(chapter);
+            }
+            validation = parser.query(
+              document,
+              source.cataloguePaginationValidation,
+            );
+          }
         }
         sender.send('close');
       } catch (error) {
@@ -451,15 +494,41 @@ class Parser {
     bool reacquire = false,
   }) async {
     final method = source.contentMethod.toUpperCase();
-    final html = await CachedNetwork(prefix: name).request(
+    final network = CachedNetwork(prefix: name);
+    final html = await network.request(
       url,
       charset: source.charset,
       method: method,
       reacquire: reacquire,
     );
     final parser = HtmlParser();
-    final document = parser.parse(html);
-    final content = parser.query(document, source.contentContent);
+    var document = parser.parse(html);
+    var content = parser.query(document, source.contentContent);
+    if (source.contentPagination.isNotEmpty) {
+      var validation = parser.query(
+        document,
+        source.contentPaginationValidation,
+      );
+      while (validation.contains('下一页')) {
+        var nextUrl = parser.query(document, source.contentPagination);
+        if (!nextUrl.startsWith('http')) {
+          nextUrl = '${source.url}$nextUrl';
+        }
+        var nextHtml = await network.request(
+          nextUrl,
+          charset: source.charset,
+          method: method,
+          reacquire: reacquire,
+        );
+        document = parser.parse(nextHtml);
+        var nextContent = parser.query(document, source.contentContent);
+        content = '$content\n$nextContent';
+        validation = parser.query(
+          document,
+          source.contentPaginationValidation,
+        );
+      }
+    }
     if (content.isEmpty) {
       return content;
     }
@@ -671,7 +740,51 @@ class Parser {
             chapter.url = url;
             chapters.add(chapter);
           }
-          final jsonList = chapters.map((chapter) => chapter.toJson()).toList();
+          if (source.cataloguePagination.isNotEmpty) {
+            var validation = parser.query(
+              document,
+              source.cataloguePaginationValidation,
+            );
+            while (validation.contains('下一页')) {
+              var nextUrl = parser.query(document, source.cataloguePagination);
+              if (!nextUrl.startsWith('http')) {
+                nextUrl = '${source.url}$nextUrl';
+              }
+              var nextHtml = await network.request(
+                nextUrl,
+                charset: source.charset,
+                method: source.catalogueMethod.toUpperCase(),
+                reacquire: true,
+              );
+              document = parser.parse(nextHtml);
+              var preset = parser.query(document, source.cataloguePreset);
+              var items = parser.queryNodes(
+                document,
+                source.catalogueChapters,
+              );
+              var catalogueUrlRule = source.catalogueUrl;
+              catalogueUrlRule = catalogueUrlRule.replaceAll(
+                '{{preset}}',
+                preset,
+              );
+              for (var i = 0; i < items.length; i++) {
+                final name = parser.query(items[i], source.catalogueName);
+                var url = parser.query(items[i], catalogueUrlRule);
+                if (!url.startsWith('http')) {
+                  url = '${source.url}$url';
+                }
+                var chapter = Chapter();
+                chapter.name = name;
+                chapter.url = url;
+                chapters.add(chapter);
+              }
+              validation = parser.query(
+                document,
+                source.cataloguePaginationValidation,
+              );
+            }
+          }
+          var jsonList = chapters.map((chapter) => chapter.toJson()).toList();
           result.json = jsonEncode(jsonList);
         } catch (error) {
           sender.send(error.toString());
@@ -690,6 +803,31 @@ class Parser {
             result.raw = html;
             var document = parser.parse(html);
             var content = parser.query(document, source.contentContent);
+            if (source.contentPagination.isNotEmpty) {
+              var validation = parser.query(
+                document,
+                source.contentPaginationValidation,
+              );
+              while (validation.contains('下一页')) {
+                var nextUrl = parser.query(document, source.contentPagination);
+                if (!nextUrl.startsWith('http')) {
+                  nextUrl = '${source.url}$nextUrl';
+                }
+                var nextHtml = await network.request(
+                  nextUrl,
+                  charset: source.charset,
+                  method: source.contentMethod.toUpperCase(),
+                  reacquire: true,
+                );
+                document = parser.parse(nextHtml);
+                var nextContent = parser.query(document, source.contentContent);
+                content = '$content\n$nextContent';
+                validation = parser.query(
+                  document,
+                  source.contentPaginationValidation,
+                );
+              }
+            }
             result.json = jsonEncode({'content': content});
           }
         } catch (error) {

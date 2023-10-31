@@ -37,178 +37,188 @@ const SourceSchema = CollectionSchema(
       name: r'catalogue_pagination',
       type: IsarType.string,
     ),
-    r'catalogue_preset': PropertySchema(
+    r'catalogue_pagination_validation': PropertySchema(
       id: 4,
+      name: r'catalogue_pagination_validation',
+      type: IsarType.string,
+    ),
+    r'catalogue_preset': PropertySchema(
+      id: 5,
       name: r'catalogue_preset',
       type: IsarType.string,
     ),
     r'catalogue_updated_at': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'catalogue_updated_at',
       type: IsarType.string,
     ),
     r'catalogue_url': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'catalogue_url',
       type: IsarType.string,
     ),
     r'charset': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'charset',
       type: IsarType.string,
     ),
     r'comment': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'comment',
       type: IsarType.string,
     ),
     r'content_content': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'content_content',
       type: IsarType.string,
     ),
     r'content_method': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'content_method',
       type: IsarType.string,
     ),
     r'content_pagination': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'content_pagination',
       type: IsarType.string,
     ),
+    r'content_pagination_validation': PropertySchema(
+      id: 13,
+      name: r'content_pagination_validation',
+      type: IsarType.string,
+    ),
     r'enabled': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'enabled',
       type: IsarType.bool,
     ),
     r'explore_enabled': PropertySchema(
-      id: 13,
+      id: 15,
       name: r'explore_enabled',
       type: IsarType.bool,
     ),
     r'explore_json': PropertySchema(
-      id: 14,
+      id: 16,
       name: r'explore_json',
       type: IsarType.string,
     ),
     r'header': PropertySchema(
-      id: 15,
+      id: 17,
       name: r'header',
       type: IsarType.string,
     ),
     r'information_author': PropertySchema(
-      id: 16,
+      id: 18,
       name: r'information_author',
       type: IsarType.string,
     ),
     r'information_catalogue_url': PropertySchema(
-      id: 17,
+      id: 19,
       name: r'information_catalogue_url',
       type: IsarType.string,
     ),
     r'information_category': PropertySchema(
-      id: 18,
+      id: 20,
       name: r'information_category',
       type: IsarType.string,
     ),
     r'information_cover': PropertySchema(
-      id: 19,
+      id: 21,
       name: r'information_cover',
       type: IsarType.string,
     ),
     r'information_introduction': PropertySchema(
-      id: 20,
+      id: 22,
       name: r'information_introduction',
       type: IsarType.string,
     ),
     r'information_latest_chapter': PropertySchema(
-      id: 21,
+      id: 23,
       name: r'information_latest_chapter',
       type: IsarType.string,
     ),
     r'information_method': PropertySchema(
-      id: 22,
+      id: 24,
       name: r'information_method',
       type: IsarType.string,
     ),
     r'information_name': PropertySchema(
-      id: 23,
+      id: 25,
       name: r'information_name',
       type: IsarType.string,
     ),
     r'information_word_count': PropertySchema(
-      id: 24,
+      id: 26,
       name: r'information_word_count',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 25,
+      id: 27,
       name: r'name',
       type: IsarType.string,
     ),
     r'search_author': PropertySchema(
-      id: 26,
+      id: 28,
       name: r'search_author',
       type: IsarType.string,
     ),
     r'search_books': PropertySchema(
-      id: 27,
+      id: 29,
       name: r'search_books',
       type: IsarType.string,
     ),
     r'search_category': PropertySchema(
-      id: 28,
+      id: 30,
       name: r'search_category',
       type: IsarType.string,
     ),
     r'search_cover': PropertySchema(
-      id: 29,
+      id: 31,
       name: r'search_cover',
       type: IsarType.string,
     ),
     r'search_information_url': PropertySchema(
-      id: 30,
+      id: 32,
       name: r'search_information_url',
       type: IsarType.string,
     ),
     r'search_introduction': PropertySchema(
-      id: 31,
+      id: 33,
       name: r'search_introduction',
       type: IsarType.string,
     ),
     r'search_latest_chapter': PropertySchema(
-      id: 32,
+      id: 34,
       name: r'search_latest_chapter',
       type: IsarType.string,
     ),
     r'search_method': PropertySchema(
-      id: 33,
+      id: 35,
       name: r'search_method',
       type: IsarType.string,
     ),
     r'search_name': PropertySchema(
-      id: 34,
+      id: 36,
       name: r'search_name',
       type: IsarType.string,
     ),
     r'search_url': PropertySchema(
-      id: 35,
+      id: 37,
       name: r'search_url',
       type: IsarType.string,
     ),
     r'search_word_count': PropertySchema(
-      id: 36,
+      id: 38,
       name: r'search_word_count',
       type: IsarType.string,
     ),
     r'type': PropertySchema(
-      id: 37,
+      id: 39,
       name: r'type',
       type: IsarType.string,
     ),
     r'url': PropertySchema(
-      id: 38,
+      id: 40,
       name: r'url',
       type: IsarType.string,
     )
@@ -237,6 +247,7 @@ int _sourceEstimateSize(
   bytesCount += 3 + object.catalogueMethod.length * 3;
   bytesCount += 3 + object.catalogueName.length * 3;
   bytesCount += 3 + object.cataloguePagination.length * 3;
+  bytesCount += 3 + object.cataloguePaginationValidation.length * 3;
   bytesCount += 3 + object.cataloguePreset.length * 3;
   bytesCount += 3 + object.catalogueUpdatedAt.length * 3;
   bytesCount += 3 + object.catalogueUrl.length * 3;
@@ -245,6 +256,7 @@ int _sourceEstimateSize(
   bytesCount += 3 + object.contentContent.length * 3;
   bytesCount += 3 + object.contentMethod.length * 3;
   bytesCount += 3 + object.contentPagination.length * 3;
+  bytesCount += 3 + object.contentPaginationValidation.length * 3;
   bytesCount += 3 + object.exploreJson.length * 3;
   bytesCount += 3 + object.header.length * 3;
   bytesCount += 3 + object.informationAuthor.length * 3;
@@ -283,41 +295,43 @@ void _sourceSerialize(
   writer.writeString(offsets[1], object.catalogueMethod);
   writer.writeString(offsets[2], object.catalogueName);
   writer.writeString(offsets[3], object.cataloguePagination);
-  writer.writeString(offsets[4], object.cataloguePreset);
-  writer.writeString(offsets[5], object.catalogueUpdatedAt);
-  writer.writeString(offsets[6], object.catalogueUrl);
-  writer.writeString(offsets[7], object.charset);
-  writer.writeString(offsets[8], object.comment);
-  writer.writeString(offsets[9], object.contentContent);
-  writer.writeString(offsets[10], object.contentMethod);
-  writer.writeString(offsets[11], object.contentPagination);
-  writer.writeBool(offsets[12], object.enabled);
-  writer.writeBool(offsets[13], object.exploreEnabled);
-  writer.writeString(offsets[14], object.exploreJson);
-  writer.writeString(offsets[15], object.header);
-  writer.writeString(offsets[16], object.informationAuthor);
-  writer.writeString(offsets[17], object.informationCatalogueUrl);
-  writer.writeString(offsets[18], object.informationCategory);
-  writer.writeString(offsets[19], object.informationCover);
-  writer.writeString(offsets[20], object.informationIntroduction);
-  writer.writeString(offsets[21], object.informationLatestChapter);
-  writer.writeString(offsets[22], object.informationMethod);
-  writer.writeString(offsets[23], object.informationName);
-  writer.writeString(offsets[24], object.informationWordCount);
-  writer.writeString(offsets[25], object.name);
-  writer.writeString(offsets[26], object.searchAuthor);
-  writer.writeString(offsets[27], object.searchBooks);
-  writer.writeString(offsets[28], object.searchCategory);
-  writer.writeString(offsets[29], object.searchCover);
-  writer.writeString(offsets[30], object.searchInformationUrl);
-  writer.writeString(offsets[31], object.searchIntroduction);
-  writer.writeString(offsets[32], object.searchLatestChapter);
-  writer.writeString(offsets[33], object.searchMethod);
-  writer.writeString(offsets[34], object.searchName);
-  writer.writeString(offsets[35], object.searchUrl);
-  writer.writeString(offsets[36], object.searchWordCount);
-  writer.writeString(offsets[37], object.type);
-  writer.writeString(offsets[38], object.url);
+  writer.writeString(offsets[4], object.cataloguePaginationValidation);
+  writer.writeString(offsets[5], object.cataloguePreset);
+  writer.writeString(offsets[6], object.catalogueUpdatedAt);
+  writer.writeString(offsets[7], object.catalogueUrl);
+  writer.writeString(offsets[8], object.charset);
+  writer.writeString(offsets[9], object.comment);
+  writer.writeString(offsets[10], object.contentContent);
+  writer.writeString(offsets[11], object.contentMethod);
+  writer.writeString(offsets[12], object.contentPagination);
+  writer.writeString(offsets[13], object.contentPaginationValidation);
+  writer.writeBool(offsets[14], object.enabled);
+  writer.writeBool(offsets[15], object.exploreEnabled);
+  writer.writeString(offsets[16], object.exploreJson);
+  writer.writeString(offsets[17], object.header);
+  writer.writeString(offsets[18], object.informationAuthor);
+  writer.writeString(offsets[19], object.informationCatalogueUrl);
+  writer.writeString(offsets[20], object.informationCategory);
+  writer.writeString(offsets[21], object.informationCover);
+  writer.writeString(offsets[22], object.informationIntroduction);
+  writer.writeString(offsets[23], object.informationLatestChapter);
+  writer.writeString(offsets[24], object.informationMethod);
+  writer.writeString(offsets[25], object.informationName);
+  writer.writeString(offsets[26], object.informationWordCount);
+  writer.writeString(offsets[27], object.name);
+  writer.writeString(offsets[28], object.searchAuthor);
+  writer.writeString(offsets[29], object.searchBooks);
+  writer.writeString(offsets[30], object.searchCategory);
+  writer.writeString(offsets[31], object.searchCover);
+  writer.writeString(offsets[32], object.searchInformationUrl);
+  writer.writeString(offsets[33], object.searchIntroduction);
+  writer.writeString(offsets[34], object.searchLatestChapter);
+  writer.writeString(offsets[35], object.searchMethod);
+  writer.writeString(offsets[36], object.searchName);
+  writer.writeString(offsets[37], object.searchUrl);
+  writer.writeString(offsets[38], object.searchWordCount);
+  writer.writeString(offsets[39], object.type);
+  writer.writeString(offsets[40], object.url);
 }
 
 Source _sourceDeserialize(
@@ -331,42 +345,44 @@ Source _sourceDeserialize(
   object.catalogueMethod = reader.readString(offsets[1]);
   object.catalogueName = reader.readString(offsets[2]);
   object.cataloguePagination = reader.readString(offsets[3]);
-  object.cataloguePreset = reader.readString(offsets[4]);
-  object.catalogueUpdatedAt = reader.readString(offsets[5]);
-  object.catalogueUrl = reader.readString(offsets[6]);
-  object.charset = reader.readString(offsets[7]);
-  object.comment = reader.readString(offsets[8]);
-  object.contentContent = reader.readString(offsets[9]);
-  object.contentMethod = reader.readString(offsets[10]);
-  object.contentPagination = reader.readString(offsets[11]);
-  object.enabled = reader.readBool(offsets[12]);
-  object.exploreEnabled = reader.readBool(offsets[13]);
-  object.exploreJson = reader.readString(offsets[14]);
-  object.header = reader.readString(offsets[15]);
+  object.cataloguePaginationValidation = reader.readString(offsets[4]);
+  object.cataloguePreset = reader.readString(offsets[5]);
+  object.catalogueUpdatedAt = reader.readString(offsets[6]);
+  object.catalogueUrl = reader.readString(offsets[7]);
+  object.charset = reader.readString(offsets[8]);
+  object.comment = reader.readString(offsets[9]);
+  object.contentContent = reader.readString(offsets[10]);
+  object.contentMethod = reader.readString(offsets[11]);
+  object.contentPagination = reader.readString(offsets[12]);
+  object.contentPaginationValidation = reader.readString(offsets[13]);
+  object.enabled = reader.readBool(offsets[14]);
+  object.exploreEnabled = reader.readBool(offsets[15]);
+  object.exploreJson = reader.readString(offsets[16]);
+  object.header = reader.readString(offsets[17]);
   object.id = id;
-  object.informationAuthor = reader.readString(offsets[16]);
-  object.informationCatalogueUrl = reader.readString(offsets[17]);
-  object.informationCategory = reader.readString(offsets[18]);
-  object.informationCover = reader.readString(offsets[19]);
-  object.informationIntroduction = reader.readString(offsets[20]);
-  object.informationLatestChapter = reader.readString(offsets[21]);
-  object.informationMethod = reader.readString(offsets[22]);
-  object.informationName = reader.readString(offsets[23]);
-  object.informationWordCount = reader.readString(offsets[24]);
-  object.name = reader.readString(offsets[25]);
-  object.searchAuthor = reader.readString(offsets[26]);
-  object.searchBooks = reader.readString(offsets[27]);
-  object.searchCategory = reader.readString(offsets[28]);
-  object.searchCover = reader.readString(offsets[29]);
-  object.searchInformationUrl = reader.readString(offsets[30]);
-  object.searchIntroduction = reader.readString(offsets[31]);
-  object.searchLatestChapter = reader.readString(offsets[32]);
-  object.searchMethod = reader.readString(offsets[33]);
-  object.searchName = reader.readString(offsets[34]);
-  object.searchUrl = reader.readString(offsets[35]);
-  object.searchWordCount = reader.readString(offsets[36]);
-  object.type = reader.readString(offsets[37]);
-  object.url = reader.readString(offsets[38]);
+  object.informationAuthor = reader.readString(offsets[18]);
+  object.informationCatalogueUrl = reader.readString(offsets[19]);
+  object.informationCategory = reader.readString(offsets[20]);
+  object.informationCover = reader.readString(offsets[21]);
+  object.informationIntroduction = reader.readString(offsets[22]);
+  object.informationLatestChapter = reader.readString(offsets[23]);
+  object.informationMethod = reader.readString(offsets[24]);
+  object.informationName = reader.readString(offsets[25]);
+  object.informationWordCount = reader.readString(offsets[26]);
+  object.name = reader.readString(offsets[27]);
+  object.searchAuthor = reader.readString(offsets[28]);
+  object.searchBooks = reader.readString(offsets[29]);
+  object.searchCategory = reader.readString(offsets[30]);
+  object.searchCover = reader.readString(offsets[31]);
+  object.searchInformationUrl = reader.readString(offsets[32]);
+  object.searchIntroduction = reader.readString(offsets[33]);
+  object.searchLatestChapter = reader.readString(offsets[34]);
+  object.searchMethod = reader.readString(offsets[35]);
+  object.searchName = reader.readString(offsets[36]);
+  object.searchUrl = reader.readString(offsets[37]);
+  object.searchWordCount = reader.readString(offsets[38]);
+  object.type = reader.readString(offsets[39]);
+  object.url = reader.readString(offsets[40]);
   return object;
 }
 
@@ -402,13 +418,13 @@ P _sourceDeserializeProp<P>(
     case 11:
       return (reader.readString(offset)) as P;
     case 12:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 13:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 14:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 15:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 16:
       return (reader.readString(offset)) as P;
     case 17:
@@ -454,6 +470,10 @@ P _sourceDeserializeProp<P>(
     case 37:
       return (reader.readString(offset)) as P;
     case 38:
+      return (reader.readString(offset)) as P;
+    case 39:
+      return (reader.readString(offset)) as P;
+    case 40:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1076,6 +1096,144 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'catalogue_pagination',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      cataloguePaginationValidationEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogue_pagination_validation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      cataloguePaginationValidationGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'catalogue_pagination_validation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      cataloguePaginationValidationLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'catalogue_pagination_validation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      cataloguePaginationValidationBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'catalogue_pagination_validation',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      cataloguePaginationValidationStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'catalogue_pagination_validation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      cataloguePaginationValidationEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'catalogue_pagination_validation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      cataloguePaginationValidationContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'catalogue_pagination_validation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      cataloguePaginationValidationMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'catalogue_pagination_validation',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      cataloguePaginationValidationIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'catalogue_pagination_validation',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      cataloguePaginationValidationIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'catalogue_pagination_validation',
         value: '',
       ));
     });
@@ -2129,6 +2287,144 @@ extension SourceQueryFilter on QueryBuilder<Source, Source, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'content_pagination',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      contentPaginationValidationEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'content_pagination_validation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      contentPaginationValidationGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'content_pagination_validation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      contentPaginationValidationLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'content_pagination_validation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      contentPaginationValidationBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'content_pagination_validation',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      contentPaginationValidationStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'content_pagination_validation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      contentPaginationValidationEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'content_pagination_validation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      contentPaginationValidationContains(String value,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'content_pagination_validation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      contentPaginationValidationMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'content_pagination_validation',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      contentPaginationValidationIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'content_pagination_validation',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterFilterCondition>
+      contentPaginationValidationIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'content_pagination_validation',
         value: '',
       ));
     });
@@ -5576,6 +5872,20 @@ extension SourceQuerySortBy on QueryBuilder<Source, Source, QSortBy> {
     });
   }
 
+  QueryBuilder<Source, Source, QAfterSortBy>
+      sortByCataloguePaginationValidation() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogue_pagination_validation', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterSortBy>
+      sortByCataloguePaginationValidationDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogue_pagination_validation', Sort.desc);
+    });
+  }
+
   QueryBuilder<Source, Source, QAfterSortBy> sortByCataloguePreset() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'catalogue_preset', Sort.asc);
@@ -5669,6 +5979,20 @@ extension SourceQuerySortBy on QueryBuilder<Source, Source, QSortBy> {
   QueryBuilder<Source, Source, QAfterSortBy> sortByContentPaginationDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'content_pagination', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterSortBy>
+      sortByContentPaginationValidation() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'content_pagination_validation', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterSortBy>
+      sortByContentPaginationValidationDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'content_pagination_validation', Sort.desc);
     });
   }
 
@@ -6049,6 +6373,20 @@ extension SourceQuerySortThenBy on QueryBuilder<Source, Source, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Source, Source, QAfterSortBy>
+      thenByCataloguePaginationValidation() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogue_pagination_validation', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterSortBy>
+      thenByCataloguePaginationValidationDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'catalogue_pagination_validation', Sort.desc);
+    });
+  }
+
   QueryBuilder<Source, Source, QAfterSortBy> thenByCataloguePreset() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'catalogue_preset', Sort.asc);
@@ -6142,6 +6480,20 @@ extension SourceQuerySortThenBy on QueryBuilder<Source, Source, QSortThenBy> {
   QueryBuilder<Source, Source, QAfterSortBy> thenByContentPaginationDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'content_pagination', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterSortBy>
+      thenByContentPaginationValidation() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'content_pagination_validation', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Source, Source, QAfterSortBy>
+      thenByContentPaginationValidationDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'content_pagination_validation', Sort.desc);
     });
   }
 
@@ -6518,6 +6870,14 @@ extension SourceQueryWhereDistinct on QueryBuilder<Source, Source, QDistinct> {
     });
   }
 
+  QueryBuilder<Source, Source, QDistinct>
+      distinctByCataloguePaginationValidation({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'catalogue_pagination_validation',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Source, Source, QDistinct> distinctByCataloguePreset(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -6576,6 +6936,14 @@ extension SourceQueryWhereDistinct on QueryBuilder<Source, Source, QDistinct> {
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'content_pagination',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Source, Source, QDistinct> distinctByContentPaginationValidation(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'content_pagination_validation',
           caseSensitive: caseSensitive);
     });
   }
@@ -6815,6 +7183,13 @@ extension SourceQueryProperty on QueryBuilder<Source, Source, QQueryProperty> {
     });
   }
 
+  QueryBuilder<Source, String, QQueryOperations>
+      cataloguePaginationValidationProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'catalogue_pagination_validation');
+    });
+  }
+
   QueryBuilder<Source, String, QQueryOperations> cataloguePresetProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'catalogue_preset');
@@ -6860,6 +7235,13 @@ extension SourceQueryProperty on QueryBuilder<Source, Source, QQueryProperty> {
   QueryBuilder<Source, String, QQueryOperations> contentPaginationProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'content_pagination');
+    });
+  }
+
+  QueryBuilder<Source, String, QQueryOperations>
+      contentPaginationValidationProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'content_pagination_validation');
     });
   }
 

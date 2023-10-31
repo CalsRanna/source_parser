@@ -140,7 +140,7 @@ class _ReaderState extends State<Reader> {
 
   Future<String> getContent(int index) async {
     final ref = context.ref;
-    // HACK: get content while page animation stopped, should override the animation instead
+    // Get content while page animation stopped, should override the animation instead
     await Future.delayed(const Duration(milliseconds: 300));
     final book = ref.read(currentBookCreator);
     final builder = isar.sources.filter();
