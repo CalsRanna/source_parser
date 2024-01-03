@@ -25,6 +25,7 @@ class _SearchState extends State<Search> {
   final controller = TextEditingController();
   final FocusNode node = FocusNode();
   bool showResult = false;
+  bool showSuffix = false;
   bool loading = false;
 
   @override
@@ -33,6 +34,7 @@ class _SearchState extends State<Search> {
     controller.addListener(() {
       setState(() {
         showResult = controller.text.isNotEmpty;
+        showSuffix = controller.text.isNotEmpty;
       });
     });
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -58,6 +60,13 @@ class _SearchState extends State<Search> {
     final outline = colorScheme.outline;
     final medium = theme.textTheme.bodyMedium;
 
+    final suffixIcon = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: GestureDetector(
+        onTap: clear,
+        child: Icon(Icons.cancel, color: onSurface.withOpacity(0.25)),
+      ),
+    );
     final cancel = TextButton(
       onPressed: () => pop(context),
       child: Text('取消', style: medium),
@@ -118,6 +127,8 @@ class _SearchState extends State<Search> {
             isCollapsed: true,
             isDense: true,
             hintText: '输入查询关键字',
+            suffixIcon: showSuffix ? suffixIcon : null,
+            suffixIconConstraints: const BoxConstraints(maxHeight: 30),
           ),
           style: const TextStyle(fontSize: 14),
           textInputAction: TextInputAction.search,
@@ -231,6 +242,10 @@ class _SearchState extends State<Search> {
     } catch (e) {
       message.show(e.toString());
     }
+  }
+
+  void clear() {
+    controller.text = '';
   }
 }
 
