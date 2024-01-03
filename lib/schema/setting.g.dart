@@ -72,8 +72,13 @@ const SettingSchema = CollectionSchema(
       name: r'shelf_mode',
       type: IsarType.string,
     ),
-    r'turning_mode': PropertySchema(
+    r'timeout': PropertySchema(
       id: 11,
+      name: r'timeout',
+      type: IsarType.long,
+    ),
+    r'turning_mode': PropertySchema(
+      id: 12,
       name: r'turning_mode',
       type: IsarType.long,
     )
@@ -119,7 +124,8 @@ void _settingSerialize(
   writer.writeDouble(offsets[8], object.lineSpace);
   writer.writeDouble(offsets[9], object.maxConcurrent);
   writer.writeString(offsets[10], object.shelfMode);
-  writer.writeLong(offsets[11], object.turningMode);
+  writer.writeLong(offsets[11], object.timeout);
+  writer.writeLong(offsets[12], object.turningMode);
 }
 
 Setting _settingDeserialize(
@@ -141,7 +147,8 @@ Setting _settingDeserialize(
   object.lineSpace = reader.readDouble(offsets[8]);
   object.maxConcurrent = reader.readDouble(offsets[9]);
   object.shelfMode = reader.readString(offsets[10]);
-  object.turningMode = reader.readLong(offsets[11]);
+  object.timeout = reader.readLong(offsets[11]);
+  object.turningMode = reader.readLong(offsets[12]);
   return object;
 }
 
@@ -175,6 +182,8 @@ P _settingDeserializeProp<P>(
     case 10:
       return (reader.readString(offset)) as P;
     case 11:
+      return (reader.readLong(offset)) as P;
+    case 12:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -884,6 +893,59 @@ extension SettingQueryFilter
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> timeoutEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'timeout',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> timeoutGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'timeout',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> timeoutLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'timeout',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> timeoutBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'timeout',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterFilterCondition> turningModeEqualTo(
       int value) {
     return QueryBuilder.apply(this, (query) {
@@ -1077,6 +1139,18 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByTimeout() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'timeout', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByTimeoutDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'timeout', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByTurningMode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'turning_mode', Sort.asc);
@@ -1236,6 +1310,18 @@ extension SettingQuerySortThenBy
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByTimeout() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'timeout', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByTimeoutDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'timeout', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> thenByTurningMode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'turning_mode', Sort.asc);
@@ -1318,6 +1404,12 @@ extension SettingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Setting, Setting, QDistinct> distinctByTimeout() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'timeout');
+    });
+  }
+
   QueryBuilder<Setting, Setting, QDistinct> distinctByTurningMode() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'turning_mode');
@@ -1396,6 +1488,12 @@ extension SettingQueryProperty
   QueryBuilder<Setting, String, QQueryOperations> shelfModeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'shelf_mode');
+    });
+  }
+
+  QueryBuilder<Setting, int, QQueryOperations> timeoutProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'timeout');
     });
   }
 

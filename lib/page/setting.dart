@@ -10,79 +10,98 @@ class AdvancedSettingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-    final bodyLarge = textTheme.bodyLarge;
-    final bodyMedium = textTheme.bodyMedium;
-    final bodySmall = textTheme.bodySmall;
-    final colorScheme = theme.colorScheme;
-    final onBackground = colorScheme.onBackground;
     return Scaffold(
       appBar: AppBar(title: const Text('设置')),
       body: ListView(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ListTile(
+            subtitle: const Text('搜索书籍和缓存章节内容时，最大并发请求数量'),
+            title: const Text('最大线程数量'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text('最大线程数量', style: bodyLarge),
                 Watcher((context, ref, child) {
                   final maxConcurrent = ref.watch(maxConcurrentCreator);
                   final concurrent = maxConcurrent.floor();
-                  return Text(concurrent.toString(), style: bodySmall);
+                  return Text(concurrent.toString());
                 }),
+                const Icon(Icons.arrow_forward_ios_outlined, size: 14)
               ],
             ),
+            onTap: () => showConcurrentSheet(context),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              '搜索书籍和缓存章节内容时，最大并发请求数量',
-              style: bodyMedium?.copyWith(color: onBackground.withOpacity(0.8)),
-            ),
-          ),
-          Watcher((context, ref, child) {
-            final maxConcurrent = ref.watch(maxConcurrentCreator);
-            return Slider(
-              divisions: 15,
-              max: 16,
-              min: 1,
-              value: maxConcurrent,
-              onChanged: (value) => updateMaxConcurrent(context, value),
-            );
-          }),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ListTile(
+            subtitle: const Text('网络请求缓存的有效时长'),
+            title: const Text('缓存时长'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text('缓存有效时长', style: bodyLarge),
                 Watcher((context, ref, child) {
                   final cacheDuration = ref.watch(cacheDurationCreator);
                   final hour = cacheDuration.floor();
-                  return Text('$hour小时', style: bodySmall);
+                  return Text('$hour小时');
                 }),
+                const Icon(Icons.arrow_forward_ios_outlined, size: 14)
               ],
             ),
+            onTap: () => showCacheSheet(context),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              '网络请求缓存的有效时长',
-              style: bodyMedium?.copyWith(color: onBackground.withOpacity(0.8)),
+          ListTile(
+            subtitle: const Text('网络请求最大等待时长，超时将取消请求'),
+            title: const Text('请求超时'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Watcher((context, ref, child) {
+                  final timeout = ref.watch(timeoutCreator);
+                  final seconds = Duration(milliseconds: timeout).inSeconds;
+                  return Text('$seconds秒');
+                }),
+                const Icon(Icons.arrow_forward_ios_outlined, size: 14)
+              ],
             ),
+            onTap: () => showTimeoutSheet(context),
           ),
-          Watcher((context, ref, child) {
-            final cacheDuration = ref.watch(cacheDurationCreator);
-            return Slider(
-              divisions: 24,
-              max: 24,
-              value: cacheDuration,
-              onChanged: (value) => updateCacheDuration(context, value),
-            );
-          }),
         ],
+      ),
+    );
+  }
+
+  void showCacheSheet(BuildContext context) async {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => ListView.builder(
+        itemBuilder: (context, index) => ListTile(
+          title: Text('$index小时'),
+          onTap: () => updateCacheDuration(context, index.toDouble()),
+        ),
+        itemCount: 25,
+      ),
+    );
+  }
+
+  void showConcurrentSheet(BuildContext context) async {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => ListView.builder(
+        itemBuilder: (context, index) => ListTile(
+          title: Text('${index + 1}'),
+          onTap: () => updateMaxConcurrent(context, index + 1),
+        ),
+        itemCount: 16,
+      ),
+    );
+  }
+
+  void showTimeoutSheet(BuildContext context) async {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => ListView.builder(
+        itemBuilder: (context, index) => ListTile(
+          title: Text('${(index + 1) * 15}秒'),
+          onTap: () => updateTimeout(context, (index + 1) * 15 * 1000),
+        ),
+        itemCount: 4,
       ),
     );
   }
@@ -97,6 +116,8 @@ class AdvancedSettingPage extends StatelessWidget {
         isar.settings.put(setting);
       });
     }
+    if (!context.mounted) return;
+    Navigator.of(context).pop();
   }
 
   void updateMaxConcurrent(BuildContext context, double concurrent) async {
@@ -109,5 +130,21 @@ class AdvancedSettingPage extends StatelessWidget {
         isar.settings.put(setting);
       });
     }
+    if (!context.mounted) return;
+    Navigator.of(context).pop();
+  }
+
+  void updateTimeout(BuildContext context, int timeout) async {
+    final ref = context.ref;
+    ref.set(timeoutCreator, timeout);
+    var setting = await isar.settings.where().findFirst();
+    if (setting != null) {
+      setting.timeout = timeout;
+      await isar.writeTxn(() async {
+        isar.settings.put(setting);
+      });
+    }
+    if (!context.mounted) return;
+    Navigator.of(context).pop();
   }
 }

@@ -29,6 +29,8 @@ class Setting {
   double maxConcurrent = 16.0;
   @Name('shelf_mode')
   String shelfMode = 'list';
+  @Name('timeout')
+  int timeout = 30 * 1000;
   @Name('turning_mode')
   int turningMode = 3;
 }

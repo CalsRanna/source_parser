@@ -3,7 +3,7 @@ description: A parser use to do everything you want to.
 
 publish_to: none
 
-version: 1.0.2+79
+version: 1.0.2+80
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -18,7 +18,7 @@ dependencies:
   cached_network: ^2.0.0
   # cached_network:
   #   path: ../cached_network
-  cached_network_image: ^3.2.3
+  cached_network_image: ^3.3.1
   charset: ^2.0.1
   creator: ^0.3.2
   creator_watcher: ^0.0.1

@@ -83,6 +83,9 @@ class _SourceParserState extends State<SourceParser> {
     if (setting.shelfMode.isEmpty) {
       setting.shelfMode = 'list';
     }
+    if (setting.timeout.isNegative) {
+      setting.timeout = 30 * 1000;
+    }
     if (setting.turningMode.isNegative) {
       setting.turningMode = 3;
     }
@@ -98,6 +101,7 @@ class _SourceParserState extends State<SourceParser> {
     ref.set(lineSpaceCreator, setting.lineSpace);
     ref.set(maxConcurrentCreator, setting.maxConcurrent);
     ref.set(shelfModeCreator, setting.shelfMode);
+    ref.set(timeoutCreator, setting.timeout);
     ref.set(turningModeCreator, setting.turningMode);
   }
 }

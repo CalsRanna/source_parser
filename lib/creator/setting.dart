@@ -42,6 +42,13 @@ final shelfModeCreator = Creator.value(
   keepAlive: true,
   name: 'shelfMode',
 );
+
+final timeoutCreator = Creator.value(
+  30 * 1000,
+  keepAlive: true,
+  name: 'timeoutCreator',
+);
+
 final turningModeCreator = Creator.value(
   3,
   keepAlive: true,
