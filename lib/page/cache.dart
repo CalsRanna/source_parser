@@ -32,18 +32,25 @@ class _CacheListState extends State<CacheList> {
           return ListTile(
             title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
             trailing: FutureBuilder(
-                future: getSize(cache),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Text(snapshot.error.toString());
-                  }
-                  if (snapshot.hasData) {
-                    return Text(snapshot.data.toString());
-                  } else {
-                    return const SizedBox();
-                  }
-                }),
-            onLongPress: () => _handleLongPress(name),
+              future: getSize(cache),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text(snapshot.error.toString());
+                }
+                if (snapshot.hasData) {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(snapshot.data.toString()),
+                      const Icon(Icons.arrow_forward_ios_outlined, size: 14)
+                    ],
+                  );
+                } else {
+                  return const SizedBox();
+                }
+              },
+            ),
+            onTap: () => _handleTap(name),
           );
         },
         itemCount: caches.length,
@@ -103,7 +110,7 @@ class _CacheListState extends State<CacheList> {
     }
   }
 
-  void _handleLongPress(String name) async {
+  void _handleTap(String name) async {
     showDialog(
       builder: (context) {
         return AlertDialog(
