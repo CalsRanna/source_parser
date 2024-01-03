@@ -152,9 +152,11 @@ class _HomePageState extends State<HomePage> {
         }).toList();
         List<ExploreResult> results = [];
         final duration = ref.read(cacheDurationCreator);
+        final timeout = ref.read(timeoutCreator);
         final stream = await Parser.getExplore(
           source,
           Duration(hours: duration.floor()),
+          Duration(milliseconds: timeout),
         );
         stream.listen((result) {
           results.add(result);

@@ -105,11 +105,13 @@ class _AvailableSourcesState extends State<AvailableSources> {
     final currentSource = await getSource(source.id);
     if (currentSource != null) {
       final duration = ref.read(cacheDurationCreator);
+      final timeout = ref.read(timeoutCreator);
       return Parser.getLatestChapter(
         name,
         source.url,
         currentSource,
         Duration(hours: duration.floor()),
+        Duration(milliseconds: timeout),
       );
     } else {
       return '加载失败';
@@ -129,6 +131,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
       final currentBook = ref.read(currentBookCreator);
       final maxConcurrent = ref.read(maxConcurrentCreator);
       final duration = ref.read(cacheDurationCreator);
+      final timeout = ref.read(timeoutCreator);
       List<AvailableSource> sources = [];
       for (var source in currentBook.sources) {
         final exist = await getSource(source.id);
@@ -140,6 +143,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
         currentBook.name,
         maxConcurrent.floor(),
         Duration(hours: duration.floor()),
+        Duration(milliseconds: timeout),
       );
       stream = stream.asBroadcastStream();
       stream.listen((book) async {
@@ -216,11 +220,13 @@ class _AvailableSourcesState extends State<AvailableSources> {
         final name = book.name;
         final url = book.sources[index].url;
         final duration = ref.read(cacheDurationCreator);
+        final timeout = ref.read(timeoutCreator);
         final information = await Parser.getInformation(
           name,
           url,
           source,
           Duration(hours: duration.floor()),
+          Duration(milliseconds: timeout),
         );
         final catalogueUrl = information.catalogueUrl;
         var stream = await Parser.getChapters(
@@ -228,6 +234,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
           catalogueUrl,
           source,
           Duration(hours: duration.floor()),
+          Duration(milliseconds: timeout),
         );
         stream = stream.asBroadcastStream();
         List<Chapter> chapters = [];

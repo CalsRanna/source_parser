@@ -149,11 +149,13 @@ class _ReaderState extends State<Reader> {
       final chapter = book.chapters.elementAt(index);
       final title = chapter.name;
       final url = chapter.url;
+      final timeout = ref.read(timeoutCreator);
       return Parser.getContent(
         name: book.name,
         source: source,
         title: title,
         url: url,
+        timeout: Duration(milliseconds: timeout),
       );
     } else {
       return '';
@@ -173,12 +175,14 @@ class _ReaderState extends State<Reader> {
       final chapter = book.chapters.elementAt(index);
       final title = chapter.name;
       final url = chapter.url;
+      final timeout = ref.read(timeoutCreator);
       return Parser.getContent(
         name: book.name,
         reacquire: true,
         source: source,
         title: title,
         url: url,
+        timeout: Duration(milliseconds: timeout),
       );
     } else {
       return '';
@@ -309,7 +313,11 @@ class _ReaderState extends State<Reader> {
     await semaphore.acquire();
     try {
       final url = book.chapters.elementAt(chapterIndex).url;
-      final network = CachedNetwork(prefix: book.name);
+      final timeout = ref.read(timeoutCreator);
+      final network = CachedNetwork(
+        prefix: book.name,
+        timeout: Duration(microseconds: timeout),
+      );
       final cached = await network.cached(url);
       if (!cached) {
         await network.request(

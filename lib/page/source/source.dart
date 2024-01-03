@@ -10,6 +10,7 @@ import 'package:isar/isar.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -156,7 +157,11 @@ class BookSourceList extends StatelessWidget {
     try {
       List<Source> sources;
       if (from == 'network') {
-        sources = await Parser.importNetworkSource(value);
+        final timeout = context.ref.read(timeoutCreator);
+        sources = await Parser.importNetworkSource(
+          value,
+          Duration(milliseconds: timeout),
+        );
       } else {
         sources = await Parser.importLocalSource(value);
       }

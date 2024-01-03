@@ -117,11 +117,13 @@ class _CataloguePageState extends State<CataloguePage> {
       final source = await builder.idEqualTo(book.sourceId).findFirst();
       if (source != null) {
         final duration = ref.read(cacheDurationCreator);
+        final timeout = ref.read(timeoutCreator);
         var stream = await Parser.getChapters(
           book.name,
           book.catalogueUrl,
           source,
           Duration(hours: duration.floor()),
+          Duration(milliseconds: timeout),
         );
         stream = stream.asBroadcastStream();
         List<Chapter> chapters = [];
@@ -174,7 +176,11 @@ class _CataloguePageState extends State<CataloguePage> {
   void cacheChapters(int index) async {
     final book = context.ref.read(currentBookCreator);
     final length = book.chapters.length;
-    final network = CachedNetwork(prefix: book.name);
+    final timeout = context.ref.read(timeoutCreator);
+    final network = CachedNetwork(
+      prefix: book.name,
+      timeout: Duration(milliseconds: timeout),
+    );
     for (var i = 1; i <= 3; i++) {
       if (index + i < length) {
         await network.request(book.chapters.elementAt(index + i).url);

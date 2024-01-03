@@ -170,10 +170,12 @@ class _SearchState extends State<Search> {
     try {
       final maxConcurrent = context.ref.read(maxConcurrentCreator);
       final duration = context.ref.read(cacheDurationCreator);
+      final timeout = context.ref.read(timeoutCreator);
       final stream = await Parser.search(
         credential,
         maxConcurrent.floor(),
         Duration(hours: duration.floor()),
+        Duration(milliseconds: timeout),
       );
       stream.listen(
         (book) async {

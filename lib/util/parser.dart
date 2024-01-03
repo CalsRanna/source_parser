@@ -15,8 +15,11 @@ import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/semaphore.dart';
 
 class Parser {
-  static Future<List<Book>> topSearch(Duration duration) async {
-    final html = await CachedNetwork().request(
+  static Future<List<Book>> topSearch(
+    Duration duration,
+    Duration timeout,
+  ) async {
+    final html = await CachedNetwork(timeout: timeout).request(
       'https://top.baidu.com/board?tab=novel',
       duration: duration,
     );
@@ -36,8 +39,11 @@ class Parser {
     }).toList();
   }
 
-  static Future<List<Book>> today(Duration duration) async {
-    final html = await CachedNetwork().request(
+  static Future<List<Book>> today(
+    Duration duration,
+    Duration timeout,
+  ) async {
+    final html = await CachedNetwork(timeout: timeout).request(
       'https://www.yousuu.com/rank/today',
       duration: duration,
     );
@@ -57,10 +63,14 @@ class Parser {
     String credential,
     int maxConcurrent,
     Duration duration,
+    Duration timeout,
   ) async {
     final sources = await isar.sources.filter().enabledEqualTo(true).findAll();
     final temporaryDirectory = await getTemporaryDirectory();
-    final network = CachedNetwork(temporaryDirectory: temporaryDirectory);
+    final network = CachedNetwork(
+      temporaryDirectory: temporaryDirectory,
+      timeout: timeout,
+    );
     var closed = 0;
     final controller = StreamController<Book>();
     final semaphore = Semaphore(maxConcurrent);
@@ -166,9 +176,13 @@ class Parser {
   static Future<Stream<ExploreResult>> getExplore(
     Source source,
     Duration duration,
+    Duration timeout,
   ) async {
     final temporaryDirectory = await getTemporaryDirectory();
-    final network = CachedNetwork(temporaryDirectory: temporaryDirectory);
+    final network = CachedNetwork(
+      temporaryDirectory: temporaryDirectory,
+      timeout: timeout,
+    );
     var closed = 0;
     final controller = StreamController<ExploreResult>();
     final rules = jsonDecode(source.exploreJson);
@@ -264,11 +278,13 @@ class Parser {
     String url,
     Source source,
     Duration duration,
+    Duration timeout,
   ) async {
     final temporaryDirectory = await getTemporaryDirectory();
     final network = CachedNetwork(
       prefix: name,
       temporaryDirectory: temporaryDirectory,
+      timeout: timeout,
     );
     final sender = ReceivePort();
     final receiver = ReceivePort();
@@ -352,11 +368,13 @@ class Parser {
     String url,
     Source source,
     Duration duration,
+    Duration timeout,
   ) async {
     final temporaryDirectory = await getTemporaryDirectory();
     final network = CachedNetwork(
       prefix: name,
       temporaryDirectory: temporaryDirectory,
+      timeout: timeout,
     );
     final controller = StreamController<Chapter>();
     final sender = ReceivePort();
@@ -467,9 +485,10 @@ class Parser {
     String url,
     Source source,
     Duration duration,
+    Duration timeout,
   ) async {
     try {
-      final book = await getInformation(name, url, source, duration);
+      final book = await getInformation(name, url, source, duration, timeout);
       if (book.latestChapter.isNotEmpty) {
         return book.latestChapter;
       }
@@ -478,6 +497,7 @@ class Parser {
         book.catalogueUrl,
         source,
         duration,
+        timeout,
       );
       final chapter = await stream.last;
       return chapter.name;
@@ -491,10 +511,11 @@ class Parser {
     required String url,
     required Source source,
     required String title,
+    required Duration timeout,
     bool reacquire = false,
   }) async {
     final method = source.contentMethod.toUpperCase();
-    final network = CachedNetwork(prefix: name);
+    final network = CachedNetwork(prefix: name, timeout: timeout);
     final html = await network.request(
       url,
       charset: source.charset,
@@ -539,9 +560,13 @@ class Parser {
     String credential,
     Source source,
     Duration duration,
+    Duration timeout,
   ) async {
     final temporaryDirectory = await getTemporaryDirectory();
-    final network = CachedNetwork(temporaryDirectory: temporaryDirectory);
+    final network = CachedNetwork(
+      temporaryDirectory: temporaryDirectory,
+      timeout: timeout,
+    );
     final sender = ReceivePort();
     final receiver = ReceivePort();
     final isolate = await Isolate.spawn(_debugInIsolate, sender.sendPort);
@@ -838,8 +863,9 @@ class Parser {
     });
   }
 
-  static Future<List<Source>> importNetworkSource(String url) async {
-    final network = CachedNetwork();
+  static Future<List<Source>> importNetworkSource(
+      String url, Duration timeout) async {
+    final network = CachedNetwork(timeout: timeout);
     final html = await network.request(url, reacquire: true);
     final json = jsonDecode(html);
     List<Source> sources = [];

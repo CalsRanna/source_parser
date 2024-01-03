@@ -98,10 +98,12 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
     try {
       final source = context.ref.read(currentSourceCreator);
       final duration = context.ref.read(cacheDurationCreator);
+      final timeout = context.ref.read(timeoutCreator);
       var stream = await Parser.debug(
         defaultCredential,
         source,
         Duration(hours: duration.floor()),
+        Duration(milliseconds: timeout),
       );
       stream.listen((result) {
         setState(() {

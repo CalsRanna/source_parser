@@ -72,11 +72,13 @@ class _ShelfViewState extends State<ShelfView> {
         final source = await builder.idEqualTo(book.sourceId).findFirst();
         if (source != null) {
           final duration = ref.read(cacheDurationCreator);
+          final timeout = ref.read(timeoutCreator);
           var stream = await Parser.getChapters(
             book.name,
             book.catalogueUrl,
             source,
             Duration(hours: duration.floor()),
+            Duration(milliseconds: timeout),
           );
           stream = stream.asBroadcastStream();
           List<Chapter> chapters = [];
