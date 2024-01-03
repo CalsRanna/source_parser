@@ -10,6 +10,7 @@ import 'package:lpinyin/lpinyin.dart';
 import 'package:source_parser/creator/book.dart';
 import 'package:source_parser/creator/router.dart';
 import 'package:source_parser/creator/setting.dart';
+import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -41,6 +42,9 @@ class _BookInformationState extends State<BookInformation> {
     return Watcher((context, ref, child) {
       final book = ref.watch(currentBookCreator);
       final eInkMode = ref.watch(eInkModeCreator);
+      final sources = ref.watch(sourcesEmitter.asyncData).data;
+      final currentSource =
+          sources?.where((source) => source.id == book.sourceId).firstOrNull;
       return RefreshIndicator(
         onRefresh: getInformation,
         child: Scaffold(
@@ -67,7 +71,10 @@ class _BookInformationState extends State<BookInformation> {
                   const SizedBox(height: 8),
                   _Catalogue(book: book, eInkMode: eInkMode, loading: loading),
                   const SizedBox(height: 8),
-                  _Source(sources: book.sources),
+                  _Source(
+                    currentSource: currentSource?.name,
+                    sources: book.sources,
+                  ),
                   const SizedBox(height: 8),
                   const _Archive(),
                 ]),
@@ -440,13 +447,18 @@ class _Catalogue extends StatelessWidget {
 }
 
 class _Source extends StatelessWidget {
-  const _Source({required this.sources});
+  const _Source({this.currentSource, required this.sources});
 
+  final String? currentSource;
   final List<AvailableSource> sources;
 
   @override
   Widget build(BuildContext context) {
     const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+    var name = '';
+    if (currentSource != null && currentSource!.isNotEmpty) {
+      name = '$currentSource · ';
+    }
     return GestureDetector(
       onTap: () => handleTap(context),
       child: Card(
@@ -464,7 +476,7 @@ class _Source extends StatelessWidget {
                   const Text('书源', style: boldTextStyle),
                   Expanded(
                     child: Text(
-                      '可用${sources.length}个',
+                      '$name可用${sources.length}个',
                       textAlign: TextAlign.right,
                     ),
                   ),
