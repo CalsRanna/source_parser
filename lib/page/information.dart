@@ -237,7 +237,21 @@ class _Information extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  Text(book.author),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => searchSameAuthor(context),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(book.author),
+                        const Icon(
+                          Icons.arrow_forward_ios_outlined,
+                          color: Colors.white,
+                          size: 14,
+                        )
+                      ],
+                    ),
+                  ),
                   Text(
                     _buildSpan(book),
                     style: TextStyle(
@@ -260,6 +274,10 @@ class _Information extends StatelessWidget {
         return _CoverSelector(book: book);
       },
     );
+  }
+
+  void searchSameAuthor(BuildContext context) {
+    context.push('/search?credential=${book.author}');
   }
 
   String _buildSpan(Book book) {

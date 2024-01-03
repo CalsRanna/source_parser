@@ -12,7 +12,9 @@ import 'package:source_parser/widget/book_cover.dart';
 import 'package:source_parser/util/message.dart';
 
 class Search extends StatefulWidget {
-  const Search({Key? key}) : super(key: key);
+  const Search({Key? key, this.credential}) : super(key: key);
+
+  final String? credential;
 
   @override
   State<Search> createState() => _SearchState();
@@ -32,6 +34,12 @@ class _SearchState extends State<Search> {
       setState(() {
         showResult = controller.text.isNotEmpty;
       });
+    });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (widget.credential != null) {
+        controller.text = widget.credential!;
+        search(context, widget.credential!);
+      }
     });
   }
 

@@ -80,7 +80,13 @@ final router = GoRouter(routes: [
     builder: (context, state) => const BookSourceSearchConfiguration(),
     path: '/book-source/search-configuration',
   ),
-  GoRoute(builder: (context, state) => const Search(), path: '/search'),
+  GoRoute(
+    builder: (context, state) {
+      final credential = state.queryParameters['credential'];
+      return Search(credential: credential);
+    },
+    path: '/search',
+  ),
   GoRoute(
       builder: (context, state) => const AboutPage(), path: '/setting/about'),
   GoRoute(
