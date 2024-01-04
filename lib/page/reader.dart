@@ -316,7 +316,7 @@ class _ReaderState extends State<Reader> {
       final timeout = ref.read(timeoutCreator);
       final network = CachedNetwork(
         prefix: book.name,
-        timeout: Duration(microseconds: timeout),
+        timeout: Duration(milliseconds: timeout),
       );
       final cached = await network.cached(url);
       if (!cached) {

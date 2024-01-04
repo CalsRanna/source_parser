@@ -1,128 +1,138 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:creator/creator.dart';
-import 'package:creator_watcher/creator_watcher.dart';
+import 'package:creator/creator.dart' hide AsyncData;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:source_parser/creator/setting.dart';
 import 'package:source_parser/creator/source.dart';
+import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/loading.dart';
 import 'package:source_parser/widget/source_tag.dart';
 
-class BookSourceList extends StatelessWidget {
-  const BookSourceList({Key? key}) : super(key: key);
+class BookSourceList extends StatefulWidget {
+  const BookSourceList({super.key});
 
+  @override
+  State<BookSourceList> createState() => _BookSourceListState();
+}
+
+class _BookSourceListState extends State<BookSourceList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: [
           IconButton(
-            onPressed: () => importSource(context),
+            onPressed: importSource,
             icon: const Icon(Icons.more_horiz_outlined),
           )
         ],
         title: const Text('书源管理'),
       ),
-      body: EmitterWatcher<List<Source>>(
-        builder: (context, sources) {
-          if (sources.isNotEmpty) {
-            return ListView.builder(
-              itemCount: sources.length,
-              itemBuilder: (context, index) {
-                return _SourceTile(
-                  key: ValueKey('source-$index'),
-                  source: sources[index],
-                  onTap: (id) => editSource(context, id),
-                );
-              },
-              itemExtent: 56,
-            );
-          } else {
-            return const Center(child: Text('空空如也'));
-          }
+      body: Consumer(
+        builder: (context, ref, child) {
+          final provider = ref.watch(sourcesProvider);
+          List<Source> sources = switch (provider) {
+            AsyncData(:final value) => value,
+            _ => [],
+          };
+          if (sources.isEmpty) return const Center(child: Text('空空如也'));
+          return ListView.builder(
+            itemCount: sources.length,
+            itemBuilder: (context, index) {
+              return _SourceTile(
+                key: ValueKey('source-$index'),
+                source: sources[index],
+                onTap: editSource,
+              );
+            },
+            itemExtent: 56,
+          );
         },
-        emitter: sourcesEmitter,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => createSource(context),
+        onPressed: createSource,
         child: const Icon(Icons.add_outlined),
       ),
     );
   }
 
-  void importSource(BuildContext context) async {
+  void importSource() async {
     showModalBottomSheet(
-      context: context,
       builder: (_) {
         return ListView(children: [
           ListTile(
             title: const Text('网络导入'),
-            onTap: () => importNetworkSource(context),
+            onTap: importNetworkSource,
           ),
-          ListTile(
-            title: const Text('本地导入'),
-            onTap: () => importLocalSource(context),
-          ),
+          Consumer(builder: ((context, ref, child) {
+            return ListTile(
+              title: const Text('本地导入'),
+              onTap: () => importLocalSource(ref),
+            );
+          })),
           ListTile(
             title: const Text('导出所有书源'),
             onTap: () => exportSource(context),
           ),
+          const Divider(height: 1, thickness: 0.5),
+          ListTile(
+            title: const Text('校验书源'),
+            onTap: () => exportSource(context),
+          ),
         ]);
       },
+      context: context,
     );
   }
 
-  void importNetworkSource(BuildContext context) async {
+  void importNetworkSource() async {
     final router = GoRouter.of(context);
     router.pop();
     showModalBottomSheet(
-      context: context,
       builder: (_) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            TextField(
-              decoration: const InputDecoration(hintText: '导入网络书源'),
-              onSubmitted: (value) => confirmImporting(
-                context,
-                value,
-                from: 'network',
-              ),
-            ),
+            Consumer(builder: (context, ref, child) {
+              return TextField(
+                decoration: const InputDecoration(hintText: '导入网络书源'),
+                onSubmitted: (value) =>
+                    confirmImporting(ref, value, from: 'network'),
+              );
+            }),
             const SizedBox(height: 8),
             const SelectableText('目前仅支持GitHub仓库中文件的原始地址。'),
           ],
         ),
       ),
+      context: context,
     );
     // router.pop();
   }
 
-  void importLocalSource(BuildContext context) async {
+  void importLocalSource(WidgetRef ref) async {
     final router = GoRouter.of(context);
     router.pop();
     final result = await FilePicker.platform.pickFiles();
     if (result != null) {
       final file = File(result.files.single.path!);
       final content = await file.readAsString();
-      // ignore: use_build_context_synchronously
-      confirmImporting(context, content, from: 'local');
+      confirmImporting(ref, content, from: 'local');
     }
   }
 
   void confirmImporting(
-    BuildContext context,
+    WidgetRef ref,
     String value, {
     String from = 'local',
   }) async {
@@ -155,46 +165,30 @@ class BookSourceList extends StatelessWidget {
     );
     final message = Message.of(context);
     try {
-      List<Source> sources;
-      if (from == 'network') {
-        final timeout = context.ref.read(timeoutCreator);
-        sources = await Parser.importNetworkSource(
-          value,
-          Duration(milliseconds: timeout),
-        );
-      } else {
-        sources = await Parser.importLocalSource(value);
-      }
-      final sourcesInDatabase = await isar.sources.where().findAll();
-      List<Source> newSources = [];
-      List<Source> oldSources = [];
-      for (var source in sources) {
-        if (sourcesInDatabase.where((element) {
-          final hasSameName = element.name == source.name;
-          final hasSameUrl = element.url == source.url;
-          return hasSameName && hasSameUrl;
-        }).isNotEmpty) {
-          oldSources.add(source);
-        } else {
-          newSources.add(source);
-        }
-      }
+      final notifier = ref.read(sourcesProvider.notifier);
+      final (newSources, oldSources) = await notifier.importSources(
+        from: from,
+        value: value,
+      );
       router.pop();
       if (oldSources.isNotEmpty) {
-        final keepButton = TextButton(
-          onPressed: () => handleImport(context, newSources, shouldPop: true),
-          child: const Text('保持原有'),
-        );
-        final overrideButton = TextButton(
-          onPressed: () => handleImport(
-            context,
-            newSources,
-            oldSources: oldSources,
-            shouldPop: true,
-          ),
-          child: const Text('直接覆盖'),
-        );
-        // ignore: use_build_context_synchronously
+        final keepButton = Consumer(builder: (context, ref, child) {
+          return TextButton(
+            onPressed: () => confirm(ref, newSources, oldSources),
+            child: const Text('保持原有'),
+          );
+        });
+        final overrideButton = Consumer(builder: (context, ref, child) {
+          return TextButton(
+            onPressed: () => confirm(
+              ref,
+              newSources,
+              oldSources,
+              override: true,
+            ),
+            child: const Text('直接覆盖'),
+          );
+        });
         showDialog(
           builder: (_) {
             return AlertDialog(
@@ -205,8 +199,7 @@ class BookSourceList extends StatelessWidget {
           context: context,
         );
       } else {
-        // ignore: use_build_context_synchronously
-        handleImport(context, newSources, oldSources: oldSources);
+        await notifier.confirmImport(newSources, oldSources);
       }
     } catch (error) {
       router.pop();
@@ -214,36 +207,16 @@ class BookSourceList extends StatelessWidget {
     }
   }
 
-  void handleImport(
-    BuildContext context,
-    List<Source> newSources, {
-    List<Source> oldSources = const [],
-    bool shouldPop = false,
+  void confirm(
+    WidgetRef ref,
+    List<Source> newSources,
+    List<Source> oldSources, {
+    bool override = false,
   }) async {
     final router = Navigator.of(context);
-    final ref = context.ref;
-    if (oldSources.isNotEmpty) {
-      final builder = isar.sources.filter();
-      for (var oldSource in oldSources) {
-        final source = await builder
-            .nameEqualTo(oldSource.name)
-            .urlEqualTo(oldSource.url)
-            .findFirst();
-        if (source != null) {
-          await isar.writeTxn(() async {
-            await isar.sources.put(oldSource.copyWith(id: source.id));
-          });
-        }
-      }
-    }
-    await isar.writeTxn(() async {
-      await isar.sources.putAll(newSources);
-    });
-    final sources = await isar.sources.where().findAll();
-    ref.emit(sourcesEmitter, sources);
-    if (shouldPop) {
-      router.pop();
-    }
+    final notifier = ref.read(sourcesProvider.notifier);
+    await notifier.confirmImport(newSources, oldSources, override: override);
+    router.pop();
   }
 
   void exportSource(BuildContext context) async {
@@ -261,7 +234,7 @@ class BookSourceList extends StatelessWidget {
     Share.shareXFiles([XFile(filePath)], subject: 'sources.json');
   }
 
-  void editSource(BuildContext context, int id) async {
+  void editSource(int id) async {
     final ref = context.ref;
     final navigator = GoRouter.of(context);
     final source = await isar.sources.filter().idEqualTo(id).findFirst();
@@ -269,7 +242,7 @@ class BookSourceList extends StatelessWidget {
     navigator.push('/book-source/information/$id');
   }
 
-  void createSource(BuildContext context) {
+  void createSource() {
     context.ref.set(currentSourceCreator, Source());
     context.push('/book-source/create');
   }
