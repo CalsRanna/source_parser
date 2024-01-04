@@ -1,12 +1,15 @@
 import 'dart:io';
 
-import 'package:creator/creator.dart';
+import 'package:creator/creator.dart' hide AsyncData;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/creator/setting.dart';
+import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
+import 'package:source_parser/util/message.dart';
 
 class SettingView extends StatelessWidget {
   const SettingView({super.key});
@@ -32,25 +35,6 @@ class SettingView extends StatelessWidget {
             ],
           ),
         ),
-        // const SizedBox(height: 8),
-        // Card(
-        //   color: surfaceVariant,
-        //   elevation: 0,
-        //   child: Column(
-        //     children: [
-        //       SettingTile(
-        //         icon: Icons.color_lens_outlined,
-        //         title: '主题种子',
-        //         onTap: () => handleTap(context),
-        //       ),
-        //       const SettingTile(
-        //         icon: Icons.format_color_text_outlined,
-        //         route: '/setting/reader-theme',
-        //         title: '阅读主题',
-        //       ),
-        //     ],
-        //   ),
-        // ),
         const SizedBox(height: 8),
         Card(
           color: surfaceVariant,
@@ -92,11 +76,6 @@ class SettingView extends StatelessWidget {
           child: const Column(
             children: [
               SettingTile(
-                icon: Icons.file_download_outlined,
-                route: '/setting/cache',
-                title: '缓存',
-              ),
-              SettingTile(
                 icon: Icons.settings_outlined,
                 route: '/setting/advanced',
                 title: '设置',
@@ -106,21 +85,93 @@ class SettingView extends StatelessWidget {
                 route: '/setting/about',
                 title: '关于元夕',
               ),
-              // EmitterWatcher<Setting>(
-              //   builder: (context, setting) => setting.debugMode
-              //       ? const SettingTile(
-              //           icon: Icons.developer_mode_outlined,
-              //           route: '/setting/developer',
-              //           title: '开发者选项',
-              //         )
-              //       : const SizedBox(),
-              //   emitter: settingEmitter,
-              // )
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          color: surfaceVariant,
+          elevation: 0,
+          child: Column(
+            children: [
+              Consumer(builder: (context, ref, child) {
+                final provider = ref.watch(cacheSizeProvider);
+                final size = switch (provider) {
+                  AsyncData(:final value) => value,
+                  _ => '0 Bytes',
+                };
+                return SettingTile(
+                  icon: Icons.file_download_outlined,
+                  title: '缓存',
+                  trailing: Text(size),
+                  onTap: () => clearCache(context),
+                );
+              })
             ],
           ),
         ),
       ],
     );
+  }
+
+  void cancelClear(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
+  void clearCache(BuildContext context) async {
+    showDialog(
+      builder: (_) {
+        return AlertDialog(
+          actions: [
+            TextButton(
+              onPressed: () => cancelClear(context),
+              child: const Text('取消'),
+            ),
+            Consumer(builder: (context, ref, child) {
+              return TextButton(
+                onPressed: () => confirmClear(context, ref),
+                child: const Text('确认'),
+              );
+            })
+          ],
+          content: const Text('确定清空所有已缓存的内容？'),
+          title: const Text('清空缓存'),
+        );
+      },
+      context: context,
+    );
+  }
+
+  void confirmClear(BuildContext context, WidgetRef ref) async {
+    final navigator = Navigator.of(context);
+    final message = Message.of(context);
+    final notifier = ref.read(cacheSizeProvider.notifier);
+    final succeed = await notifier.clear();
+    navigator.pop();
+    if (succeed) {
+      message.show('已清空缓存');
+    } else {
+      message.show('清空缓存失败');
+    }
+  }
+
+  void confirmUpdateTurningMode(BuildContext context, int value) async {
+    final ref = context.ref;
+    var turningMode = ref.read(turningModeCreator);
+    if (turningMode & value != 0) {
+      turningMode = turningMode - value;
+    } else {
+      turningMode = turningMode + value;
+    }
+    ref.set(turningModeCreator, turningMode);
+    final builder = isar.settings.where();
+    var setting = await builder.findFirst();
+    if (setting != null) {
+      setting.turningMode = turningMode;
+      await isar.writeTxn(() async {
+        await isar.settings.put(setting);
+      });
+    }
   }
 
   void updateEInkMode(BuildContext context, bool value) async {
@@ -160,84 +211,40 @@ class SettingView extends StatelessWidget {
       },
     );
   }
-
-  void confirmUpdateTurningMode(BuildContext context, int value) async {
-    final ref = context.ref;
-    var turningMode = ref.read(turningModeCreator);
-    if (turningMode & value != 0) {
-      turningMode = turningMode - value;
-    } else {
-      turningMode = turningMode + value;
-    }
-    ref.set(turningModeCreator, turningMode);
-    final builder = isar.settings.where();
-    var setting = await builder.findFirst();
-    if (setting != null) {
-      setting.turningMode = turningMode;
-      await isar.writeTxn(() async {
-        await isar.settings.put(setting);
-      });
-    }
-  }
-
-  // void handleTap(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     clipBehavior: Clip.hardEdge,
-  //     builder: (context) {
-  //       return Watcher((context, ref, child) {
-  //         final setting = ref.watch(setting)
-  //         return ColorPicker(
-  //         pickerColor: Color(setting.colorSeed),
-  //         labelTypes: const [],
-  //         enableAlpha: false,
-  //         colorPickerWidth: MediaQuery.of(context).size.width,
-  //         onColorChanged: (value) => handleColorChange(context, value),
-  //       );
-  //       };
-  //     },
-  //   );
-  // }
-
-  // void handleColorChange(BuildContext context, Color color) async {
-  //   final ref = context.ref;
-  //   var setting = await ref.read(settingEmitter);
-  //   setting.colorSeed = color.value;
-  //   ref.emit(settingEmitter, setting.clone);
-  // await isar.writeTxn(() async {
-  //   isar.settings.put(setting);
-  // });
-  // }
 }
 
 class SettingTile extends StatelessWidget {
+  final IconData? icon;
+
+  final String? route;
+  final String title;
+  final Widget? trailing;
+  final void Function()? onTap;
   const SettingTile({
     Key? key,
     this.icon,
     this.route,
     required this.title,
+    this.trailing,
     this.onTap,
   }) : super(key: key);
 
-  final IconData? icon;
-  final String? route;
-  final String title;
-  final void Function()? onTap;
-
   @override
   Widget build(BuildContext context) {
-    var leading = icon != null
-        ? Icon(icon, color: Theme.of(context).colorScheme.primary)
-        : null;
-
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final primary = colorScheme.primary;
+    final onSurfaceVariant = colorScheme.onSurfaceVariant;
+    var leading = icon != null ? Icon(icon, color: primary) : null;
+    final defaultTrailing = Icon(
+      Icons.arrow_forward_ios,
+      color: onSurfaceVariant,
+      size: 16,
+    );
     return ListTile(
       leading: leading,
       title: Text(title),
-      trailing: Icon(
-        Icons.arrow_forward_ios,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-        size: 16,
-      ),
+      trailing: trailing ?? defaultTrailing,
       onTap: () => handleTap(context),
     );
   }

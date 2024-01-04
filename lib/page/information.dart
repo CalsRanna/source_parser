@@ -631,7 +631,7 @@ class __BottomBarState extends State<_BottomBar> {
       await isar.writeTxn(() async {
         await isar.books.delete(book.id);
       });
-      CachedNetwork(prefix: book.name).clearCache();
+      CacheManager(prefix: book.name).clearCache();
     } else {
       final currentBook = ref.read(currentBookCreator);
       await isar.writeTxn(() async {

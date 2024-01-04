@@ -1,5 +1,4 @@
 import 'package:go_router/go_router.dart';
-import 'package:source_parser/page/cache.dart';
 import 'package:source_parser/page/information.dart';
 import 'package:source_parser/page/setting.dart';
 import 'package:source_parser/page/source/advanced.dart';
@@ -96,10 +95,6 @@ final router = GoRouter(routes: [
   GoRoute(
     builder: (context, state) => const AdvancedSettingPage(),
     path: '/setting/advanced',
-  ),
-  GoRoute(
-    builder: (context, state) => const CacheList(),
-    path: '/setting/cache',
   ),
   GoRoute(
     builder: (context, state) => const Developer(),

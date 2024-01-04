@@ -1,6 +1,7 @@
 import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/creator/setting.dart';
@@ -19,9 +20,11 @@ void main() async {
     SettingSchema,
     SourceSchema,
   ], directory: directory.path);
-  runApp(CreatorGraph(
-    observer: const CreatorObserver(),
-    child: const SourceParser(),
+  runApp(ProviderScope(
+    child: CreatorGraph(
+      observer: const CreatorObserver(),
+      child: const SourceParser(),
+    ),
   ));
 }
 

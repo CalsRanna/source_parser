@@ -217,7 +217,7 @@ class _ShelfTile extends StatelessWidget {
       return first.compareTo(second);
     });
     ref.set(booksCreator, books);
-    CachedNetwork(prefix: book.name).clearCache();
+    CacheManager(prefix: book.name).clearCache();
   }
 
   void _handleTap(BuildContext context) async {
@@ -379,7 +379,7 @@ class _ShelfGridTile extends StatelessWidget {
       return first.compareTo(second);
     });
     ref.set(booksCreator, books);
-    CachedNetwork(prefix: book.name).clearCache();
+    CacheManager(prefix: book.name).clearCache();
   }
 
   void _handleTap(BuildContext context) async {
