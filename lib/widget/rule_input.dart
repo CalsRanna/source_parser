@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class RuleInput extends StatefulWidget {
   const RuleInput({
-    Key? key,
+    super.key,
     this.placeholder,
     this.text,
     required this.title,
     this.onChange,
-  }) : super(key: key);
+  });
 
   final String? placeholder;
   final String? text;

@@ -12,7 +12,7 @@ import 'package:source_parser/widget/book_cover.dart';
 import 'package:source_parser/util/message.dart';
 
 class Search extends StatefulWidget {
-  const Search({Key? key, this.credential}) : super(key: key);
+  const Search({super.key, this.credential});
 
   final String? credential;
 
@@ -250,7 +250,7 @@ class _SearchState extends State<Search> {
 }
 
 class _SearchTile extends StatelessWidget {
-  const _SearchTile({Key? key, required this.book}) : super(key: key);
+  const _SearchTile({required this.book});
 
   final Book book;
 

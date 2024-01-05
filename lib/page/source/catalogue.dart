@@ -1,19 +1,18 @@
 import 'package:creator/creator.dart';
-import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
 class BookSourceCatalogueConfiguration extends StatelessWidget {
-  const BookSourceCatalogueConfiguration({Key? key}) : super(key: key);
+  const BookSourceCatalogueConfiguration({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('目录配置')),
-      body: CreatorWatcher<Source>(
-        builder: (context, source) => ListView(
+      body: Watcher((context, ref, child) {
+        final source = ref.watch(currentSourceCreator);
+        return ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
             Card(
@@ -88,9 +87,8 @@ class BookSourceCatalogueConfiguration extends StatelessWidget {
               ),
             ),
           ],
-        ),
-        creator: currentSourceCreator,
-      ),
+        );
+      }),
     );
   }
 

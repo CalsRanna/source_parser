@@ -221,13 +221,13 @@ class SettingTile extends StatelessWidget {
   final Widget? trailing;
   final void Function()? onTap;
   const SettingTile({
-    Key? key,
+    super.key,
     this.icon,
     this.route,
     required this.title,
     this.trailing,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

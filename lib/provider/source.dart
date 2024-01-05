@@ -1,5 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
@@ -17,7 +18,8 @@ class Sources extends _$Sources {
     String from = 'network',
     required String value,
   }) async {
-    const timeout = Duration(milliseconds: 30 * 1000);
+    final setting = await ref.read(settingNotifierProvider.future);
+    final timeout = Duration(milliseconds: setting.timeout);
     List<Source> sources = [];
     if (from == 'network') {
       sources = await Parser.importNetworkSource(value, timeout);

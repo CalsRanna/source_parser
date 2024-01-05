@@ -120,7 +120,7 @@ class _ShelfListView extends StatelessWidget {
 }
 
 class _ShelfTile extends StatelessWidget {
-  const _ShelfTile({Key? key, required this.book}) : super(key: key);
+  const _ShelfTile({required this.book});
 
   final Book book;
 

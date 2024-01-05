@@ -12,7 +12,7 @@ import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/string_extension.dart';
 
 class BookSourceDebug extends StatefulWidget {
-  const BookSourceDebug({Key? key}) : super(key: key);
+  const BookSourceDebug({super.key});
 
   @override
   State<StatefulWidget> createState() => _BookSourceDebugState();
@@ -151,11 +151,10 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
 
 class _DebugResultTile extends StatelessWidget {
   const _DebugResultTile({
-    Key? key,
     this.response,
     this.result,
     required this.title,
-  }) : super(key: key);
+  });
 
   final String? response;
   final dynamic result;
@@ -226,7 +225,7 @@ class _DebugResultTile extends StatelessWidget {
 }
 
 class _RawDataView extends StatelessWidget {
-  const _RawDataView({Key? key, required this.rawData}) : super(key: key);
+  const _RawDataView({required this.rawData});
 
   final String rawData;
 
@@ -261,7 +260,7 @@ class _RawDataView extends StatelessWidget {
 }
 
 class _ParsedDataView extends StatelessWidget {
-  const _ParsedDataView({Key? key, required this.parsed}) : super(key: key);
+  const _ParsedDataView({required this.parsed});
 
   final dynamic parsed;
 

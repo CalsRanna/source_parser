@@ -1,5 +1,4 @@
 import 'package:creator/creator.dart';
-import 'package:creator_watcher/creator_watcher.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
@@ -11,7 +10,7 @@ import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
 class BookSourceInformation extends StatelessWidget {
-  const BookSourceInformation({Key? key, this.id}) : super(key: key);
+  const BookSourceInformation({super.key, this.id});
 
   final int? id;
 
@@ -40,9 +39,9 @@ class BookSourceInformation extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          CreatorWatcher<Source>(
-            creator: currentSourceCreator,
-            builder: (context, source) => Card(
+          Watcher((context, ref, child) {
+            final source = ref.watch(currentSourceCreator);
+            return Card(
               color: surfaceVariant,
               elevation: 0,
               child: Column(
@@ -60,8 +59,8 @@ class BookSourceInformation extends StatelessWidget {
                   )
                 ],
               ),
-            ),
-          ),
+            );
+          }),
           const SizedBox(height: 8),
           Card(
             color: surfaceVariant,
@@ -103,9 +102,9 @@ class BookSourceInformation extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          CreatorWatcher<Source>(
-            creator: currentSourceCreator,
-            builder: (context, source) => Card(
+          Watcher((context, ref, child) {
+            final source = ref.watch(currentSourceCreator);
+            return Card(
               color: surfaceVariant,
               elevation: 0,
               child: Column(
@@ -117,8 +116,8 @@ class BookSourceInformation extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ),
+            );
+          }),
           Watcher((context, ref, child) {
             final source = ref.watch(currentSourceCreator);
             if (source.id.isNegative) return const SizedBox();

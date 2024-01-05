@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 class BookCover extends StatelessWidget {
   const BookCover({
-    Key? key,
+    super.key,
     this.borderRadius = 4,
     this.height = 96,
     this.width = 72,
     required this.url,
-  }) : super(key: key);
+  });
 
   final double borderRadius;
   final double height;

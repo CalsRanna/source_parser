@@ -6,7 +6,6 @@ import 'package:source_parser/page/source/catalogue.dart';
 import 'package:source_parser/page/source/content.dart';
 import 'package:source_parser/page/source/source.dart';
 import 'package:source_parser/page/source/debug.dart';
-import 'package:source_parser/page/source/importer.dart';
 import 'package:source_parser/page/source/detail.dart';
 import 'package:source_parser/page/source/information.dart';
 import 'package:source_parser/page/source/search.dart';
@@ -62,11 +61,6 @@ final router = GoRouter(routes: [
     path: '/book-source/debug',
   ),
   GoRoute(
-    builder: (context, state) =>
-        BookSourceImport(by: state.queryParameters['by']!),
-    path: '/book-source/import',
-  ),
-  GoRoute(
     builder: (context, state) => const BookSourceInformationConfiguration(),
     path: '/book-source/information-configuration',
   ),
@@ -81,7 +75,7 @@ final router = GoRouter(routes: [
   ),
   GoRoute(
     builder: (context, state) {
-      final credential = state.queryParameters['credential'];
+      final credential = state.uri.queryParameters['credential'];
       return Search(credential: credential);
     },
     path: '/search',

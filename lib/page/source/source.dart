@@ -249,8 +249,7 @@ class _BookSourceListState extends State<BookSourceList> {
 }
 
 class _SourceTile extends StatelessWidget {
-  const _SourceTile({Key? key, required this.source, this.onTap})
-      : super(key: key);
+  const _SourceTile({super.key, required this.source, this.onTap});
 
   final Source source;
   final void Function(int)? onTap;

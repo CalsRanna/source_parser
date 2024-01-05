@@ -29,7 +29,7 @@ void main() async {
 }
 
 class SourceParser extends StatefulWidget {
-  const SourceParser({Key? key}) : super(key: key);
+  const SourceParser({super.key});
 
   @override
   State<SourceParser> createState() => _SourceParserState();

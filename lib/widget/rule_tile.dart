@@ -4,7 +4,7 @@ import 'package:source_parser/widget/rule_input.dart';
 
 class RuleTile extends StatelessWidget {
   const RuleTile({
-    Key? key,
+    super.key,
     this.bordered,
     this.placeholder,
     required this.title,
@@ -12,7 +12,7 @@ class RuleTile extends StatelessWidget {
     this.value,
     this.onTap,
     this.onChange,
-  }) : super(key: key);
+  });
 
   final bool? bordered;
   final String? placeholder;

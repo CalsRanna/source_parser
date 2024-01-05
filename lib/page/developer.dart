@@ -3,7 +3,7 @@ import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 
 class Developer extends StatelessWidget {
-  const Developer({Key? key}) : super(key: key);
+  const Developer({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:source_parser/widget/loading.dart';
 
 class BookSourceImport extends StatefulWidget {
-  const BookSourceImport({Key? key, required this.by}) : super(key: key);
+  const BookSourceImport({super.key, required this.by});
 
   final String by;
 
@@ -33,7 +33,7 @@ class _BookSourceImportState extends State<BookSourceImport> {
 }
 
 class _InternetImport extends StatefulWidget {
-  const _InternetImport({Key? key}) : super(key: key);
+  const _InternetImport();
 
   @override
   State<StatefulWidget> createState() {
@@ -111,7 +111,7 @@ class _InternetImportState extends State<_InternetImport> {
 }
 
 class _LocalImport extends StatelessWidget {
-  const _LocalImport({Key? key}) : super(key: key);
+  const _LocalImport();
   @override
   Widget build(BuildContext context) {
     return Container();
@@ -119,7 +119,7 @@ class _LocalImport extends StatelessWidget {
 }
 
 class _QrCodeImport extends StatelessWidget {
-  const _QrCodeImport({Key? key}) : super(key: key);
+  const _QrCodeImport();
   @override
   Widget build(BuildContext context) {
     return Container();
