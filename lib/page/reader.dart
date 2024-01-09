@@ -13,119 +13,123 @@ import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
-class ReaderPage extends StatefulWidget {
+class ReaderPage extends ConsumerStatefulWidget {
   const ReaderPage({super.key});
 
   @override
-  State<ReaderPage> createState() => _ReaderPageState();
+  ConsumerState<ReaderPage> createState() => _ReaderPageState();
 }
 
-class _ReaderPageState extends State<ReaderPage> {
+class _ReaderPageState extends ConsumerState<ReaderPage> {
   bool caching = false;
   double progress = 0;
 
   @override
+  void deactivate() {
+    ref.invalidate(booksProvider);
+    super.deactivate();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, ref, child) {
-      final provider = ref.watch(settingNotifierProvider);
-      final setting = switch (provider) {
-        AsyncData(:final value) => value,
-        _ => Setting(),
-      };
-      final backgroundColor = setting.backgroundColor;
-      final darkMode = setting.darkMode;
-      final eInkMode = setting.eInkMode;
-      final turningMode = setting.turningMode;
-      final lineSpace = setting.lineSpace;
-      final fontSize = setting.fontSize;
-      final book = ref.watch(bookNotifierProvider);
-      var index = book.index;
-      var cursor = book.cursor;
-      final length = book.chapters.length;
-      if (length <= index) {
-        index = length - 1;
-        cursor = 0;
-      }
-      if (cursor < 0) {
-        cursor = 0;
-      }
-      var theme = ReaderTheme();
-      final mediaQueryData = MediaQuery.of(context);
-      final padding = mediaQueryData.padding;
-      double bottom;
-      if (Platform.isAndroid) {
-        bottom = max(padding.bottom + 4, 16.0);
-      } else {
-        bottom = 20;
-      }
-      final top = max(padding.top + 4, 16.0);
+    final provider = ref.watch(settingNotifierProvider);
+    final setting = switch (provider) {
+      AsyncData(:final value) => value,
+      _ => Setting(),
+    };
+    final backgroundColor = setting.backgroundColor;
+    final darkMode = setting.darkMode;
+    final eInkMode = setting.eInkMode;
+    final turningMode = setting.turningMode;
+    final lineSpace = setting.lineSpace;
+    final fontSize = setting.fontSize;
+    final book = ref.watch(bookNotifierProvider);
+    var index = book.index;
+    var cursor = book.cursor;
+    final length = book.chapters.length;
+    if (length <= index) {
+      index = length - 1;
+      cursor = 0;
+    }
+    if (cursor < 0) {
+      cursor = 0;
+    }
+    var theme = ReaderTheme();
+    final mediaQueryData = MediaQuery.of(context);
+    final padding = mediaQueryData.padding;
+    double bottom;
+    if (Platform.isAndroid) {
+      bottom = max(padding.bottom + 4, 16.0);
+    } else {
+      bottom = 20;
+    }
+    final top = max(padding.top + 4, 16.0);
+    theme = theme.copyWith(
+      backgroundColor: Color(backgroundColor),
+      footerPadding: theme.footerPadding.copyWith(bottom: bottom),
+      headerPadding: theme.headerPadding.copyWith(top: top),
+      pageStyle: theme.pageStyle.copyWith(
+        fontSize: fontSize.toDouble(),
+        height: lineSpace,
+      ),
+    );
+    if (darkMode) {
+      final scheme = Theme.of(context).colorScheme;
       theme = theme.copyWith(
-        backgroundColor: Color(backgroundColor),
-        footerPadding: theme.footerPadding.copyWith(bottom: bottom),
-        headerPadding: theme.headerPadding.copyWith(top: top),
-        pageStyle: theme.pageStyle.copyWith(
-          fontSize: fontSize.toDouble(),
-          height: lineSpace,
+        backgroundColor: scheme.background,
+        footerStyle: theme.footerStyle.copyWith(color: scheme.onBackground),
+        headerStyle: theme.headerStyle.copyWith(color: scheme.onBackground),
+        pageStyle: theme.pageStyle.copyWith(color: scheme.onBackground),
+      );
+    }
+    List<PageTurningMode> modes = [];
+    if (turningMode & 1 != 0) {
+      modes.add(PageTurningMode.drag);
+    }
+    if (turningMode & 2 != 0) {
+      modes.add(PageTurningMode.tap);
+    }
+    String title = '';
+    if (book.chapters.isNotEmpty) {
+      title = book.chapters.elementAt(index).name;
+    }
+    return Stack(
+      children: [
+        BookReader(
+          author: book.author,
+          cover: BookCover(height: 48, width: 36, url: book.cover),
+          cursor: cursor,
+          darkMode: darkMode,
+          eInkMode: eInkMode,
+          future: (index) => getContent(ref, index),
+          index: index,
+          modes: modes,
+          name: book.name,
+          theme: theme,
+          title: title,
+          total: book.chapters.length,
+          onCached: (value) => handleCached(ref, value),
+          onCataloguePressed: handleCataloguePressed,
+          onChapterChanged: (index) => handleChapterChanged(ref, index),
+          onDarkModePressed: () => toggleDarkMode(ref),
+          onDetailPressed: handleDetailPressed,
+          onMessage: handleMessage,
+          onPop: (index, cursor) => handlePop(ref),
+          onProgressChanged: (cursor) => handleProgressChanged(ref, cursor),
+          onRefresh: (index) => handleRefresh(ref, index),
+          onSettingPressed: handleSettingPressed,
+          onSourcePressed: handleSourcePressed,
         ),
-      );
-      if (darkMode) {
-        final scheme = Theme.of(context).colorScheme;
-        theme = theme.copyWith(
-          backgroundColor: scheme.background,
-          footerStyle: theme.footerStyle.copyWith(color: scheme.onBackground),
-          headerStyle: theme.headerStyle.copyWith(color: scheme.onBackground),
-          pageStyle: theme.pageStyle.copyWith(color: scheme.onBackground),
-        );
-      }
-      List<PageTurningMode> modes = [];
-      if (turningMode & 1 != 0) {
-        modes.add(PageTurningMode.drag);
-      }
-      if (turningMode & 2 != 0) {
-        modes.add(PageTurningMode.tap);
-      }
-      String title = '';
-      if (book.chapters.isNotEmpty) {
-        title = book.chapters.elementAt(index).name;
-      }
-      return Stack(
-        children: [
-          BookReader(
-            author: book.author,
-            cover: BookCover(height: 48, width: 36, url: book.cover),
-            cursor: cursor,
-            darkMode: darkMode,
-            eInkMode: eInkMode,
-            future: (index) => getContent(ref, index),
-            index: index,
-            modes: modes,
-            name: book.name,
-            theme: theme,
-            title: title,
-            total: book.chapters.length,
-            onCached: (value) => handleCached(ref, value),
-            onCataloguePressed: handleCataloguePressed,
-            onChapterChanged: (index) => handleChapterChanged(ref, index),
-            onDarkModePressed: () => toggleDarkMode(ref),
-            onDetailPressed: handleDetailPressed,
-            onMessage: handleMessage,
-            onPop: (index, cursor) => handlePop(ref),
-            onProgressChanged: (cursor) => handleProgressChanged(ref, cursor),
-            onRefresh: (index) => handleRefresh(ref, index),
-            onSettingPressed: handleSettingPressed,
-            onSourcePressed: handleSourcePressed,
-          ),
-          if (caching)
-            const Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: EdgeInsets.only(right: 8.0),
-                child: _CacheIndicator(),
-              ),
+        if (caching)
+          const Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: EdgeInsets.only(right: 8.0),
+              child: _CacheIndicator(),
             ),
-        ],
-      );
-    });
+          ),
+      ],
+    );
   }
 
   Future<String> getContent(WidgetRef ref, int index) async {
@@ -155,7 +159,8 @@ class _ReaderPageState extends State<ReaderPage> {
   }
 
   void handleCataloguePressed() {
-    const BookCataloguePageRoute().push(context);
+    final book = ref.read(bookNotifierProvider);
+    BookCataloguePageRoute(index: book.index).push(context);
   }
 
   void handleSourcePressed() {
