@@ -354,42 +354,45 @@ class _Catalogue extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
-    return GestureDetector(
-      onTap: () => handleTap(context),
-      child: Card(
-        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
-        elevation: 0,
-        margin: EdgeInsets.zero,
-        shape: const RoundedRectangleBorder(),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              const Text('目录', style: boldTextStyle),
-              const Spacer(),
-              if (loading && book.chapters.isEmpty)
-                SizedBox(
-                  height: 24,
-                  width: eInkMode ? null : 24,
-                  child: const LoadingIndicator(),
-                ),
-              if (!loading || book.chapters.isNotEmpty) ...[
-                Text(
-                  '共${book.chapters.length}章',
-                  textAlign: TextAlign.right,
-                ),
-                const Icon(Icons.chevron_right_outlined)
-              ]
-            ],
+    return Consumer(builder: (context, ref, child) {
+      return GestureDetector(
+        onTap: () => handleTap(context, ref),
+        child: Card(
+          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          shape: const RoundedRectangleBorder(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                const Text('目录', style: boldTextStyle),
+                const Spacer(),
+                if (loading && book.chapters.isEmpty)
+                  SizedBox(
+                    height: 24,
+                    width: eInkMode ? null : 24,
+                    child: const LoadingIndicator(),
+                  ),
+                if (!loading || book.chapters.isNotEmpty) ...[
+                  Text(
+                    '共${book.chapters.length}章',
+                    textAlign: TextAlign.right,
+                  ),
+                  const Icon(Icons.chevron_right_outlined)
+                ]
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
-  void handleTap(BuildContext context) {
+  void handleTap(BuildContext context, WidgetRef ref) {
     if (loading) return;
-    const BookCataloguePageRoute().push(context);
+    final book = ref.read(bookNotifierProvider);
+    BookCataloguePageRoute(index: book.index).push(context);
   }
 }
 
@@ -527,24 +530,7 @@ class __BottomBarState extends ConsumerState<_BottomBar> {
         children: [
           TextButton(
             onPressed: () => toggleShelf(ref),
-            child: Row(
-              children: [icon, text],
-            ),
-            // child: FutureBuilder(
-            //   future: future,
-            //   builder: (context, snapshot) {
-            //     if (snapshot.hasData && snapshot.data == true) {
-            //       print(snapshot.data);
-            //       return const Row(
-            //         children: [Icon(Icons.check_outlined), Text('已在书架')],
-            //       );
-            //     } else {
-            //       return const Row(
-            //         children: [Icon(Icons.library_add_outlined), Text('加入书架')],
-            //       );
-            //     }
-            //   },
-            // ),
+            child: Row(children: [icon, text]),
           ),
           const SizedBox(width: 8),
           Expanded(
