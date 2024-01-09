@@ -1,22 +1,14 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:isar/isar.dart';
-import 'package:source_parser/creator/book.dart';
-import 'package:source_parser/creator/explore.dart';
-import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/model/explore.dart';
-import 'package:source_parser/page/explore_list.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/page/explore.dart';
+import 'package:source_parser/provider/book.dart';
+import 'package:source_parser/provider/explore.dart';
+import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/book.dart';
-import 'package:source_parser/schema/isar.dart';
-import 'package:source_parser/schema/source.dart';
-import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
-import 'package:source_parser/widget/loading.dart';
 
 class ExploreView extends StatefulWidget {
   const ExploreView({super.key});
@@ -28,94 +20,34 @@ class ExploreView extends StatefulWidget {
 class _ExploreViewState extends State<ExploreView> {
   @override
   Widget build(BuildContext context) {
-    return Watcher((context, ref, child) {
-      final loading = ref.watch(exploreLoadingCreator);
-      final results = ref.watch(exploreBooksCreator);
-      if (loading) {
-        return const Center(child: LoadingIndicator());
-      }
-      if (results.isEmpty) {
-        return const Center(child: Text('空空如也'));
-      }
-      List<Widget> children = [];
-      for (var i = 0; i < results.length; i++) {
-        final result = results[i];
-        if (result.layout == 'banner') {
-          children.add(_ExploreBanner(books: result.books));
-        } else if (result.layout == 'card') {
-          children.add(
-            _ExploreCard(books: result.books, title: result.title),
-          );
-        } else {
-          children.add(
-            _ExploreGrid(books: result.books, title: result.title),
-          );
-        }
-        if (i < results.length - 1) {
-          children.add(const SizedBox(height: 16));
-        }
-      }
-      return RefreshIndicator(
-        onRefresh: refreshExplore,
-        child: ListView(children: children),
-      );
+    return Consumer(builder: (context, ref, child) {
+      final provider = ref.watch(exploreBooksProvider);
+      return switch (provider) {
+        AsyncData(:final value) => RefreshIndicator(
+            onRefresh: () => handleRefresh(ref),
+            child: ListView.builder(
+              itemBuilder: (context, index) {
+                final layout = value[index].layout;
+                final books = value[index].books;
+                final title = value[index].title;
+                return switch (layout) {
+                  'banner' => _ExploreBanner(books: books),
+                  'card' => _ExploreCard(books: books, title: title),
+                  'grid' => _ExploreGrid(books: books, title: title),
+                  _ => Container(),
+                };
+              },
+              itemCount: value.length,
+            ),
+          ),
+        _ => const Center(child: CircularProgressIndicator()),
+      };
     });
   }
 
-  @override
-  void didChangeDependencies() {
-    initExplore();
-    super.didChangeDependencies();
-  }
-
-  void initExplore() async {
-    final ref = context.ref;
-    if (ref.read(exploreBooksCreator).isEmpty) {
-      ref.set(exploreLoadingCreator, true);
-      await getExplore();
-      ref.set(exploreLoadingCreator, false);
-    }
-  }
-
-  Future<void> refreshExplore() async {
-    await getExplore();
-  }
-
-  Future<void> getExplore() async {
-    final ref = context.ref;
-    final builder = isar.sources.filter();
-    var exploreSource = ref.read(exploreSourceCreator);
-    if (exploreSource == 0) {
-      final sources = await builder.exploreEnabledEqualTo(true).findAll();
-      if (sources.isNotEmpty) {
-        ref.set(exploreSourceCreator, sources.first.id);
-      }
-      exploreSource = ref.read(exploreSourceCreator);
-    }
-    final source = await builder.idEqualTo(exploreSource).findFirst();
-    if (source != null) {
-      final json = jsonDecode(source.exploreJson);
-      final titles = json.map((item) {
-        return item['title'];
-      }).toList();
-      List<ExploreResult> results = [];
-      final duration = ref.read(cacheDurationCreator);
-      final timeout = ref.read(timeoutCreator);
-      final stream = await Parser.getExplore(
-        source,
-        Duration(hours: duration.floor()),
-        Duration(milliseconds: timeout),
-      );
-      stream.listen((result) {
-        results.add(result);
-        results.sort((a, b) {
-          final indexOfA = titles.indexOf(a.title);
-          final indexOfB = titles.indexOf(b.title);
-          return indexOfA.compareTo(indexOfB);
-        });
-        ref.set(exploreBooksCreator, [...results]);
-      });
-    }
+  Future<void> handleRefresh(WidgetRef ref) async {
+    final notifier = ref.read(exploreBooksProvider.notifier);
+    await notifier.refresh();
   }
 }
 
@@ -131,28 +63,31 @@ class _ExploreBanner extends StatelessWidget {
       height: 120,
       child: PageView.builder(
         itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () => handleTap(context, index),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: CachedNetworkImage(
-                  fit: BoxFit.cover,
-                  imageUrl: books[index].cover,
+          return Consumer(builder: (context, ref, child) {
+            return GestureDetector(
+              onTap: () => handleTap(context, ref, index),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CachedNetworkImage(
+                    fit: BoxFit.cover,
+                    imageUrl: books[index].cover,
+                  ),
                 ),
               ),
-            ),
-          );
+            );
+          });
         },
         itemCount: itemCount,
       ),
     );
   }
 
-  void handleTap(BuildContext context, int index) {
-    context.ref.set(currentBookCreator, books[index]);
-    context.push('/book-information');
+  void handleTap(BuildContext context, WidgetRef ref, int index) {
+    const BookInformationPageRoute().push(context);
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    notifier.update(books[index]);
   }
 }
 
@@ -234,46 +169,49 @@ class _ExploreTile extends StatelessWidget {
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => handleTap(context),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          BookCover(height: 80, url: book.cover, width: 60),
-          const SizedBox(width: 16),
-          Expanded(
-            child: SizedBox(
-              height: 80,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    book.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: bodyMedium,
-                  ),
-                  Text(_buildSubtitle() ?? '', style: bodySmall),
-                  const Spacer(),
-                  Text(
-                    book.introduction.replaceAll(RegExp(r'\s'), ''),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: bodyMedium,
-                  ),
-                ],
+    return Consumer(builder: (context, ref, child) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => handleTap(context, ref),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BookCover(height: 80, url: book.cover, width: 60),
+            const SizedBox(width: 16),
+            Expanded(
+              child: SizedBox(
+                height: 80,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      book.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: bodyMedium,
+                    ),
+                    Text(_buildSubtitle() ?? '', style: bodySmall),
+                    const Spacer(),
+                    Text(
+                      book.introduction.replaceAll(RegExp(r'\s'), ''),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: bodyMedium,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
-  void handleTap(BuildContext context) {
-    context.ref.set(currentBookCreator, book);
-    context.push('/book-information');
+  void handleTap(BuildContext context, WidgetRef ref) {
+    const BookInformationPageRoute().push(context);
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    notifier.update(book);
   }
 
   String? _buildSubtitle() {
@@ -391,36 +329,39 @@ class _ExploreGridTile extends StatelessWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => handleTap(context),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          BookCover(
-            url: book.cover,
-            height: heightPerBookCover,
-            width: widthPerBookCover,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            book.name,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: bodyMedium?.copyWith(fontSize: 14),
-            strutStyle: const StrutStyle(
-              fontSize: 14,
-              height: 1.2,
-              forceStrutHeight: true,
+    return Consumer(builder: (context, ref, child) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => handleTap(context, ref),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BookCover(
+              url: book.cover,
+              height: heightPerBookCover,
+              width: widthPerBookCover,
             ),
-          ),
-        ],
-      ),
-    );
+            const SizedBox(height: 8),
+            Text(
+              book.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: bodyMedium?.copyWith(fontSize: 14),
+              strutStyle: const StrutStyle(
+                fontSize: 14,
+                height: 1.2,
+                forceStrutHeight: true,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
-  void handleTap(BuildContext context) {
-    context.ref.set(currentBookCreator, book);
-    context.push('/book-information');
+  void handleTap(BuildContext context, WidgetRef ref) {
+    const BookInformationPageRoute().push(context);
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    notifier.update(book);
   }
 }

@@ -1,18 +1,18 @@
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/creator/source.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
-class BookSourceSearchConfiguration extends StatelessWidget {
-  const BookSourceSearchConfiguration({super.key});
+class SourceSearchConfigurationPage extends StatelessWidget {
+  const SourceSearchConfigurationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('搜索配置')),
-      body: Watcher((context, ref, child) {
-        final source = ref.watch(currentSourceCreator);
+      body: Consumer(builder: (context, ref, child) {
+        final source = ref.watch(formSourceProvider);
         return ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
@@ -24,7 +24,7 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                   RuleTile(
                     title: '搜索URL',
                     value: source.searchUrl,
-                    onChange: (value) => updateSearchUrl(context, value),
+                    onChange: (value) => updateSearchUrl(ref, value),
                   ),
                   RuleTile(
                     bordered: false,
@@ -45,58 +45,55 @@ class BookSourceSearchConfiguration extends StatelessWidget {
                     bordered: false,
                     title: '书籍列表规则',
                     value: source.searchBooks,
-                    onChange: (value) => updateSearchBooks(context, value),
+                    onChange: (value) => updateSearchBooks(ref, value),
                   ),
                   RuleTile(
                     bordered: false,
                     title: '作者规则',
                     value: source.searchAuthor,
-                    onChange: (value) => updateSearchAuthor(context, value),
+                    onChange: (value) => updateSearchAuthor(ref, value),
                   ),
                   RuleTile(
                     bordered: false,
                     title: '分类规则',
                     value: source.searchCategory,
-                    onChange: (value) => updateSearchCategory(context, value),
+                    onChange: (value) => updateSearchCategory(ref, value),
                   ),
                   RuleTile(
                     bordered: false,
                     title: '封面规则',
                     value: source.searchCover,
-                    onChange: (value) => updateSearchCover(context, value),
+                    onChange: (value) => updateSearchCover(ref, value),
                   ),
                   RuleTile(
                     bordered: false,
                     title: '简介规则',
                     value: source.searchIntroduction,
-                    onChange: (value) =>
-                        updateSearchIntroduction(context, value),
+                    onChange: (value) => updateSearchIntroduction(ref, value),
                   ),
                   RuleTile(
                     bordered: false,
                     title: '最新章节规则',
                     value: source.searchLatestChapter,
-                    onChange: (value) =>
-                        updateSearchLatestChapter(context, value),
+                    onChange: (value) => updateSearchLatestChapter(ref, value),
                   ),
                   RuleTile(
                     bordered: false,
                     title: '书名规则',
                     value: source.searchName,
-                    onChange: (value) => updateSearchName(context, value),
+                    onChange: (value) => updateSearchName(ref, value),
                   ),
                   RuleTile(
                     bordered: false,
                     title: '详情URL规则',
                     value: source.searchInformationUrl,
-                    onChange: (value) =>
-                        updateSearchInformationUrl(context, value),
+                    onChange: (value) => updateSearchInformationUrl(ref, value),
                   ),
                   RuleTile(
                     bordered: false,
                     title: '字数规则',
                     value: source.searchWordCount,
-                    onChange: (value) => updateSearchWordCount(context, value),
+                    onChange: (value) => updateSearchWordCount(ref, value),
                   ),
                 ],
               ),
@@ -107,10 +104,10 @@ class BookSourceSearchConfiguration extends StatelessWidget {
     );
   }
 
-  void updateSearchUrl(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(searchUrl: value));
+  void updateSearchUrl(WidgetRef ref, String searchUrl) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(searchUrl: searchUrl));
   }
 
   void selectMethod(BuildContext context) {
@@ -120,10 +117,12 @@ class BookSourceSearchConfiguration extends StatelessWidget {
       builder: (context) {
         return ListView.builder(
           itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(methods[index]),
-              onTap: () => confirmSelect(context, methods[index]),
-            );
+            return Consumer(builder: (context, ref, child) {
+              return ListTile(
+                title: Text(methods[index]),
+                onTap: () => confirmSelect(context, ref, methods[index]),
+              );
+            });
           },
           itemCount: methods.length,
         );
@@ -131,64 +130,65 @@ class BookSourceSearchConfiguration extends StatelessWidget {
     );
   }
 
-  void confirmSelect(BuildContext context, String method) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(searchMethod: method));
+  void confirmSelect(BuildContext context, WidgetRef ref, String searchMethod) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(searchMethod: searchMethod));
     Navigator.of(context).pop();
   }
 
-  void updateSearchBooks(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(searchBooks: value));
+  void updateSearchBooks(WidgetRef ref, String searchBooks) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(searchBooks: searchBooks));
   }
 
-  void updateSearchName(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(searchName: value));
+  void updateSearchName(WidgetRef ref, String searchName) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(searchName: searchName));
   }
 
-  void updateSearchAuthor(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(searchAuthor: value));
+  void updateSearchAuthor(WidgetRef ref, String searchAuthor) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(searchAuthor: searchAuthor));
   }
 
-  void updateSearchCategory(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(searchCategory: value));
+  void updateSearchCategory(WidgetRef ref, String searchCategory) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(searchCategory: searchCategory));
   }
 
-  void updateSearchWordCount(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(searchWordCount: value));
+  void updateSearchWordCount(WidgetRef ref, String searchWordCount) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(searchWordCount: searchWordCount));
   }
 
-  void updateSearchIntroduction(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(searchIntroduction: value));
+  void updateSearchIntroduction(WidgetRef ref, String searchIntroduction) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(searchIntroduction: searchIntroduction));
   }
 
-  void updateSearchCover(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(searchCover: value));
+  void updateSearchCover(WidgetRef ref, String searchCover) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(searchCover: searchCover));
   }
 
-  void updateSearchInformationUrl(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(searchInformationUrl: value));
+  void updateSearchInformationUrl(WidgetRef ref, String searchInformationUrl) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier
+        .update(source.copyWith(searchInformationUrl: searchInformationUrl));
   }
 
-  void updateSearchLatestChapter(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(searchLatestChapter: value));
+  void updateSearchLatestChapter(WidgetRef ref, String searchLatestChapter) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(searchLatestChapter: searchLatestChapter));
   }
 }

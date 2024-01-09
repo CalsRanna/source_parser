@@ -1,17 +1,11 @@
-import 'package:cached_network/cached_network.dart';
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:go_router/go_router.dart';
-import 'package:isar/isar.dart';
-import 'package:lpinyin/lpinyin.dart';
-import 'package:source_parser/creator/book.dart';
-import 'package:source_parser/creator/setting.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/book.dart';
+import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/book.dart';
-import 'package:source_parser/schema/isar.dart';
-import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class ShelfView extends StatefulWidget {
@@ -23,79 +17,37 @@ class ShelfView extends StatefulWidget {
 
 class _ShelfViewState extends State<ShelfView> {
   @override
-  void didChangeDependencies() {
-    getBooks();
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Watcher((context, ref, child) {
-      final books = ref.watch(booksCreator);
-      final mode = ref.watch(shelfModeCreator);
+    return Consumer(builder: (context, ref, child) {
+      final provider = ref.watch(settingNotifierProvider);
+      final setting = switch (provider) {
+        AsyncData(:final value) => value,
+        _ => Setting(),
+      };
+      final mode = setting.shelfMode;
+      final books = ref.watch(booksProvider);
+      final value = switch (books) {
+        AsyncData(:final value) => value,
+        _ => <Book>[],
+      };
       Widget child;
       if (mode == 'list') {
-        child = _ShelfListView(books: books);
+        child = _ShelfListView(books: value);
       } else {
-        child = _ShelfGridView(books: books);
+        child = _ShelfGridView(books: value);
       }
       return RefreshIndicator(
-        onRefresh: refresh,
+        onRefresh: () => refresh(ref),
         child: child,
       );
     });
   }
 
-  void getBooks() async {
-    final ref = context.ref;
-    var books = ref.read(booksCreator);
-    if (books.isNotEmpty) return;
-    books = await isar.books.where().findAll();
-    books.sort((a, b) {
-      final first = PinyinHelper.getPinyin(a.name);
-      final second = PinyinHelper.getPinyin(b.name);
-      return first.compareTo(second);
-    });
-    ref.set(booksCreator, books);
-    FlutterNativeSplash.remove();
-    refresh();
-  }
-
-  Future<void> refresh() async {
+  Future<void> refresh(WidgetRef ref) async {
     final message = Message.of(context);
     try {
-      final ref = context.ref;
-      final books = ref.read(booksCreator);
-      for (var book in books) {
-        if (book.archive) continue;
-        final builder = isar.sources.filter();
-        final source = await builder.idEqualTo(book.sourceId).findFirst();
-        if (source != null) {
-          final duration = ref.read(cacheDurationCreator);
-          final timeout = ref.read(timeoutCreator);
-          var stream = await Parser.getChapters(
-            book.name,
-            book.catalogueUrl,
-            source,
-            Duration(hours: duration.floor()),
-            Duration(milliseconds: timeout),
-          );
-          stream = stream.asBroadcastStream();
-          List<Chapter> chapters = [];
-          stream.listen(
-            (chapter) => chapters.add(chapter),
-            onDone: () async {
-              if (chapters.isEmpty) return;
-              book.chapters = chapters;
-              await isar.writeTxn(() async {
-                isar.books.put(book);
-              });
-            },
-          );
-          await stream.last;
-        }
-      }
-      ref.set(booksCreator, [...books]);
+      final notifier = ref.read(booksProvider.notifier);
+      await notifier.refresh();
     } catch (error) {
       message.show(error.toString());
     }
@@ -133,48 +85,51 @@ class _ShelfTile extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final onBackground = colorScheme.onBackground;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onLongPress: () => _handleLongPress(context),
-      onTap: () => _handleTap(context),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-        child: Row(
-          children: [
-            BookCover(url: book.cover, height: 64, width: 48),
-            const SizedBox(width: 16),
-            Expanded(
-              child: SizedBox(
-                height: 64,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Text(
-                      book.name,
-                      style: bodyMedium?.copyWith(fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      _buildSubtitle() ?? '',
-                      style: bodySmall?.copyWith(
-                        color: onBackground.withOpacity(0.5),
+    return Consumer(builder: (context, ref, child) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onLongPress: () => _handleLongPress(context),
+        onTap: () => _handleTap(context, ref),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Row(
+            children: [
+              BookCover(url: book.cover, height: 64, width: 48),
+              const SizedBox(width: 16),
+              Expanded(
+                child: SizedBox(
+                  height: 64,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Text(
+                        book.name,
+                        style:
+                            bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                       ),
-                    ),
-                    Text(
-                      _buildLatestChapter() ?? '',
-                      style: bodySmall?.copyWith(
-                        color: onBackground.withOpacity(0.5),
+                      Text(
+                        _buildSubtitle() ?? '',
+                        style: bodySmall?.copyWith(
+                          color: onBackground.withOpacity(0.5),
+                        ),
                       ),
-                    ),
-                  ],
+                      Text(
+                        _buildLatestChapter() ?? '',
+                        style: bodySmall?.copyWith(
+                          color: onBackground.withOpacity(0.5),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   void _handleLongPress(BuildContext context) async {
@@ -186,10 +141,12 @@ class _ShelfTile extends StatelessWidget {
               onPressed: () => cancel(context),
               child: const Text('取消'),
             ),
-            TextButton(
-              onPressed: () => confirm(context),
-              child: const Text('确认'),
-            ),
+            Consumer(builder: (context, ref, child) {
+              return TextButton(
+                onPressed: () => confirm(context, ref),
+                child: const Text('确认'),
+              );
+            })
           ],
           content: const Text('确认将本书移出书架？'),
           title: const Text('移出书架'),
@@ -203,28 +160,17 @@ class _ShelfTile extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-  void confirm(BuildContext context) async {
-    final ref = context.ref;
+  void confirm(BuildContext context, WidgetRef ref) async {
     final navigator = Navigator.of(context);
-    await isar.writeTxn(() async {
-      await isar.books.delete(book.id);
-    });
+    final notifier = ref.read(booksProvider.notifier);
+    await notifier.delete(book);
     navigator.pop();
-    final books = await isar.books.where().findAll();
-    books.sort((a, b) {
-      final first = PinyinHelper.getPinyin(a.name);
-      final second = PinyinHelper.getPinyin(b.name);
-      return first.compareTo(second);
-    });
-    ref.set(booksCreator, books);
-    CacheManager(prefix: book.name).clearCache();
   }
 
-  void _handleTap(BuildContext context) async {
-    final ref = context.ref;
-    final router = GoRouter.of(context);
-    ref.set(currentBookCreator, book);
-    router.push('/book-reader');
+  void _handleTap(BuildContext context, WidgetRef ref) {
+    const BookReaderPageRoute().push(context);
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    notifier.update(book);
   }
 
   int _calculateUnreadChapters() {
@@ -311,32 +257,34 @@ class _ShelfGridTile extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final onBackground = colorScheme.onBackground;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onLongPress: () => _handleLongPress(context),
-      onTap: () => _handleTap(context),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          BookCover(url: book.cover, height: coverHeight, width: coverWidth),
-          const SizedBox(height: 8),
-          Text(
-            book.name,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 14, height: 1.2),
-          ),
-          Text(
-            _buildSubtitle() ?? '',
-            style: TextStyle(
-              fontSize: 12,
-              height: 1.2,
-              color: onBackground.withOpacity(0.5),
+    return Consumer(builder: (context, ref, child) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onLongPress: () => _handleLongPress(context),
+        onTap: () => _handleTap(context, ref),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BookCover(url: book.cover, height: coverHeight, width: coverWidth),
+            const SizedBox(height: 8),
+            Text(
+              book.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 14, height: 1.2),
             ),
-          ),
-        ],
-      ),
-    );
+            Text(
+              _buildSubtitle() ?? '',
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.2,
+                color: onBackground.withOpacity(0.5),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   void _handleLongPress(BuildContext context) async {
@@ -348,10 +296,12 @@ class _ShelfGridTile extends StatelessWidget {
               onPressed: () => cancel(context),
               child: const Text('取消'),
             ),
-            TextButton(
-              onPressed: () => confirm(context),
-              child: const Text('确认'),
-            ),
+            Consumer(builder: (context, ref, child) {
+              return TextButton(
+                onPressed: () => confirm(context, ref),
+                child: const Text('确认'),
+              );
+            })
           ],
           content: const Text('确认将本书移出书架？'),
           title: const Text('移出书架'),
@@ -365,28 +315,17 @@ class _ShelfGridTile extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-  void confirm(BuildContext context) async {
-    final ref = context.ref;
+  void confirm(BuildContext context, WidgetRef ref) async {
     final navigator = Navigator.of(context);
-    await isar.writeTxn(() async {
-      await isar.books.delete(book.id);
-    });
+    final notifier = ref.read(booksProvider.notifier);
+    await notifier.delete(book);
     navigator.pop();
-    final books = await isar.books.where().findAll();
-    books.sort((a, b) {
-      final first = PinyinHelper.getPinyin(a.name);
-      final second = PinyinHelper.getPinyin(b.name);
-      return first.compareTo(second);
-    });
-    ref.set(booksCreator, books);
-    CacheManager(prefix: book.name).clearCache();
   }
 
-  void _handleTap(BuildContext context) async {
-    final ref = context.ref;
-    final router = GoRouter.of(context);
-    ref.set(currentBookCreator, book);
-    router.push('/book-reader');
+  void _handleTap(BuildContext context, WidgetRef ref) {
+    const BookReaderPageRoute().push(context);
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    notifier.update(book);
   }
 
   int _calculateUnreadChapters() {

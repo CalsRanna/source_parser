@@ -1,12 +1,12 @@
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
-import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/schema/isar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/cache.dart';
+import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/setting.dart';
+import 'package:source_parser/util/message.dart';
 
-class AdvancedSettingPage extends StatelessWidget {
-  const AdvancedSettingPage({super.key});
+class SettingPage extends StatelessWidget {
+  const SettingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +20,14 @@ class AdvancedSettingPage extends StatelessWidget {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Watcher((context, ref, child) {
-                  final maxConcurrent = ref.watch(maxConcurrentCreator);
-                  final concurrent = maxConcurrent.floor();
-                  return Text(concurrent.toString());
+                Consumer(builder: (context, ref, child) {
+                  final provider = ref.watch(settingNotifierProvider);
+                  final setting = switch (provider) {
+                    AsyncData(:final value) => value,
+                    _ => Setting(),
+                  };
+                  final maxConcurrent = setting.maxConcurrent.floor();
+                  return Text(maxConcurrent.toString());
                 }),
                 const Icon(Icons.arrow_forward_ios_outlined, size: 14)
               ],
@@ -36,9 +40,13 @@ class AdvancedSettingPage extends StatelessWidget {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Watcher((context, ref, child) {
-                  final cacheDuration = ref.watch(cacheDurationCreator);
-                  final hour = cacheDuration.floor();
+                Consumer(builder: (context, ref, child) {
+                  final provider = ref.watch(settingNotifierProvider);
+                  final setting = switch (provider) {
+                    AsyncData(:final value) => value,
+                    _ => Setting(),
+                  };
+                  final hour = setting.cacheDuration.floor();
                   return Text('$hour小时');
                 }),
                 const Icon(Icons.arrow_forward_ios_outlined, size: 14)
@@ -52,9 +60,15 @@ class AdvancedSettingPage extends StatelessWidget {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Watcher((context, ref, child) {
-                  final timeout = ref.watch(timeoutCreator);
-                  final seconds = Duration(milliseconds: timeout).inSeconds;
+                Consumer(builder: (context, ref, child) {
+                  final provider = ref.watch(settingNotifierProvider);
+                  final setting = switch (provider) {
+                    AsyncData(:final value) => value,
+                    _ => Setting(),
+                  };
+
+                  final seconds =
+                      Duration(milliseconds: setting.timeout).inSeconds;
                   return Text('$seconds秒');
                 }),
                 const Icon(Icons.arrow_forward_ios_outlined, size: 14)
@@ -62,21 +76,84 @@ class AdvancedSettingPage extends StatelessWidget {
             ),
             onTap: () => showTimeoutSheet(context),
           ),
+          ListTile(
+            title: const Text('清理缓存'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Consumer(builder: (context, ref, child) {
+                  final provider = ref.watch(cacheSizeProvider);
+                  final size = switch (provider) {
+                    AsyncData(:final value) => value,
+                    _ => '0 Bytes',
+                  };
+                  return Text(size);
+                }),
+                const Icon(Icons.arrow_forward_ios_outlined, size: 14)
+              ],
+            ),
+            onTap: () => showClearCacheDialog(context),
+          ),
         ],
       ),
     );
+  }
+
+  void cancelClear(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
+  void confirmClear(BuildContext context, WidgetRef ref) async {
+    final navigator = Navigator.of(context);
+    final message = Message.of(context);
+    final notifier = ref.read(cacheSizeProvider.notifier);
+    final succeed = await notifier.clear();
+    navigator.pop();
+    if (succeed) {
+      message.show('已清空缓存');
+    } else {
+      message.show('清空缓存失败');
+    }
   }
 
   void showCacheSheet(BuildContext context) async {
     showModalBottomSheet(
       context: context,
       builder: (context) => ListView.builder(
-        itemBuilder: (context, index) => ListTile(
-          title: Text('$index小时'),
-          onTap: () => updateCacheDuration(context, index.toDouble()),
-        ),
+        itemBuilder: (context, index) {
+          return Consumer(builder: (context, ref, child) {
+            return ListTile(
+              title: Text('$index小时'),
+              onTap: () => updateCacheDuration(context, ref, index.toDouble()),
+            );
+          });
+        },
         itemCount: 25,
       ),
+    );
+  }
+
+  void showClearCacheDialog(BuildContext context) async {
+    showDialog(
+      builder: (_) {
+        return AlertDialog(
+          actions: [
+            TextButton(
+              onPressed: () => cancelClear(context),
+              child: const Text('取消'),
+            ),
+            Consumer(builder: (context, ref, child) {
+              return TextButton(
+                onPressed: () => confirmClear(context, ref),
+                child: const Text('确认'),
+              );
+            })
+          ],
+          content: const Text('确定清空所有已缓存的内容？'),
+          title: const Text('清空缓存'),
+        );
+      },
+      context: context,
     );
   }
 
@@ -84,10 +161,14 @@ class AdvancedSettingPage extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       builder: (context) => ListView.builder(
-        itemBuilder: (context, index) => ListTile(
-          title: Text('${index + 1}'),
-          onTap: () => updateMaxConcurrent(context, index + 1),
-        ),
+        itemBuilder: (context, index) {
+          return Consumer(builder: (context, ref, child) {
+            return ListTile(
+              title: Text('${index + 1}'),
+              onTap: () => updateMaxConcurrent(context, ref, index + 1),
+            );
+          });
+        },
         itemCount: 16,
       ),
     );
@@ -97,54 +178,41 @@ class AdvancedSettingPage extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       builder: (context) => ListView.builder(
-        itemBuilder: (context, index) => ListTile(
-          title: Text('${(index + 1) * 15}秒'),
-          onTap: () => updateTimeout(context, (index + 1) * 15 * 1000),
-        ),
+        itemBuilder: (context, index) {
+          final timeout = (index + 1) * 15 * 1000;
+          final seconds = Duration(milliseconds: timeout).inSeconds;
+          return Consumer(builder: (context, ref, child) {
+            return ListTile(
+              title: Text('$seconds秒'),
+              onTap: () => updateTimeout(context, ref, timeout),
+            );
+          });
+        },
         itemCount: 4,
       ),
     );
   }
 
-  void updateCacheDuration(BuildContext context, double duration) async {
-    final ref = context.ref;
-    ref.set(cacheDurationCreator, duration);
-    var setting = await isar.settings.where().findFirst();
-    if (setting != null) {
-      setting.cacheDuration = duration;
-      await isar.writeTxn(() async {
-        isar.settings.put(setting);
-      });
-    }
-    if (!context.mounted) return;
+  void updateCacheDuration(
+    BuildContext context,
+    WidgetRef ref,
+    double duration,
+  ) async {
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.updateCacheDuration(duration);
     Navigator.of(context).pop();
   }
 
-  void updateMaxConcurrent(BuildContext context, double concurrent) async {
-    final ref = context.ref;
-    ref.set(maxConcurrentCreator, concurrent);
-    var setting = await isar.settings.where().findFirst();
-    if (setting != null) {
-      setting.maxConcurrent = concurrent;
-      await isar.writeTxn(() async {
-        isar.settings.put(setting);
-      });
-    }
-    if (!context.mounted) return;
+  void updateMaxConcurrent(
+      BuildContext context, WidgetRef ref, double concurrent) async {
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.updateMaxConcurrent(concurrent);
     Navigator.of(context).pop();
   }
 
-  void updateTimeout(BuildContext context, int timeout) async {
-    final ref = context.ref;
-    ref.set(timeoutCreator, timeout);
-    var setting = await isar.settings.where().findFirst();
-    if (setting != null) {
-      setting.timeout = timeout;
-      await isar.writeTxn(() async {
-        isar.settings.put(setting);
-      });
-    }
-    if (!context.mounted) return;
+  void updateTimeout(BuildContext context, WidgetRef ref, int timeout) async {
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.updateTimeout(timeout);
     Navigator.of(context).pop();
   }
 }

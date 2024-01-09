@@ -3,40 +3,42 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:book_reader/book_reader.dart';
-import 'package:cached_network/cached_network.dart';
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:isar/isar.dart';
-import 'package:lpinyin/lpinyin.dart';
-import 'package:source_parser/creator/book.dart';
-import 'package:source_parser/creator/cache.dart';
-import 'package:source_parser/creator/router.dart';
-import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/schema/book.dart';
-import 'package:source_parser/schema/isar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/book.dart';
+import 'package:source_parser/provider/cache.dart';
+import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/setting.dart';
-import 'package:source_parser/schema/source.dart';
-import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:source_parser/util/semaphore.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
-class Reader extends StatefulWidget {
-  const Reader({super.key});
+class ReaderPage extends StatefulWidget {
+  const ReaderPage({super.key});
 
   @override
-  State<Reader> createState() => _ReaderState();
+  State<ReaderPage> createState() => _ReaderPageState();
 }
 
-class _ReaderState extends State<Reader> {
+class _ReaderPageState extends State<ReaderPage> {
   bool caching = false;
   double progress = 0;
 
   @override
   Widget build(BuildContext context) {
-    return Watcher((context, ref, child) {
-      final book = ref.watch(currentBookCreator);
+    return Consumer(builder: (context, ref, child) {
+      final provider = ref.watch(settingNotifierProvider);
+      final setting = switch (provider) {
+        AsyncData(:final value) => value,
+        _ => Setting(),
+      };
+      final backgroundColor = setting.backgroundColor;
+      final darkMode = setting.darkMode;
+      final eInkMode = setting.eInkMode;
+      final turningMode = setting.turningMode;
+      final lineSpace = setting.lineSpace;
+      final fontSize = setting.fontSize;
+      final book = ref.watch(bookNotifierProvider);
       var index = book.index;
       var cursor = book.cursor;
       final length = book.chapters.length;
@@ -48,10 +50,6 @@ class _ReaderState extends State<Reader> {
         cursor = 0;
       }
       var theme = ReaderTheme();
-      final backgroundColor = ref.watch(backgroundColorCreator);
-      final darkMode = ref.watch(darkModeCreator);
-      final lineSpace = ref.watch(lineSpaceCreator);
-      final fontSize = ref.watch(fontSizeCreator);
       final mediaQueryData = MediaQuery.of(context);
       final padding = mediaQueryData.padding;
       double bottom;
@@ -80,14 +78,12 @@ class _ReaderState extends State<Reader> {
         );
       }
       List<PageTurningMode> modes = [];
-      final turningMode = ref.watch(turningModeCreator);
       if (turningMode & 1 != 0) {
         modes.add(PageTurningMode.drag);
       }
       if (turningMode & 2 != 0) {
         modes.add(PageTurningMode.tap);
       }
-      final eInkMode = ref.watch(eInkModeCreator);
       String title = '';
       if (book.chapters.isNotEmpty) {
         title = book.chapters.elementAt(index).name;
@@ -100,22 +96,22 @@ class _ReaderState extends State<Reader> {
             cursor: cursor,
             darkMode: darkMode,
             eInkMode: eInkMode,
-            future: getContent,
+            future: (index) => getContent(ref, index),
             index: index,
             modes: modes,
             name: book.name,
             theme: theme,
             title: title,
             total: book.chapters.length,
-            onCached: handleCached,
+            onCached: (value) => handleCached(ref, value),
             onCataloguePressed: handleCataloguePressed,
-            onChapterChanged: handleChapterChanged,
-            onDarkModePressed: handleDarkModePressed,
+            onChapterChanged: (index) => handleChapterChanged(ref, index),
+            onDarkModePressed: () => toggleDarkMode(ref),
             onDetailPressed: handleDetailPressed,
             onMessage: handleMessage,
-            onPop: handlePop,
-            onProgressChanged: handleProgressChanged,
-            onRefresh: handleRefresh,
+            onPop: (index, cursor) => handlePop(ref),
+            onProgressChanged: (cursor) => handleProgressChanged(ref, cursor),
+            onRefresh: (index) => handleRefresh(ref, index),
             onSettingPressed: handleSettingPressed,
             onSourcePressed: handleSourcePressed,
           ),
@@ -132,216 +128,72 @@ class _ReaderState extends State<Reader> {
     });
   }
 
-  @override
-  void deactivate() {
-    updateBooks();
-    super.deactivate();
-  }
-
-  Future<String> getContent(int index) async {
-    final ref = context.ref;
+  Future<String> getContent(WidgetRef ref, int index) async {
     // Get content while page animation stopped, should override the animation instead
     await Future.delayed(const Duration(milliseconds: 300));
-    final book = ref.read(currentBookCreator);
-    final builder = isar.sources.filter();
-    final source = await builder.idEqualTo(book.sourceId).findFirst();
-    if (source != null) {
-      final chapter = book.chapters.elementAt(index);
-      final title = chapter.name;
-      final url = chapter.url;
-      final timeout = ref.read(timeoutCreator);
-      return Parser.getContent(
-        name: book.name,
-        source: source,
-        title: title,
-        url: url,
-        timeout: Duration(milliseconds: timeout),
-      );
-    } else {
-      return '';
-    }
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    return notifier.getContent(index);
   }
 
   void handleMessage(String message) {
     Message.of(context).show(message);
   }
 
-  Future<String> handleRefresh(int index) async {
-    final ref = context.ref;
-    final book = ref.read(currentBookCreator);
-    final builder = isar.sources.filter();
-    final source = await builder.idEqualTo(book.sourceId).findFirst();
-    if (source != null) {
-      final chapter = book.chapters.elementAt(index);
-      final title = chapter.name;
-      final url = chapter.url;
-      final timeout = ref.read(timeoutCreator);
-      return Parser.getContent(
-        name: book.name,
-        reacquire: true,
-        source: source,
-        title: title,
-        url: url,
-        timeout: Duration(milliseconds: timeout),
-      );
-    } else {
-      return '';
-    }
+  Future<String> handleRefresh(WidgetRef ref, int index) async {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    return notifier.getContent(index);
   }
 
-  void handleProgressChanged(int cursor) async {
-    final ref = context.ref;
-    final book = ref.read(currentBookCreator);
-    final updatedBook = book.copyWith(cursor: cursor);
-    ref.set(currentBookCreator, updatedBook);
-    await isar.writeTxn(() async {
-      isar.books.put(updatedBook);
-    });
+  void handleProgressChanged(WidgetRef ref, int cursor) async {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    return notifier.refreshCursor(cursor);
   }
 
-  void handleChapterChanged(int index) async {
-    final ref = context.ref;
-    final book = ref.read(currentBookCreator);
-    final updatedBook = book.copyWith(index: index);
-    ref.set(currentBookCreator, updatedBook);
-    await isar.writeTxn(() async {
-      isar.books.put(updatedBook);
-    });
-    // cacheChapters(index);
+  void handleChapterChanged(WidgetRef ref, int index) async {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    return notifier.refreshIndex(index);
   }
-
-  // void cacheChapters(int index) async {
-  //   final book = context.ref.read(currentBookCreator);
-  //   final length = book.chapters.length;
-  //   final builder = isar.sources.filter();
-  //   final source = await builder.idEqualTo(book.sourceId).findFirst();
-  //   if (source != null) {
-  //     final network = CachedNetwork(prefix: book.name);
-  //     for (var i = 1; i <= 3; i++) {
-  //       if (index + i < length) {
-  //         await network.request(
-  //           book.chapters.elementAt(index + i).url,
-  //           charset: source.charset,
-  //           method: source.contentMethod,
-  //         );
-  //       }
-  //     }
-  //   }
-  // }
 
   void handleCataloguePressed() {
-    context.ref.set(fromCreator, '/book-reader');
-    context.push('/book-catalogue');
+    const BookCataloguePageRoute().push(context);
   }
 
   void handleSourcePressed() {
-    context.ref.set(fromCreator, '/book-reader');
-    context.push('/book-available-sources');
+    const BookSourceListPageRoute().push(context);
   }
 
-  void handlePop(int index, int cursor) async {
-    context.pop();
-    updateBooks();
+  void handlePop(WidgetRef ref) async {
+    Navigator.of(context).pop();
+    ref.invalidate(booksProvider);
   }
 
-  void handleDarkModePressed() async {
-    final ref = context.ref;
-    final darkMode = ref.read(darkModeCreator);
-    ref.set(darkModeCreator, !darkMode);
-    var setting = await isar.settings.where().findFirst();
-    if (setting != null) {
-      setting.darkMode = !darkMode;
-      await isar.writeTxn(() async {
-        isar.settings.put(setting);
-      });
-    }
+  void toggleDarkMode(WidgetRef ref) async {
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.toggleDarkMode();
   }
 
-  void updateBooks() async {
-    final ref = context.ref;
-    final books = await isar.books.where().findAll();
-    books.sort((a, b) {
-      final first = PinyinHelper.getPinyin(a.name);
-      final second = PinyinHelper.getPinyin(b.name);
-      return first.compareTo(second);
-    });
-    ref.set(booksCreator, books);
-  }
-
-  void handleCached(int amount) async {
+  void handleCached(WidgetRef ref, int amount) async {
     setState(() {
       caching = true;
     });
-    final ref = context.ref;
+    final notifier = ref.read(cacheProgressNotifierProvider.notifier);
+    await notifier.cacheChapters(amount: amount);
+    if (!mounted) return;
     final message = Message.of(context);
-    final book = ref.read(currentBookCreator);
-    final builder = isar.sources.filter();
-    final source = await builder.idEqualTo(book.sourceId).findFirst();
-    if (source == null) return;
-    if (amount == 0) {
-      amount = book.chapters.length - (book.index + 1);
-    }
-    amount = min(amount, book.chapters.length - (book.index + 1));
-    ref.set(cachingSucceedCreator, 0);
-    ref.set(cachingFailedCreator, 0);
-    ref.set(cachingTotalCreator, amount);
-    final startIndex = book.index + 1;
-    final endIndex = min(startIndex + amount, book.chapters.length);
-    final maxConcurrent = ref.read(maxConcurrentCreator);
-    final semaphore = Semaphore(maxConcurrent.floor());
-    final futures = <Future>[];
-    for (var i = startIndex; i < endIndex; i++) {
-      futures.add(cacheChapter(book, source, i, semaphore));
-    }
-    await Future.wait(futures);
-    final succeed = ref.read(cachingSucceedCreator);
-    final failed = ref.read(cachingFailedCreator);
-    message.show('缓存完毕，$succeed章成功，$failed章失败');
+    final progress = ref.read(cacheProgressNotifierProvider);
+    message.show('缓存完毕，${progress.succeed}章成功，${progress.failed}章失败');
     await Future.delayed(const Duration(seconds: 1));
     setState(() {
       caching = false;
     });
   }
 
-  Future<void> cacheChapter(
-    Book book,
-    Source source,
-    int chapterIndex,
-    Semaphore semaphore,
-  ) async {
-    final ref = context.ref;
-    await semaphore.acquire();
-    try {
-      final url = book.chapters.elementAt(chapterIndex).url;
-      final timeout = ref.read(timeoutCreator);
-      final network = CachedNetwork(
-        prefix: book.name,
-        timeout: Duration(milliseconds: timeout),
-      );
-      final cached = await network.cached(url);
-      if (!cached) {
-        await network.request(
-          url,
-          charset: source.charset,
-          method: source.contentMethod,
-        );
-      }
-      final succeed = ref.read(cachingSucceedCreator);
-      ref.set(cachingSucceedCreator, succeed + 1);
-    } catch (error) {
-      final failed = ref.read(cachingFailedCreator);
-      ref.set(cachingFailedCreator, failed + 1);
-    } finally {
-      semaphore.release();
-    }
-  }
-
   void handleDetailPressed() {
-    context.push('/book-information');
+    const BookInformationPageRoute().push(context);
   }
 
   void handleSettingPressed() {
-    context.push('/reader-theme');
+    const BookReaderThemePageRoute().push(context);
   }
 }
 
@@ -362,22 +214,14 @@ class _CacheIndicator extends StatelessWidget {
       ),
       height: 160,
       width: 8,
-      child: Watcher((context, ref, child) {
-        final total = ref.watch(cachingTotalCreator);
-        final succeed = ref.watch(cachingSucceedCreator);
-        final failed = ref.watch(cachingFailedCreator);
-        double progress;
-        if (total == 0) {
-          progress = 1;
-        } else {
-          progress = (succeed + failed) / total;
-        }
+      child: Consumer(builder: (context, ref, child) {
+        final progress = ref.watch(cacheProgressNotifierProvider);
         return DecoratedBox(
           decoration: ShapeDecoration(
             color: primary,
             shape: const StadiumBorder(),
           ),
-          child: SizedBox(height: 160 * progress, width: 8),
+          child: SizedBox(height: 160 * progress.progress, width: 8),
         );
       }),
     );

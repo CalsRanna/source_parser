@@ -1,19 +1,15 @@
 import 'package:cached_network/cached_network.dart';
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:isar/isar.dart';
-import 'package:source_parser/creator/book.dart';
-import 'package:source_parser/creator/router.dart';
-import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/schema/book.dart';
-import 'package:source_parser/schema/isar.dart';
-import 'package:source_parser/schema/source.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/book.dart';
+import 'package:source_parser/provider/cache.dart';
+import 'package:source_parser/router/router.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:source_parser/util/parser.dart';
 
 class CataloguePage extends StatefulWidget {
-  const CataloguePage({super.key});
+  const CataloguePage({super.key, required this.index});
+
+  final int index;
   @override
   State<CataloguePage> createState() => _CataloguePageState();
 }
@@ -36,9 +32,7 @@ class _CataloguePageState extends State<CataloguePage> {
       var listViewHeight = height - padding.vertical;
       listViewHeight = listViewHeight - appBarRenderBox.size.height;
       final halfHeight = listViewHeight / 2;
-      final ref = context.ref;
-      final book = ref.watch(currentBookCreator);
-      var offset = 56.0 * book.index;
+      var offset = 56.0 * widget.index;
       offset = (offset - halfHeight);
       offset = offset.clamp(0, maxScrollExtent);
       controller.jumpTo(offset);
@@ -47,6 +41,9 @@ class _CataloguePageState extends State<CataloguePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    final onSurface = theme.colorScheme.onSurface;
     return Scaffold(
       appBar: AppBar(
         key: globalKey,
@@ -58,16 +55,12 @@ class _CataloguePageState extends State<CataloguePage> {
           )
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: handleRefresh,
-        child: Watcher((context, ref, child) {
-          final book = ref.watch(currentBookCreator);
-          final theme = Theme.of(context);
-          final primary = theme.colorScheme.primary;
-          final onSurface = theme.colorScheme.onSurface;
-          final network = CachedNetwork(prefix: book.name);
-
-          return Scrollbar(
+      body: Consumer(builder: (context, ref, child) {
+        final book = ref.watch(bookNotifierProvider);
+        final network = CachedNetwork(prefix: book.name);
+        return RefreshIndicator(
+          onRefresh: () => handleRefresh(ref),
+          child: Scrollbar(
             controller: controller,
             child: ListView.builder(
               controller: controller,
@@ -96,47 +89,23 @@ class _CataloguePageState extends State<CataloguePage> {
                     },
                     future: network.cached(book.chapters[index].url),
                   ),
-                  onTap: () => startReader(index),
+                  onTap: () => startReader(ref, index),
                 );
               },
               itemCount: book.chapters.length,
               itemExtent: 56,
             ),
-          );
-        }),
-      ),
+          ),
+        );
+      }),
     );
   }
 
-  Future<void> handleRefresh() async {
+  Future<void> handleRefresh(WidgetRef ref) async {
     final message = Message.of(context);
+    final notifier = ref.read(bookNotifierProvider.notifier);
     try {
-      final ref = context.ref;
-      final book = ref.read(currentBookCreator);
-      final builder = isar.sources.filter();
-      final source = await builder.idEqualTo(book.sourceId).findFirst();
-      if (source != null) {
-        final duration = ref.read(cacheDurationCreator);
-        final timeout = ref.read(timeoutCreator);
-        var stream = await Parser.getChapters(
-          book.name,
-          book.catalogueUrl,
-          source,
-          Duration(hours: duration.floor()),
-          Duration(milliseconds: timeout),
-        );
-        stream = stream.asBroadcastStream();
-        List<Chapter> chapters = [];
-        stream.listen(
-          (chapter) {
-            chapters.add(chapter);
-          },
-          onDone: () {
-            ref.set(currentBookCreator, book.copyWith(chapters: chapters));
-          },
-        );
-        await stream.last;
-      }
+      await notifier.refreshCatalogue();
     } catch (error) {
       message.show(error.toString());
     }
@@ -157,34 +126,13 @@ class _CataloguePageState extends State<CataloguePage> {
     });
   }
 
-  void startReader(int index) async {
-    final ref = context.ref;
-    final router = GoRouter.of(context);
-    final book = ref.read(currentBookCreator);
-    final updatedBook = book.copyWith(cursor: 0, index: index);
-    ref.set(currentBookCreator, updatedBook);
-    final from = ref.read(fromCreator);
-    if (from == '/book-reader') {
-      router.pop();
-      router.pushReplacement('/book-reader');
-    } else {
-      router.push('/book-reader');
-    }
-    cacheChapters(index);
-  }
-
-  void cacheChapters(int index) async {
-    final book = context.ref.read(currentBookCreator);
-    final length = book.chapters.length;
-    final timeout = context.ref.read(timeoutCreator);
-    final network = CachedNetwork(
-      prefix: book.name,
-      timeout: Duration(milliseconds: timeout),
-    );
-    for (var i = 1; i <= 3; i++) {
-      if (index + i < length) {
-        await network.request(book.chapters.elementAt(index + i).url);
-      }
-    }
+  void startReader(WidgetRef ref, int index) async {
+    Navigator.of(context).pop();
+    const BookReaderPageRoute().push(context);
+    final bookNotifier = ref.read(bookNotifierProvider.notifier);
+    bookNotifier.startReader(index);
+    final cacheProgressNotifier =
+        ref.read(cacheProgressNotifierProvider.notifier);
+    cacheProgressNotifier.cacheChapters();
   }
 }

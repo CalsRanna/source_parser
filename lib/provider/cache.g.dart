@@ -21,5 +21,22 @@ final cacheSizeProvider =
 );
 
 typedef _$CacheSize = AutoDisposeAsyncNotifier<String>;
+String _$cacheProgressNotifierHash() =>
+    r'8b1dcfcdee8a0f1cd5ebdb9c98826afd4f912919';
+
+/// See also [CacheProgressNotifier].
+@ProviderFor(CacheProgressNotifier)
+final cacheProgressNotifierProvider =
+    NotifierProvider<CacheProgressNotifier, CacheProgress>.internal(
+  CacheProgressNotifier.new,
+  name: r'cacheProgressNotifierProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$cacheProgressNotifierHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$CacheProgressNotifier = Notifier<CacheProgress>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

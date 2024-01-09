@@ -1,5 +1,11 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:source_parser/model/debug.dart';
+import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -65,6 +71,122 @@ class Sources extends _$Sources {
     await isar.writeTxn(() async {
       await isar.sources.putAll(newSources);
     });
+    ref.invalidateSelf();
+  }
+
+  Future<int> store(Source source) async {
+    var id = 0;
+    await isar.writeTxn(() async {
+      id = await isar.sources.put(source);
+    });
+    ref.invalidateSelf();
+    return id;
+  }
+
+  Future<void> delete(int id) async {
+    await isar.writeTxn(() async {
+      await isar.sources.delete(id);
+    });
+    ref.invalidateSelf();
+  }
+}
+
+@riverpod
+class CurrentSource extends _$CurrentSource {
+  @override
+  Future<Source?> build() async {
+    final sources = await ref.watch(sourcesProvider.future);
+    final book = ref.watch(bookNotifierProvider);
+    return sources.where((source) => source.id == book.sourceId).firstOrNull;
+  }
+}
+
+@Riverpod(keepAlive: true)
+class FormSource extends _$FormSource {
+  @override
+  Source build() => Source();
+
+  void update(Source source) {
+    state = source;
+  }
+
+  Future<String> validate() async {
+    if (state.name.isEmpty) return '名称不能为空';
+    if (state.url.isEmpty) return '网址不能为空';
+    final filter = isar.sources.filter();
+    var builder = filter.nameEqualTo(state.name);
+    final exist = await builder.findFirst();
+    if (exist != null && exist.id != state.id) {
+      return '书源名称已存在';
+    }
+    return '';
+  }
+
+  void edit(int id) async {
+    final sources = await ref.read(sourcesProvider.future);
+    final source = sources.where((source) => source.id == id).firstOrNull;
+    state = source ?? Source();
+  }
+
+  void create() async {
+    ref.invalidateSelf();
+  }
+
+  Future<Stream<DebugResultNew>> debug() async {
+    const defaultCredential = '都市';
+    final setting = await ref.read(settingNotifierProvider.future);
+    final duration = setting.cacheDuration;
+    final timeout = setting.timeout;
+    final stream = await Parser.debug(
+      defaultCredential,
+      state,
+      Duration(hours: duration.floor()),
+      Duration(milliseconds: timeout),
+    );
+    return stream;
+  }
+}
+
+@riverpod
+class SourceDebugger extends _$SourceDebugger {
+  @override
+  Future<Stream<List<DebugResultNew>>> build() async {
+    final controller = StreamController<List<DebugResultNew>>();
+    const defaultCredential = '都市';
+    final source = ref.read(formSourceProvider);
+    final setting = await ref.read(settingNotifierProvider.future);
+    final duration = setting.cacheDuration;
+    final timeout = setting.timeout;
+    var stream = await Parser.debug(
+      defaultCredential,
+      source,
+      Duration(hours: duration.floor()),
+      Duration(milliseconds: timeout),
+    );
+    List<DebugResultNew> results = [];
+    stream.listen(
+      (result) {
+        results.add(result);
+        final isMacOS = Platform.isMacOS;
+        final isWindows = Platform.isWindows;
+        final isLinux = Platform.isLinux;
+        final showExtra = isMacOS || isWindows || isLinux;
+        if (showExtra && result.title == '正文') {
+          results.add(DebugResultNew(
+            json: result.json,
+            raw: jsonDecode(result.json)['content'].codeUnits.toString(),
+            title: '正文Unicode编码',
+          ));
+        }
+        controller.add(results);
+      },
+      onDone: () => controller.close(),
+      onError: (error) => controller.close(),
+    );
+    return controller.stream;
+  }
+
+  void debug() async {
     ref.invalidateSelf();
   }
 }

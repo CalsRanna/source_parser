@@ -1,24 +1,21 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:json_view/json_view.dart';
-import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/model/debug.dart';
-import 'package:source_parser/util/parser.dart';
+import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/string_extension.dart';
 
-class BookSourceDebug extends StatefulWidget {
-  const BookSourceDebug({super.key});
+class SourceDebuggerPage extends StatefulWidget {
+  const SourceDebuggerPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _BookSourceDebugState();
+  State<StatefulWidget> createState() => _SourceDebuggerPageState();
 }
 
-class _BookSourceDebugState extends State<BookSourceDebug> {
+class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
   String defaultCredential = '都市';
   final keys = [
     'archive',
@@ -34,109 +31,74 @@ class _BookSourceDebugState extends State<BookSourceDebug> {
   List<DebugResultNew> results = [];
 
   @override
-  void didChangeDependencies() {
-    debug();
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    Widget child = ListView.builder(
-      itemBuilder: (context, index) {
-        dynamic json = jsonDecode(results[index].json);
-        switch (results[index].title) {
-          case '搜索':
-            for (var item in json) {
-              _remove(item, [...keys, 'catalogue_url']);
-            }
-            break;
-          case '详情':
-            _remove(json, keys);
-            break;
-          case '目录':
-            for (var item in json) {
-              _remove(item, ['id']);
-            }
-            break;
-          default:
-            break;
-        }
-        return _DebugResultTile(
-          response: results[index].raw,
-          result: json,
-          title: results[index].title,
-        );
-      },
-      itemCount: results.length,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-    );
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(
-            icon: const Icon(Icons.bug_report_outlined),
-            onPressed: debug,
-          )
+          Consumer(builder: (context, ref, child) {
+            return IconButton(
+              icon: const Icon(Icons.bug_report_outlined),
+              onPressed: () => debug(ref),
+            );
+          })
         ],
         title: const Text('书源调试'),
       ),
-      body: Column(
-        children: [
-          if (loading) const LinearProgressIndicator(),
-          Expanded(child: child)
-        ],
-      ),
+      body: Consumer(builder: (context, ref, child) {
+        final provider = ref.watch(sourceDebuggerProvider);
+        return StreamBuilder(
+          stream: provider.value,
+          builder: (context, snapshot) {
+            Widget indicator = const LinearProgressIndicator();
+            if (snapshot.connectionState == ConnectionState.done) {
+              indicator = const SizedBox();
+            }
+            Widget list = const SizedBox();
+            if (!provider.isLoading && snapshot.data != null) {
+              final result = snapshot.data!;
+              list = ListView.builder(
+                itemBuilder: (context, index) {
+                  dynamic json = jsonDecode(result[index].json);
+                  switch (result[index].title) {
+                    case '搜索':
+                      for (var item in json) {
+                        _remove(item, [...keys, 'catalogue_url']);
+                      }
+                      break;
+                    case '详情':
+                      _remove(json, keys);
+                      break;
+                    case '目录':
+                      for (var item in json) {
+                        _remove(item, ['id']);
+                      }
+                      break;
+                    default:
+                      break;
+                  }
+                  return _DebugResultTile(
+                    response: result[index].raw,
+                    result: json,
+                    title: result[index].title,
+                  );
+                },
+                itemCount: result.length,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              );
+            }
+            return Column(children: [indicator, Expanded(child: list)]);
+          },
+        );
+      }),
     );
   }
 
-  void debug() async {
-    setState(() {
-      loading = true;
-      results = [];
-    });
-    final message = Message.of(context);
+  void debug(WidgetRef ref) async {
     try {
-      final source = context.ref.read(currentSourceCreator);
-      final duration = context.ref.read(cacheDurationCreator);
-      final timeout = context.ref.read(timeoutCreator);
-      var stream = await Parser.debug(
-        defaultCredential,
-        source,
-        Duration(hours: duration.floor()),
-        Duration(milliseconds: timeout),
-      );
-      stream.listen((result) {
-        setState(() {
-          results.add(result);
-        });
-        final isMacOS = Platform.isMacOS;
-        final isWindows = Platform.isWindows;
-        final isLinux = Platform.isLinux;
-        final showExtra = isMacOS || isWindows || isLinux;
-        if (showExtra && result.title == '正文') {
-          setState(() {
-            results.add(DebugResultNew(
-              json: result.json,
-              raw: jsonDecode(result.json)['content'].codeUnits.toString(),
-              title: '正文Unicode编码',
-            ));
-            loading = false;
-          });
-        }
-      }, onDone: () {
-        setState(() {
-          loading = false;
-        });
-      }, onError: (error) {
-        setState(() {
-          loading = false;
-        });
-        message.show(error);
-      });
+      final notifier = ref.read(sourceDebuggerProvider.notifier);
+      notifier.debug();
     } catch (e) {
-      setState(() {
-        loading = false;
-      });
+      final message = Message.of(context);
       message.show(e.toString());
     }
   }

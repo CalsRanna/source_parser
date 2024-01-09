@@ -1,11 +1,11 @@
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/creator/source.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
-class BookSourceAdvancedConfiguration extends StatelessWidget {
-  const BookSourceAdvancedConfiguration({super.key});
+class SourceAdvancedConfigurationPage extends StatelessWidget {
+  const SourceAdvancedConfigurationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,9 +14,9 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
         actions: const [DebugButton()],
         title: const Text('高级配置'),
       ),
-      body: Watcher(
-        (context, ref, child) {
-          final source = ref.watch(currentSourceCreator);
+      body: Consumer(
+        builder: (context, ref, child) {
+          final source = ref.watch(formSourceProvider);
           return ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
@@ -31,10 +31,10 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
                         height: 14,
                         child: Switch(
                           value: source.enabled,
-                          onChanged: (value) => triggerEnabled(context),
+                          onChanged: (value) => triggerEnabled(ref),
                         ),
                       ),
-                      onTap: () => triggerEnabled(context),
+                      onTap: () => triggerEnabled(ref),
                     ),
                     RuleTile(
                       bordered: false,
@@ -43,10 +43,10 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
                         height: 14,
                         child: Switch(
                           value: source.exploreEnabled,
-                          onChanged: (value) => triggerExploreEnabled(context),
+                          onChanged: (value) => triggerExploreEnabled(ref),
                         ),
                       ),
-                      onTap: () => triggerExploreEnabled(context),
+                      onTap: () => triggerExploreEnabled(ref),
                     ),
                   ],
                 ),
@@ -60,12 +60,12 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
                     RuleTile(
                       title: '备注',
                       value: source.comment,
-                      onChange: (value) => updateComment(context, value),
+                      onChange: (value) => updateComment(ref, value),
                     ),
                     RuleTile(
                       title: '请求头',
                       value: source.header,
-                      onChange: (value) => updateHeader(context, value),
+                      onChange: (value) => updateHeader(ref, value),
                     ),
                     RuleTile(
                       title: '编码',
@@ -82,31 +82,28 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
     );
   }
 
-  void triggerEnabled(BuildContext context) async {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(enabled: !source.enabled));
+  void triggerEnabled(WidgetRef ref) async {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(enabled: !source.enabled));
   }
 
-  void triggerExploreEnabled(BuildContext context) async {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(
-      currentSourceCreator,
-      source.copyWith(exploreEnabled: !source.exploreEnabled),
-    );
+  void triggerExploreEnabled(WidgetRef ref) async {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(exploreEnabled: !source.exploreEnabled));
   }
 
-  void updateComment(BuildContext context, String value) async {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(comment: value));
+  void updateComment(WidgetRef ref, String comment) async {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(comment: comment));
   }
 
-  void updateHeader(BuildContext context, String value) async {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(header: value));
+  void updateHeader(WidgetRef ref, String header) async {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(header: header));
   }
 
   void selectCharset(BuildContext context) {
@@ -116,10 +113,12 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
       builder: (context) {
         return ListView.builder(
           itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(encodings[index]),
-              onTap: () => confirmSelect(context, encodings[index]),
-            );
+            return Consumer(builder: (context, ref, child) {
+              return ListTile(
+                title: Text(encodings[index]),
+                onTap: () => confirmSelect(context, ref, encodings[index]),
+              );
+            });
           },
           itemCount: encodings.length,
         );
@@ -127,10 +126,10 @@ class BookSourceAdvancedConfiguration extends StatelessWidget {
     );
   }
 
-  void confirmSelect(BuildContext context, String charset) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(charset: charset));
+  void confirmSelect(BuildContext context, WidgetRef ref, String charset) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(charset: charset));
     Navigator.of(context).pop();
   }
 }

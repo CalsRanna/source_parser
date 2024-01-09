@@ -1,52 +1,52 @@
-import 'dart:math';
 import 'dart:ui';
 
-import 'package:cached_network/cached_network.dart';
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:isar/isar.dart';
-import 'package:lpinyin/lpinyin.dart';
-import 'package:source_parser/creator/book.dart';
-import 'package:source_parser/creator/router.dart';
-import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/creator/source.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/book.dart';
+import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/provider/source.dart';
+import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/book.dart';
-import 'package:source_parser/schema/isar.dart';
-import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
 import 'package:source_parser/widget/loading.dart';
 
-class BookInformation extends StatefulWidget {
-  const BookInformation({super.key});
+class InformationPage extends ConsumerStatefulWidget {
+  const InformationPage({super.key});
 
   @override
-  State<BookInformation> createState() {
+  ConsumerState<InformationPage> createState() {
     return _BookInformationState();
   }
 }
 
-class _BookInformationState extends State<BookInformation> {
+class _BookInformationState extends ConsumerState<InformationPage> {
   bool loading = false;
 
   @override
-  void didChangeDependencies() {
-    getInformation();
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    getInformation(ref);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Watcher((context, ref, child) {
-      final book = ref.watch(currentBookCreator);
-      final eInkMode = ref.watch(eInkModeCreator);
-      final sources = ref.watch(sourcesEmitter.asyncData).data;
-      final currentSource =
-          sources?.where((source) => source.id == book.sourceId).firstOrNull;
+    return Consumer(builder: (context, ref, child) {
+      final provider = ref.watch(settingNotifierProvider);
+      final setting = switch (provider) {
+        AsyncData(:final value) => value,
+        _ => Setting(),
+      };
+      final book = ref.watch(bookNotifierProvider);
+      final eInkMode = setting.eInkMode;
+      final sourceProvider = ref.watch(currentSourceProvider);
+      final source = switch (sourceProvider) {
+        AsyncData(:final value) => value,
+        _ => null,
+      };
       return RefreshIndicator(
-        onRefresh: getInformation,
+        onRefresh: () => getInformation(ref),
         child: Scaffold(
           body: CustomScrollView(
             slivers: [
@@ -72,7 +72,7 @@ class _BookInformationState extends State<BookInformation> {
                   _Catalogue(book: book, eInkMode: eInkMode, loading: loading),
                   const SizedBox(height: 8),
                   _Source(
-                    currentSource: currentSource?.name,
+                    currentSource: source?.name,
                     sources: book.sources,
                   ),
                   const SizedBox(height: 8),
@@ -87,83 +87,14 @@ class _BookInformationState extends State<BookInformation> {
     });
   }
 
-  Future<void> getInformation() async {
+  Future<void> getInformation(WidgetRef ref) async {
     final message = Message.of(context);
     setState(() {
       loading = true;
     });
     try {
-      final ref = context.ref;
-      final book = ref.read(currentBookCreator);
-      final queryBuilder = isar.sources.filter();
-      final sourceId = book.sourceId;
-      final source = await queryBuilder.idEqualTo(sourceId).findFirst();
-      if (source != null) {
-        final duration = ref.read(cacheDurationCreator);
-        final timeout = ref.read(timeoutCreator);
-        final information = await Parser.getInformation(
-          book.name,
-          book.url,
-          source,
-          Duration(hours: duration.floor()),
-          Duration(milliseconds: timeout),
-        );
-        String? updatedIntroduction;
-        if (information.introduction.length > book.introduction.length) {
-          updatedIntroduction = information.introduction;
-        }
-        var stream = await Parser.getChapters(
-          book.name,
-          information.catalogueUrl,
-          source,
-          Duration(hours: duration.floor()),
-          Duration(milliseconds: timeout),
-        );
-        stream = stream.asBroadcastStream();
-        List<Chapter> chapters = [];
-        stream.listen(
-          (chapter) {
-            chapters.add(chapter);
-          },
-        );
-        await stream.last;
-        String updatedCover = book.cover;
-        if (updatedCover.isEmpty) {
-          updatedCover = information.cover;
-        }
-        List<Chapter> updatedChapters = [];
-        if (chapters.length > book.chapters.length) {
-          final start = max(book.chapters.length - 1, 0);
-          final end = max(chapters.length - 1, 0);
-          updatedChapters = chapters.getRange(start, end).toList();
-        }
-        var updatedBook = book.copyWith(
-          catalogueUrl: information.catalogueUrl,
-          category: information.category,
-          chapters: [...book.chapters, ...updatedChapters],
-          cover: updatedCover,
-          introduction: updatedIntroduction,
-          latestChapter: information.latestChapter,
-          words: information.words,
-        );
-        final builder = isar.books.filter();
-        final exist = await builder
-            .nameEqualTo(book.name)
-            .authorEqualTo(book.author)
-            .findFirst();
-        if (exist != null) {
-          updatedBook = exist.copyWith(
-            catalogueUrl: updatedBook.catalogueUrl,
-            category: updatedBook.category,
-            chapters: updatedBook.chapters,
-            cover: updatedBook.cover,
-            introduction: updatedBook.introduction,
-            latestChapter: updatedBook.latestChapter,
-            words: updatedBook.words,
-          );
-        }
-        ref.set(currentBookCreator, updatedBook);
-      }
+      final notifier = ref.read(bookNotifierProvider.notifier);
+      await notifier.refreshInformation();
       setState(() {
         loading = false;
       });
@@ -277,7 +208,7 @@ class _Information extends StatelessWidget {
   }
 
   void searchSameAuthor(BuildContext context) {
-    context.push('/search?credential=${book.author}');
+    SearchPageRoute(credential: book.author).push(context);
   }
 
   String _buildSpan(Book book) {
@@ -457,10 +388,8 @@ class _Catalogue extends StatelessWidget {
   }
 
   void handleTap(BuildContext context) {
-    if (!loading) {
-      context.ref.set(fromCreator, '/book-information');
-      context.push('/book-catalogue');
-    }
+    if (loading) return;
+    const BookCataloguePageRoute().push(context);
   }
 }
 
@@ -509,8 +438,7 @@ class _Source extends StatelessWidget {
   }
 
   void handleTap(BuildContext context) {
-    context.ref.set(fromCreator, '/book-information');
-    context.push('/book-available-sources');
+    const BookSourceListPageRoute().push(context);
   }
 }
 
@@ -520,99 +448,110 @@ class _Archive extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
-    return GestureDetector(
-      onTap: () => handleTap(context),
-      child: Card(
-        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
-        elevation: 0,
-        margin: EdgeInsets.zero,
-        shape: const RoundedRectangleBorder(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Text('归档', style: boldTextStyle),
-                  const Spacer(),
-                  Watcher((context, ref, child) {
-                    final book = ref.watch(currentBookCreator);
-                    return Switch(
+    return Consumer(builder: (context, ref, child) {
+      final book = ref.watch(bookNotifierProvider);
+      return GestureDetector(
+        onTap: () => handleTap(context, ref),
+        child: Card(
+          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          shape: const RoundedRectangleBorder(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Text('归档', style: boldTextStyle),
+                    const Spacer(),
+                    Switch(
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       value: book.archive,
-                      onChanged: (value) => handleTap(context),
-                    );
-                  })
-                ],
-              ),
-            ],
+                      onChanged: (value) => handleTap(context, ref),
+                    )
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
-  void handleTap(BuildContext context) async {
+  void handleTap(BuildContext context, WidgetRef ref) async {
     final message = Message.of(context);
-    final ref = context.ref;
-    final book = ref.read(currentBookCreator);
-    final archivedBook = book.copyWith(archive: !book.archive);
-    ref.set(currentBookCreator, archivedBook);
-    if (archivedBook.archive) {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    await notifier.toggleArchive();
+    final book = ref.read(bookNotifierProvider);
+    if (book.archive) {
       message.show('归档后，书架不再更新');
     }
-    final name = book.name;
-    final author = book.author;
-    var builder = isar.books.filter();
-    builder = builder.nameEqualTo(name);
-    final exist = await builder.authorEqualTo(author).findFirst();
-    if (exist == null) return;
-    isar.writeTxn(() async {
-      await isar.books.put(archivedBook);
-    });
   }
 }
 
-class _BottomBar extends StatefulWidget {
+class _BottomBar extends ConsumerStatefulWidget {
   const _BottomBar();
 
   @override
-  State<StatefulWidget> createState() => __BottomBarState();
+  ConsumerState<_BottomBar> createState() => __BottomBarState();
 }
 
-class __BottomBarState extends State<_BottomBar> {
+class __BottomBarState extends ConsumerState<_BottomBar> {
+  bool inShelf = false;
+  @override
+  void initState() {
+    super.initState();
+    initInShelf();
+  }
+
+  void initInShelf() async {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    inShelf = await notifier.inShelf();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.of(context).padding;
+    final icon = Icon(
+      inShelf ? Icons.check_outlined : Icons.library_add_outlined,
+    );
+    final text = Text(inShelf ? '已在书架' : '加入书架');
     return Container(
       color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
       padding: EdgeInsets.fromLTRB(16, 8, 16, padding.bottom + 8),
       child: Row(
         children: [
           TextButton(
-            onPressed: updateShelf,
-            child: FutureBuilder(
-              future: exist(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return const Row(
-                    children: [Icon(Icons.check_outlined), Text('已在书架')],
-                  );
-                } else {
-                  return const Row(
-                    children: [Icon(Icons.library_add_outlined), Text('加入书架')],
-                  );
-                }
-              },
+            onPressed: () => toggleShelf(ref),
+            child: Row(
+              children: [icon, text],
             ),
+            // child: FutureBuilder(
+            //   future: future,
+            //   builder: (context, snapshot) {
+            //     if (snapshot.hasData && snapshot.data == true) {
+            //       print(snapshot.data);
+            //       return const Row(
+            //         children: [Icon(Icons.check_outlined), Text('已在书架')],
+            //       );
+            //     } else {
+            //       return const Row(
+            //         children: [Icon(Icons.library_add_outlined), Text('加入书架')],
+            //       );
+            //     }
+            //   },
+            // ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: ElevatedButton(
               onPressed: () => startReader(context),
-              child: Watcher((context, ref, child) {
-                final book = ref.watch(currentBookCreator);
+              child: Consumer(builder: (context, ref, child) {
+                final book = ref.watch(bookNotifierProvider);
                 final hasProgress = book.cursor != 0 || book.index != 0;
                 String text = hasProgress ? '继续阅读' : '立即阅读';
                 return Text(text);
@@ -624,58 +563,35 @@ class __BottomBarState extends State<_BottomBar> {
     );
   }
 
-  void updateShelf() async {
-    final ref = context.ref;
-    final book = await exist();
-    if (book != null) {
-      await isar.writeTxn(() async {
-        await isar.books.delete(book.id);
-      });
-      CacheManager(prefix: book.name).clearCache();
-    } else {
-      final currentBook = ref.read(currentBookCreator);
-      await isar.writeTxn(() async {
-        isar.books.put(currentBook);
-      });
-    }
-    final books = await isar.books.where().findAll();
-    books.sort((a, b) {
-      final first = PinyinHelper.getPinyin(a.name);
-      final second = PinyinHelper.getPinyin(b.name);
-      return first.compareTo(second);
-    });
-    ref.set(booksCreator, books);
+  void toggleShelf(WidgetRef ref) async {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    inShelf = await notifier.toggleShelf();
     setState(() {});
   }
 
-  Future<Book?> exist() async {
-    final ref = context.ref;
-    final book = ref.read(currentBookCreator);
-    final name = book.name;
-    final author = book.author;
-    var builder = isar.books.filter();
-    builder = builder.nameEqualTo(name);
-    final exist = await builder.authorEqualTo(author).findFirst();
-    return exist;
-  }
-
   void startReader(BuildContext context) async {
-    context.push('/book-reader');
+    const BookReaderPageRoute().push(context);
   }
 }
 
-class _CoverSelector extends StatefulWidget {
+class _CoverSelector extends ConsumerStatefulWidget {
   const _CoverSelector({required this.book});
 
   final Book book;
 
   @override
-  State<_CoverSelector> createState() => __CoverSelectorState();
+  ConsumerState<_CoverSelector> createState() => __CoverSelectorState();
 }
 
-class __CoverSelectorState extends State<_CoverSelector> {
+class __CoverSelectorState extends ConsumerState<_CoverSelector> {
   bool loading = true;
   List<String> covers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getCovers(ref);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -690,70 +606,33 @@ class __CoverSelectorState extends State<_CoverSelector> {
         mainAxisSpacing: 8,
       ),
       itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () => handleTap(covers[index]),
-          child: BookCover(height: 120, url: covers[index], width: 90),
-        );
+        return Consumer(builder: (context, ref, child) {
+          return GestureDetector(
+            onTap: () => handleTap(ref, covers[index]),
+            child: BookCover(height: 120, url: covers[index], width: 90),
+          );
+        });
       },
       itemCount: covers.length,
       padding: const EdgeInsets.all(16),
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getCovers();
-  }
-
-  void getCovers() async {
+  void getCovers(WidgetRef ref) async {
     setState(() {
       loading = true;
     });
-    final ref = context.ref;
-    final availableSources = widget.book.sources;
-    for (var availableSource in availableSources) {
-      final source =
-          await isar.sources.filter().idEqualTo(availableSource.id).findFirst();
-      if (source != null) {
-        final duration = ref.read(cacheDurationCreator);
-        final timeout = ref.read(timeoutCreator);
-        final information = await Parser.getInformation(
-          widget.book.name,
-          availableSource.url,
-          source,
-          Duration(hours: duration.floor()),
-          Duration(milliseconds: timeout),
-        );
-        final cover = information.cover;
-        if (cover.isNotEmpty) {
-          setState(() {
-            covers.add(cover);
-          });
-        }
-      }
-    }
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    final covers = await notifier.getCovers();
     setState(() {
+      this.covers = covers;
       loading = false;
     });
   }
 
-  void handleTap(String cover) async {
-    final ref = context.ref;
-    final navigator = Navigator.of(context);
-    final book = ref.read(currentBookCreator);
-    final updatedBook = book.copyWith(cover: cover);
-    ref.set(currentBookCreator, updatedBook);
-    navigator.pop();
-    var exist = await isar.books
-        .filter()
-        .nameEqualTo(book.name)
-        .authorEqualTo(book.author)
-        .findFirst();
-    if (exist != null) {
-      await isar.writeTxn(() async {
-        isar.books.put(updatedBook);
-      });
-    }
+  void handleTap(WidgetRef ref, String cover) async {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    notifier.refreshCover(cover);
+    Navigator.of(context).pop();
   }
 }

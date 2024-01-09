@@ -1,31 +1,29 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:creator/creator.dart' hide AsyncData;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:isar/isar.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:source_parser/creator/source.dart';
 import 'package:source_parser/provider/source.dart';
+import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/loading.dart';
 import 'package:source_parser/widget/source_tag.dart';
 
-class BookSourceList extends StatefulWidget {
-  const BookSourceList({super.key});
+class SourceListPage extends StatefulWidget {
+  const SourceListPage({super.key});
 
   @override
-  State<BookSourceList> createState() => _BookSourceListState();
+  State<SourceListPage> createState() => _SourceListPageState();
 }
 
-class _BookSourceListState extends State<BookSourceList> {
+class _SourceListPageState extends State<SourceListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,17 +50,19 @@ class _BookSourceListState extends State<BookSourceList> {
               return _SourceTile(
                 key: ValueKey('source-$index'),
                 source: sources[index],
-                onTap: editSource,
+                onTap: (id) => editSource(ref, id),
               );
             },
             itemExtent: 56,
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: createSource,
-        child: const Icon(Icons.add_outlined),
-      ),
+      floatingActionButton: Consumer(builder: (context, ref, child) {
+        return FloatingActionButton(
+          onPressed: () => createSource(ref),
+          child: const Icon(Icons.add_outlined),
+        );
+      }),
     );
   }
 
@@ -96,8 +96,7 @@ class _BookSourceListState extends State<BookSourceList> {
   }
 
   void importNetworkSource() async {
-    final router = GoRouter.of(context);
-    router.pop();
+    Navigator.of(context).pop();
     showModalBottomSheet(
       builder: (_) => Padding(
         padding: const EdgeInsets.all(16.0),
@@ -121,8 +120,7 @@ class _BookSourceListState extends State<BookSourceList> {
   }
 
   void importLocalSource(WidgetRef ref) async {
-    final router = GoRouter.of(context);
-    router.pop();
+    Navigator.of(context).pop();
     final result = await FilePicker.platform.pickFiles();
     if (result != null) {
       final file = File(result.files.single.path!);
@@ -234,17 +232,16 @@ class _BookSourceListState extends State<BookSourceList> {
     Share.shareXFiles([XFile(filePath)], subject: 'sources.json');
   }
 
-  void editSource(int id) async {
-    final ref = context.ref;
-    final navigator = GoRouter.of(context);
-    final source = await isar.sources.filter().idEqualTo(id).findFirst();
-    ref.set(currentSourceCreator, source);
-    navigator.push('/book-source/information/$id');
+  void editSource(WidgetRef ref, int id) async {
+    SourceEditFormPageRoute(id: id).push(context);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.edit(id);
   }
 
-  void createSource() {
-    context.ref.set(currentSourceCreator, Source());
-    context.push('/book-source/create');
+  void createSource(WidgetRef ref) {
+    const SourceCreateFormPageRoute().push(context);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.create();
   }
 }
 

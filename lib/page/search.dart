@@ -1,48 +1,43 @@
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:isar/isar.dart';
-import 'package:source_parser/creator/book.dart';
-import 'package:source_parser/creator/setting.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/book.dart';
+import 'package:source_parser/provider/search.dart';
+import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/book.dart';
-import 'package:source_parser/schema/isar.dart';
-import 'package:source_parser/schema/source.dart';
-import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/book_cover.dart';
-import 'package:source_parser/util/message.dart';
 
-class Search extends StatefulWidget {
-  const Search({super.key, this.credential});
+class SearchPage extends StatefulWidget {
+  const SearchPage({super.key, this.credential});
 
   final String? credential;
 
   @override
-  State<Search> createState() => _SearchState();
+  State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchState extends State<Search> {
+class _SearchPageState extends State<SearchPage> {
   var books = <Book>[];
   final controller = TextEditingController();
   final FocusNode node = FocusNode();
   bool showResult = false;
   bool showSuffix = false;
   bool loading = false;
+  String query = '';
 
   @override
   void initState() {
     super.initState();
+    query = widget.credential ?? '';
+    showResult = query.isNotEmpty;
     controller.addListener(() {
       setState(() {
-        showResult = controller.text.isNotEmpty;
+        if (controller.text.isEmpty) {
+          showResult = false;
+        }
         showSuffix = controller.text.isNotEmpty;
       });
     });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (widget.credential != null) {
-        controller.text = widget.credential!;
-        search(context, widget.credential!);
-      }
-    });
+    controller.text = query;
   }
 
   @override
@@ -77,8 +72,12 @@ class _SearchState extends State<Search> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Watcher((context, ref, child) {
-              final books = ref.watch(topSearchEmitter.asyncData).data ?? [];
+            Consumer(builder: (context, ref, child) {
+              final provider = ref.watch(topSearchBooksProvider);
+              final books = switch (provider) {
+                AsyncData(:final value) => value,
+                _ => [],
+              };
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -88,17 +87,20 @@ class _SearchState extends State<Search> {
                     runSpacing: 8,
                     spacing: 8,
                     children: books.map((book) {
-                      return ActionChip(
-                        label: Text(book.name),
-                        labelPadding: EdgeInsets.zero,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        onPressed: () => search(context, book.name),
-                      );
+                      return Consumer(builder: (context, ref, child) {
+                        return ActionChip(
+                          label: Text(book.name),
+                          labelPadding: EdgeInsets.zero,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                          onPressed: () => search(ref, book.name),
+                        );
+                      });
                     }).toList(),
                   ),
                 ],
               );
-            })
+            }),
           ],
         ),
       ),
@@ -110,142 +112,92 @@ class _SearchState extends State<Search> {
         centerTitle: false,
         leading: const SizedBox(),
         leadingWidth: 16,
-        title: TextField(
-          focusNode: node,
-          controller: controller,
-          decoration: InputDecoration(
-            fillColor: onSurface.withOpacity(0.05),
-            filled: true,
-            border: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(20),
+        title: Consumer(builder: (context, ref, child) {
+          return TextField(
+            focusNode: node,
+            controller: controller,
+            decoration: InputDecoration(
+              fillColor: onSurface.withOpacity(0.05),
+              filled: true,
+              border: OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              isCollapsed: true,
+              isDense: true,
+              hintText: '输入查询关键字',
+              suffixIcon: showSuffix ? suffixIcon : null,
+              suffixIconConstraints: const BoxConstraints(maxHeight: 30),
             ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
-            isCollapsed: true,
-            isDense: true,
-            hintText: '输入查询关键字',
-            suffixIcon: showSuffix ? suffixIcon : null,
-            suffixIconConstraints: const BoxConstraints(maxHeight: 30),
-          ),
-          style: const TextStyle(fontSize: 14),
-          textInputAction: TextInputAction.search,
-          onSubmitted: (value) => search(context, value),
-          onTapOutside: (event) => node.unfocus(),
-        ),
+            style: const TextStyle(fontSize: 14),
+            textInputAction: TextInputAction.search,
+            onSubmitted: (value) => search(ref, value),
+            onTapOutside: (event) => node.unfocus(),
+          );
+        }),
         titleSpacing: 0,
       ),
-      body: !showResult
-          ? body
-          : Column(
-              children: [
-                if (loading) const LinearProgressIndicator(),
-                if (books.isNotEmpty && !node.hasFocus)
-                  Expanded(
-                    child: ListView.separated(
-                      itemBuilder: (context, index) {
-                        return _SearchTile(book: books[index]);
-                      },
-                      itemCount: books.length,
-                      separatorBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          child: Divider(
-                            color: outline.withOpacity(0.05),
-                            height: 1,
-                          ),
-                        );
-                      },
+      body: Consumer(builder: (context, ref, child) {
+        if (!showResult) return body;
+        final provider = ref.watch(searchBooksProvider(query));
+        return StreamBuilder(
+          stream: provider.value,
+          builder: (context, snapshot) {
+            Widget indicator = const LinearProgressIndicator();
+            if (snapshot.connectionState == ConnectionState.done) {
+              indicator = const SizedBox();
+            }
+            Widget list = const SizedBox();
+            if (!provider.isLoading && snapshot.data != null) {
+              list = const Center(child: Text('没有搜索结果'));
+              final books = snapshot.data!;
+              if (books.isNotEmpty) {
+                list = ListView.separated(
+                  itemBuilder: (context, index) =>
+                      _SearchTile(book: books[index]),
+                  separatorBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Divider(
+                      color: outline.withOpacity(0.25),
+                      height: 1,
                     ),
                   ),
-                if (books.isEmpty && !loading && !node.hasFocus)
-                  const Expanded(
-                    child: Center(
-                      child: Text('空空如也'),
-                    ),
-                  ),
-              ],
-            ),
+                  itemCount: books.length,
+                );
+              }
+            }
+            return Column(children: [indicator, Expanded(child: list)]);
+          },
+        );
+      }),
     );
   }
 
   void pop(BuildContext context) {
-    context.pop();
+    Navigator.of(context).pop();
   }
 
-  void search(BuildContext context, String credential) async {
+  void search(WidgetRef ref, String credential) async {
     setState(() {
-      loading = true;
-      books = [];
+      query = credential;
+      showResult = true;
     });
     node.unfocus();
     controller.text = credential;
-    final message = Message.of(context);
-    try {
-      final maxConcurrent = context.ref.read(maxConcurrentCreator);
-      final duration = context.ref.read(cacheDurationCreator);
-      final timeout = context.ref.read(timeoutCreator);
-      final stream = await Parser.search(
-        credential,
-        maxConcurrent.floor(),
-        Duration(hours: duration.floor()),
-        Duration(milliseconds: timeout),
-      );
-      stream.listen(
-        (book) async {
-          if (!book.name.contains(credential) &&
-              !book.author.contains(credential)) {
-            return;
-          }
-          final index = books.indexWhere((item) {
-            return item.name == book.name && item.author == book.author;
-          });
-          if (index >= 0) {
-            var exist = books.elementAt(index);
-            if (exist.introduction.length < book.introduction.length) {
-              exist.introduction = book.introduction;
-            }
-            if (exist.cover.length < book.cover.length) {
-              exist.cover = book.cover;
-            }
-            final source = await isar.sources
-                .filter()
-                .idEqualTo(book.sourceId)
-                .findFirst();
-            if (source != null) {
-              var availableSource = AvailableSource();
-              availableSource.id = source.id;
-              availableSource.url = book.url;
-              exist.sources.add(availableSource);
-            }
-            books[index] = exist;
-            setState(() {
-              books = [...books];
-            });
-          } else {
-            setState(() {
-              books.add(book);
-            });
-          }
-        },
-        onDone: () {
-          setState(() {
-            loading = false;
-          });
-        },
-      );
-    } catch (e) {
-      message.show(e.toString());
-    }
   }
 
   void clear() {
     controller.text = '';
+    setState(() {
+      query = '';
+    });
   }
 }
 
@@ -260,49 +212,52 @@ class _SearchTile extends StatelessWidget {
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => _handleTap(context),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            BookCover(url: book.cover),
-            const SizedBox(width: 16),
-            Expanded(
-              child: SizedBox(
-                height: 96,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      book.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: bodyMedium,
-                    ),
-                    Text(_buildSubtitle() ?? '', style: bodySmall),
-                    const Spacer(),
-                    Text(
-                      book.introduction.replaceAll(RegExp(r'\s'), ''),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: bodyMedium,
-                    ),
-                  ],
+    return Consumer(builder: (context, ref, child) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _handleTap(context, ref),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BookCover(url: book.cover),
+              const SizedBox(width: 16),
+              Expanded(
+                child: SizedBox(
+                  height: 96,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        book.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: bodyMedium,
+                      ),
+                      Text(_buildSubtitle() ?? '', style: bodySmall),
+                      const Spacer(),
+                      Text(
+                        book.introduction.replaceAll(RegExp(r'\s'), ''),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: bodyMedium,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
-  void _handleTap(BuildContext context) {
-    context.ref.set(currentBookCreator, book);
-    context.push('/book-information');
+  void _handleTap(BuildContext context, WidgetRef ref) {
+    const BookInformationPageRoute().push(context);
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    notifier.update(book);
   }
 
   String? _buildSubtitle() {

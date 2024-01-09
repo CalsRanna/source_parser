@@ -1,10 +1,8 @@
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
-import 'package:source_parser/creator/book.dart';
-import 'package:source_parser/creator/router.dart';
-import 'package:source_parser/creator/setting.dart';
+import 'package:source_parser/provider/book.dart';
+import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -13,26 +11,35 @@ import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/loading.dart';
 import 'package:source_parser/widget/source_tag.dart';
 
-class AvailableSources extends StatefulWidget {
-  const AvailableSources({super.key});
+class AvailableSourceListPage extends StatefulWidget {
+  const AvailableSourceListPage({super.key});
 
   @override
-  State<AvailableSources> createState() => _AvailableSourcesState();
+  State<AvailableSourceListPage> createState() {
+    return _AvailableSourceListPageState();
+  }
 }
 
-class _AvailableSourcesState extends State<AvailableSources> {
+class _AvailableSourceListPageState extends State<AvailableSourceListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [TextButton(onPressed: reset, child: const Text('重置'))],
+        actions: [
+          Consumer(builder: (context, ref, child) {
+            return TextButton(
+              onPressed: () => reset(ref),
+              child: const Text('重置'),
+            );
+          })
+        ],
         title: const Text('可用书源'),
       ),
-      body: RefreshIndicator(
-        onRefresh: handleRefresh,
-        child: Watcher((context, ref, child) {
-          final book = ref.watch(currentBookCreator);
-          return ListView.builder(
+      body: Consumer(builder: (context, ref, child) {
+        final book = ref.watch(bookNotifierProvider);
+        return RefreshIndicator(
+          onRefresh: () => handleRefresh(ref),
+          child: ListView.builder(
             itemBuilder: (context, index) {
               final active = book.sources[index].id == book.sourceId;
               final primary = Theme.of(context).colorScheme.primary;
@@ -51,7 +58,7 @@ class _AvailableSourcesState extends State<AvailableSources> {
                       return const Text('正在加载');
                     }
                   },
-                  future: getLatestChapter(book.name, book.sources[index]),
+                  future: getLatestChapter(ref, book.name, book.sources[index]),
                 ),
                 title: FutureBuilder(
                   future: getSource(book.sources[index].id),
@@ -72,40 +79,29 @@ class _AvailableSourcesState extends State<AvailableSources> {
                   },
                 ),
                 trailing: active ? const Icon(Icons.check) : null,
-                onTap: () => switchSource(index),
+                onTap: () => switchSource(ref, index),
               );
             },
             itemCount: book.sources.length,
             itemExtent: 72,
-          );
-        }),
-      ),
+          ),
+        );
+      }),
     );
   }
 
-  void reset() async {
-    final ref = context.ref;
-    final book = ref.read(currentBookCreator);
-    List<AvailableSource> sources = [];
-    ref.set(currentBookCreator, book.copyWith(sources: sources));
-    final filter = isar.books.filter();
-    var builder = filter.nameEqualTo(book.name);
-    builder = builder.authorEqualTo(book.author);
-    var exist = await builder.findFirst();
-    if (exist != null) {
-      exist.sources = sources;
-      await isar.writeTxn(() async {
-        isar.books.put(exist);
-      });
-    }
+  void reset(WidgetRef ref) async {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    notifier.resetSources();
   }
 
-  Future<String> getLatestChapter(String name, AvailableSource source) async {
-    final ref = context.ref;
+  Future<String> getLatestChapter(
+      WidgetRef ref, String name, AvailableSource source) async {
     final currentSource = await getSource(source.id);
     if (currentSource != null) {
-      final duration = ref.read(cacheDurationCreator);
-      final timeout = ref.read(timeoutCreator);
+      final setting = await ref.read(settingNotifierProvider.future);
+      final duration = setting.cacheDuration;
+      final timeout = setting.timeout;
       return Parser.getLatestChapter(
         name,
         source.url,
@@ -124,72 +120,17 @@ class _AvailableSourcesState extends State<AvailableSources> {
     return source;
   }
 
-  Future<void> handleRefresh() async {
+  Future<void> handleRefresh(WidgetRef ref) async {
     final message = Message.of(context);
     try {
-      final ref = context.ref;
-      final currentBook = ref.read(currentBookCreator);
-      final maxConcurrent = ref.read(maxConcurrentCreator);
-      final duration = ref.read(cacheDurationCreator);
-      final timeout = ref.read(timeoutCreator);
-      List<AvailableSource> sources = [];
-      for (var source in currentBook.sources) {
-        final exist = await getSource(source.id);
-        if (exist != null) {
-          sources.add(source);
-        }
-      }
-      var stream = await Parser.search(
-        currentBook.name,
-        maxConcurrent.floor(),
-        Duration(hours: duration.floor()),
-        Duration(milliseconds: timeout),
-      );
-      stream = stream.asBroadcastStream();
-      stream.listen((book) async {
-        final sameAuthor = book.author == currentBook.author;
-        final sameName = book.name == currentBook.name;
-        final sameSource = sources.where((source) {
-          return source.id == book.sourceId;
-        }).isNotEmpty;
-        if (sameAuthor && sameName && !sameSource) {
-          final source = await getSource(book.sourceId);
-          if (source != null) {
-            var availableSource = AvailableSource();
-            availableSource.id = source.id;
-            availableSource.url = book.url;
-            sources.add(availableSource);
-            ref.set(currentBookCreator, currentBook.copyWith(sources: sources));
-          }
-        }
-      });
-      await stream.last;
-      final filter = isar.books.filter();
-      var builder = filter.nameEqualTo(currentBook.name);
-      builder = builder.authorEqualTo(currentBook.author);
-      var exist = await builder.findFirst();
-      if (exist != null) {
-        exist.sources = sources;
-        await isar.writeTxn(() async {
-          isar.books.put(exist);
-        });
-      }
+      final notifier = ref.read(bookNotifierProvider.notifier);
+      await notifier.refreshSources();
     } catch (error) {
       message.show(error.toString());
     }
   }
 
-  void switchSource(int index) async {
-    final message = Message.of(context);
-    final router = GoRouter.of(context);
-    final navigator = Navigator.of(context);
-    final ref = context.ref;
-    final book = ref.read(currentBookCreator);
-    final sourceId = book.sources[index].id;
-    if (sourceId == book.sourceId) {
-      message.show('已在当前源');
-      return;
-    }
+  void switchSource(WidgetRef ref, int index) async {
     showDialog(
       barrierDismissible: false,
       builder: (context) {
@@ -213,77 +154,11 @@ class _AvailableSourcesState extends State<AvailableSources> {
       },
       context: context,
     );
-    final builder = isar.sources.filter();
-    final source = await builder.idEqualTo(sourceId).findFirst();
-    if (source != null) {
-      try {
-        final name = book.name;
-        final url = book.sources[index].url;
-        final duration = ref.read(cacheDurationCreator);
-        final timeout = ref.read(timeoutCreator);
-        final information = await Parser.getInformation(
-          name,
-          url,
-          source,
-          Duration(hours: duration.floor()),
-          Duration(milliseconds: timeout),
-        );
-        final catalogueUrl = information.catalogueUrl;
-        var stream = await Parser.getChapters(
-          name,
-          catalogueUrl,
-          source,
-          Duration(hours: duration.floor()),
-          Duration(milliseconds: timeout),
-        );
-        stream = stream.asBroadcastStream();
-        List<Chapter> chapters = [];
-        stream.listen(
-          (chapter) {
-            chapters.add(chapter);
-          },
-        );
-        await stream.last;
-        final length = chapters.length;
-        var chapterIndex = book.index;
-        var cursor = book.cursor;
-        if (length <= chapterIndex) {
-          chapterIndex = length - 1;
-          cursor = 0;
-        }
-        final updatedBook = book.copyWith(
-          catalogueUrl: catalogueUrl,
-          chapters: chapters,
-          cursor: cursor,
-          index: chapterIndex,
-          sourceId: sourceId,
-          url: url,
-        );
-        ref.set(currentBookCreator, updatedBook);
-        var exist = await isar.books
-            .filter()
-            .nameEqualTo(book.name)
-            .authorEqualTo(book.author)
-            .findFirst();
-        if (exist != null) {
-          await isar.writeTxn(() async {
-            isar.books.put(updatedBook);
-          });
-        }
-        navigator.pop();
-        final from = ref.read(fromCreator);
-        router.pop();
-        if (from == '/book-reader') {
-          router.pushReplacement('/book-reader');
-          message.show('切换成功');
-        }
-      } catch (error) {
-        navigator.pop();
-        message.show('切换失败');
-      }
-    } else {
-      navigator.pop();
-      message.show('源不存在');
-    }
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    final message = await notifier.refreshSource(index);
+    if (!mounted) return;
+    Message.of(context).show(message);
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
   }
 }

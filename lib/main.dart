@@ -1,10 +1,9 @@
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:source_parser/creator/setting.dart';
+import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
@@ -20,33 +19,34 @@ void main() async {
     SettingSchema,
     SourceSchema,
   ], directory: directory.path);
-  runApp(ProviderScope(
-    child: CreatorGraph(
-      observer: const CreatorObserver(),
-      child: const SourceParser(),
-    ),
-  ));
+  runApp(const ProviderScope(child: SourceParser()));
 }
 
-class SourceParser extends StatefulWidget {
+class SourceParser extends ConsumerStatefulWidget {
   const SourceParser({super.key});
 
   @override
-  State<SourceParser> createState() => _SourceParserState();
+  ConsumerState<SourceParser> createState() => _SourceParserState();
 }
 
-class _SourceParserState extends State<SourceParser> {
+class _SourceParserState extends ConsumerState<SourceParser> {
   @override
-  void didChangeDependencies() {
-    getSetting();
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.migrate();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Watcher((context, ref, child) {
-      final darkMode = ref.watch(darkModeCreator);
-      final eInkMode = ref.watch(eInkModeCreator);
+    return Consumer(builder: (context, ref, child) {
+      final provider = ref.watch(settingNotifierProvider);
+      final setting = switch (provider) {
+        AsyncData(:final value) => value,
+        _ => Setting(),
+      };
+      final darkMode = setting.darkMode;
+      final eInkMode = setting.eInkMode;
       final pageTransitionsTheme = PageTransitionsTheme(
         builders: {TargetPlatform.android: NoAnimationPageTransitionBuilder()},
       );
@@ -57,55 +57,12 @@ class _SourceParserState extends State<SourceParser> {
           colorSchemeSeed: const Color(0xFF63BBD0),
           pageTransitionsTheme: eInkMode ? pageTransitionsTheme : null,
           splashFactory: eInkMode ? NoSplash.splashFactory : null,
+          splashColor: eInkMode ? Colors.transparent : null,
           useMaterial3: true,
         ),
         title: '元夕',
       );
     });
-  }
-
-  Future<void> getSetting() async {
-    final ref = context.ref;
-    var setting = await isar.settings.where().findFirst();
-    setting ??= Setting();
-    if (setting.backgroundColor.isNegative) {
-      setting.backgroundColor = Colors.white.value;
-    }
-    if (setting.cacheDuration.isNaN) {
-      setting.cacheDuration = 6.0;
-    }
-    if (setting.fontSize.isNegative) {
-      setting.fontSize = 18;
-    }
-    if (setting.lineSpace.isNaN) {
-      setting.lineSpace = 1.0 + 0.618 * 2;
-    }
-    if (setting.maxConcurrent.isNaN) {
-      setting.maxConcurrent = 16.0;
-    }
-    if (setting.shelfMode.isEmpty) {
-      setting.shelfMode = 'list';
-    }
-    if (setting.timeout.isNegative) {
-      setting.timeout = 30 * 1000;
-    }
-    if (setting.turningMode.isNegative) {
-      setting.turningMode = 3;
-    }
-    await isar.writeTxn(() async {
-      await isar.settings.put(setting!);
-    });
-    ref.set(backgroundColorCreator, setting.backgroundColor);
-    ref.set(cacheDurationCreator, setting.cacheDuration);
-    ref.set(darkModeCreator, setting.darkMode);
-    ref.set(eInkModeCreator, setting.eInkMode);
-    ref.set(exploreSourceCreator, setting.exploreSource);
-    ref.set(fontSizeCreator, setting.fontSize);
-    ref.set(lineSpaceCreator, setting.lineSpace);
-    ref.set(maxConcurrentCreator, setting.maxConcurrent);
-    ref.set(shelfModeCreator, setting.shelfMode);
-    ref.set(timeoutCreator, setting.timeout);
-    ref.set(turningModeCreator, setting.turningMode);
   }
 }
 

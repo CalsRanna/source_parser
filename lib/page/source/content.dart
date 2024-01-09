@@ -1,17 +1,17 @@
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/creator/source.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
-class BookSourceContentConfiguration extends StatelessWidget {
-  const BookSourceContentConfiguration({super.key});
+class SourceContentConfigurationPage extends StatelessWidget {
+  const SourceContentConfigurationPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('正文配置')),
-      body: Watcher((context, ref, child) {
-        final source = ref.watch(currentSourceCreator);
+      body: Consumer(builder: (context, ref, child) {
+        final source = ref.watch(formSourceProvider);
         return ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
@@ -37,7 +37,7 @@ class BookSourceContentConfiguration extends StatelessWidget {
                   RuleTile(
                     title: '正文规则',
                     value: source.contentContent,
-                    onChange: (value) => updateContentContent(context, value),
+                    onChange: (value) => updateContentContent(ref, value),
                   ),
                 ],
               ),
@@ -51,14 +51,13 @@ class BookSourceContentConfiguration extends StatelessWidget {
                   RuleTile(
                     title: '下一页URL规则',
                     value: source.contentPagination,
-                    onChange: (value) =>
-                        updateContentPagination(context, value),
+                    onChange: (value) => updateContentPagination(ref, value),
                   ),
                   RuleTile(
                     title: '校验规则',
                     value: source.contentPaginationValidation,
                     onChange: (value) =>
-                        updateContentPaginationValidation(context, value),
+                        updateContentPaginationValidation(ref, value),
                   ),
                 ],
               ),
@@ -76,10 +75,12 @@ class BookSourceContentConfiguration extends StatelessWidget {
       builder: (context) {
         return ListView.builder(
           itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(methods[index]),
-              onTap: () => confirmSelect(context, methods[index]),
-            );
+            return Consumer(builder: (context, ref, child) {
+              return ListTile(
+                title: Text(methods[index]),
+                onTap: () => confirmSelect(context, ref, methods[index]),
+              );
+            });
           },
           itemCount: methods.length,
         );
@@ -87,31 +88,31 @@ class BookSourceContentConfiguration extends StatelessWidget {
     );
   }
 
-  void confirmSelect(BuildContext context, String method) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(contentMethod: method));
+  void confirmSelect(
+      BuildContext context, WidgetRef ref, String contentMethod) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(contentMethod: contentMethod));
     Navigator.of(context).pop();
   }
 
-  void updateContentContent(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(contentContent: value));
+  void updateContentContent(WidgetRef ref, String contentContent) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(contentContent: contentContent));
   }
 
-  void updateContentPagination(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(contentPagination: value));
+  void updateContentPagination(WidgetRef ref, String contentPagination) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(contentPagination: contentPagination));
   }
 
-  void updateContentPaginationValidation(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(
-      currentSourceCreator,
-      source.copyWith(contentPaginationValidation: value),
-    );
+  void updateContentPaginationValidation(
+      WidgetRef ref, String contentPaginationValidation) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(
+        contentPaginationValidation: contentPaginationValidation));
   }
 }

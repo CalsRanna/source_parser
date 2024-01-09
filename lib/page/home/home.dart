@@ -1,19 +1,14 @@
-import 'dart:convert';
-
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
-import 'package:source_parser/creator/explore.dart';
-import 'package:source_parser/creator/setting.dart';
-import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/page/home/component/explore.dart';
+import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
-import 'package:source_parser/page/home/component/setting.dart';
+import 'package:source_parser/page/home/component/profile.dart';
 import 'package:source_parser/page/home/component/shelf.dart';
 import 'package:source_parser/schema/source.dart';
-import 'package:source_parser/util/parser.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -33,8 +28,13 @@ class _HomePageState extends State<HomePage> {
         onPressed: handlePressed,
         icon: const Icon(Icons.search),
       ),
-      Watcher((context, ref, child) {
-        final mode = ref.watch(shelfModeCreator);
+      Consumer(builder: (context, ref, child) {
+        final provider = ref.watch(settingNotifierProvider);
+        final setting = switch (provider) {
+          AsyncData(:final value) => value,
+          _ => Setting(),
+        };
+        final mode = setting.shelfMode;
         return PopupMenuButton(
           icon: const Icon(Icons.more_vert_outlined),
           itemBuilder: (_) {
@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
               )
             ];
           },
-          onSelected: updateShelfMode,
+          onSelected: (value) => updateShelfMode(ref, value),
         );
       }),
     ];
@@ -54,8 +54,13 @@ class _HomePageState extends State<HomePage> {
         onPressed: handlePressed,
         icon: const Icon(Icons.search),
       ),
-      Watcher((_, ref, child) {
-        final source = ref.watch(exploreSourceCreator);
+      Consumer(builder: (context, ref, child) {
+        final provider = ref.watch(settingNotifierProvider);
+        final setting = switch (provider) {
+          AsyncData(:final value) => value,
+          _ => Setting(),
+        };
+        final source = setting.exploreSource;
         return PopupMenuButton(
           icon: const Icon(Icons.tune_outlined),
           initialValue: source,
@@ -69,18 +74,23 @@ class _HomePageState extends State<HomePage> {
               );
             }).toList();
           },
-          onSelected: updateExploreSource,
+          onSelected: (value) => updateExploreSource(ref, value),
         );
-      }),
+      })
     ];
     final settingActions = <Widget>[
-      Watcher((context, ref, child) {
-        final darkMode = ref.watch(darkModeCreator);
+      Consumer(builder: (context, ref, child) {
+        final provider = ref.watch(settingNotifierProvider);
+        final setting = switch (provider) {
+          AsyncData(:final value) => value,
+          _ => Setting(),
+        };
+        final darkMode = setting.darkMode;
         return IconButton(
           icon: Icon(
             darkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
           ),
-          onPressed: triggerDarkMode,
+          onPressed: () => toggleDarkMode(ref),
         );
       }),
     ];
@@ -111,7 +121,7 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         title: Text(titles[_index]),
       ),
-      body: const [ShelfView(), ExploreView(), SettingView()][_index],
+      body: const [ShelfView(), ExploreView(), ProfileView()][_index],
       bottomNavigationBar: NavigationBar(
         destinations: destinations,
         height: 64,
@@ -123,74 +133,24 @@ class _HomePageState extends State<HomePage> {
   }
 
   void handlePressed() {
-    context.push('/search');
+    const SearchPageRoute().push(context);
   }
 
-  void updateShelfMode(String value) async {
-    context.ref.set(shelfModeCreator, value);
-    final builder = isar.settings.where();
-    var setting = await builder.findFirst();
-    if (setting != null) {
-      setting.shelfMode = value;
-      await isar.writeTxn(() async {
-        await isar.settings.put(setting);
-      });
-    }
+  void updateShelfMode(WidgetRef ref, String value) async {
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.updateShelfMode(value);
   }
 
-  void updateExploreSource(int value) async {
-    final ref = context.ref;
-    if (ref.read(exploreSourceCreator) != value) {
-      ref.set(exploreLoadingCreator, true);
-      ref.set(exploreBooksCreator, <ExploreResult>[]);
-      ref.set(exploreSourceCreator, value);
-      final source = await isar.sources.filter().idEqualTo(value).findFirst();
-      if (source != null) {
-        final json = jsonDecode(source.exploreJson);
-        final titles = json.map((item) {
-          return item['title'];
-        }).toList();
-        List<ExploreResult> results = [];
-        final duration = ref.read(cacheDurationCreator);
-        final timeout = ref.read(timeoutCreator);
-        final stream = await Parser.getExplore(
-          source,
-          Duration(hours: duration.floor()),
-          Duration(milliseconds: timeout),
-        );
-        stream.listen((result) {
-          results.add(result);
-          results.sort((a, b) {
-            final indexOfA = titles.indexOf(a.title);
-            final indexOfB = titles.indexOf(b.title);
-            return indexOfA.compareTo(indexOfB);
-          });
-          ref.set(exploreBooksCreator, results);
-        });
-        ref.set(exploreLoadingCreator, false);
-      }
-      final builder = isar.settings.where();
-      var setting = await builder.findFirst();
-      if (setting != null) {
-        setting.exploreSource = value;
-        await isar.writeTxn(() async {
-          await isar.settings.put(setting);
-        });
-      }
-    }
+  void updateExploreSource(WidgetRef ref, int value) async {
+    final setting = await ref.read(settingNotifierProvider.future);
+    if (setting.exploreSource == value) return;
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.updateExploreSource(value);
   }
 
-  void triggerDarkMode() async {
-    final ref = context.ref;
-    final darkMode = ref.read(darkModeCreator);
-    ref.set(darkModeCreator, !darkMode);
-    var setting = await isar.settings.where().findFirst();
-    if (setting != null) {
-      setting.darkMode = !darkMode;
-      await isar.writeTxn(() async {
-        isar.settings.put(setting);
-      });
-    }
+  void toggleDarkMode(WidgetRef ref) async {
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.toggleDarkMode();
   }
 
   void handleDestinationSelected(int index) {

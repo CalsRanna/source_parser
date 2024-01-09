@@ -1,17 +1,17 @@
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/creator/source.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
-class BookSourceInformationConfiguration extends StatelessWidget {
-  const BookSourceInformationConfiguration({super.key});
+class SourceInformationConfigurationPage extends StatelessWidget {
+  const SourceInformationConfigurationPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('详情配置')),
-      body: Watcher((context, ref, child) {
-        final source = ref.watch(currentSourceCreator);
+      body: Consumer(builder: (context, ref, child) {
+        final source = ref.watch(formSourceProvider);
         return ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
@@ -37,48 +37,45 @@ class BookSourceInformationConfiguration extends StatelessWidget {
                   RuleTile(
                     title: '作者规则',
                     value: source.informationAuthor,
-                    onChange: (value) =>
-                        updateInformationAuthor(context, value),
+                    onChange: (value) => updateInformationAuthor(ref, value),
                   ),
                   RuleTile(
                     title: '目录URL规则',
                     value: source.informationCatalogueUrl,
                     onChange: (value) =>
-                        updateInformationCatalogueUrl(context, value),
+                        updateInformationCatalogueUrl(ref, value),
                   ),
                   RuleTile(
                     title: '分类规则',
                     value: source.informationCategory,
-                    onChange: (value) =>
-                        updateInformationCategory(context, value),
+                    onChange: (value) => updateInformationCategory(ref, value),
                   ),
                   RuleTile(
                     title: '封面规则',
                     value: source.informationCover,
-                    onChange: (value) => updateInformationCover(context, value),
+                    onChange: (value) => updateInformationCover(ref, value),
                   ),
                   RuleTile(
                     title: '简介规则',
                     value: source.informationIntroduction,
                     onChange: (value) =>
-                        updateInformationIntroduction(context, value),
+                        updateInformationIntroduction(ref, value),
                   ),
                   RuleTile(
                     title: '最新章节规则',
                     value: source.informationLatestChapter,
                     onChange: (value) =>
-                        updateInformationLatestChapter(context, value),
+                        updateInformationLatestChapter(ref, value),
                   ),
                   RuleTile(
                     title: '书名规则',
                     value: source.informationName,
-                    onChange: (value) => updateInformationName(context, value),
+                    onChange: (value) => updateInformationName(ref, value),
                   ),
                   RuleTile(
                     title: '字数规则',
                     value: source.informationWordCount,
-                    onChange: (value) =>
-                        updateInformationWordCount(context, value),
+                    onChange: (value) => updateInformationWordCount(ref, value),
                   ),
                 ],
               ),
@@ -96,10 +93,12 @@ class BookSourceInformationConfiguration extends StatelessWidget {
       builder: (context) {
         return ListView.builder(
           itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(methods[index]),
-              onTap: () => confirmSelect(context, methods[index]),
-            );
+            return Consumer(builder: (context, ref, child) {
+              return ListTile(
+                title: Text(methods[index]),
+                onTap: () => confirmSelect(context, ref, methods[index]),
+              );
+            });
           },
           itemCount: methods.length,
         );
@@ -107,67 +106,66 @@ class BookSourceInformationConfiguration extends StatelessWidget {
     );
   }
 
-  void confirmSelect(BuildContext context, String method) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(informationMethod: method));
+  void confirmSelect(
+      BuildContext context, WidgetRef ref, String informationMethod) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(informationMethod: informationMethod));
     Navigator.of(context).pop();
   }
 
-  void updateInformationName(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(informationName: value));
+  void updateInformationName(WidgetRef ref, String informationName) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(informationName: informationName));
   }
 
-  void updateInformationAuthor(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(informationAuthor: value));
+  void updateInformationAuthor(WidgetRef ref, String informationAuthor) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(informationAuthor: informationAuthor));
   }
 
-  void updateInformationCategory(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(informationCategory: value));
+  void updateInformationCategory(WidgetRef ref, String informationCategory) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(informationCategory: informationCategory));
   }
 
-  void updateInformationWordCount(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(informationWordCount: value));
+  void updateInformationWordCount(WidgetRef ref, String informationWordCount) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier
+        .update(source.copyWith(informationWordCount: informationWordCount));
   }
 
-  void updateInformationLatestChapter(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(
-      currentSourceCreator,
-      source.copyWith(informationLatestChapter: value),
-    );
+  void updateInformationLatestChapter(
+      WidgetRef ref, String informationLatestChapter) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(
+        source.copyWith(informationLatestChapter: informationLatestChapter));
   }
 
-  void updateInformationIntroduction(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(
-      currentSourceCreator,
-      source.copyWith(informationIntroduction: value),
-    );
+  void updateInformationIntroduction(
+      WidgetRef ref, String informationIntroduction) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(
+        source.copyWith(informationIntroduction: informationIntroduction));
   }
 
-  void updateInformationCover(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(informationCover: value));
+  void updateInformationCover(WidgetRef ref, String informationCover) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(informationCover: informationCover));
   }
 
-  void updateInformationCatalogueUrl(BuildContext context, String value) {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(
-      currentSourceCreator,
-      source.copyWith(informationCatalogueUrl: value),
-    );
+  void updateInformationCatalogueUrl(
+      WidgetRef ref, String informationCatalogueUrl) {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(
+        source.copyWith(informationCatalogueUrl: informationCatalogueUrl));
   }
 }

@@ -1,16 +1,13 @@
-import 'package:creator/creator.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:isar/isar.dart';
-import 'package:source_parser/creator/source.dart';
-import 'package:source_parser/schema/isar.dart';
-import 'package:source_parser/schema/source.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/source.dart';
+import 'package:source_parser/router/router.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
-class BookSourceInformation extends StatelessWidget {
-  const BookSourceInformation({super.key, this.id});
+class SourceFormPage extends StatelessWidget {
+  const SourceFormPage({super.key, this.id});
 
   final int? id;
 
@@ -24,14 +21,16 @@ class BookSourceInformation extends StatelessWidget {
       appBar: AppBar(
         actions: [
           const DebugButton(),
-          IconButton(
-            onPressed: () => storeBookSource(context),
-            icon: const Icon(Icons.check_outlined),
-          ),
+          Consumer(builder: (context, ref, child) {
+            return IconButton(
+              onPressed: () => storeBookSource(context, ref),
+              icon: const Icon(Icons.check_outlined),
+            );
+          })
         ],
         centerTitle: true,
-        title: Watcher((context, ref, child) {
-          final source = ref.watch(currentSourceCreator);
+        title: Consumer(builder: (context, ref, child) {
+          final source = ref.watch(formSourceProvider);
           final prefix = source.id.isNegative ? '新建' : '编辑';
           return Text('$prefix书源');
         }),
@@ -39,8 +38,8 @@ class BookSourceInformation extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          Watcher((context, ref, child) {
-            final source = ref.watch(currentSourceCreator);
+          Consumer(builder: (context, ref, child) {
+            final source = ref.watch(formSourceProvider);
             return Card(
               color: surfaceVariant,
               elevation: 0,
@@ -49,13 +48,13 @@ class BookSourceInformation extends StatelessWidget {
                   RuleTile(
                     title: '名称',
                     value: source.name,
-                    onChange: (value) => updateName(context, value),
+                    onChange: (value) => updateName(ref, value),
                   ),
                   RuleTile(
                     bordered: false,
                     title: '网址',
                     value: source.url,
-                    onChange: (value) => updateUrl(context, value),
+                    onChange: (value) => updateUrl(ref, value),
                   )
                 ],
               ),
@@ -102,8 +101,8 @@ class BookSourceInformation extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Watcher((context, ref, child) {
-            final source = ref.watch(currentSourceCreator);
+          Consumer(builder: (context, ref, child) {
+            final source = ref.watch(formSourceProvider);
             return Card(
               color: surfaceVariant,
               elevation: 0,
@@ -112,14 +111,14 @@ class BookSourceInformation extends StatelessWidget {
                   RuleTile(
                     title: '发现',
                     value: source.exploreJson,
-                    onChange: (value) => updateExploreJson(context, value),
+                    onChange: (value) => updateExploreJson(ref, value),
                   ),
                 ],
               ),
             );
           }),
-          Watcher((context, ref, child) {
-            final source = ref.watch(currentSourceCreator);
+          Consumer(builder: (context, ref, child) {
+            final source = ref.watch(formSourceProvider);
             if (source.id.isNegative) return const SizedBox();
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -134,63 +133,58 @@ class BookSourceInformation extends StatelessWidget {
     );
   }
 
-  Future<bool> validate(BuildContext context) async {
-    final ref = context.ref;
+  void storeBookSource(BuildContext context, WidgetRef ref) async {
     final message = Message.of(context);
-    final source = ref.read(currentSourceCreator);
-    if (source.name.isEmpty) {
-      message.show('名称不能为空');
-      return false;
+    final source = ref.read(formSourceProvider);
+    final formNotifier = ref.read(formSourceProvider.notifier);
+    final validation = await formNotifier.validate();
+    if (validation.isNotEmpty) {
+      message.show(validation);
+      return;
     }
-    if (source.url.isEmpty) {
-      message.show('网址不能为空');
-      return false;
-    }
-    final filter = isar.sources.filter();
-    var builder = filter.nameEqualTo(source.name);
-    final exist = await builder.findFirst();
-    if (exist != null && exist.id != source.id) {
-      message.show('书源名称已存在');
-      return false;
-    }
-    return true;
+    final notifier = ref.read(sourcesProvider.notifier);
+    await notifier.store(source);
+    message.show('书源保存成功');
   }
 
-  void storeBookSource(BuildContext context) async {
-    final ref = context.ref;
-    final message = Message.of(context);
-    final source = ref.read(currentSourceCreator);
-    final valid = await validate(context);
-    if (!valid) return;
-    isar.writeTxn(() async {
-      final id = await isar.sources.put(source);
-      ref.set(currentSourceCreator, source.copyWith(id: id));
-      message.show('书源保存成功');
-      final sources = await isar.sources.where().findAll();
-      ref.emit(sourcesEmitter, [...sources]);
-    });
+  void updateName(WidgetRef ref, String name) async {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(name: name));
   }
 
-  void updateName(BuildContext context, String name) async {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(name: name));
+  void updateUrl(WidgetRef ref, String url) async {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(url: url));
   }
 
-  void updateUrl(BuildContext context, String url) async {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(url: url));
-  }
-
-  void updateExploreJson(BuildContext context, String json) async {
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    ref.set(currentSourceCreator, source.copyWith(exploreJson: json));
+  void updateExploreJson(WidgetRef ref, String exploreJson) async {
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.update(source.copyWith(exploreJson: exploreJson));
   }
 
   void navigate(BuildContext context, String route) {
-    context.push('/book-source/$route');
+    switch (route) {
+      case 'advanced-configuration':
+        const SourceFormAdvancedConfigurationPageRoute().push(context);
+        break;
+      case 'search-configuration':
+        const SourceFormSearchConfigurationPageRoute().push(context);
+        break;
+      case 'information-configuration':
+        const SourceFormInformationConfigurationPageRoute().push(context);
+        break;
+      case 'catalogue-configuration':
+        const SourceFormCatalogueConfigurationPageRoute().push(context);
+        break;
+      case 'content-configuration':
+        const SourceFormContentConfigurationPageRoute().push(context);
+        break;
+      default:
+        break;
+    }
   }
 
   void deleteSource(BuildContext context) async {
@@ -202,10 +196,12 @@ class BookSourceInformation extends StatelessWidget {
               onPressed: () => cancel(context),
               child: const Text('取消'),
             ),
-            TextButton(
-              onPressed: () => confirmDelete(context),
-              child: const Text('确认'),
-            ),
+            Consumer(builder: (context, ref, child) {
+              return TextButton(
+                onPressed: () => confirmDelete(context, ref),
+                child: const Text('确认'),
+              );
+            })
           ],
           content: const Text('确认删除该书源？'),
           title: const Text('删除书源'),
@@ -219,16 +215,12 @@ class BookSourceInformation extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-  void confirmDelete(BuildContext context) async {
+  void confirmDelete(BuildContext context, WidgetRef ref) async {
     Navigator.of(context).pop();
-    final router = GoRouter.of(context);
-    final ref = context.ref;
-    final source = ref.read(currentSourceCreator);
-    isar.writeTxn(() async {
-      await isar.sources.delete(source.id);
-      final sources = await isar.sources.where().findAll();
-      ref.emit(sourcesEmitter, sources);
-      router.pop();
-    });
+    final source = ref.read(formSourceProvider);
+    final notifier = ref.read(sourcesProvider.notifier);
+    await notifier.delete(source.id);
+    if (!context.mounted) return;
+    Navigator.of(context).pop();
   }
 }

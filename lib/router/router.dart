@@ -1,97 +1,212 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:source_parser/page/about.dart';
+import 'package:source_parser/page/catalogue.dart';
+import 'package:source_parser/page/home/home.dart';
 import 'package:source_parser/page/information.dart';
+import 'package:source_parser/page/reader.dart';
+import 'package:source_parser/page/search.dart';
 import 'package:source_parser/page/setting.dart';
+import 'package:source_parser/page/source.dart';
 import 'package:source_parser/page/source/advanced.dart';
 import 'package:source_parser/page/source/catalogue.dart';
 import 'package:source_parser/page/source/content.dart';
-import 'package:source_parser/page/source/source.dart';
-import 'package:source_parser/page/source/debug.dart';
-import 'package:source_parser/page/source/detail.dart';
+import 'package:source_parser/page/source/debugger.dart';
+import 'package:source_parser/page/source/form.dart';
 import 'package:source_parser/page/source/information.dart';
 import 'package:source_parser/page/source/search.dart';
-import 'package:source_parser/page/catalogue.dart';
-import 'package:source_parser/page/developer.dart';
-import 'package:source_parser/page/home/home.dart';
-import 'package:source_parser/page/reader.dart';
-import 'package:source_parser/page/search.dart';
-import 'package:source_parser/page/about.dart';
+import 'package:source_parser/page/source/source.dart';
 import 'package:source_parser/page/theme.dart';
-import 'package:source_parser/page/source.dart';
 
-final router = GoRouter(routes: [
-  GoRoute(path: '/', redirect: (context, state) => '/home'),
-  GoRoute(
-    builder: (context, state) => const HomePage(),
-    path: '/home',
-  ),
-  GoRoute(
-    builder: (context, state) => const AvailableSources(),
-    path: '/book-available-sources',
-  ),
-  GoRoute(
-    builder: (context, state) => const BookSourceList(),
-    path: '/book-source',
-  ),
-  GoRoute(
-      builder: (context, state) => const BookInformation(),
-      path: '/book-information'),
-  GoRoute(builder: (context, state) => const Reader(), path: '/book-reader'),
-  GoRoute(
-    builder: (context, state) => const CataloguePage(),
-    path: '/book-catalogue',
-  ),
-  GoRoute(
-    builder: (context, state) => const BookSourceAdvancedConfiguration(),
-    path: '/book-source/advanced-configuration',
-  ),
-  GoRoute(
-    builder: (context, state) => const BookSourceCatalogueConfiguration(),
-    path: '/book-source/catalogue-configuration',
-  ),
-  GoRoute(
-    builder: (context, state) => const BookSourceContentConfiguration(),
-    path: '/book-source/content-configuration',
-  ),
-  GoRoute(
-    builder: (context, state) => const BookSourceInformation(),
-    path: '/book-source/create',
-  ),
-  GoRoute(
-    builder: (context, state) => const BookSourceDebug(),
-    path: '/book-source/debug',
-  ),
-  GoRoute(
-    builder: (context, state) => const BookSourceInformationConfiguration(),
-    path: '/book-source/information-configuration',
-  ),
-  GoRoute(
-    builder: (context, state) =>
-        BookSourceInformation(id: int.parse(state.pathParameters['id']!)),
-    path: '/book-source/information/:id',
-  ),
-  GoRoute(
-    builder: (context, state) => const BookSourceSearchConfiguration(),
-    path: '/book-source/search-configuration',
-  ),
-  GoRoute(
-    builder: (context, state) {
-      final credential = state.uri.queryParameters['credential'];
-      return Search(credential: credential);
-    },
-    path: '/search',
-  ),
-  GoRoute(
-      builder: (context, state) => const AboutPage(), path: '/setting/about'),
-  GoRoute(
-    builder: (context, state) => const ReaderTheme(),
-    path: '/reader-theme',
-  ),
-  GoRoute(
-    builder: (context, state) => const AdvancedSettingPage(),
-    path: '/setting/advanced',
-  ),
-  GoRoute(
-    builder: (context, state) => const Developer(),
-    path: '/setting/developer',
-  ),
-]);
+part 'router.g.dart';
+
+final router = GoRouter(routes: $appRoutes);
+
+@TypedGoRoute<AboutPageRoute>(path: '/setting/about')
+class AboutPageRoute extends GoRouteData {
+  const AboutPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const AboutPage();
+}
+
+@TypedGoRoute<BookCataloguePageRoute>(path: '/book-catalogue')
+class BookCataloguePageRoute extends GoRouteData {
+  final int index;
+  const BookCataloguePageRoute({this.index = 0});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return CataloguePage(index: index);
+  }
+}
+
+@TypedGoRoute<BookInformationPageRoute>(path: '/book-information')
+class BookInformationPageRoute extends GoRouteData {
+  const BookInformationPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const InformationPage();
+  }
+}
+
+@TypedGoRoute<BookReaderPageRoute>(path: '/book-reader')
+class BookReaderPageRoute extends GoRouteData {
+  const BookReaderPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const ReaderPage();
+  }
+}
+
+@TypedGoRoute<BookReaderThemePageRoute>(path: '/book-reader-theme')
+class BookReaderThemePageRoute extends GoRouteData {
+  const BookReaderThemePageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const ReaderThemePage();
+  }
+}
+
+@TypedGoRoute<BookSourceListPageRoute>(path: '/book-available-sources')
+class BookSourceListPageRoute extends GoRouteData {
+  const BookSourceListPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const AvailableSourceListPage();
+  }
+}
+
+@TypedGoRoute<HomePageRoute>(path: '/')
+class HomePageRoute extends GoRouteData {
+  const HomePageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const HomePage();
+}
+
+@TypedGoRoute<SearchPageRoute>(path: '/search')
+class SearchPageRoute extends GoRouteData {
+  final String? credential;
+  const SearchPageRoute({this.credential});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return SearchPage(credential: credential);
+  }
+}
+
+@TypedGoRoute<SettingPageRoute>(path: '/setting/advanced')
+class SettingPageRoute extends GoRouteData {
+  const SettingPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SettingPage();
+  }
+}
+
+@TypedGoRoute<SourceCreateFormPageRoute>(path: '/book-source/create')
+class SourceCreateFormPageRoute extends GoRouteData {
+  const SourceCreateFormPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SourceFormPage();
+  }
+}
+
+@TypedGoRoute<SourceDebuggerPageRoute>(path: '/book-source/debug')
+class SourceDebuggerPageRoute extends GoRouteData {
+  const SourceDebuggerPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SourceDebuggerPage();
+  }
+}
+
+@TypedGoRoute<SourceEditFormPageRoute>(path: '/book-source/:id/edit')
+class SourceEditFormPageRoute extends GoRouteData {
+  final int id;
+  const SourceEditFormPageRoute({required this.id});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return SourceFormPage(id: id);
+  }
+}
+
+@TypedGoRoute<SourceFormAdvancedConfigurationPageRoute>(
+  path: '/book-source/advanced-configuration',
+)
+class SourceFormAdvancedConfigurationPageRoute extends GoRouteData {
+  const SourceFormAdvancedConfigurationPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SourceAdvancedConfigurationPage();
+  }
+}
+
+@TypedGoRoute<SourceFormCatalogueConfigurationPageRoute>(
+  path: '/book-source/catalogue-configuration',
+)
+class SourceFormCatalogueConfigurationPageRoute extends GoRouteData {
+  const SourceFormCatalogueConfigurationPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SourceCatalogueConfigurationPage();
+  }
+}
+
+@TypedGoRoute<SourceFormContentConfigurationPageRoute>(
+  path: '/book-source/content-configuration',
+)
+class SourceFormContentConfigurationPageRoute extends GoRouteData {
+  const SourceFormContentConfigurationPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SourceContentConfigurationPage();
+  }
+}
+
+@TypedGoRoute<SourceFormInformationConfigurationPageRoute>(
+  path: '/book-source/information-configuration',
+)
+class SourceFormInformationConfigurationPageRoute extends GoRouteData {
+  const SourceFormInformationConfigurationPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SourceInformationConfigurationPage();
+  }
+}
+
+@TypedGoRoute<SourceFormSearchConfigurationPageRoute>(
+  path: '/book-source/search-configuration',
+)
+class SourceFormSearchConfigurationPageRoute extends GoRouteData {
+  const SourceFormSearchConfigurationPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SourceSearchConfigurationPage();
+  }
+}
+
+@TypedGoRoute<SourceListPageRoute>(path: '/book-source')
+class SourceListPageRoute extends GoRouteData {
+  const SourceListPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SourceListPage();
+  }
+}
