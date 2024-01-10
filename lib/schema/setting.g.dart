@@ -67,18 +67,23 @@ const SettingSchema = CollectionSchema(
       name: r'max_concurrent',
       type: IsarType.double,
     ),
-    r'shelf_mode': PropertySchema(
+    r'search_filter': PropertySchema(
       id: 10,
+      name: r'search_filter',
+      type: IsarType.bool,
+    ),
+    r'shelf_mode': PropertySchema(
+      id: 11,
       name: r'shelf_mode',
       type: IsarType.string,
     ),
     r'timeout': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'timeout',
       type: IsarType.long,
     ),
     r'turning_mode': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'turning_mode',
       type: IsarType.long,
     )
@@ -123,9 +128,10 @@ void _settingSerialize(
   writer.writeLong(offsets[7], object.fontSize);
   writer.writeDouble(offsets[8], object.lineSpace);
   writer.writeDouble(offsets[9], object.maxConcurrent);
-  writer.writeString(offsets[10], object.shelfMode);
-  writer.writeLong(offsets[11], object.timeout);
-  writer.writeLong(offsets[12], object.turningMode);
+  writer.writeBool(offsets[10], object.searchFilter);
+  writer.writeString(offsets[11], object.shelfMode);
+  writer.writeLong(offsets[12], object.timeout);
+  writer.writeLong(offsets[13], object.turningMode);
 }
 
 Setting _settingDeserialize(
@@ -146,9 +152,10 @@ Setting _settingDeserialize(
   object.id = id;
   object.lineSpace = reader.readDouble(offsets[8]);
   object.maxConcurrent = reader.readDouble(offsets[9]);
-  object.shelfMode = reader.readString(offsets[10]);
-  object.timeout = reader.readLong(offsets[11]);
-  object.turningMode = reader.readLong(offsets[12]);
+  object.searchFilter = reader.readBool(offsets[10]);
+  object.shelfMode = reader.readString(offsets[11]);
+  object.timeout = reader.readLong(offsets[12]);
+  object.turningMode = reader.readLong(offsets[13]);
   return object;
 }
 
@@ -180,10 +187,12 @@ P _settingDeserializeProp<P>(
     case 9:
       return (reader.readDouble(offset)) as P;
     case 10:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 11:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 12:
+      return (reader.readLong(offset)) as P;
+    case 13:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -763,6 +772,16 @@ extension SettingQueryFilter
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> searchFilterEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'search_filter',
+        value: value,
+      ));
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterFilterCondition> shelfModeEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1127,6 +1146,18 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortBySearchFilter() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'search_filter', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortBySearchFilterDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'search_filter', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByShelfMode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shelf_mode', Sort.asc);
@@ -1298,6 +1329,18 @@ extension SettingQuerySortThenBy
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenBySearchFilter() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'search_filter', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenBySearchFilterDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'search_filter', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> thenByShelfMode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shelf_mode', Sort.asc);
@@ -1397,6 +1440,12 @@ extension SettingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Setting, Setting, QDistinct> distinctBySearchFilter() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'search_filter');
+    });
+  }
+
   QueryBuilder<Setting, Setting, QDistinct> distinctByShelfMode(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1482,6 +1531,12 @@ extension SettingQueryProperty
   QueryBuilder<Setting, double, QQueryOperations> maxConcurrentProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'max_concurrent');
+    });
+  }
+
+  QueryBuilder<Setting, bool, QQueryOperations> searchFilterProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'search_filter');
     });
   }
 

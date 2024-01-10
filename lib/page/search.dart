@@ -29,7 +29,7 @@ class _SearchPageState extends State<SearchPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final onSurface = colorScheme.onSurface;
-    final outline = colorScheme.outline;
+    final surfaceVariant = colorScheme.surfaceVariant;
     final medium = theme.textTheme.bodyMedium;
     final suffixIcon = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -44,7 +44,7 @@ class _SearchPageState extends State<SearchPage> {
     );
     final Widget body = SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -135,7 +135,7 @@ class _SearchPageState extends State<SearchPage> {
                       vertical: 8,
                     ),
                     child: Divider(
-                      color: outline.withOpacity(0.25),
+                      color: surfaceVariant.withOpacity(0.25),
                       height: 1,
                     ),
                   ),
@@ -143,7 +143,11 @@ class _SearchPageState extends State<SearchPage> {
                 );
               }
             }
-            return Column(children: [indicator, Expanded(child: list)]);
+            return Column(children: [
+              indicator,
+              const SizedBox(height: 8),
+              Expanded(child: list)
+            ]);
           },
         );
       }),

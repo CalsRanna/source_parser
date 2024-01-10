@@ -15,6 +15,26 @@ class SettingPage extends StatelessWidget {
       body: ListView(
         children: [
           ListTile(
+            subtitle: const Text('网络请求缓存的有效时长，不影响缓存的封面和章节'),
+            title: const Text('缓存时长'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Consumer(builder: (context, ref, child) {
+                  final provider = ref.watch(settingNotifierProvider);
+                  final setting = switch (provider) {
+                    AsyncData(:final value) => value,
+                    _ => Setting(),
+                  };
+                  final hour = setting.cacheDuration.floor();
+                  return Text('$hour小时');
+                }),
+                const Icon(Icons.arrow_forward_ios_outlined, size: 14)
+              ],
+            ),
+            onTap: () => showCacheSheet(context),
+          ),
+          ListTile(
             subtitle: const Text('搜索书籍和缓存章节内容时，最大并发请求数量'),
             title: const Text('最大线程数量'),
             trailing: Row(
@@ -34,26 +54,19 @@ class SettingPage extends StatelessWidget {
             ),
             onTap: () => showConcurrentSheet(context),
           ),
-          ListTile(
-            subtitle: const Text('网络请求缓存的有效时长'),
-            title: const Text('缓存时长'),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Consumer(builder: (context, ref, child) {
-                  final provider = ref.watch(settingNotifierProvider);
-                  final setting = switch (provider) {
-                    AsyncData(:final value) => value,
-                    _ => Setting(),
-                  };
-                  final hour = setting.cacheDuration.floor();
-                  return Text('$hour小时');
-                }),
-                const Icon(Icons.arrow_forward_ios_outlined, size: 14)
-              ],
-            ),
-            onTap: () => showCacheSheet(context),
-          ),
+          Consumer(builder: (context, ref, child) {
+            final provider = ref.watch(settingNotifierProvider);
+            final setting = switch (provider) {
+              AsyncData(:final value) => value,
+              _ => Setting(),
+            };
+            return SwitchListTile(
+              subtitle: const Text('过滤书名或作者不包含关键字的搜索结果'),
+              title: const Text('搜索过滤'),
+              value: setting.searchFilter,
+              onChanged: (value) => updateSearchFilter(ref, value),
+            );
+          }),
           ListTile(
             subtitle: const Text('网络请求最大等待时长，超时将取消请求'),
             title: const Text('请求超时'),
@@ -122,13 +135,21 @@ class SettingPage extends StatelessWidget {
       builder: (context) => ListView.builder(
         itemBuilder: (context, index) {
           return Consumer(builder: (context, ref, child) {
+            final duration = index * 4;
+            var text = '$duration小时';
+            if (duration == 0) text = '不缓存';
+            if (duration == 24) text = '1天';
             return ListTile(
-              title: Text('$index小时'),
-              onTap: () => updateCacheDuration(context, ref, index.toDouble()),
+              title: Text(text, textAlign: TextAlign.center),
+              onTap: () => updateCacheDuration(
+                context,
+                ref,
+                duration.toDouble(),
+              ),
             );
           });
         },
-        itemCount: 25,
+        itemCount: 7,
       ),
     );
   }
@@ -162,14 +183,19 @@ class SettingPage extends StatelessWidget {
       context: context,
       builder: (context) => ListView.builder(
         itemBuilder: (context, index) {
+          final concurrent = (index + 1) * 4;
           return Consumer(builder: (context, ref, child) {
             return ListTile(
-              title: Text('${index + 1}'),
-              onTap: () => updateMaxConcurrent(context, ref, index + 1),
+              title: Text('$concurrent', textAlign: TextAlign.center),
+              onTap: () => updateMaxConcurrent(
+                context,
+                ref,
+                concurrent.toDouble(),
+              ),
             );
           });
         },
-        itemCount: 16,
+        itemCount: 4,
       ),
     );
   }
@@ -183,7 +209,7 @@ class SettingPage extends StatelessWidget {
           final seconds = Duration(milliseconds: timeout).inSeconds;
           return Consumer(builder: (context, ref, child) {
             return ListTile(
-              title: Text('$seconds秒'),
+              title: Text('$seconds秒', textAlign: TextAlign.center),
               onTap: () => updateTimeout(context, ref, timeout),
             );
           });
@@ -208,6 +234,11 @@ class SettingPage extends StatelessWidget {
     final notifier = ref.read(settingNotifierProvider.notifier);
     notifier.updateMaxConcurrent(concurrent);
     Navigator.of(context).pop();
+  }
+
+  void updateSearchFilter(WidgetRef ref, bool searchFilter) async {
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.updateSearchFilter(searchFilter);
   }
 
   void updateTimeout(BuildContext context, WidgetRef ref, int timeout) async {

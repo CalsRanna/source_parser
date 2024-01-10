@@ -129,7 +129,10 @@ class ReaderThemePage extends StatelessWidget {
     notifier.updateLineSpace(value);
   }
 
-  void updateFontSize(WidgetRef ref, int step) async {}
+  void updateFontSize(WidgetRef ref, int step) async {
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.updateFontSize(step);
+  }
 
   void updateBackgroundColor(WidgetRef ref, int colorValue) async {
     final notifier = ref.read(settingNotifierProvider.notifier);

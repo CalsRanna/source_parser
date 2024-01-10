@@ -25,19 +25,20 @@ class _ExploreViewState extends State<ExploreView> {
       return switch (provider) {
         AsyncData(:final value) => RefreshIndicator(
             onRefresh: () => handleRefresh(ref),
-            child: ListView.builder(
+            child: ListView.separated(
               itemBuilder: (context, index) {
                 final layout = value[index].layout;
                 final books = value[index].books;
                 final title = value[index].title;
                 return switch (layout) {
                   'banner' => _ExploreBanner(books: books),
-                  'card' => _ExploreCard(books: books, title: title),
+                  'card' => _ExploreList(books: books, title: title),
                   'grid' => _ExploreGrid(books: books, title: title),
                   _ => Container(),
                 };
               },
               itemCount: value.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
             ),
           ),
         _ => const Center(child: CircularProgressIndicator()),
@@ -91,8 +92,8 @@ class _ExploreBanner extends StatelessWidget {
   }
 }
 
-class _ExploreCard extends StatelessWidget {
-  const _ExploreCard({required this.books, required this.title});
+class _ExploreList extends StatelessWidget {
+  const _ExploreList({required this.books, required this.title});
 
   final List<Book> books;
   final String title;
@@ -104,11 +105,11 @@ class _ExploreCard extends StatelessWidget {
     final background = colorScheme.background;
     final shadow = colorScheme.shadow;
     final textTheme = theme.textTheme;
-    final titleMedium = textTheme.titleMedium;
+    final titleLarge = textTheme.titleLarge;
     final itemCount = min(books.length, 3);
     List<Widget> tiles = [];
     for (var i = 0; i < itemCount; i++) {
-      tiles.add(_ExploreTile(book: books[i]));
+      tiles.add(_ExploreListTile(book: books[i]));
       if (i < books.length - 1) {
         tiles.add(const SizedBox(height: 8));
       }
@@ -130,7 +131,10 @@ class _ExploreCard extends StatelessWidget {
       child: Column(children: [
         Row(
           children: [
-            Text(title, style: titleMedium),
+            Text(
+              title,
+              style: titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
             const Spacer(),
             OutlinedButton(
               style: const ButtonStyle(
@@ -158,8 +162,8 @@ class _ExploreCard extends StatelessWidget {
   }
 }
 
-class _ExploreTile extends StatelessWidget {
-  const _ExploreTile({required this.book});
+class _ExploreListTile extends StatelessWidget {
+  const _ExploreListTile({required this.book});
 
   final Book book;
 
@@ -169,6 +173,8 @@ class _ExploreTile extends StatelessWidget {
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
+    final colorScheme = theme.colorScheme;
+    final onSurface = colorScheme.onSurface;
     return Consumer(builder: (context, ref, child) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -188,15 +194,23 @@ class _ExploreTile extends StatelessWidget {
                       book.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: bodyMedium,
+                      style: bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    Text(_buildSubtitle() ?? '', style: bodySmall),
                     const Spacer(),
                     Text(
                       book.introduction.replaceAll(RegExp(r'\s'), ''),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: bodyMedium,
+                      style: bodyMedium?.copyWith(
+                        color: onSurface.withOpacity(0.75),
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      _buildSubtitle() ?? '',
+                      style: bodySmall?.copyWith(
+                        color: onSurface.withOpacity(0.5),
+                      ),
                     ),
                   ],
                 ),
@@ -245,14 +259,16 @@ class _ExploreGrid extends StatelessWidget {
     final background = colorScheme.background;
     final shadow = colorScheme.shadow;
     final textTheme = theme.textTheme;
-    final titleMedium = textTheme.titleMedium;
+    final titleLarge = textTheme.titleLarge;
     final itemCount = min(books.length, 4);
     final mediaQueryData = MediaQuery.of(context);
     final width = mediaQueryData.size.width;
     final widthPerBookCover = ((width - 16 * 4 - 8 * 3) / 4);
     final heightPerBookCover = widthPerBookCover * 4 / 3;
-    const heightPerBookName = 14 * 1.2 * 2 + 1; // extra 1 for line gap
-    final heightPerBook = heightPerBookCover + heightPerBookName + 8;
+    const heightPerBookName = 14 * 1.2 * 2; // extra 1 for line gap
+    const heightPerBookSpan = 12 * 1.2; // extra 1 for line gap
+    final heightPerBook =
+        heightPerBookCover + heightPerBookName + 8 + heightPerBookSpan + 8;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -270,7 +286,10 @@ class _ExploreGrid extends StatelessWidget {
       child: Column(children: [
         Row(
           children: [
-            Text(title, style: titleMedium),
+            Text(
+              title,
+              style: titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
             const Spacer(),
             OutlinedButton(
               style: const ButtonStyle(
@@ -329,6 +348,9 @@ class _ExploreGridTile extends StatelessWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
+    final bodySmall = textTheme.bodySmall;
+    final colorScheme = theme.colorScheme;
+    final onSurface = colorScheme.onSurface;
     return Consumer(builder: (context, ref, child) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -346,9 +368,23 @@ class _ExploreGridTile extends StatelessWidget {
               book.name,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: bodyMedium?.copyWith(fontSize: 14),
+              style: bodyMedium?.copyWith(fontWeight: FontWeight.bold),
               strutStyle: const StrutStyle(
                 fontSize: 14,
+                height: 1.2,
+                forceStrutHeight: true,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _buildSubtitle() ?? '',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: bodySmall?.copyWith(
+                color: onSurface.withOpacity(0.5),
+              ),
+              strutStyle: const StrutStyle(
+                fontSize: 12,
                 height: 1.2,
                 forceStrutHeight: true,
               ),
@@ -363,5 +399,22 @@ class _ExploreGridTile extends StatelessWidget {
     const BookInformationPageRoute().push(context);
     final notifier = ref.read(bookNotifierProvider.notifier);
     notifier.update(book);
+  }
+
+  String? _buildSubtitle() {
+    final spans = <String>[];
+    if (book.author.isNotEmpty) {
+      spans.add(book.author);
+    }
+    if (book.category.isNotEmpty) {
+      spans.add(book.category);
+    }
+    if (book.status.isNotEmpty) {
+      spans.add(book.status);
+    }
+    if (book.words.isNotEmpty) {
+      spans.add(book.words);
+    }
+    return spans.isNotEmpty ? spans.join(' · ') : null;
   }
 }

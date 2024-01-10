@@ -68,7 +68,10 @@ class _SourceListPageState extends State<SourceListPage> {
 
   void importSource() async {
     showModalBottomSheet(
-      builder: (_) {
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        final surfaceVariant = colorScheme.surfaceVariant;
         return ListView(children: [
           ListTile(
             title: const Text('网络导入'),
@@ -84,7 +87,7 @@ class _SourceListPageState extends State<SourceListPage> {
             title: const Text('导出所有书源'),
             onTap: () => exportSource(context),
           ),
-          const Divider(height: 1, thickness: 0.5),
+          Divider(color: surfaceVariant.withOpacity(0.25), height: 1),
           ListTile(
             title: const Text('校验书源'),
             onTap: () => exportSource(context),

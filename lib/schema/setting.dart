@@ -27,6 +27,8 @@ class Setting {
   double lineSpace = 1.0 + 0.618 * 2;
   @Name('max_concurrent')
   double maxConcurrent = 16.0;
+  @Name('search_filter')
+  bool searchFilter = false;
   @Name('shelf_mode')
   String shelfMode = 'list';
   @Name('timeout')

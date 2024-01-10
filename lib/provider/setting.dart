@@ -124,6 +124,15 @@ class SettingNotifier extends _$SettingNotifier {
     ref.invalidateSelf();
   }
 
+  void updateSearchFilter(bool value) async {
+    final setting = await future;
+    setting.searchFilter = value;
+    await isar.writeTxn(() async {
+      await isar.settings.put(setting);
+    });
+    ref.invalidateSelf();
+  }
+
   void migrate() async {
     var setting = await future;
     if (setting.backgroundColor.isNegative) {

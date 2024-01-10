@@ -32,7 +32,28 @@ class SearchBooks extends _$SearchBooks {
     List<Book> books = [];
     stream.listen(
       (book) {
-        books.add(book);
+        if (setting.searchFilter) {
+          final conditionA = book.name.contains(credential);
+          final conditionB = book.author.contains(credential);
+          final filtered = conditionA || conditionB;
+          if (!filtered) {
+            return;
+          }
+        }
+        final sameBook = books.where((element) {
+          return element.name == book.name && element.author == book.author;
+        }).firstOrNull;
+        if (sameBook == null) {
+          books.add(book);
+        } else {
+          if (book.cover.length > sameBook.cover.length) {
+            sameBook.cover = book.cover;
+          }
+          if (book.introduction.length > sameBook.introduction.length) {
+            sameBook.introduction = book.introduction;
+          }
+          sameBook.sources.addAll(book.sources);
+        }
         controller.add(books);
       },
       onDone: () => controller.close(),

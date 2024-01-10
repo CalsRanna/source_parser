@@ -179,7 +179,7 @@ class _BookInformationState extends ConsumerState<InformationPage> {
             SliverList(
               delegate: SliverChildListDelegate([
                 _Introduction(book: book),
-                const SizedBox(height: 8),
+                // const SizedBox(height: 8),
                 _Catalogue(book: book, eInkMode: eInkMode, loading: loading),
                 const SizedBox(height: 8),
                 _Source(
