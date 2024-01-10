@@ -39,30 +39,28 @@ class _SourceParserState extends ConsumerState<SourceParser> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, ref, child) {
-      final provider = ref.watch(settingNotifierProvider);
-      final setting = switch (provider) {
-        AsyncData(:final value) => value,
-        _ => Setting(),
-      };
-      final darkMode = setting.darkMode;
-      final eInkMode = setting.eInkMode;
-      final pageTransitionsTheme = PageTransitionsTheme(
-        builders: {TargetPlatform.android: NoAnimationPageTransitionBuilder()},
-      );
-      return MaterialApp.router(
-        routerConfig: router,
-        theme: ThemeData(
-          brightness: darkMode ? Brightness.dark : Brightness.light,
-          colorSchemeSeed: const Color(0xFF63BBD0),
-          pageTransitionsTheme: eInkMode ? pageTransitionsTheme : null,
-          splashFactory: eInkMode ? NoSplash.splashFactory : null,
-          splashColor: eInkMode ? Colors.transparent : null,
-          useMaterial3: true,
-        ),
-        title: '元夕',
-      );
-    });
+    final provider = ref.watch(settingNotifierProvider);
+    final setting = switch (provider) {
+      AsyncData(:final value) => value,
+      _ => Setting(),
+    };
+    final darkMode = setting.darkMode;
+    final eInkMode = setting.eInkMode;
+    final pageTransitionsTheme = PageTransitionsTheme(
+      builders: {TargetPlatform.android: NoAnimationPageTransitionBuilder()},
+    );
+    return MaterialApp.router(
+      routerConfig: router,
+      theme: ThemeData(
+        brightness: darkMode ? Brightness.dark : Brightness.light,
+        colorSchemeSeed: const Color(0xFF63BBD0),
+        pageTransitionsTheme: eInkMode ? pageTransitionsTheme : null,
+        splashFactory: eInkMode ? NoSplash.splashFactory : null,
+        splashColor: eInkMode ? Colors.transparent : null,
+        useMaterial3: true,
+      ),
+      title: '元夕',
+    );
   }
 }
 

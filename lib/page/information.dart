@@ -32,59 +32,57 @@ class _BookInformationState extends ConsumerState<InformationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, ref, child) {
-      final provider = ref.watch(settingNotifierProvider);
-      final setting = switch (provider) {
-        AsyncData(:final value) => value,
-        _ => Setting(),
-      };
-      final book = ref.watch(bookNotifierProvider);
-      final eInkMode = setting.eInkMode;
-      final sourceProvider = ref.watch(currentSourceProvider);
-      final source = switch (sourceProvider) {
-        AsyncData(:final value) => value,
-        _ => null,
-      };
-      return RefreshIndicator(
-        onRefresh: () => getInformation(ref),
-        child: Scaffold(
-          body: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                expandedHeight: 200,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Stack(
-                    children: [
-                      _BackgroundImage(url: book.cover),
-                      const _ColorFilter(),
-                      _Information(book: book),
-                    ],
-                  ),
-                  collapseMode: CollapseMode.pin,
+    final provider = ref.watch(settingNotifierProvider);
+    final setting = switch (provider) {
+      AsyncData(:final value) => value,
+      _ => Setting(),
+    };
+    final book = ref.watch(bookNotifierProvider);
+    final eInkMode = setting.eInkMode;
+    final sourceProvider = ref.watch(currentSourceProvider);
+    final source = switch (sourceProvider) {
+      AsyncData(:final value) => value,
+      _ => null,
+    };
+    return RefreshIndicator(
+      onRefresh: () => getInformation(ref),
+      child: Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 200,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Stack(
+                  children: [
+                    _BackgroundImage(url: book.cover),
+                    const _ColorFilter(),
+                    _Information(book: book),
+                  ],
                 ),
-                pinned: true,
-                stretch: true,
+                collapseMode: CollapseMode.pin,
               ),
-              SliverList(
-                delegate: SliverChildListDelegate([
-                  _Introduction(book: book),
-                  const SizedBox(height: 8),
-                  _Catalogue(book: book, eInkMode: eInkMode, loading: loading),
-                  const SizedBox(height: 8),
-                  _Source(
-                    currentSource: source?.name,
-                    sources: book.sources,
-                  ),
-                  const SizedBox(height: 8),
-                  const _Archive(),
-                ]),
-              )
-            ],
-          ),
-          bottomNavigationBar: const _BottomBar(),
+              pinned: true,
+              stretch: true,
+            ),
+            SliverList(
+              delegate: SliverChildListDelegate([
+                _Introduction(book: book),
+                const SizedBox(height: 8),
+                _Catalogue(book: book, eInkMode: eInkMode, loading: loading),
+                const SizedBox(height: 8),
+                _Source(
+                  currentSource: source?.name,
+                  sources: book.sources,
+                ),
+                const SizedBox(height: 8),
+                const _Archive(),
+              ]),
+            )
+          ],
         ),
-      );
-    });
+        bottomNavigationBar: const _BottomBar(),
+      ),
+    );
   }
 
   Future<void> getInformation(WidgetRef ref) async {
@@ -522,7 +520,10 @@ class __BottomBarState extends ConsumerState<_BottomBar> {
     final icon = Icon(
       inShelf ? Icons.check_outlined : Icons.library_add_outlined,
     );
-    final text = Text(inShelf ? '已在书架' : '加入书架');
+    final shelfText = Text(inShelf ? '已在书架' : '加入书架');
+    final book = ref.watch(bookNotifierProvider);
+    final hasProgress = book.cursor != 0 || book.index != 0;
+    String readerText = hasProgress ? '继续阅读' : '立即阅读';
     return Container(
       color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
       padding: EdgeInsets.fromLTRB(16, 8, 16, padding.bottom + 8),
@@ -530,18 +531,13 @@ class __BottomBarState extends ConsumerState<_BottomBar> {
         children: [
           TextButton(
             onPressed: () => toggleShelf(ref),
-            child: Row(children: [icon, text]),
+            child: Row(children: [icon, shelfText]),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: ElevatedButton(
               onPressed: () => startReader(context),
-              child: Consumer(builder: (context, ref, child) {
-                final book = ref.watch(bookNotifierProvider);
-                final hasProgress = book.cursor != 0 || book.index != 0;
-                String text = hasProgress ? '继续阅读' : '立即阅读';
-                return Text(text);
-              }),
+              child: Text(readerText),
             ),
           ),
         ],
@@ -581,9 +577,7 @@ class __CoverSelectorState extends ConsumerState<_CoverSelector> {
 
   @override
   Widget build(BuildContext context) {
-    if (loading) {
-      return const Center(child: LoadingIndicator());
-    }
+    if (loading) return const Center(child: LoadingIndicator());
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         childAspectRatio: 3 / 4,
@@ -592,12 +586,10 @@ class __CoverSelectorState extends ConsumerState<_CoverSelector> {
         mainAxisSpacing: 8,
       ),
       itemBuilder: (context, index) {
-        return Consumer(builder: (context, ref, child) {
-          return GestureDetector(
-            onTap: () => handleTap(ref, covers[index]),
-            child: BookCover(height: 120, url: covers[index], width: 90),
-          );
-        });
+        return GestureDetector(
+          onTap: () => handleTap(ref, covers[index]),
+          child: BookCover(height: 120, url: covers[index], width: 90),
+        );
       },
       itemCount: covers.length,
       padding: const EdgeInsets.all(16),
