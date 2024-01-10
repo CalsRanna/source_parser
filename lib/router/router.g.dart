@@ -91,6 +91,7 @@ T? _$convertMapValue<T>(
 
 RouteBase get $bookInformationPageRoute => GoRouteData.$route(
       path: '/book-information',
+      name: 'bookInformation',
       factory: $BookInformationPageRouteExtension._fromState,
     );
 
@@ -183,6 +184,7 @@ extension $BookSourceListPageRouteExtension on BookSourceListPageRoute {
 
 RouteBase get $homePageRoute => GoRouteData.$route(
       path: '/',
+      name: 'home',
       factory: $HomePageRouteExtension._fromState,
     );
 

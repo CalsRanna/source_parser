@@ -6,7 +6,7 @@ part of 'book.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$bookNotifierHash() => r'481eee2d926394e0dd16d5b7b35ad0306f1f6053';
+String _$bookNotifierHash() => r'258a02bf6238226f7b7f25663756bc7169b83128';
 
 /// See also [BookNotifier].
 @ProviderFor(BookNotifier)
@@ -20,6 +20,21 @@ final bookNotifierProvider = NotifierProvider<BookNotifier, Book>.internal(
 );
 
 typedef _$BookNotifier = Notifier<Book>;
+String _$inShelfHash() => r'd35a7a608bfce537ca4aba7fd89dd7055891572e';
+
+/// See also [InShelf].
+@ProviderFor(InShelf)
+final inShelfProvider =
+    AutoDisposeAsyncNotifierProvider<InShelf, bool>.internal(
+  InShelf.new,
+  name: r'inShelfProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$inShelfHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$InShelf = AutoDisposeAsyncNotifier<bool>;
 String _$booksHash() => r'f7045d75c99a76cab328d2856e2cd415bc1b27c6';
 
 /// See also [Books].

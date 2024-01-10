@@ -21,14 +21,126 @@ class InformationPage extends ConsumerStatefulWidget {
   }
 }
 
-class _BookInformationState extends ConsumerState<InformationPage> {
-  bool loading = false;
+class __CoverSelectorState extends ConsumerState<_CoverSelector> {
+  bool loading = true;
+  List<String> covers = [];
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) return const Center(child: LoadingIndicator());
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        childAspectRatio: 3 / 4,
+        crossAxisCount: 3,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+      ),
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () => handleTap(ref, covers[index]),
+          child: BookCover(height: 120, url: covers[index], width: 90),
+        );
+      },
+      itemCount: covers.length,
+      padding: const EdgeInsets.all(16),
+    );
+  }
+
+  void getCovers(WidgetRef ref) async {
+    setState(() {
+      loading = true;
+    });
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    final covers = await notifier.getCovers();
+    setState(() {
+      this.covers = covers;
+      loading = false;
+    });
+  }
+
+  void handleTap(WidgetRef ref, String cover) async {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    notifier.refreshCover(cover);
+    Navigator.of(context).pop();
+  }
 
   @override
   void initState() {
     super.initState();
-    getInformation(ref);
+    getCovers(ref);
   }
+}
+
+class _Archive extends StatelessWidget {
+  const _Archive();
+
+  @override
+  Widget build(BuildContext context) {
+    const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+    return Consumer(builder: (context, ref, child) {
+      final book = ref.watch(bookNotifierProvider);
+      return GestureDetector(
+        onTap: () => handleTap(context, ref),
+        child: Card(
+          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          shape: const RoundedRectangleBorder(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Text('归档', style: boldTextStyle),
+                    const Spacer(),
+                    Switch(
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      value: book.archive,
+                      onChanged: (value) => handleTap(context, ref),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  void handleTap(BuildContext context, WidgetRef ref) async {
+    final message = Message.of(context);
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    await notifier.toggleArchive();
+    final book = ref.read(bookNotifierProvider);
+    if (book.archive) {
+      message.show('归档后，书架不再更新');
+    }
+  }
+}
+
+class _BackgroundImage extends StatelessWidget {
+  final String url;
+
+  const _BackgroundImage({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return ImageFiltered(
+      imageFilter: ImageFilter.blur(sigmaX: 48, sigmaY: 48),
+      child: BookCover(
+        height: double.infinity,
+        url: url,
+        width: double.infinity,
+      ),
+    );
+  }
+}
+
+class _BookInformationState extends ConsumerState<InformationPage> {
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -103,23 +215,129 @@ class _BookInformationState extends ConsumerState<InformationPage> {
       });
     }
   }
+
+  @override
+  void initState() {
+    super.initState();
+    getInformation(ref);
+  }
 }
 
-class _BackgroundImage extends StatelessWidget {
-  const _BackgroundImage({required this.url});
-
-  final String url;
+class _BottomBar extends StatelessWidget {
+  const _BottomBar();
 
   @override
   Widget build(BuildContext context) {
-    return ImageFiltered(
-      imageFilter: ImageFilter.blur(sigmaX: 48, sigmaY: 48),
-      child: BookCover(
-        height: double.infinity,
-        url: url,
-        width: double.infinity,
+    final padding = MediaQuery.of(context).padding;
+    return Container(
+      color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, padding.bottom + 8),
+      child: Row(
+        children: [
+          Consumer(builder: (context, ref, child) {
+            final provider = ref.watch(inShelfProvider);
+            final inShelf = switch (provider) {
+              AsyncData(:final value) => value,
+              _ => false,
+            };
+            final icon = Icon(
+              inShelf ? Icons.check_outlined : Icons.library_add_outlined,
+            );
+            final shelfText = Text(inShelf ? '已在书架' : '加入书架');
+            return TextButton(
+              onPressed: () => toggleShelf(ref),
+              child: Row(children: [icon, shelfText]),
+            );
+          }),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Consumer(builder: (context, ref, child) {
+              final book = ref.watch(bookNotifierProvider);
+              final hasProgress = book.cursor != 0 || book.index != 0;
+              String readerText = hasProgress ? '继续阅读' : '立即阅读';
+              return ElevatedButton(
+                onPressed: () => startReader(context, ref, book.index),
+                child: Text(readerText),
+              );
+            }),
+          ),
+        ],
       ),
     );
+  }
+
+  void startReader(BuildContext context, WidgetRef ref, int index) async {
+    final navigator = Navigator.of(context);
+    navigator.popUntil(_predicate);
+    const BookReaderPageRoute().push(context);
+    final bookNotifier = ref.read(bookNotifierProvider.notifier);
+    bookNotifier.startReader(index);
+  }
+
+  void toggleShelf(WidgetRef ref) async {
+    final notifier = ref.read(inShelfProvider.notifier);
+    notifier.toggleShelf();
+  }
+
+  bool _predicate(Route<dynamic> route) {
+    return ModalRoute.withName('bookInformation').call(route) ||
+        ModalRoute.withName('home').call(route);
+  }
+}
+
+class _Catalogue extends StatelessWidget {
+  final Book book;
+
+  final bool eInkMode;
+  final bool loading;
+  const _Catalogue({
+    required this.book,
+    this.eInkMode = false,
+    this.loading = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+    return Consumer(builder: (context, ref, child) {
+      return GestureDetector(
+        onTap: () => handleTap(context, ref),
+        child: Card(
+          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          shape: const RoundedRectangleBorder(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                const Text('目录', style: boldTextStyle),
+                const Spacer(),
+                if (loading && book.chapters.isEmpty)
+                  SizedBox(
+                    height: 24,
+                    width: eInkMode ? null : 24,
+                    child: const LoadingIndicator(),
+                  ),
+                if (!loading || book.chapters.isNotEmpty) ...[
+                  Text(
+                    '共${book.chapters.length}章',
+                    textAlign: TextAlign.right,
+                  ),
+                  const Icon(Icons.chevron_right_outlined)
+                ]
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  void handleTap(BuildContext context, WidgetRef ref) {
+    if (loading) return;
+    final book = ref.read(bookNotifierProvider);
+    BookCataloguePageRoute(index: book.index).push(context);
   }
 }
 
@@ -135,10 +353,19 @@ class _ColorFilter extends StatelessWidget {
   }
 }
 
-class _Information extends StatelessWidget {
-  const _Information({required this.book});
-
+class _CoverSelector extends ConsumerStatefulWidget {
   final Book book;
+
+  const _CoverSelector({required this.book});
+
+  @override
+  ConsumerState<_CoverSelector> createState() => __CoverSelectorState();
+}
+
+class _Information extends StatelessWidget {
+  final Book book;
+
+  const _Information({required this.book});
 
   @override
   Widget build(BuildContext context) {
@@ -222,9 +449,9 @@ class _Information extends StatelessWidget {
 }
 
 class _Introduction extends StatefulWidget {
-  const _Introduction({required this.book});
-
   final Book book;
+
+  const _Introduction({required this.book});
 
   @override
   State<_Introduction> createState() => _IntroductionState();
@@ -312,93 +539,11 @@ class _IntroductionState extends State<_Introduction> {
   }
 }
 
-class _Tag extends StatelessWidget {
-  const _Tag({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surfaceTint = colorScheme.surfaceTint;
-    final textTheme = theme.textTheme;
-    final labelMedium = textTheme.labelMedium;
-    return Container(
-      decoration: ShapeDecoration(
-        color: surfaceTint.withOpacity(0.1),
-        shape: const StadiumBorder(),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 4,
-      ),
-      child: Text(text, style: labelMedium),
-    );
-  }
-}
-
-class _Catalogue extends StatelessWidget {
-  const _Catalogue({
-    required this.book,
-    this.eInkMode = false,
-    this.loading = false,
-  });
-
-  final Book book;
-  final bool eInkMode;
-  final bool loading;
-
-  @override
-  Widget build(BuildContext context) {
-    const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
-    return Consumer(builder: (context, ref, child) {
-      return GestureDetector(
-        onTap: () => handleTap(context, ref),
-        child: Card(
-          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
-          elevation: 0,
-          margin: EdgeInsets.zero,
-          shape: const RoundedRectangleBorder(),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                const Text('目录', style: boldTextStyle),
-                const Spacer(),
-                if (loading && book.chapters.isEmpty)
-                  SizedBox(
-                    height: 24,
-                    width: eInkMode ? null : 24,
-                    child: const LoadingIndicator(),
-                  ),
-                if (!loading || book.chapters.isNotEmpty) ...[
-                  Text(
-                    '共${book.chapters.length}章',
-                    textAlign: TextAlign.right,
-                  ),
-                  const Icon(Icons.chevron_right_outlined)
-                ]
-              ],
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
-  void handleTap(BuildContext context, WidgetRef ref) {
-    if (loading) return;
-    final book = ref.read(bookNotifierProvider);
-    BookCataloguePageRoute(index: book.index).push(context);
-  }
-}
-
 class _Source extends StatelessWidget {
-  const _Source({this.currentSource, required this.sources});
-
   final String? currentSource;
+
   final List<AvailableSource> sources;
+  const _Source({this.currentSource, required this.sources});
 
   @override
   Widget build(BuildContext context) {
@@ -443,174 +588,28 @@ class _Source extends StatelessWidget {
   }
 }
 
-class _Archive extends StatelessWidget {
-  const _Archive();
+class _Tag extends StatelessWidget {
+  final String text;
+
+  const _Tag({required this.text});
 
   @override
   Widget build(BuildContext context) {
-    const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
-    return Consumer(builder: (context, ref, child) {
-      final book = ref.watch(bookNotifierProvider);
-      return GestureDetector(
-        onTap: () => handleTap(context, ref),
-        child: Card(
-          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
-          elevation: 0,
-          margin: EdgeInsets.zero,
-          shape: const RoundedRectangleBorder(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Text('归档', style: boldTextStyle),
-                    const Spacer(),
-                    Switch(
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      value: book.archive,
-                      onChanged: (value) => handleTap(context, ref),
-                    )
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
-  void handleTap(BuildContext context, WidgetRef ref) async {
-    final message = Message.of(context);
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    await notifier.toggleArchive();
-    final book = ref.read(bookNotifierProvider);
-    if (book.archive) {
-      message.show('归档后，书架不再更新');
-    }
-  }
-}
-
-class _BottomBar extends ConsumerStatefulWidget {
-  const _BottomBar();
-
-  @override
-  ConsumerState<_BottomBar> createState() => __BottomBarState();
-}
-
-class __BottomBarState extends ConsumerState<_BottomBar> {
-  bool inShelf = false;
-  @override
-  void initState() {
-    super.initState();
-    initInShelf();
-  }
-
-  void initInShelf() async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    inShelf = await notifier.inShelf();
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final padding = MediaQuery.of(context).padding;
-    final icon = Icon(
-      inShelf ? Icons.check_outlined : Icons.library_add_outlined,
-    );
-    final shelfText = Text(inShelf ? '已在书架' : '加入书架');
-    final book = ref.watch(bookNotifierProvider);
-    final hasProgress = book.cursor != 0 || book.index != 0;
-    String readerText = hasProgress ? '继续阅读' : '立即阅读';
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final surfaceTint = colorScheme.surfaceTint;
+    final textTheme = theme.textTheme;
+    final labelMedium = textTheme.labelMedium;
     return Container(
-      color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
-      padding: EdgeInsets.fromLTRB(16, 8, 16, padding.bottom + 8),
-      child: Row(
-        children: [
-          TextButton(
-            onPressed: () => toggleShelf(ref),
-            child: Row(children: [icon, shelfText]),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () => startReader(context),
-              child: Text(readerText),
-            ),
-          ),
-        ],
+      decoration: ShapeDecoration(
+        color: surfaceTint.withOpacity(0.1),
+        shape: const StadiumBorder(),
       ),
-    );
-  }
-
-  void toggleShelf(WidgetRef ref) async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    inShelf = await notifier.toggleShelf();
-    setState(() {});
-  }
-
-  void startReader(BuildContext context) async {
-    const BookReaderPageRoute().push(context);
-  }
-}
-
-class _CoverSelector extends ConsumerStatefulWidget {
-  const _CoverSelector({required this.book});
-
-  final Book book;
-
-  @override
-  ConsumerState<_CoverSelector> createState() => __CoverSelectorState();
-}
-
-class __CoverSelectorState extends ConsumerState<_CoverSelector> {
-  bool loading = true;
-  List<String> covers = [];
-
-  @override
-  void initState() {
-    super.initState();
-    getCovers(ref);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (loading) return const Center(child: LoadingIndicator());
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        childAspectRatio: 3 / 4,
-        crossAxisCount: 3,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 4,
       ),
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () => handleTap(ref, covers[index]),
-          child: BookCover(height: 120, url: covers[index], width: 90),
-        );
-      },
-      itemCount: covers.length,
-      padding: const EdgeInsets.all(16),
+      child: Text(text, style: labelMedium),
     );
-  }
-
-  void getCovers(WidgetRef ref) async {
-    setState(() {
-      loading = true;
-    });
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    final covers = await notifier.getCovers();
-    setState(() {
-      this.covers = covers;
-      loading = false;
-    });
-  }
-
-  void handleTap(WidgetRef ref, String cover) async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.refreshCover(cover);
-    Navigator.of(context).pop();
   }
 }

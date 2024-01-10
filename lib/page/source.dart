@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -133,25 +134,7 @@ class _AvailableSourceListPageState extends State<AvailableSourceListPage> {
   void switchSource(WidgetRef ref, int index) async {
     showDialog(
       barrierDismissible: false,
-      builder: (context) {
-        return const UnconstrainedBox(
-          child: SizedBox(
-            height: 160,
-            width: 160,
-            child: Dialog(
-              insetPadding: EdgeInsets.zero,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  LoadingIndicator(),
-                  SizedBox(height: 16),
-                  Text('正在切换书源'),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+      builder: (context) => const _SwitchSourceDialog(),
       context: context,
     );
     final notifier = ref.read(bookNotifierProvider.notifier);
@@ -160,5 +143,31 @@ class _AvailableSourceListPageState extends State<AvailableSourceListPage> {
     Message.of(context).show(message);
     Navigator.of(context).pop();
     Navigator.of(context).pop();
+    const BookReaderPageRoute().pushReplacement(context);
+  }
+}
+
+class _SwitchSourceDialog extends StatelessWidget {
+  const _SwitchSourceDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return const UnconstrainedBox(
+      child: SizedBox(
+        height: 160,
+        width: 160,
+        child: Dialog(
+          insetPadding: EdgeInsets.zero,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              LoadingIndicator(),
+              SizedBox(height: 16),
+              Text('正在切换书源'),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -41,7 +41,10 @@ class BookCataloguePageRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<BookInformationPageRoute>(path: '/book-information')
+@TypedGoRoute<BookInformationPageRoute>(
+  name: 'bookInformation',
+  path: '/book-information',
+)
 class BookInformationPageRoute extends GoRouteData {
   const BookInformationPageRoute();
 
@@ -81,7 +84,7 @@ class BookSourceListPageRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<HomePageRoute>(path: '/')
+@TypedGoRoute<HomePageRoute>(name: 'home', path: '/')
 class HomePageRoute extends GoRouteData {
   const HomePageRoute();
 

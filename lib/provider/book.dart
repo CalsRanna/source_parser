@@ -5,6 +5,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:isar/isar.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
@@ -62,12 +63,6 @@ class BookNotifier extends _$BookNotifier {
     return covers;
   }
 
-  Future<bool> inShelf() async {
-    var builder = isar.books.filter();
-    builder = builder.nameEqualTo(state.name);
-    return await builder.authorEqualTo(state.author).findFirst() != null;
-  }
-
   Future<void> refreshCatalogue() async {
     final builder = isar.sources.filter();
     final source = await builder.idEqualTo(state.sourceId).findFirst();
@@ -93,8 +88,8 @@ class BookNotifier extends _$BookNotifier {
 
   Future<void> refreshCover(String cover) async {
     state = state.copyWith(cover: cover);
-    var exist = await inShelf();
-    if (!exist) return;
+    final inShelf = await ref.read(inShelfProvider.future);
+    if (!inShelf) return;
     await isar.writeTxn(() async {
       isar.books.put(state);
     });
@@ -233,7 +228,8 @@ class BookNotifier extends _$BookNotifier {
         sourceId: state.sources[index].id,
         url: url,
       );
-      if (await inShelf()) {
+      final inShelf = await ref.read(inShelfProvider.future);
+      if (inShelf) {
         await isar.writeTxn(() async {
           isar.books.put(state);
         });
@@ -276,7 +272,8 @@ class BookNotifier extends _$BookNotifier {
     });
     await stream.last;
     state = state.copyWith(sources: sources);
-    if (await inShelf()) {
+    final inShelf = await ref.read(inShelfProvider.future);
+    if (inShelf) {
       await isar.writeTxn(() async {
         isar.books.put(state);
       });
@@ -290,8 +287,13 @@ class BookNotifier extends _$BookNotifier {
     });
   }
 
-  void startReader(int index) {
-    state = state.copyWith(cursor: 0, index: index);
+  Future<void> startReader(int index) async {
+    state = state.copyWith(index: index);
+    final notifier = ref.read(cacheProgressNotifierProvider.notifier);
+    notifier.cacheChapters();
+    await isar.writeTxn(() async {
+      isar.books.put(state);
+    });
   }
 
   Future<void> toggleArchive() async {
@@ -303,28 +305,6 @@ class BookNotifier extends _$BookNotifier {
     isar.writeTxn(() async {
       await isar.books.put(state);
     });
-  }
-
-  Future<bool> toggleShelf() async {
-    final exist = await inShelf();
-    if (exist) {
-      await isar.writeTxn(() async {
-        await isar.books.delete(state.id);
-      });
-      CacheManager(prefix: state.name).clearCache();
-    } else {
-      await isar.writeTxn(() async {
-        isar.books.put(state);
-      });
-    }
-    final books = await isar.books.where().findAll();
-    books.sort((a, b) {
-      final first = PinyinHelper.getPinyin(a.name);
-      final second = PinyinHelper.getPinyin(b.name);
-      return first.compareTo(second);
-    });
-    ref.invalidate(booksProvider);
-    return !exist;
   }
 
   void update(Book book) {
@@ -345,6 +325,14 @@ class Books extends _$Books {
     });
     FlutterNativeSplash.remove();
     return books;
+  }
+
+  Future<void> delete(Book book) async {
+    await isar.writeTxn(() async {
+      await isar.books.delete(book.id);
+    });
+    CacheManager(prefix: book.name).clearCache();
+    ref.invalidateSelf();
   }
 
   Future<void> refresh() async {
@@ -379,12 +367,38 @@ class Books extends _$Books {
     }
     ref.invalidateSelf();
   }
+}
 
-  Future<void> delete(Book book) async {
-    await isar.writeTxn(() async {
-      await isar.books.delete(book.id);
+@riverpod
+class InShelf extends _$InShelf {
+  @override
+  Future<bool> build() async {
+    final book = ref.watch(bookNotifierProvider);
+    var builder = isar.books.filter();
+    builder = builder.nameEqualTo(book.name);
+    return await builder.authorEqualTo(book.author).findFirst() != null;
+  }
+
+  Future<void> toggleShelf() async {
+    final book = ref.read(bookNotifierProvider);
+    final inShelf = await future;
+    if (inShelf) {
+      await isar.writeTxn(() async {
+        await isar.books.delete(book.id);
+      });
+      CacheManager(prefix: book.name).clearCache();
+    } else {
+      await isar.writeTxn(() async {
+        isar.books.put(book);
+      });
+    }
+    final books = await isar.books.where().findAll();
+    books.sort((a, b) {
+      final first = PinyinHelper.getPinyin(a.name);
+      final second = PinyinHelper.getPinyin(b.name);
+      return first.compareTo(second);
     });
-    CacheManager(prefix: book.name).clearCache();
+    ref.invalidate(booksProvider);
     ref.invalidateSelf();
   }
 }

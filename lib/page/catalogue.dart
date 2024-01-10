@@ -2,14 +2,14 @@ import 'package:cached_network/cached_network.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/book.dart';
-import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/util/message.dart';
 
 class CataloguePage extends StatefulWidget {
+  final int index;
+
   const CataloguePage({super.key, required this.index});
 
-  final int index;
   @override
   State<CataloguePage> createState() => _CataloguePageState();
 }
@@ -18,26 +18,6 @@ class _CataloguePageState extends State<CataloguePage> {
   late ScrollController controller;
   bool atTop = true;
   GlobalKey globalKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-    controller = ScrollController();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      final height = MediaQuery.of(context).size.height;
-      final padding = MediaQuery.of(context).padding;
-      final maxScrollExtent = controller.position.maxScrollExtent;
-      final appBarContext = globalKey.currentContext;
-      final appBarRenderBox = appBarContext!.findRenderObject() as RenderBox;
-      var listViewHeight = height - padding.vertical;
-      listViewHeight = listViewHeight - appBarRenderBox.size.height;
-      final halfHeight = listViewHeight / 2;
-      var offset = 56.0 * widget.index;
-      offset = (offset - halfHeight);
-      offset = offset.clamp(0, maxScrollExtent);
-      controller.jumpTo(offset);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,16 +81,6 @@ class _CataloguePageState extends State<CataloguePage> {
     );
   }
 
-  Future<void> handleRefresh(WidgetRef ref) async {
-    final message = Message.of(context);
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    try {
-      await notifier.refreshCatalogue();
-    } catch (error) {
-      message.show(error.toString());
-    }
-  }
-
   void handlePressed() {
     var position = controller.position.maxScrollExtent;
     if (!atTop) {
@@ -126,13 +96,46 @@ class _CataloguePageState extends State<CataloguePage> {
     });
   }
 
+  Future<void> handleRefresh(WidgetRef ref) async {
+    final message = Message.of(context);
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    try {
+      await notifier.refreshCatalogue();
+    } catch (error) {
+      message.show(error.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    controller = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final height = MediaQuery.of(context).size.height;
+      final padding = MediaQuery.of(context).padding;
+      final maxScrollExtent = controller.position.maxScrollExtent;
+      final appBarContext = globalKey.currentContext;
+      final appBarRenderBox = appBarContext!.findRenderObject() as RenderBox;
+      var listViewHeight = height - padding.vertical;
+      listViewHeight = listViewHeight - appBarRenderBox.size.height;
+      final halfHeight = listViewHeight / 2;
+      var offset = 56.0 * widget.index;
+      offset = (offset - halfHeight);
+      offset = offset.clamp(0, maxScrollExtent);
+      controller.jumpTo(offset);
+    });
+  }
+
   void startReader(WidgetRef ref, int index) async {
-    Navigator.of(context).pop();
+    final navigator = Navigator.of(context);
+    navigator.popUntil(_predicate);
     const BookReaderPageRoute().push(context);
     final bookNotifier = ref.read(bookNotifierProvider.notifier);
     bookNotifier.startReader(index);
-    final cacheProgressNotifier =
-        ref.read(cacheProgressNotifierProvider.notifier);
-    cacheProgressNotifier.cacheChapters();
+  }
+
+  bool _predicate(Route<dynamic> route) {
+    return ModalRoute.withName('bookInformation').call(route) ||
+        ModalRoute.withName('home').call(route);
   }
 }

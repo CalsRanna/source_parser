@@ -7,9 +7,9 @@ import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key, this.credential});
-
   final String? credential;
+
+  const SearchPage({super.key, this.credential});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -25,36 +25,12 @@ class _SearchPageState extends State<SearchPage> {
   String query = '';
 
   @override
-  void initState() {
-    super.initState();
-    query = widget.credential ?? '';
-    showResult = query.isNotEmpty;
-    controller.addListener(() {
-      setState(() {
-        if (controller.text.isEmpty) {
-          showResult = false;
-        }
-        showSuffix = controller.text.isNotEmpty;
-      });
-    });
-    controller.text = query;
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    node.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final onSurface = colorScheme.onSurface;
     final outline = colorScheme.outline;
     final medium = theme.textTheme.bodyMedium;
-
     final suffixIcon = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: GestureDetector(
@@ -78,26 +54,21 @@ class _SearchPageState extends State<SearchPage> {
                 AsyncData(:final value) => value,
                 _ => [],
               };
+              List<Widget> children = books.map((book) {
+                return ActionChip(
+                  label: Text(book.name),
+                  labelPadding: EdgeInsets.zero,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  onPressed: () => search(ref, book.name),
+                );
+              }).toList();
+              if (children.isEmpty) return const SizedBox();
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('热门搜索'),
                   const SizedBox(height: 8),
-                  Wrap(
-                    runSpacing: 8,
-                    spacing: 8,
-                    children: books.map((book) {
-                      return Consumer(builder: (context, ref, child) {
-                        return ActionChip(
-                          label: Text(book.name),
-                          labelPadding: EdgeInsets.zero,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          onPressed: () => search(ref, book.name),
-                        );
-                      });
-                    }).toList(),
-                  ),
+                  Wrap(runSpacing: 8, spacing: 8, children: children),
                 ],
               );
             }),
@@ -105,7 +76,6 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ),
     );
-
     return Scaffold(
       appBar: AppBar(
         actions: [cancel],
@@ -180,6 +150,36 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  void clear() {
+    controller.text = '';
+    setState(() {
+      query = '';
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    node.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    query = widget.credential ?? '';
+    showResult = query.isNotEmpty;
+    controller.addListener(() {
+      setState(() {
+        if (controller.text.isEmpty) {
+          showResult = false;
+        }
+        showSuffix = controller.text.isNotEmpty;
+      });
+    });
+    controller.text = query;
+  }
+
   void pop(BuildContext context) {
     Navigator.of(context).pop();
   }
@@ -192,19 +192,12 @@ class _SearchPageState extends State<SearchPage> {
     node.unfocus();
     controller.text = credential;
   }
-
-  void clear() {
-    controller.text = '';
-    setState(() {
-      query = '';
-    });
-  }
 }
 
 class _SearchTile extends StatelessWidget {
-  const _SearchTile({required this.book});
-
   final Book book;
+
+  const _SearchTile({required this.book});
 
   @override
   Widget build(BuildContext context) {
@@ -254,12 +247,6 @@ class _SearchTile extends StatelessWidget {
     });
   }
 
-  void _handleTap(BuildContext context, WidgetRef ref) {
-    const BookInformationPageRoute().push(context);
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.update(book);
-  }
-
   String? _buildSubtitle() {
     final spans = <String>[];
     if (book.author.isNotEmpty) {
@@ -275,5 +262,11 @@ class _SearchTile extends StatelessWidget {
       spans.add(book.words);
     }
     return spans.isNotEmpty ? spans.join(' · ') : null;
+  }
+
+  void _handleTap(BuildContext context, WidgetRef ref) {
+    const BookInformationPageRoute().push(context);
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    notifier.update(book);
   }
 }
