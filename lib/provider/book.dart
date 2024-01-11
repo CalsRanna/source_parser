@@ -287,8 +287,8 @@ class BookNotifier extends _$BookNotifier {
     });
   }
 
-  Future<void> startReader(int index) async {
-    state = state.copyWith(index: index);
+  Future<void> startReader({int? cursor, required int index}) async {
+    state = state.copyWith(cursor: cursor, index: index);
     final notifier = ref.read(cacheProgressNotifierProvider.notifier);
     notifier.cacheChapters();
     await isar.writeTxn(() async {

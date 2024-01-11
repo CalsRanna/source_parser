@@ -271,7 +271,7 @@ class _BottomBar extends StatelessWidget {
     navigator.popUntil(_predicate);
     const BookReaderPageRoute().push(context);
     final bookNotifier = ref.read(bookNotifierProvider.notifier);
-    bookNotifier.startReader(index);
+    bookNotifier.startReader(index: index);
   }
 
   void toggleShelf(WidgetRef ref) async {

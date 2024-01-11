@@ -131,7 +131,7 @@ class _CataloguePageState extends State<CataloguePage> {
     navigator.popUntil(_predicate);
     const BookReaderPageRoute().push(context);
     final bookNotifier = ref.read(bookNotifierProvider.notifier);
-    bookNotifier.startReader(index);
+    bookNotifier.startReader(cursor: 0, index: index);
   }
 
   bool _predicate(Route<dynamic> route) {
