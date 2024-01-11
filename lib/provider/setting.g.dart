@@ -6,7 +6,7 @@ part of 'setting.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$settingNotifierHash() => r'da182d325663a3c9ae46790f1da4de3e22b4e894';
+String _$settingNotifierHash() => r'23fcf11b9aa12f63907ec7853fcefaac25c56344';
 
 /// See also [SettingNotifier].
 @ProviderFor(SettingNotifier)

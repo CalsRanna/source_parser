@@ -22,7 +22,7 @@ final topSearchBooksProvider =
 );
 
 typedef _$TopSearchBooks = AutoDisposeAsyncNotifier<List<Book>>;
-String _$searchBooksHash() => r'8ed0ee87793c3ac614e77e0a13d91cd357111f00';
+String _$searchBooksHash() => r'2e02695832464ea944ed8ab36009dc9670e889c4';
 
 /// Copied from Dart SDK
 class _SystemHash {

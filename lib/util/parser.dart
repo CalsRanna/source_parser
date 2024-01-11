@@ -178,41 +178,48 @@ class Parser {
     Duration duration,
     Duration timeout,
   ) async {
+    final controller = StreamController<ExploreResult>();
     final temporaryDirectory = await getTemporaryDirectory();
     final network = CachedNetwork(
       temporaryDirectory: temporaryDirectory,
       timeout: timeout,
     );
     var closed = 0;
-    final controller = StreamController<ExploreResult>();
     final rules = jsonDecode(source.exploreJson);
-    for (var rule in rules) {
+    Map<String, Isolate> isolates = {};
+    List<Future> isolateInitializations = [];
+    final receiver = ReceivePort();
+    for (var i = 0; i < rules.length; i++) {
+      final title = rules[i]['title'];
       final sender = ReceivePort();
-      final receiver = ReceivePort();
-      final isolate = await Isolate.spawn(
-        _getExploreInIsolate,
-        sender.sendPort,
-      );
+      final isolate = await Isolate.spawn(_getExplore, sender.sendPort);
+      isolates[title] = isolate;
+      isolateInitializations.add(sender.first);
+    }
+    final sendPorts = await Future.wait(isolateInitializations);
+    for (var i = 0; i < sendPorts.length; i++) {
+      final rule = rules[i];
       final exploreUrl = rule['exploreUrl'];
-      (await sender.first as SendPort).send(
+      sendPorts[i].send(
         [network, duration, rule, exploreUrl, source, receiver.sendPort],
       );
-      receiver.forEach((element) async {
-        if (element.runtimeType == ExploreResult) {
-          controller.add(element);
-        } else {
-          isolate.kill();
-          closed++;
-          if (closed == rules.length) {
-            controller.close();
-          }
-        }
-      });
     }
+    receiver.forEach((element) {
+      if (element.runtimeType == ExploreResult) {
+        controller.add(element);
+      } else {
+        final title = element.toString().split(' ').first;
+        isolates[title]?.kill();
+        closed++;
+        if (closed == rules.length) {
+          controller.close();
+        }
+      }
+    });
     return controller.stream;
   }
 
-  static void _getExploreInIsolate(SendPort message) {
+  static void _getExplore(SendPort message) {
     final port = ReceivePort();
     message.send(port.sendPort);
     port.listen((message) async {
@@ -266,9 +273,10 @@ class Parser {
           books: books,
         );
         sender.send(result);
-        sender.send('close');
+        sender.send('$title closed');
       } catch (error) {
-        sender.send(error.toString());
+        final title = rule['title'];
+        sender.send('$title error ${error.toString()}');
       }
     });
   }
