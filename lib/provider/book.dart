@@ -21,7 +21,7 @@ class BookNotifier extends _$BookNotifier {
     return Book();
   }
 
-  Future<String> getContent(int index) async {
+  Future<String> getContent(int index, {bool reacquire = false}) async {
     final builder = isar.sources.filter();
     final source = await builder.idEqualTo(state.sourceId).findFirst();
     if (source == null) return '';
@@ -36,6 +36,7 @@ class BookNotifier extends _$BookNotifier {
       title: title,
       url: url,
       timeout: Duration(milliseconds: timeout),
+      reacquire: reacquire,
     );
   }
 

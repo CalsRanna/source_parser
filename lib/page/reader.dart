@@ -145,7 +145,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
 
   Future<String> handleRefresh(WidgetRef ref, int index) async {
     final notifier = ref.read(bookNotifierProvider.notifier);
-    return notifier.getContent(index);
+    return notifier.getContent(index, reacquire: true);
   }
 
   void handleProgressChanged(WidgetRef ref, int cursor) async {
