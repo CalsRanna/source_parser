@@ -311,6 +311,39 @@ class BookNotifier extends _$BookNotifier {
   void update(Book book) {
     state = book;
   }
+
+  void clearCache() {
+    CacheManager(prefix: state.name).clearCache();
+  }
+}
+
+@riverpod
+class BookCovers extends _$BookCovers {
+  @override
+  Future<List<String>> build() async {
+    final book = ref.watch(bookNotifierProvider);
+    final setting = await ref.read(settingNotifierProvider.future);
+    final duration = setting.cacheDuration;
+    final timeout = setting.timeout;
+    List<String> covers = [];
+    for (var availableSource in book.sources) {
+      final source =
+          await isar.sources.filter().idEqualTo(availableSource.id).findFirst();
+      if (source == null) continue;
+      final information = await Parser.getInformation(
+        book.name,
+        availableSource.url,
+        source,
+        Duration(hours: duration.floor()),
+        Duration(milliseconds: timeout),
+      );
+      final cover = information.cover;
+      if (cover.isNotEmpty) {
+        covers.add(cover);
+      }
+    }
+    return covers;
+  }
 }
 
 @riverpod

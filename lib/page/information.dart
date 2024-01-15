@@ -21,56 +21,6 @@ class InformationPage extends ConsumerStatefulWidget {
   }
 }
 
-class __CoverSelectorState extends ConsumerState<_CoverSelector> {
-  bool loading = true;
-  List<String> covers = [];
-
-  @override
-  Widget build(BuildContext context) {
-    if (loading) return const Center(child: LoadingIndicator());
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        childAspectRatio: 3 / 4,
-        crossAxisCount: 3,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-      ),
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () => handleTap(ref, covers[index]),
-          child: BookCover(height: 120, url: covers[index], width: 90),
-        );
-      },
-      itemCount: covers.length,
-      padding: const EdgeInsets.all(16),
-    );
-  }
-
-  void getCovers(WidgetRef ref) async {
-    setState(() {
-      loading = true;
-    });
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    final covers = await notifier.getCovers();
-    setState(() {
-      this.covers = covers;
-      loading = false;
-    });
-  }
-
-  void handleTap(WidgetRef ref, String cover) async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.refreshCover(cover);
-    Navigator.of(context).pop();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getCovers(ref);
-  }
-}
-
 class _Archive extends StatelessWidget {
   const _Archive();
 
@@ -353,15 +303,6 @@ class _ColorFilter extends StatelessWidget {
   }
 }
 
-class _CoverSelector extends ConsumerStatefulWidget {
-  final Book book;
-
-  const _CoverSelector({required this.book});
-
-  @override
-  ConsumerState<_CoverSelector> createState() => __CoverSelectorState();
-}
-
 class _Information extends StatelessWidget {
   final Book book;
 
@@ -427,7 +368,7 @@ class _Information extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        return _CoverSelector(book: book);
+        return BookCoverSelector(book: book);
       },
     );
   }
