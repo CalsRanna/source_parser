@@ -27,7 +27,10 @@ class SettingPage extends StatelessWidget {
                     _ => Setting(),
                   };
                   final hour = setting.cacheDuration.floor();
-                  return Text('$hour小时');
+                  var text = '$hour小时';
+                  if (hour == 0) text = '不缓存';
+                  if (hour == 24) text = '1天';
+                  return Text(text);
                 }),
                 const Icon(Icons.arrow_forward_ios_outlined, size: 14)
               ],
