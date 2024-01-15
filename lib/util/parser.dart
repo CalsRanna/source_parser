@@ -603,95 +603,99 @@ class Parser {
   static void _debugInIsolate(SendPort message) {
     final port = ReceivePort();
     message.send(port.sendPort);
-    port.listen((message) async {
-      final network = message[0] as CachedNetwork;
-      var duration = message[1] as Duration;
-      var credential = message[2] as String;
-      final source = message[3] as Source;
-      final sender = message[4] as SendPort;
+    port.listen(
+      (message) async {
+        final network = message[0] as CachedNetwork;
+        var duration = message[1] as Duration;
+        var credential = message[2] as String;
+        final source = message[3] as Source;
+        final sender = message[4] as SendPort;
 
-      final parser = HtmlParser();
-      var result = DebugResultNew();
-      var books = <Book>[];
-      String catalogueUrl = '';
-      String informationUrl = '';
-      var chapters = <Chapter>[];
-      try {
-        // // 调试搜索解析规则
-        result.title = '搜索';
+        final parser = HtmlParser();
+        var result = DebugResultNew();
+        var books = <Book>[];
+        String catalogueUrl = '';
+        String informationUrl = '';
+        var chapters = <Chapter>[];
         try {
-          final header = jsonDecode(source.header);
-          if (header['Content-Type'] == 'application/x-www-form-urlencoded') {
-            if (source.charset == 'gbk') {
-              final codeUnits = gbk.encode(credential);
-              credential = codeUnits.map((codeUnit) {
-                return '%${codeUnit.toRadixString(16).padLeft(2, '0').toUpperCase()}';
-              }).join();
-            } else {
-              credential = Uri.encodeComponent(credential);
+          // // 调试搜索解析规则
+          result.title = '搜索';
+          try {
+            final header = jsonDecode(source.header);
+            if (header['Content-Type'] == 'application/x-www-form-urlencoded') {
+              if (source.charset == 'gbk') {
+                final codeUnits = gbk.encode(credential);
+                credential = codeUnits.map((codeUnit) {
+                  return '%${codeUnit.toRadixString(16).padLeft(2, '0').toUpperCase()}';
+                }).join();
+              } else {
+                credential = Uri.encodeComponent(credential);
+              }
             }
+          } catch (error) {
+            // Do nothing
           }
-        } catch (error) {
-          // Do nothing
-        }
-        final searchUrl = source.searchUrl
-            .replaceAll('{{credential}}', credential)
-            .replaceAll('{{page}}', '1');
-        var html = await network.request(
-          searchUrl,
-          charset: source.charset,
-          duration: duration,
-          method: source.searchMethod.toUpperCase(),
-          reacquire: true,
-        );
-        result.raw = html;
-        var document = parser.parse(html);
-        var items = parser.queryNodes(document, source.searchBooks);
-        for (var i = 0; i < items.length; i++) {
-          final author = parser.query(items[i], source.searchAuthor);
-          final category = parser.query(items[i], source.searchCategory);
-          var cover = parser.query(items[i], source.searchCover);
-          if (!cover.startsWith('http')) {
-            cover = '${source.url}$cover';
-          }
-          final introduction =
-              parser.query(items[i], source.searchIntroduction);
-          final latestChapter =
-              parser.query(items[i], source.searchLatestChapter);
-          final name = parser.query(items[i], source.searchName);
-          // final status = parser.query(items[i], source.searchStatus);
-          // final updatedAt = parser.query(items[i], source.searchUpdatedAt);
-          var url = parser.query(items[i], source.searchInformationUrl);
-          if (!url.startsWith('http')) {
-            url = '${source.url}$url';
-          }
-          final words = parser.query(items[i], source.searchWordCount);
+          final searchUrl = source.searchUrl
+              .replaceAll('{{credential}}', credential)
+              .replaceAll('{{page}}', '1');
+          var html = await network.request(
+            searchUrl,
+            charset: source.charset,
+            duration: duration,
+            method: source.searchMethod.toUpperCase(),
+            reacquire: true,
+          );
+          result.raw = html;
+          var document = parser.parse(html);
+          var items = parser.queryNodes(document, source.searchBooks);
+          for (var i = 0; i < items.length; i++) {
+            final author = parser.query(items[i], source.searchAuthor);
+            final category = parser.query(items[i], source.searchCategory);
+            var cover = parser.query(items[i], source.searchCover);
+            if (!cover.startsWith('http')) {
+              cover = '${source.url}$cover';
+            }
+            final introduction =
+                parser.query(items[i], source.searchIntroduction);
+            final latestChapter =
+                parser.query(items[i], source.searchLatestChapter);
+            final name = parser.query(items[i], source.searchName);
+            // final status = parser.query(items[i], source.searchStatus);
+            // final updatedAt = parser.query(items[i], source.searchUpdatedAt);
+            var url = parser.query(items[i], source.searchInformationUrl);
+            if (!url.startsWith('http')) {
+              url = '${source.url}$url';
+            }
+            final words = parser.query(items[i], source.searchWordCount);
 
-          var availableSource = AvailableSource();
-          availableSource.id = source.id;
-          availableSource.url = url;
-          var book = Book();
-          book.author = author;
-          book.category = category;
-          book.cover = cover;
-          book.introduction = introduction;
-          book.latestChapter = latestChapter;
-          book.name = name;
-          // book.status = status;
-          // book.updatedAt = updatedAt;
-          book.sourceId = source.id;
-          book.sources = [availableSource];
-          book.url = url;
-          book.words = words;
-          books.add(book);
+            var availableSource = AvailableSource();
+            availableSource.id = source.id;
+            availableSource.url = url;
+            var book = Book();
+            book.author = author;
+            book.category = category;
+            book.cover = cover;
+            book.introduction = introduction;
+            book.latestChapter = latestChapter;
+            book.name = name;
+            // book.status = status;
+            // book.updatedAt = updatedAt;
+            book.sourceId = source.id;
+            book.sources = [availableSource];
+            book.url = url;
+            book.words = words;
+            books.add(book);
+          }
+          final jsonList = books.map((book) => book.toJson()).toList();
+          result.json = jsonEncode(jsonList);
+        } catch (error) {
+          sender.send(error.toString());
         }
-        final jsonList = books.map((book) => book.toJson()).toList();
-        result.json = jsonEncode(jsonList);
-      } catch (error) {
-        sender.send(error.toString());
-      }
-      sender.send(result);
-      if (books.isNotEmpty) {
+        sender.send(result);
+        if (books.isEmpty) {
+          sender.send('close');
+          return;
+        }
         // 调试详情规则解析
         result.title = '详情';
         try {
@@ -746,7 +750,10 @@ class Parser {
           sender.send(error.toString());
         }
         sender.send(result);
-        // 调试目录解析规则
+        if (catalogueUrl.isEmpty) {
+          sender.send('close');
+          return;
+        } // 调试目录解析规则
         result.title = '目录';
         try {
           var html = await network.request(
@@ -823,7 +830,10 @@ class Parser {
           sender.send(error.toString());
         }
         sender.send(result);
-        // 调试正文解析规则
+        if (chapters.isEmpty) {
+          sender.send('close');
+          return;
+        } // 调试正文解析规则
         result.title = '正文';
         try {
           if (chapters.isNotEmpty) {
@@ -867,8 +877,9 @@ class Parser {
           sender.send(error.toString());
         }
         sender.send(result);
-      }
-    });
+      },
+      onDone: () => print('DONE'),
+    );
   }
 
   static Future<List<Source>> importNetworkSource(
@@ -898,5 +909,54 @@ class Parser {
       sources.add(Source.fromJson(json));
     }
     return sources;
+  }
+
+  static Future<Stream<int>> validate(
+    String credential,
+    int maxConcurrent,
+    Duration duration,
+    Duration timeout,
+  ) async {
+    final sources = await isar.sources.where().findAll();
+    final temporaryDirectory = await getTemporaryDirectory();
+    final network = CachedNetwork(
+      temporaryDirectory: temporaryDirectory,
+      timeout: timeout,
+    );
+    var closed = 0;
+    final controller = StreamController<int>();
+    final semaphore = Semaphore(maxConcurrent);
+    for (var source in sources) {
+      await semaphore.acquire();
+      final sender = ReceivePort();
+      final receiver = ReceivePort();
+      final isolate = await Isolate.spawn(_debugInIsolate, sender.sendPort);
+      (await sender.first as SendPort).send(
+        [network, duration, credential, source, receiver.sendPort],
+      );
+      var count = 0;
+      receiver.forEach((element) async {
+        if (element.runtimeType == DebugResultNew) {
+          count++;
+          if (count == 4) {
+            controller.add(source.id);
+            isolate.kill();
+            closed++;
+            print('${source.name} killed 成功');
+            if (closed == sources.length) {
+              controller.close();
+            }
+          }
+        } else {
+          isolate.kill();
+          closed++;
+          print('${source.name} killed 错误 $element');
+          if (closed == sources.length) {
+            controller.close();
+          }
+        }
+      });
+    }
+    return controller.stream;
   }
 }

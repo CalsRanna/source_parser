@@ -89,6 +89,37 @@ class Sources extends _$Sources {
     });
     ref.invalidateSelf();
   }
+
+  Future<Stream<int>> validate() async {
+    final controller = StreamController<int>();
+    final sources = await future;
+    for (var source in sources) {
+      store(source.copyWith(enabled: false));
+    }
+    final setting = await ref.read(settingNotifierProvider.future);
+    final concurrent = setting.maxConcurrent.floor();
+    final duration = Duration(seconds: setting.cacheDuration.floor());
+    final timeout = Duration(milliseconds: setting.timeout);
+    final stream = await Parser.validate('都市', concurrent, duration, timeout);
+    List<int> valid = [];
+    stream.listen(
+      (id) {
+        if (valid.contains(id)) return;
+        valid.add(id);
+        controller.add(id);
+        final source = sources.where((element) => element.id == id).first;
+        store(source.copyWith(enabled: true));
+      },
+      onDone: () => _closeValidating(controller),
+      onError: (_) => _closeValidating(controller),
+    );
+    return controller.stream;
+  }
+
+  void _closeValidating(StreamController controller) {
+    controller.close();
+    ref.invalidateSelf();
+  }
 }
 
 @riverpod

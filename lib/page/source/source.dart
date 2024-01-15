@@ -68,7 +68,7 @@ class _SourceListPageState extends State<SourceListPage> {
 
   void importSource() async {
     showModalBottomSheet(
-      builder: (context) {
+      builder: (_) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
         final surfaceVariant = colorScheme.surfaceVariant;
@@ -88,13 +88,51 @@ class _SourceListPageState extends State<SourceListPage> {
             onTap: () => exportSource(context),
           ),
           Divider(color: surfaceVariant.withOpacity(0.25), height: 1),
-          ListTile(
-            title: const Text('校验书源'),
-            onTap: () => exportSource(context),
-          ),
+          Consumer(builder: (_, ref, child) {
+            return ListTile(
+              title: const Text('校验书源'),
+              onTap: () => validateSources(context, ref),
+            );
+          })
         ]);
       },
       context: context,
+    );
+  }
+
+  void validateSources(BuildContext context, WidgetRef ref) async {
+    showDialog(
+      barrierDismissible: false,
+      builder: (context) {
+        return const UnconstrainedBox(
+          child: SizedBox(
+            height: 160,
+            width: 320,
+            child: Dialog(
+              insetPadding: EdgeInsets.zero,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  LoadingIndicator(),
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text('校验书源需要的时间比较长，请耐心等待'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      context: context,
+    );
+    final notifier = ref.read(sourcesProvider.notifier);
+    final stream = await notifier.validate();
+    stream.listen(
+      (event) {
+        if (!context.mounted) return;
+      },
+      onDone: () => Navigator.of(context).pop(),
     );
   }
 
