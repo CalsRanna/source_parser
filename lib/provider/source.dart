@@ -17,7 +17,13 @@ part 'source.g.dart';
 class Sources extends _$Sources {
   @override
   Future<List<Source>> build() async {
-    return await isar.sources.where().findAll();
+    final sources = await isar.sources.where().findAll();
+    sources.sort((a, b) {
+      final aWeight = a.enabled ? -9999 : 9999;
+      final bWeight = b.enabled ? -9999 : 9999;
+      return aWeight.compareTo(bWeight);
+    });
+    return sources;
   }
 
   Future<(List<Source>, List<Source>)> importSources({
@@ -93,9 +99,9 @@ class Sources extends _$Sources {
   Future<Stream<int>> validate() async {
     final controller = StreamController<int>();
     final sources = await future;
-    for (var source in sources) {
-      store(source.copyWith(enabled: false));
-    }
+    // for (var source in sources) {
+    //   store(source.copyWith(enabled: false));
+    // }
     final setting = await ref.read(settingNotifierProvider.future);
     final concurrent = setting.maxConcurrent.floor();
     final duration = Duration(seconds: setting.cacheDuration.floor());
@@ -110,15 +116,10 @@ class Sources extends _$Sources {
         final source = sources.where((element) => element.id == id).first;
         store(source.copyWith(enabled: true));
       },
-      onDone: () => _closeValidating(controller),
-      onError: (_) => _closeValidating(controller),
+      onDone: () => controller.close(),
+      onError: (_) => controller.close(),
     );
     return controller.stream;
-  }
-
-  void _closeValidating(StreamController controller) {
-    controller.close();
-    ref.invalidateSelf();
   }
 }
 

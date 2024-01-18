@@ -101,6 +101,7 @@ class _SourceListPageState extends State<SourceListPage> {
   }
 
   void validateSources(BuildContext context, WidgetRef ref) async {
+    Navigator.of(context).pop();
     showDialog(
       barrierDismissible: false,
       builder: (context) {
@@ -296,10 +297,8 @@ class _SourceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    var onBackground = colorScheme.onBackground;
-    if (!source.enabled) {
-      onBackground = onBackground.withOpacity(0.8);
-    }
+    final surfaceVariant = colorScheme.surfaceVariant;
+    final color = source.enabled ? null : surfaceVariant;
     final primary = colorScheme.primary;
     return InkWell(
       onTap: handleTap,
@@ -312,7 +311,7 @@ class _SourceTile extends StatelessWidget {
               child: DefaultTextStyle.merge(
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: onBackground),
+                style: TextStyle(color: color),
                 child: Text.rich(
                   TextSpan(
                     text: source.name,

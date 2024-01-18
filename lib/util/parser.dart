@@ -173,50 +173,41 @@ class Parser {
     });
   }
 
-  static Future<Stream<ExploreResult>> getExplore(
+  static Future<List<ExploreResult>> getExplore(
     Source source,
     Duration duration,
     Duration timeout,
+    int maxConcurrent,
   ) async {
-    final controller = StreamController<ExploreResult>();
     final temporaryDirectory = await getTemporaryDirectory();
     final network = CachedNetwork(
       temporaryDirectory: temporaryDirectory,
       timeout: timeout,
     );
-    var closed = 0;
     final rules = jsonDecode(source.exploreJson);
-    Map<String, Isolate> isolates = {};
-    List<Future> isolateInitializations = [];
-    final receiver = ReceivePort();
-    for (var i = 0; i < rules.length; i++) {
-      final title = rules[i]['title'];
-      final sender = ReceivePort();
-      final isolate = await Isolate.spawn(_getExplore, sender.sendPort);
-      isolates[title] = isolate;
-      isolateInitializations.add(sender.first);
-    }
-    final sendPorts = await Future.wait(isolateInitializations);
-    for (var i = 0; i < sendPorts.length; i++) {
-      final rule = rules[i];
+    final semaphore = Semaphore(maxConcurrent);
+
+    List<ExploreResult> results = [];
+    for (var rule in rules) {
       final exploreUrl = rule['exploreUrl'];
-      sendPorts[i].send(
+      await semaphore.acquire();
+      final sender = ReceivePort();
+      final receiver = ReceivePort();
+      final isolate = await Isolate.spawn(_getExplore, sender.sendPort);
+      (await sender.first as SendPort).send(
         [network, duration, rule, exploreUrl, source, receiver.sendPort],
       );
-    }
-    receiver.forEach((element) {
-      if (element.runtimeType == ExploreResult) {
-        controller.add(element);
-      } else {
-        final title = element.toString().split(' ').first;
-        isolates[title]?.kill();
-        closed++;
-        if (closed == rules.length) {
-          controller.close();
+      receiver.forEach((element) {
+        if (element.runtimeType == ExploreResult) {
+          results.add(element);
+        } else {
+          isolate.kill();
+          semaphore.release();
+          receiver.close();
         }
-      }
-    });
-    return controller.stream;
+      });
+    }
+    return results;
   }
 
   static void _getExplore(SendPort message) {
@@ -264,7 +255,6 @@ class Parser {
           book.sources = [availableSource];
           books.add(book);
         }
-        books.shuffle();
         final layout = rule['layout'];
         final title = rule['title'];
         final result = ExploreResult(
@@ -582,19 +572,13 @@ class Parser {
       [network, duration, credential, source, receiver.sendPort],
     );
     final controller = StreamController<DebugResultNew>();
-    var count = 0;
-    receiver.forEach((element) async {
+    receiver.forEach((element) {
       if (element.runtimeType == DebugResultNew) {
         controller.add(element);
-        count++;
-        if (count == 4) {
-          isolate.kill();
-          controller.close();
-        }
       } else {
         isolate.kill();
-        controller.addError(element);
         controller.close();
+        receiver.close();
       }
     });
     return controller.stream;
@@ -603,303 +587,364 @@ class Parser {
   static void _debugInIsolate(SendPort message) {
     final port = ReceivePort();
     message.send(port.sendPort);
-    port.listen(
-      (message) async {
-        final network = message[0] as CachedNetwork;
-        var duration = message[1] as Duration;
-        var credential = message[2] as String;
-        final source = message[3] as Source;
-        final sender = message[4] as SendPort;
+    port.listen((message) async {
+      final network = message[0] as CachedNetwork;
+      var duration = message[1] as Duration;
+      var credential = message[2] as String;
+      final source = message[3] as Source;
+      final sender = message[4] as SendPort;
 
-        final parser = HtmlParser();
-        var result = DebugResultNew();
-        var books = <Book>[];
-        String catalogueUrl = '';
-        String informationUrl = '';
-        var chapters = <Chapter>[];
+      final parser = HtmlParser();
+      var result = DebugResultNew();
+      var books = <Book>[];
+      String catalogueUrl = '';
+      String informationUrl = '';
+      var chapters = <Chapter>[];
+      // 调试搜索解析规则
+      try {
+        result.title = '搜索';
         try {
-          // // 调试搜索解析规则
-          result.title = '搜索';
-          try {
-            final header = jsonDecode(source.header);
-            if (header['Content-Type'] == 'application/x-www-form-urlencoded') {
-              if (source.charset == 'gbk') {
-                final codeUnits = gbk.encode(credential);
-                credential = codeUnits.map((codeUnit) {
-                  return '%${codeUnit.toRadixString(16).padLeft(2, '0').toUpperCase()}';
-                }).join();
-              } else {
-                credential = Uri.encodeComponent(credential);
-              }
+          final header = jsonDecode(source.header);
+          if (header['Content-Type'] == 'application/x-www-form-urlencoded') {
+            if (source.charset == 'gbk') {
+              final codeUnits = gbk.encode(credential);
+              credential = codeUnits.map((codeUnit) {
+                return '%${codeUnit.toRadixString(16).padLeft(2, '0').toUpperCase()}';
+              }).join();
+            } else {
+              credential = Uri.encodeComponent(credential);
             }
-          } catch (error) {
-            // Do nothing
           }
-          final searchUrl = source.searchUrl
-              .replaceAll('{{credential}}', credential)
-              .replaceAll('{{page}}', '1');
-          var html = await network.request(
-            searchUrl,
-            charset: source.charset,
-            duration: duration,
-            method: source.searchMethod.toUpperCase(),
-            reacquire: true,
-          );
-          result.raw = html;
-          var document = parser.parse(html);
-          var items = parser.queryNodes(document, source.searchBooks);
-          for (var i = 0; i < items.length; i++) {
-            final author = parser.query(items[i], source.searchAuthor);
-            final category = parser.query(items[i], source.searchCategory);
-            var cover = parser.query(items[i], source.searchCover);
-            if (!cover.startsWith('http')) {
-              cover = '${source.url}$cover';
-            }
-            final introduction =
-                parser.query(items[i], source.searchIntroduction);
-            final latestChapter =
-                parser.query(items[i], source.searchLatestChapter);
-            final name = parser.query(items[i], source.searchName);
-            // final status = parser.query(items[i], source.searchStatus);
-            // final updatedAt = parser.query(items[i], source.searchUpdatedAt);
-            var url = parser.query(items[i], source.searchInformationUrl);
-            if (!url.startsWith('http')) {
-              url = '${source.url}$url';
-            }
-            final words = parser.query(items[i], source.searchWordCount);
-
-            var availableSource = AvailableSource();
-            availableSource.id = source.id;
-            availableSource.url = url;
-            var book = Book();
-            book.author = author;
-            book.category = category;
-            book.cover = cover;
-            book.introduction = introduction;
-            book.latestChapter = latestChapter;
-            book.name = name;
-            // book.status = status;
-            // book.updatedAt = updatedAt;
-            book.sourceId = source.id;
-            book.sources = [availableSource];
-            book.url = url;
-            book.words = words;
-            books.add(book);
-          }
-          final jsonList = books.map((book) => book.toJson()).toList();
-          result.json = jsonEncode(jsonList);
         } catch (error) {
-          sender.send(error.toString());
+          // Do nothing
         }
-        sender.send(result);
-        if (books.isEmpty) {
-          sender.send('close');
-          return;
+        final searchUrl = source.searchUrl
+            .replaceAll('{{credential}}', credential)
+            .replaceAll('{{page}}', '1');
+        String html = '';
+        for (var i = 0; i < 5; i++) {
+          try {
+            html = await network.request(
+              searchUrl,
+              charset: source.charset,
+              duration: duration,
+              method: source.searchMethod.toUpperCase(),
+              reacquire: true,
+            );
+            continue;
+          } catch (error) {
+            if (i == 4) {
+              result.raw = error.toString();
+              result.json = jsonEncode([
+                {'error': error.toString()}
+              ]);
+              sender.send(result);
+              sender.send('terminated');
+              return;
+            }
+          }
         }
-        // 调试详情规则解析
-        result.title = '详情';
-        try {
-          informationUrl = books.first.url;
-          var html = await network.request(
-            informationUrl,
-            charset: source.charset,
-            duration: duration,
-            method: source.informationMethod.toUpperCase(),
-            reacquire: true,
-          );
-          result.raw = html;
-          var document = parser.parse(html);
-          var author = parser.query(document, source.informationAuthor);
-          catalogueUrl = parser.query(document, source.informationCatalogueUrl);
-          if (catalogueUrl.isEmpty) {
-            catalogueUrl = informationUrl;
-          }
-          if (!catalogueUrl.startsWith('http')) {
-            catalogueUrl = '${source.url}$catalogueUrl';
-          }
-          var cover = parser.query(document, source.informationCover);
+        result.raw = html;
+        var document = parser.parse(html);
+        var items = parser.queryNodes(document, source.searchBooks);
+        for (var i = 0; i < items.length; i++) {
+          final author = parser.query(items[i], source.searchAuthor);
+          final category = parser.query(items[i], source.searchCategory);
+          var cover = parser.query(items[i], source.searchCover);
           if (!cover.startsWith('http')) {
             cover = '${source.url}$cover';
           }
-          var category = parser.query(document, source.informationCategory);
-          var introduction =
-              parser.query(document, source.informationIntroduction);
+          final introduction =
+              parser.query(items[i], source.searchIntroduction);
           final latestChapter =
-              parser.query(document, source.informationLatestChapter);
-          var name = parser.query(document, source.informationName);
-          // final updatedAt = parser.query(document, source.informationUpdatedAt);
-          final words = parser.query(document, source.informationWordCount);
+              parser.query(items[i], source.searchLatestChapter);
+          final name = parser.query(items[i], source.searchName);
+          // final status = parser.query(items[i], source.searchStatus);
+          // final updatedAt = parser.query(items[i], source.searchUpdatedAt);
+          var url = parser.query(items[i], source.searchInformationUrl);
+          if (!url.startsWith('http')) {
+            url = '${source.url}$url';
+          }
+          final words = parser.query(items[i], source.searchWordCount);
+
           var availableSource = AvailableSource();
           availableSource.id = source.id;
-          availableSource.url = books.first.url;
+          availableSource.url = url;
           var book = Book();
           book.author = author;
-          book.catalogueUrl = catalogueUrl;
           book.category = category;
           book.cover = cover;
           book.introduction = introduction;
           book.latestChapter = latestChapter;
           book.name = name;
+          // book.status = status;
+          // book.updatedAt = updatedAt;
           book.sourceId = source.id;
           book.sources = [availableSource];
-          // book.updatedAt = updatedAt;
-          book.url = informationUrl;
+          book.url = url;
           book.words = words;
-          result.json = jsonEncode(book.toJson());
-        } catch (error) {
-          sender.send(error.toString());
+          books.add(book);
         }
+        final jsonList = books.map((book) => book.toJson()).toList();
+        result.json = jsonEncode(jsonList);
         sender.send(result);
-        if (catalogueUrl.isEmpty) {
-          sender.send('close');
-          return;
-        } // 调试目录解析规则
-        result.title = '目录';
-        try {
-          var html = await network.request(
-            catalogueUrl,
-            charset: source.charset,
-            duration: duration,
-            method: source.catalogueMethod.toUpperCase(),
-            reacquire: true,
-          );
-          result.raw = html;
-          var document = parser.parse(html);
-          var preset = parser.query(document, source.cataloguePreset);
-          var items = parser.queryNodes(document, source.catalogueChapters);
-          var catalogueUrlRule = source.catalogueUrl;
-          catalogueUrlRule = catalogueUrlRule.replaceAll('{{preset}}', preset);
-          for (var i = 0; i < items.length; i++) {
-            final name = parser.query(items[i], source.catalogueName);
-            var url = parser.query(items[i], catalogueUrlRule);
-            if (!url.startsWith('http')) {
-              url = '${source.url}$url';
+      } catch (error) {
+        result.raw = error.toString();
+        result.json = jsonEncode([
+          {'error': error.toString()}
+        ]);
+        sender.send(result);
+        return;
+      }
+      // 调试详情规则解析
+      result.title = '详情';
+      try {
+        informationUrl = books.first.url;
+        String html = '';
+        for (var i = 0; i < 5; i++) {
+          try {
+            html = await network.request(
+              informationUrl,
+              charset: source.charset,
+              duration: duration,
+              method: source.informationMethod.toUpperCase(),
+              reacquire: true,
+            );
+            continue;
+          } catch (error) {
+            if (i == 4) {
+              result.raw = error.toString();
+              result.json = jsonEncode({'error': error.toString()});
+              sender.send(result);
+              sender.send('terminated');
+              return;
             }
-            var chapter = Chapter();
-            chapter.name = name;
-            chapter.url = url;
-            chapters.add(chapter);
           }
-          if (source.cataloguePagination.isNotEmpty) {
-            var validation = parser.query(
+        }
+        result.raw = html;
+        var document = parser.parse(html);
+        var author = parser.query(document, source.informationAuthor);
+        catalogueUrl = parser.query(document, source.informationCatalogueUrl);
+        if (catalogueUrl.isEmpty) {
+          catalogueUrl = informationUrl;
+        }
+        if (!catalogueUrl.startsWith('http')) {
+          catalogueUrl = '${source.url}$catalogueUrl';
+        }
+        var cover = parser.query(document, source.informationCover);
+        if (!cover.startsWith('http')) {
+          cover = '${source.url}$cover';
+        }
+        var category = parser.query(document, source.informationCategory);
+        var introduction =
+            parser.query(document, source.informationIntroduction);
+        final latestChapter =
+            parser.query(document, source.informationLatestChapter);
+        var name = parser.query(document, source.informationName);
+        // final updatedAt = parser.query(document, source.informationUpdatedAt);
+        final words = parser.query(document, source.informationWordCount);
+        var availableSource = AvailableSource();
+        availableSource.id = source.id;
+        availableSource.url = books.first.url;
+        var book = Book();
+        book.author = author;
+        book.catalogueUrl = catalogueUrl;
+        book.category = category;
+        book.cover = cover;
+        book.introduction = introduction;
+        book.latestChapter = latestChapter;
+        book.name = name;
+        book.sourceId = source.id;
+        book.sources = [availableSource];
+        // book.updatedAt = updatedAt;
+        book.url = informationUrl;
+        book.words = words;
+        result.json = jsonEncode(book.toJson());
+        sender.send(result);
+      } catch (error) {
+        result.raw = error.toString();
+        result.json = jsonEncode({'error': error.toString()});
+        sender.send(result);
+        sender.send('terminated');
+        return;
+      }
+      // 调试目录解析规则
+      result.title = '目录';
+      try {
+        String html = '';
+        for (var i = 0; i < 5; i++) {
+          try {
+            html = await network.request(
+              catalogueUrl,
+              charset: source.charset,
+              duration: duration,
+              method: source.catalogueMethod.toUpperCase(),
+              reacquire: true,
+            );
+            continue;
+          } catch (error) {
+            if (i == 4) {
+              result.raw = error.toString();
+              result.json = jsonEncode([
+                {'error': error.toString()}
+              ]);
+              sender.send(result);
+              sender.send('terminated');
+              return;
+            }
+          }
+        }
+        result.raw = html;
+        var document = parser.parse(html);
+        var preset = parser.query(document, source.cataloguePreset);
+        var items = parser.queryNodes(document, source.catalogueChapters);
+        var catalogueUrlRule = source.catalogueUrl;
+        catalogueUrlRule = catalogueUrlRule.replaceAll('{{preset}}', preset);
+        for (var i = 0; i < items.length; i++) {
+          final name = parser.query(items[i], source.catalogueName);
+          var url = parser.query(items[i], catalogueUrlRule);
+          if (!url.startsWith('http')) {
+            url = '${source.url}$url';
+          }
+          var chapter = Chapter();
+          chapter.name = name;
+          chapter.url = url;
+          chapters.add(chapter);
+        }
+        if (source.cataloguePagination.isNotEmpty) {
+          var validation = parser.query(
+            document,
+            source.cataloguePaginationValidation,
+          );
+          while (validation.contains('下一页')) {
+            var nextUrl = parser.query(document, source.cataloguePagination);
+            if (!nextUrl.startsWith('http')) {
+              nextUrl = '${source.url}$nextUrl';
+            }
+            var nextHtml = await network.request(
+              nextUrl,
+              charset: source.charset,
+              method: source.catalogueMethod.toUpperCase(),
+              reacquire: true,
+            );
+            document = parser.parse(nextHtml);
+            var preset = parser.query(document, source.cataloguePreset);
+            var items = parser.queryNodes(
+              document,
+              source.catalogueChapters,
+            );
+            var catalogueUrlRule = source.catalogueUrl;
+            catalogueUrlRule = catalogueUrlRule.replaceAll(
+              '{{preset}}',
+              preset,
+            );
+            for (var i = 0; i < items.length; i++) {
+              final name = parser.query(items[i], source.catalogueName);
+              var url = parser.query(items[i], catalogueUrlRule);
+              if (!url.startsWith('http')) {
+                url = '${source.url}$url';
+              }
+              var chapter = Chapter();
+              chapter.name = name;
+              chapter.url = url;
+              chapters.add(chapter);
+            }
+            validation = parser.query(
               document,
               source.cataloguePaginationValidation,
             );
-            while (validation.contains('下一页')) {
-              var nextUrl = parser.query(document, source.cataloguePagination);
-              if (!nextUrl.startsWith('http')) {
-                nextUrl = '${source.url}$nextUrl';
-              }
-              var nextHtml = await network.request(
-                nextUrl,
-                charset: source.charset,
-                method: source.catalogueMethod.toUpperCase(),
-                reacquire: true,
-              );
-              document = parser.parse(nextHtml);
-              var preset = parser.query(document, source.cataloguePreset);
-              var items = parser.queryNodes(
-                document,
-                source.catalogueChapters,
-              );
-              var catalogueUrlRule = source.catalogueUrl;
-              catalogueUrlRule = catalogueUrlRule.replaceAll(
-                '{{preset}}',
-                preset,
-              );
-              for (var i = 0; i < items.length; i++) {
-                final name = parser.query(items[i], source.catalogueName);
-                var url = parser.query(items[i], catalogueUrlRule);
-                if (!url.startsWith('http')) {
-                  url = '${source.url}$url';
-                }
-                var chapter = Chapter();
-                chapter.name = name;
-                chapter.url = url;
-                chapters.add(chapter);
-              }
-              validation = parser.query(
-                document,
-                source.cataloguePaginationValidation,
-              );
+          }
+        }
+        var jsonList = chapters.map((chapter) => chapter.toJson()).toList();
+        result.json = jsonEncode(jsonList);
+        sender.send(result);
+      } catch (error) {
+        result.raw = error.toString();
+        result.json = jsonEncode([
+          {'error': error.toString()}
+        ]);
+        sender.send(result);
+        sender.send('terminated');
+        return;
+      }
+      // 调试正文解析规则
+      result.title = '正文';
+      try {
+        String html = '';
+        for (var i = 0; i < 5; i++) {
+          try {
+            html = await network.request(
+              chapters.first.url,
+              charset: source.charset,
+              duration: duration,
+              method: source.contentMethod.toUpperCase(),
+              reacquire: true,
+            );
+            continue;
+          } catch (error) {
+            if (i == 4) {
+              result.raw = error.toString();
+              result.json = jsonEncode({'error': error.toString()});
+              sender.send(result);
+              sender.send('terminated');
+              return;
             }
           }
-          var jsonList = chapters.map((chapter) => chapter.toJson()).toList();
-          result.json = jsonEncode(jsonList);
-        } catch (error) {
-          sender.send(error.toString());
         }
-        sender.send(result);
-        if (chapters.isEmpty) {
-          sender.send('close');
-          return;
-        } // 调试正文解析规则
-        result.title = '正文';
-        try {
-          if (chapters.isNotEmpty) {
-            var html = await network.request(
-              chapters.first.url,
+        result.raw = html;
+        var document = parser.parse(html);
+        var content = parser.query(document, source.contentContent);
+        if (source.contentPagination.isNotEmpty) {
+          var validation = parser.query(
+            document,
+            source.contentPaginationValidation,
+          );
+          while (validation.contains('下一页')) {
+            var nextUrl = parser.query(document, source.contentPagination);
+            if (!nextUrl.startsWith('http')) {
+              nextUrl = '${source.url}$nextUrl';
+            }
+            var nextHtml = await network.request(
+              nextUrl,
               charset: source.charset,
               method: source.contentMethod.toUpperCase(),
               reacquire: true,
             );
-            result.raw = html;
-            var document = parser.parse(html);
-            var content = parser.query(document, source.contentContent);
-            if (source.contentPagination.isNotEmpty) {
-              var validation = parser.query(
-                document,
-                source.contentPaginationValidation,
-              );
-              while (validation.contains('下一页')) {
-                var nextUrl = parser.query(document, source.contentPagination);
-                if (!nextUrl.startsWith('http')) {
-                  nextUrl = '${source.url}$nextUrl';
-                }
-                var nextHtml = await network.request(
-                  nextUrl,
-                  charset: source.charset,
-                  method: source.contentMethod.toUpperCase(),
-                  reacquire: true,
-                );
-                document = parser.parse(nextHtml);
-                var nextContent = parser.query(document, source.contentContent);
-                content = '$content\n$nextContent';
-                validation = parser.query(
-                  document,
-                  source.contentPaginationValidation,
-                );
-              }
-            }
-            result.json = jsonEncode({'content': content});
+            document = parser.parse(nextHtml);
+            var nextContent = parser.query(document, source.contentContent);
+            content = '$content\n$nextContent';
+            validation = parser.query(
+              document,
+              source.contentPaginationValidation,
+            );
           }
-        } catch (error) {
-          sender.send(error.toString());
         }
+        result.json = jsonEncode({'content': content});
         sender.send(result);
-      },
-      onDone: () => print('DONE'),
-    );
+        sender.send('completed');
+      } catch (error) {
+        result.raw = error.toString();
+        result.json = jsonEncode({'error': error.toString()});
+        sender.send(result);
+        sender.send('terminated');
+        return;
+      }
+    });
   }
 
   static Future<List<Source>> importNetworkSource(
       String url, Duration timeout) async {
     final network = CachedNetwork(timeout: timeout);
     final html = await network.request(url, reacquire: true);
-    final json = jsonDecode(html);
-    List<Source> sources = [];
-    if (json is List) {
-      for (var element in json) {
-        sources.add(Source.fromJson(element));
-      }
-    } else {
-      sources.add(Source.fromJson(json));
-    }
-    return sources;
+    return _importSource(html);
   }
 
   static Future<List<Source>> importLocalSource(String value) async {
-    final json = jsonDecode(value);
+    return _importSource(value);
+  }
+
+  static List<Source> _importSource(String text) {
+    final json = jsonDecode(text);
     List<Source> sources = [];
     if (json is List) {
       for (var element in json) {
@@ -934,26 +979,19 @@ class Parser {
       (await sender.first as SendPort).send(
         [network, duration, credential, source, receiver.sendPort],
       );
-      var count = 0;
-      receiver.forEach((element) async {
+      receiver.forEach((element) {
         if (element.runtimeType == DebugResultNew) {
-          count++;
-          if (count == 4) {
+          final result = element as DebugResultNew;
+          if (result.title == '正文') {
             controller.add(source.id);
-            isolate.kill();
-            closed++;
-            print('${source.name} killed 成功');
-            if (closed == sources.length) {
-              controller.close();
-            }
           }
         } else {
           isolate.kill();
           closed++;
-          print('${source.name} killed 错误 $element');
           if (closed == sources.length) {
             controller.close();
           }
+          receiver.close();
         }
       });
     }
