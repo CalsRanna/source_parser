@@ -166,9 +166,9 @@ class Parser {
             sender.send(book);
           }
         }
-        sender.send('close');
+        sender.send('completed');
       } catch (error) {
-        sender.send(error.toString());
+        sender.send('terminated');
       }
     });
   }
@@ -197,7 +197,7 @@ class Parser {
         [network, duration, rule, exploreUrl, source, receiver.sendPort],
       );
       receiver.forEach((element) {
-        if (element.runtimeType == ExploreResult) {
+        if (element is ExploreResult) {
           results.add(element);
         } else {
           isolate.kill();
@@ -301,7 +301,7 @@ class Parser {
       [network, duration, url, source, receiver.sendPort],
     );
     final response = await receiver.first;
-    if (response.runtimeType == Book) {
+    if (response is Book) {
       isolate.kill();
       return response;
     } else {
@@ -361,9 +361,9 @@ class Parser {
         book.name = name;
         book.words = words;
         sender.send(book);
-        sender.send('close');
+        sender.send('completed');
       } catch (error) {
-        sender.send(error.toString());
+        sender.send('terminated');
       }
     });
   }
@@ -478,9 +478,9 @@ class Parser {
             );
           }
         }
-        sender.send('close');
+        sender.send('completed');
       } catch (error) {
-        sender.send(error.toString());
+        sender.send('terminated');
       }
     });
   }
@@ -580,7 +580,7 @@ class Parser {
     );
     final controller = StreamController<DebugResultNew>();
     receiver.forEach((element) {
-      if (element.runtimeType == DebugResultNew) {
+      if (element is DebugResultNew) {
         controller.add(element);
       } else {
         isolate.kill();
@@ -987,7 +987,7 @@ class Parser {
         [network, duration, credential, source, receiver.sendPort],
       );
       receiver.forEach((element) {
-        if (element.runtimeType == DebugResultNew) {
+        if (element is DebugResultNew) {
           final result = element as DebugResultNew;
           if (result.title == '正文') {
             controller.add(source.id);
