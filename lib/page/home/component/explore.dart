@@ -27,32 +27,35 @@ class _ExploreViewState extends State<ExploreView>
       return switch (provider) {
         AsyncData(:final value) => RefreshIndicator(
             onRefresh: () => handleRefresh(ref),
-            child: ListView.separated(
-              itemBuilder: (context, index) {
-                final layout = value[index].layout;
-                final books = value[index].books;
-                final title = value[index].title;
-                return switch (layout) {
-                  'banner' => _ExploreBanner(
-                      key: ValueKey(title),
-                      books: books,
-                    ),
-                  'card' => _ExploreList(
-                      key: ValueKey(title),
-                      books: books,
-                      title: title,
-                    ),
-                  'grid' => _ExploreGrid(
-                      key: ValueKey(title),
-                      books: books,
-                      title: title,
-                    ),
-                  _ => const SizedBox(),
-                };
-              },
-              itemCount: value.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 16),
-            ),
+            child: value.isEmpty
+                ? const Center(child: Text('空空如也'))
+                : ListView.separated(
+                    itemBuilder: (context, index) {
+                      final layout = value[index].layout;
+                      final books = value[index].books;
+                      final title = value[index].title;
+                      return switch (layout) {
+                        'banner' => _ExploreBanner(
+                            key: ValueKey(title),
+                            books: books,
+                          ),
+                        'card' => _ExploreList(
+                            key: ValueKey(title),
+                            books: books,
+                            title: title,
+                          ),
+                        'grid' => _ExploreGrid(
+                            key: ValueKey(title),
+                            books: books,
+                            title: title,
+                          ),
+                        _ => const SizedBox(),
+                      };
+                    },
+                    itemCount: value.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 16),
+                  ),
           ),
         AsyncLoading() => const Center(child: CircularProgressIndicator()),
         _ => const Center(child: Text('空空如也')),

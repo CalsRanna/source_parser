@@ -15,14 +15,12 @@ part 'explore.g.dart';
 class ExploreBooks extends _$ExploreBooks {
   @override
   Future<List<ExploreResult>> build() async {
-    final controller = StreamController<List<ExploreResult>>();
     final setting = await ref.watch(settingNotifierProvider.future);
     final source = await isar.sources
         .filter()
         .idEqualTo(setting.exploreSource)
         .findFirst();
     if (source == null) {
-      controller.close();
       return [];
     }
     final exploreJson = json.decode(source.exploreJson);

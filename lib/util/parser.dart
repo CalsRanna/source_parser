@@ -186,7 +186,6 @@ class Parser {
     );
     final rules = jsonDecode(source.exploreJson);
     final semaphore = Semaphore(maxConcurrent);
-
     List<ExploreResult> results = [];
     for (var rule in rules) {
       final exploreUrl = rule['exploreUrl'];
