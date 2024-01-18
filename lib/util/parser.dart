@@ -263,10 +263,17 @@ class Parser {
           books: books,
         );
         sender.send(result);
-        sender.send('$title closed');
+        sender.send('completed');
       } catch (error) {
+        final layout = rule['layout'];
         final title = rule['title'];
-        sender.send('$title error ${error.toString()}');
+        final result = ExploreResult(
+          layout: layout,
+          title: title,
+          books: [],
+        );
+        sender.send(result);
+        sender.send('terminated');
       }
     });
   }
