@@ -58,7 +58,7 @@ class _ExploreViewState extends State<ExploreView>
                   ),
           ),
         AsyncLoading() => const Center(child: CircularProgressIndicator()),
-        _ => const Center(child: Text('不知道发生了什么，Riverpod出问题了。')),
+        _ => const SizedBox(),
       };
     });
   }

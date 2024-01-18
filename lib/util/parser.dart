@@ -224,6 +224,7 @@ class Parser {
           exploreUrl,
           charset: rule['charset'],
           duration: duration,
+          reacquire: true,
         );
         final parser = HtmlParser();
         final document = parser.parse(html);
@@ -265,14 +266,6 @@ class Parser {
         sender.send(result);
         sender.send('completed');
       } catch (error) {
-        final layout = rule['layout'];
-        final title = rule['title'];
-        final result = ExploreResult(
-          layout: layout,
-          title: title,
-          books: [],
-        );
-        sender.send(result);
         sender.send('terminated');
       }
     });
@@ -988,8 +981,7 @@ class Parser {
       );
       receiver.forEach((element) {
         if (element is DebugResultNew) {
-          final result = element as DebugResultNew;
-          if (result.title == '正文') {
+          if (element.title == '正文') {
             controller.add(source.id);
           }
         } else {
