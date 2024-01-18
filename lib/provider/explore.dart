@@ -14,7 +14,7 @@ part 'explore.g.dart';
 @riverpod
 class ExploreBooks extends _$ExploreBooks {
   @override
-  Future<Stream<List<ExploreResult>>> build() async {
+  Future<List<ExploreResult>> build() async {
     final controller = StreamController<List<ExploreResult>>();
     final setting = await ref.watch(settingNotifierProvider.future);
     final source = await isar.sources
@@ -23,26 +23,19 @@ class ExploreBooks extends _$ExploreBooks {
         .findFirst();
     if (source == null) {
       controller.close();
-      return controller.stream;
+      return [];
     }
     final exploreJson = json.decode(source.exploreJson);
     final order = exploreJson.map((config) => config['title']).toList();
     final duration = Duration(hours: setting.cacheDuration.floor());
     final timeout = Duration(milliseconds: setting.timeout);
-    final stream = await Parser.getExplore(source, duration, timeout);
-    List<ExploreResult> exploreBooks = [];
-    stream.listen(
-      (exploreResult) {
-        exploreBooks.add(exploreResult);
-        exploreBooks.sort((a, b) {
-          return order.indexOf(a.title).compareTo(order.indexOf(b.title));
-        });
-        controller.add(exploreBooks);
-      },
-      onDone: () => controller.close(),
-      onError: (error) => controller.close(),
-    );
-    return controller.stream;
+    final maxConcurrent = setting.maxConcurrent.floor();
+    final exploreBooks =
+        await Parser.getExplore(source, duration, timeout, maxConcurrent);
+    exploreBooks.sort((a, b) {
+      return order.indexOf(a.title).compareTo(order.indexOf(b.title));
+    });
+    return exploreBooks;
   }
 
   Future<void> refresh() async {

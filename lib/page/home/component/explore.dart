@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/page/explore.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/explore.dart';
@@ -18,37 +17,34 @@ class ExploreView extends StatefulWidget {
   State<ExploreView> createState() => _ExploreViewState();
 }
 
-class _ExploreViewState extends State<ExploreView> {
+class _ExploreViewState extends State<ExploreView>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Consumer(builder: (context, ref, child) {
       final provider = ref.watch(exploreBooksProvider);
       return switch (provider) {
         AsyncData(:final value) => RefreshIndicator(
             onRefresh: () => handleRefresh(ref),
-            child: StreamBuilder(
-                stream: value,
-                builder: (context, snapshot) {
-                  List<ExploreResult> results = snapshot.data ?? [];
-                  return ListView.separated(
-                    itemBuilder: (context, index) {
-                      final layout = results[index].layout;
-                      final books = results[index].books;
-                      final title = results[index].title;
-                      return switch (layout) {
-                        'banner' => _ExploreBanner(books: books),
-                        'card' => _ExploreList(books: books, title: title),
-                        'grid' => _ExploreGrid(books: books, title: title),
-                        _ => Container(),
-                      };
-                    },
-                    itemCount: results.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 16),
-                  );
-                }),
+            child: ListView.separated(
+              itemBuilder: (context, index) {
+                final layout = value[index].layout;
+                final books = value[index].books;
+                final title = value[index].title;
+                return switch (layout) {
+                  'banner' => _ExploreBanner(books: books),
+                  'card' => _ExploreList(books: books, title: title),
+                  'grid' => _ExploreGrid(books: books, title: title),
+                  _ => Container(),
+                };
+              },
+              itemCount: value.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
+            ),
           ),
-        _ => const Center(child: CircularProgressIndicator()),
+        AsyncLoading() => const Center(child: CircularProgressIndicator()),
+        _ => const Center(child: Text('空空如也')),
       };
     });
   }
@@ -57,6 +53,9 @@ class _ExploreViewState extends State<ExploreView> {
     final notifier = ref.read(exploreBooksProvider.notifier);
     await notifier.refresh();
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class _ExploreBanner extends StatelessWidget {

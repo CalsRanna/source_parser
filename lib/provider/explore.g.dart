@@ -6,12 +6,12 @@ part of 'explore.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$exploreBooksHash() => r'44e2bcce21fbb773385605d7fda1167a8335a9af';
+String _$exploreBooksHash() => r'9f8a4257c936847a0a0a617bbe4d4bb8dca05faa';
 
 /// See also [ExploreBooks].
 @ProviderFor(ExploreBooks)
 final exploreBooksProvider = AutoDisposeAsyncNotifierProvider<ExploreBooks,
-    Stream<List<ExploreResult>>>.internal(
+    List<ExploreResult>>.internal(
   ExploreBooks.new,
   name: r'exploreBooksProvider',
   debugGetCreateSourceHash:
@@ -20,6 +20,6 @@ final exploreBooksProvider = AutoDisposeAsyncNotifierProvider<ExploreBooks,
   allTransitiveDependencies: null,
 );
 
-typedef _$ExploreBooks = AutoDisposeAsyncNotifier<Stream<List<ExploreResult>>>;
+typedef _$ExploreBooks = AutoDisposeAsyncNotifier<List<ExploreResult>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

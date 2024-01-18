@@ -19,6 +19,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _index = 0;
+  final controller = PageController();
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +122,11 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         title: Text(titles[_index]),
       ),
-      body: const [ShelfView(), ExploreView(), ProfileView()][_index],
+      body: PageView(
+        controller: controller,
+        onPageChanged: handlePageChanged,
+        children: const [ShelfView(), ExploreView(), ProfileView()],
+      ),
       bottomNavigationBar: NavigationBar(
         destinations: destinations,
         height: 64,
@@ -130,6 +135,12 @@ class _HomePageState extends State<HomePage> {
         onDestinationSelected: handleDestinationSelected,
       ),
     );
+  }
+
+  void handlePageChanged(int page) {
+    setState(() {
+      _index = page;
+    });
   }
 
   void handlePressed() {
@@ -154,6 +165,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void handleDestinationSelected(int index) {
+    controller.jumpToPage(index);
     setState(() {
       _index = index;
     });
