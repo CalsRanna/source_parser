@@ -378,8 +378,8 @@ class _ShelfTileBottomSheet extends StatelessWidget {
           final book = ref.watch(bookNotifierProvider);
           final archived = book.archive;
           final icon =
-              archived ? Icons.unarchive_outlined : Icons.archive_outlined;
-          final text = archived ? '继续更新' : '不再更新';
+              archived ? Icons.archive_outlined : Icons.unarchive_outlined;
+          final text = archived ? '已完结' : '连载中';
           return GridView.count(
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 5,
@@ -490,6 +490,7 @@ class _ShelfTileBottomSheet extends StatelessWidget {
   }
 
   void selectCover(BuildContext context, WidgetRef ref) {
+    Navigator.of(context).pop();
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -504,11 +505,8 @@ class _ShelfTileBottomSheet extends StatelessWidget {
   }
 
   void toggleArchive(BuildContext context, WidgetRef ref) async {
-    final message = Message.of(context);
     final notifier = ref.read(bookNotifierProvider.notifier);
     await notifier.toggleArchive();
-    final book = ref.read(bookNotifierProvider);
-    message.show(book.archive ? '不再更新' : '继续更新');
   }
 
   String _buildSpan() {
