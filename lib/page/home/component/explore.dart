@@ -33,9 +33,20 @@ class _ExploreViewState extends State<ExploreView>
                 final books = value[index].books;
                 final title = value[index].title;
                 return switch (layout) {
-                  'banner' => _ExploreBanner(books: books),
-                  'card' => _ExploreList(books: books, title: title),
-                  'grid' => _ExploreGrid(books: books, title: title),
+                  'banner' => _ExploreBanner(
+                      key: ValueKey(title),
+                      books: books,
+                    ),
+                  'card' => _ExploreList(
+                      key: ValueKey(title),
+                      books: books,
+                      title: title,
+                    ),
+                  'grid' => _ExploreGrid(
+                      key: ValueKey(title),
+                      books: books,
+                      title: title,
+                    ),
                   _ => const SizedBox(),
                 };
               },
@@ -59,7 +70,7 @@ class _ExploreViewState extends State<ExploreView>
 }
 
 class _ExploreBanner extends StatelessWidget {
-  const _ExploreBanner({required this.books});
+  const _ExploreBanner({super.key, required this.books});
 
   final List<Book> books;
 
@@ -80,6 +91,14 @@ class _ExploreBanner extends StatelessWidget {
                   child: CachedNetworkImage(
                     fit: BoxFit.cover,
                     imageUrl: books[index].cover,
+                    errorWidget: (context, url, error) => Image.asset(
+                      'asset/image/default_cover.jpg',
+                      fit: BoxFit.cover,
+                    ),
+                    placeholder: (context, url) => Image.asset(
+                      'asset/image/default_cover.jpg',
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -99,7 +118,7 @@ class _ExploreBanner extends StatelessWidget {
 }
 
 class _ExploreList extends StatelessWidget {
-  const _ExploreList({required this.books, required this.title});
+  const _ExploreList({super.key, required this.books, required this.title});
 
   final List<Book> books;
   final String title;
@@ -253,7 +272,7 @@ class _ExploreListTile extends StatelessWidget {
 }
 
 class _ExploreGrid extends StatelessWidget {
-  const _ExploreGrid({required this.books, required this.title});
+  const _ExploreGrid({super.key, required this.books, required this.title});
 
   final List<Book> books;
   final String title;

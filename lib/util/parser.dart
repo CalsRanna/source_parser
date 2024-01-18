@@ -255,6 +255,7 @@ class Parser {
           book.sources = [availableSource];
           books.add(book);
         }
+        books.shuffle();
         final layout = rule['layout'];
         final title = rule['title'];
         final result = ExploreResult(
