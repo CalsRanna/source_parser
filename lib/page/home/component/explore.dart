@@ -36,7 +36,7 @@ class _ExploreViewState extends State<ExploreView>
                   'banner' => _ExploreBanner(books: books),
                   'card' => _ExploreList(books: books, title: title),
                   'grid' => _ExploreGrid(books: books, title: title),
-                  _ => Container(),
+                  _ => const SizedBox(),
                 };
               },
               itemCount: value.length,

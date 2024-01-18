@@ -339,7 +339,7 @@ class _ShelfTileBottomSheet extends StatelessWidget {
       children: [
         Row(
           children: [
-            BookCover(url: book.cover),
+            BookCover(height: 80, url: book.cover, width: 60),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -351,6 +351,7 @@ class _ShelfTileBottomSheet extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 14, height: 1.2),
                   ),
+                  const SizedBox(height: 8),
                   Text(
                     book.author,
                     style: TextStyle(
@@ -359,6 +360,7 @@ class _ShelfTileBottomSheet extends StatelessWidget {
                       color: onSurface.withOpacity(0.5),
                     ),
                   ),
+                  SizedBox(height: subtitle.isNotEmpty ? 8 : 0),
                   if (subtitle.isNotEmpty)
                     Text(
                       subtitle,
@@ -380,57 +382,54 @@ class _ShelfTileBottomSheet extends StatelessWidget {
           final icon =
               archived ? Icons.archive_outlined : Icons.unarchive_outlined;
           final text = archived ? '已完结' : '连载中';
-          return GridView.count(
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 5,
-            shrinkWrap: true,
-            children: [
-              IconButton(
-                onPressed: () => showInformation(context, ref),
-                icon: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Icon(Icons.info_outline), Text('查看详情')],
-                ),
-              ),
-              IconButton(
-                onPressed: () => selectCover(context, ref),
-                icon: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Icon(Icons.image_search_outlined), Text('修改封面')],
-                ),
-              ),
-              IconButton(
-                onPressed: () => toggleArchive(context, ref),
-                icon: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Icon(icon), Text(text)],
-                ),
-              ),
-              IconButton(
-                onPressed: () => cache(context, ref),
-                icon: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Icon(Icons.file_download_outlined), Text('缓存')],
-                ),
-              ),
-              IconButton(
-                onPressed: () => clearCache(context, ref),
-                icon: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+            ),
+            child: Column(
+              children: [
+                Row(
                   children: [
-                    Icon(Icons.file_download_off_outlined),
-                    Text('清除缓存')
+                    _SheetAction(
+                      icon: const Icon(Icons.info_outline),
+                      text: '详情',
+                      onTap: () => showInformation(context, ref),
+                    ),
+                    _SheetAction(
+                      icon: const Icon(Icons.image_search_outlined),
+                      text: '更改封面',
+                      onTap: () => selectCover(context, ref),
+                    ),
+                    _SheetAction(
+                      icon: Icon(icon),
+                      text: text,
+                      onTap: () => toggleArchive(context, ref),
+                    ),
+                    _SheetAction(
+                      icon: const Icon(Icons.delete_forever_outlined),
+                      text: '移出书架',
+                      onTap: () => remove(context, ref),
+                    ),
                   ],
                 ),
-              ),
-              IconButton(
-                onPressed: () => remove(context, ref),
-                icon: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Icon(Icons.delete_forever_outlined), Text('移出书架')],
+                Row(
+                  children: [
+                    _SheetAction(
+                      icon: const Icon(Icons.file_download_outlined),
+                      text: '缓存',
+                      onTap: () => cache(context, ref),
+                    ),
+                    _SheetAction(
+                      icon: const Icon(Icons.file_download_off_outlined),
+                      text: '清除缓存',
+                      onTap: () => clearCache(context, ref),
+                    ),
+                    const Expanded(flex: 2, child: SizedBox())
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         })
       ],
@@ -518,5 +517,34 @@ class _ShelfTileBottomSheet extends StatelessWidget {
       spans.add(book.status);
     }
     return spans.join(' · ');
+  }
+}
+
+class _SheetAction extends StatelessWidget {
+  const _SheetAction({required this.icon, required this.text, this.onTap});
+
+  final Icon icon;
+  final String text;
+  final void Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              icon,
+              const SizedBox(height: 8),
+              Text(text, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

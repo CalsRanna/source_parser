@@ -99,9 +99,9 @@ class Sources extends _$Sources {
   Future<Stream<int>> validate() async {
     final controller = StreamController<int>();
     final sources = await future;
-    // for (var source in sources) {
-    //   store(source.copyWith(enabled: false));
-    // }
+    for (var source in sources) {
+      store(source.copyWith(enabled: false));
+    }
     final setting = await ref.read(settingNotifierProvider.future);
     final concurrent = setting.maxConcurrent.floor();
     final duration = Duration(seconds: setting.cacheDuration.floor());
