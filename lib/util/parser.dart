@@ -186,6 +186,7 @@ class Parser {
     );
     final rules = jsonDecode(source.exploreJson);
     final semaphore = Semaphore(maxConcurrent);
+    List<Future> tasks = [];
     List<ExploreResult> results = [];
     for (var rule in rules) {
       final exploreUrl = rule['exploreUrl'];
@@ -196,7 +197,7 @@ class Parser {
       (await sender.first as SendPort).send(
         [network, duration, rule, exploreUrl, source, receiver.sendPort],
       );
-      receiver.forEach((element) {
+      final task = receiver.forEach((element) {
         if (element is ExploreResult) {
           results.add(element);
         } else {
@@ -205,7 +206,9 @@ class Parser {
           receiver.close();
         }
       });
+      tasks.add(task);
     }
+    await Future.wait(tasks);
     return results;
   }
 
@@ -224,7 +227,6 @@ class Parser {
           exploreUrl,
           charset: rule['charset'],
           duration: duration,
-          reacquire: true,
         );
         final parser = HtmlParser();
         final document = parser.parse(html);
@@ -256,16 +258,20 @@ class Parser {
           books.add(book);
         }
         books.shuffle();
-        final layout = rule['layout'];
-        final title = rule['title'];
         final result = ExploreResult(
-          layout: layout,
-          title: title,
+          layout: rule['layout'],
+          title: rule['title'],
           books: books,
         );
         sender.send(result);
         sender.send('completed');
       } catch (error) {
+        final result = ExploreResult(
+          layout: rule['layout'],
+          title: rule['title'],
+          books: [],
+        );
+        sender.send(result);
         sender.send('terminated');
       }
     });
