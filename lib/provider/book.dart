@@ -94,6 +94,7 @@ class BookNotifier extends _$BookNotifier {
     await isar.writeTxn(() async {
       isar.books.put(state);
     });
+    ref.invalidate(booksProvider);
   }
 
   Future<void> refreshCursor(int cursor) async {
