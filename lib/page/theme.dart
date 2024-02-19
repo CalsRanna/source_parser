@@ -114,6 +114,12 @@ class ReaderThemePage extends StatelessWidget {
                       color: const Color(0xFFb7ae8f),
                       onTap: () => updateBackgroundColor(ref, 0xFFb7ae8f),
                     ),
+                    const SizedBox(width: 8),
+                    _BackgroundTile(
+                      active: backgroundColor == 0xFF000000,
+                      color: Colors.black,
+                      onTap: () => updateBackgroundColor(ref, 0xFF000000),
+                    ),
                   ],
                 ),
               ),
@@ -196,13 +202,16 @@ class _BackgroundTile extends StatelessWidget {
         decoration: ShapeDecoration(
           color: color,
           shape: CircleBorder(
-            side:
-                BorderSide(color: active ? primary : outline.withOpacity(0.5)),
+            side: BorderSide(
+              color: active ? primary : outline.withOpacity(0.5),
+              width: active ? 2 : 1,
+            ),
           ),
         ),
         height: 28,
         padding: const EdgeInsets.all(1),
         width: 28,
+        child: active ? Icon(Icons.check, size: 16, color: primary) : null,
       ),
     );
   }
