@@ -77,10 +77,10 @@ packages:
     dependency: "direct main"
     description:
       name: book_reader
-      sha256: "4cf3253dd05282fa78149b9570ee4c7206c8d7649228f38d7e4cb2c17e06eea2"
+      sha256: a3e1fe8e4e6b0dbb2e094792e66077820555dd9c2bd2d31f8ae042ef469554d0
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.20"
+    version: "0.1.21"
   boolean_selector:
     dependency: transitive
     description:
