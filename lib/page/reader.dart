@@ -39,8 +39,10 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     };
     final backgroundColor = setting.backgroundColor;
     Color? fontColor;
+    Color? variantFontColor;
     if (backgroundColor == Colors.black.value) {
       fontColor = Colors.white.withOpacity(0.9);
+      variantFontColor = Colors.white.withOpacity(0.5);
     }
     final darkMode = setting.darkMode;
     final eInkMode = setting.eInkMode;
@@ -71,9 +73,9 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     theme = theme.copyWith(
       backgroundColor: Color(backgroundColor),
       footerPadding: theme.footerPadding.copyWith(bottom: bottom),
-      footerStyle: theme.footerStyle.copyWith(color: fontColor),
+      footerStyle: theme.footerStyle.copyWith(color: variantFontColor),
       headerPadding: theme.headerPadding.copyWith(top: top),
-      headerStyle: theme.headerStyle.copyWith(color: fontColor),
+      headerStyle: theme.headerStyle.copyWith(color: variantFontColor),
       pageStyle: theme.pageStyle.copyWith(
         color: fontColor,
         fontSize: fontSize.toDouble(),
