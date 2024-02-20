@@ -139,7 +139,7 @@ class SettingNotifier extends _$SettingNotifier {
       setting.backgroundColor = Colors.white.value;
     }
     if (setting.cacheDuration.isNaN) {
-      setting.cacheDuration = 6.0;
+      setting.cacheDuration = 4.0;
     }
     if (setting.fontSize.isNegative) {
       setting.fontSize = 18;

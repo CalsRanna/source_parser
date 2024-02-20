@@ -307,6 +307,7 @@ class BookNotifier extends _$BookNotifier {
     isar.writeTxn(() async {
       await isar.books.put(state);
     });
+    ref.invalidate(booksProvider);
   }
 
   void update(Book book) {
