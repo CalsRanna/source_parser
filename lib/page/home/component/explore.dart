@@ -72,17 +72,50 @@ class _ExploreViewState extends State<ExploreView>
   bool get wantKeepAlive => true;
 }
 
-class _ExploreBanner extends StatelessWidget {
+class _ExploreBanner extends StatefulWidget {
   const _ExploreBanner({super.key, required this.books});
 
   final List<Book> books;
 
   @override
+  State<_ExploreBanner> createState() => __ExploreBannerState();
+}
+
+class __ExploreBannerState extends State<_ExploreBanner> {
+  List<Book> books = [];
+  PageController controller = PageController();
+
+  @override
+  void initState() {
+    super.initState();
+    final itemCount = min(widget.books.length, 3);
+    final limitedBooks = widget.books.sublist(0, itemCount);
+    books = [widget.books[itemCount - 1], ...limitedBooks, widget.books[0]];
+    controller.addListener(() {
+      if (controller.page == 0) {
+        controller.jumpToPage(books.length - 2);
+      }
+      if (controller.page == books.length - 1) {
+        controller.jumpToPage(1);
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      controller.jumpToPage(1);
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final itemCount = min(books.length, 3);
     return SizedBox(
       height: 120,
       child: PageView.builder(
+        controller: controller,
         itemBuilder: (context, index) {
           return Consumer(builder: (context, ref, child) {
             return GestureDetector(
@@ -108,7 +141,7 @@ class _ExploreBanner extends StatelessWidget {
             );
           });
         },
-        itemCount: itemCount,
+        itemCount: books.length,
       ),
     );
   }

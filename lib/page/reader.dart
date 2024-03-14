@@ -41,7 +41,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     Color? fontColor;
     Color? variantFontColor;
     if (backgroundColor == Colors.black.value) {
-      fontColor = Colors.white.withOpacity(0.9);
+      fontColor = Colors.white.withOpacity(0.75);
       variantFontColor = Colors.white.withOpacity(0.5);
     }
     final darkMode = setting.darkMode;

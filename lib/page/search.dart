@@ -63,10 +63,13 @@ class _SearchPageState extends State<SearchPage> {
                 );
               }).toList();
               if (children.isEmpty) return const SizedBox();
+              final theme = Theme.of(context);
+              final textTheme = theme.textTheme;
+              final titleMedium = textTheme.titleMedium;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('热门搜索'),
+                  Text('热门搜索', style: titleMedium),
                   const SizedBox(height: 8),
                   Wrap(runSpacing: 8, spacing: 8, children: children),
                 ],
