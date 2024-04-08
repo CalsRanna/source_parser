@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/page/listener.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/setting.dart';
@@ -373,6 +374,12 @@ class _ShelfTileBottomSheet extends StatelessWidget {
                 ],
               ),
             ),
+            Consumer(builder: (context, ref, child) {
+              return OutlinedButton(
+                onPressed: () => navigate(context, ref),
+                child: const Text('听书'),
+              );
+            }),
           ],
         ),
         const SizedBox(height: 16),
@@ -434,6 +441,16 @@ class _ShelfTileBottomSheet extends StatelessWidget {
         })
       ],
     );
+  }
+
+  void navigate(BuildContext context, WidgetRef ref) {
+    Navigator.pop(context);
+    final book = ref.read(bookNotifierProvider);
+    final navigator = Navigator.of(context);
+    final route = MaterialPageRoute(builder: (context) {
+      return ListenerPage(book: book);
+    });
+    navigator.push(route);
   }
 
   void cache(BuildContext context, WidgetRef ref) async {

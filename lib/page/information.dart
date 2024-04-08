@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/page/listener.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/source.dart';
@@ -200,12 +201,22 @@ class _BottomBar extends StatelessWidget {
             );
           }),
           const SizedBox(width: 8),
+          const Expanded(child: _ListenBook()),
+          const SizedBox(width: 8),
           Expanded(
             child: Consumer(builder: (context, ref, child) {
               final book = ref.watch(bookNotifierProvider);
               final hasProgress = book.cursor != 0 || book.index != 0;
               String readerText = hasProgress ? '继续阅读' : '立即阅读';
+              final theme = Theme.of(context);
+              final colorScheme = theme.colorScheme;
+              final primary = colorScheme.primary;
+              final onPrimary = colorScheme.onPrimary;
               return ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(primary),
+                  foregroundColor: MaterialStatePropertyAll(onPrimary),
+                ),
                 onPressed: () => startReader(context, ref, book.index),
                 child: Text(readerText),
               );
@@ -232,6 +243,40 @@ class _BottomBar extends StatelessWidget {
   bool _predicate(Route<dynamic> route) {
     return ModalRoute.withName('bookInformation').call(route) ||
         ModalRoute.withName('home').call(route);
+  }
+}
+
+class _ListenBook extends StatelessWidget {
+  const _ListenBook();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final primaryContainer = colorScheme.primaryContainer;
+    final onPrimaryContainer = colorScheme.onPrimaryContainer;
+    return Consumer(builder: (context, ref, child) {
+      return ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStatePropertyAll(primaryContainer),
+          foregroundColor: MaterialStatePropertyAll(onPrimaryContainer),
+        ),
+        onPressed: () => navigate(context, ref),
+        child: const Text('听书'),
+      );
+    });
+  }
+
+  void navigate(BuildContext context, WidgetRef ref) async {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    await notifier.refreshCatalogue();
+    final book = ref.read(bookNotifierProvider);
+    if (!context.mounted) return;
+    final navigator = Navigator.of(context);
+    final route = MaterialPageRoute(builder: (context) {
+      return ListenerPage(book: book);
+    });
+    navigator.push(route);
   }
 }
 
