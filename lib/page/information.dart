@@ -200,8 +200,8 @@ class _BottomBar extends StatelessWidget {
               child: Row(children: [icon, shelfText]),
             );
           }),
-          const SizedBox(width: 8),
-          const Expanded(child: _ListenBook()),
+          // const SizedBox(width: 8),
+          // const Expanded(child: _ListenBook()),
           const SizedBox(width: 8),
           Expanded(
             child: Consumer(builder: (context, ref, child) {

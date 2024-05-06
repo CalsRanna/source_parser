@@ -145,7 +145,11 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     // Get content while page animation stopped, should override the animation instead
     await Future.delayed(const Duration(milliseconds: 300));
     final notifier = ref.read(bookNotifierProvider.notifier);
-    return notifier.getContent(index);
+    final content = await notifier.getContent(index);
+    // final paginator =
+    //     Paginator(size: Size(100, 100), text: content, theme: ReaderTheme());
+    // paginator.paginate(content);
+    return content;
   }
 
   void handleMessage(String message) {

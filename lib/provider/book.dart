@@ -247,7 +247,7 @@ class BookNotifier extends _$BookNotifier {
     final duration = setting.cacheDuration;
     final maxConcurrent = setting.maxConcurrent;
     final timeout = setting.timeout;
-    List<AvailableSource> sources = [];
+    List<AvailableSource> sources = [...state.sources];
     var stream = await Parser.search(
       state.name,
       maxConcurrent.floor(),

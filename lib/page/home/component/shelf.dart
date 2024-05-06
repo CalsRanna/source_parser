@@ -333,6 +333,7 @@ class _ShelfTileBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final surface = colorScheme.surface;
     final onSurface = colorScheme.onSurface;
     final subtitle = _buildSpan();
     return ListView(
@@ -374,12 +375,12 @@ class _ShelfTileBottomSheet extends StatelessWidget {
                 ],
               ),
             ),
-            Consumer(builder: (context, ref, child) {
-              return OutlinedButton(
-                onPressed: () => navigate(context, ref),
-                child: const Text('听书'),
-              );
-            }),
+            // Consumer(builder: (context, ref, child) {
+            //   return OutlinedButton(
+            //     onPressed: () => navigate(context, ref),
+            //     child: const Text('听书'),
+            //   );
+            // }),
           ],
         ),
         const SizedBox(height: 16),
@@ -392,7 +393,7 @@ class _ShelfTileBottomSheet extends StatelessWidget {
           return Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: Colors.white,
+              color: surface,
             ),
             child: Column(
               children: [

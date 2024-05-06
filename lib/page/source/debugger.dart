@@ -51,7 +51,7 @@ class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
           builder: (context, snapshot) {
             Widget indicator = const LinearProgressIndicator();
             if (snapshot.connectionState == ConnectionState.done) {
-              indicator = const SizedBox();
+              indicator = const SizedBox(height: 4);
             }
             Widget list = const SizedBox();
             if (!provider.isLoading && snapshot.data != null) {

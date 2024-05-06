@@ -4,7 +4,7 @@ import 'package:source_parser/page/about.dart';
 import 'package:source_parser/page/catalogue.dart';
 import 'package:source_parser/page/home/home.dart';
 import 'package:source_parser/page/information.dart';
-import 'package:source_parser/page/reader.dart';
+import 'package:source_parser/page/reader/reader.dart';
 import 'package:source_parser/page/search.dart';
 import 'package:source_parser/page/setting.dart';
 import 'package:source_parser/page/source.dart';

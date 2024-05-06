@@ -1,5 +1,6 @@
 import 'package:cached_network/cached_network.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/router/router.dart';
@@ -130,6 +131,7 @@ class _CataloguePageState extends State<CataloguePage> {
     final navigator = Navigator.of(context);
     navigator.popUntil(_predicate);
     const BookReaderPageRoute().push(context);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     final bookNotifier = ref.read(bookNotifierProvider.notifier);
     bookNotifier.startReader(cursor: 0, index: index);
   }

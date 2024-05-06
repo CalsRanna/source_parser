@@ -16,63 +16,33 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surfaceVariant = colorScheme.surfaceVariant;
     return ListView(
-      padding: const EdgeInsets.all(16),
       children: [
-        Card(
-          color: surfaceVariant,
-          elevation: 0,
-          child: const Column(
-            children: [
-              _SettingTile(
-                icon: Icons.view_agenda_outlined,
-                route: '/book-source',
-                title: '书源管理',
-              ),
-            ],
-          ),
+        const _SettingTile(
+          icon: Icons.view_agenda_outlined,
+          route: '/book-source',
+          title: '书源管理',
         ),
-        const SizedBox(height: 8),
-        Card(
-          color: surfaceVariant,
-          elevation: 0,
-          child: Column(
-            children: [
-              const _SettingTile(
-                icon: Icons.format_color_text_outlined,
-                route: '/reader-theme',
-                title: '阅读主题',
-              ),
-              _SettingTile(
-                icon: Icons.auto_stories_outlined,
-                title: '翻页方式',
-                onTap: showTurningModeBottomSheet,
-              ),
-              const _EInkModeTile(),
-            ],
-          ),
+        const _SettingTile(
+          icon: Icons.format_color_text_outlined,
+          route: '/reader-theme',
+          title: '阅读主题',
         ),
-        const SizedBox(height: 8),
-        Card(
-          color: surfaceVariant,
-          elevation: 0,
-          child: const Column(
-            children: [
-              _SettingTile(
-                icon: Icons.settings_outlined,
-                route: '/setting/advanced',
-                title: '设置',
-              ),
-              _SettingTile(
-                icon: Icons.info_outline_rounded,
-                route: '/setting/about',
-                title: '关于元夕',
-              ),
-            ],
-          ),
+        _SettingTile(
+          icon: Icons.auto_stories_outlined,
+          title: '翻页方式',
+          onTap: showTurningModeBottomSheet,
+        ),
+        const _EInkModeTile(),
+        const _SettingTile(
+          icon: Icons.settings_outlined,
+          route: '/setting/advanced',
+          title: '设置',
+        ),
+        const _SettingTile(
+          icon: Icons.info_outline_rounded,
+          route: '/setting/about',
+          title: '关于元夕',
         ),
       ],
     );
