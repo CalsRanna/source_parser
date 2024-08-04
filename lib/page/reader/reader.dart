@@ -85,10 +85,10 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     if (darkMode) {
       final scheme = Theme.of(context).colorScheme;
       theme = theme.copyWith(
-        backgroundColor: scheme.background,
-        footerStyle: theme.footerStyle.copyWith(color: scheme.onBackground),
-        headerStyle: theme.headerStyle.copyWith(color: scheme.onBackground),
-        pageStyle: theme.pageStyle.copyWith(color: scheme.onBackground),
+        backgroundColor: Colors.black,
+        footerStyle: theme.footerStyle.copyWith(color: scheme.onSurface),
+        headerStyle: theme.headerStyle.copyWith(color: scheme.onSurface),
+        pageStyle: theme.pageStyle.copyWith(color: scheme.onSurface),
       );
     }
     List<PageTurningMode> modes = [];

@@ -114,12 +114,6 @@ class ReaderThemePage extends StatelessWidget {
                       color: const Color(0xFFb7ae8f),
                       onTap: () => updateBackgroundColor(ref, 0xFFb7ae8f),
                     ),
-                    const SizedBox(width: 8),
-                    _BackgroundTile(
-                      active: backgroundColor == 0xFF000000,
-                      color: Colors.black,
-                      onTap: () => updateBackgroundColor(ref, 0xFF000000),
-                    ),
                   ],
                 ),
               ),
