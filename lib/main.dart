@@ -3,6 +3,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:source_parser/provider/reader.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
@@ -35,6 +36,12 @@ class _SourceParserState extends ConsumerState<SourceParser> {
     super.initState();
     final notifier = ref.read(settingNotifierProvider.notifier);
     notifier.migrate();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final mediaQueryDataNotifier =
+          ref.read(mediaQueryDataNotifierProvider.notifier);
+      final mediaQueryData = MediaQuery.of(context);
+      mediaQueryDataNotifier.setMediaQueryData(mediaQueryData);
+    });
   }
 
   @override

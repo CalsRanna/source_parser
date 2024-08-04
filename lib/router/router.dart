@@ -60,7 +60,8 @@ class BookReaderPageRoute extends GoRouteData {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const ReaderPage();
+    // return const ReaderPage();
+    return const RevisitedReaderPage();
   }
 }
 

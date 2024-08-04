@@ -2,16 +2,18 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:book_reader/book_reader.dart';
+import 'package:book_reader/book_reader.dart' hide ReaderTheme;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/page/reader/component/body.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
+import 'package:source_parser/provider/reader.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:source_parser/widget/book_cover.dart';
+import 'package:source_parser/util/theme.dart';
 
 class ReaderPage extends ConsumerStatefulWidget {
   const ReaderPage({super.key});
@@ -104,31 +106,31 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     }
     return Stack(
       children: [
-        BookReader(
-          author: book.author,
-          cover: BookCover(height: 48, width: 36, url: book.cover),
-          cursor: cursor,
-          darkMode: darkMode,
-          eInkMode: eInkMode,
-          future: (index) => getContent(ref, index),
-          index: index,
-          modes: modes,
-          name: book.name,
-          theme: theme,
-          title: title,
-          total: book.chapters.length,
-          onCached: (value) => handleCached(ref, value),
-          onCataloguePressed: handleCataloguePressed,
-          onChapterChanged: (index) => handleChapterChanged(ref, index),
-          onDarkModePressed: () => toggleDarkMode(ref),
-          onDetailPressed: handleDetailPressed,
-          onMessage: handleMessage,
-          onPop: (index, cursor) => handlePop(ref),
-          onProgressChanged: (cursor) => handleProgressChanged(ref, cursor),
-          onRefresh: (index) => handleRefresh(ref, index),
-          onSettingPressed: handleSettingPressed,
-          onSourcePressed: handleSourcePressed,
-        ),
+        // BookReader(
+        //   author: book.author,
+        //   cover: BookCover(height: 48, width: 36, url: book.cover),
+        //   cursor: cursor,
+        //   darkMode: darkMode,
+        //   eInkMode: eInkMode,
+        //   future: (index) => getContent(ref, index),
+        //   index: index,
+        //   modes: modes,
+        //   name: book.name,
+        //   theme: theme,
+        //   title: title,
+        //   total: book.chapters.length,
+        //   onCached: (value) => handleCached(ref, value),
+        //   onCataloguePressed: handleCataloguePressed,
+        //   onChapterChanged: (index) => handleChapterChanged(ref, index),
+        //   onDarkModePressed: () => toggleDarkMode(ref),
+        //   onDetailPressed: handleDetailPressed,
+        //   onMessage: handleMessage,
+        //   onPop: (index, cursor) => handlePop(ref),
+        //   onProgressChanged: (cursor) => handleProgressChanged(ref, cursor),
+        //   onRefresh: (index) => handleRefresh(ref, index),
+        //   onSettingPressed: handleSettingPressed,
+        //   onSourcePressed: handleSourcePressed,
+        // ),
         if (caching)
           const Align(
             alignment: Alignment.centerRight,
@@ -146,9 +148,6 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     await Future.delayed(const Duration(milliseconds: 300));
     final notifier = ref.read(bookNotifierProvider.notifier);
     final content = await notifier.getContent(index);
-    // final paginator =
-    //     Paginator(size: Size(100, 100), text: content, theme: ReaderTheme());
-    // paginator.paginate(content);
     return content;
   }
 
@@ -242,6 +241,38 @@ class _CacheIndicator extends StatelessWidget {
           child: SizedBox(height: 160 * progress.progress, width: 8),
         );
       }),
+    );
+  }
+}
+
+class RevisitedReaderPage extends StatelessWidget {
+  const RevisitedReaderPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Consumer(builder: (context, ref, child) {
+            final provider = ref.watch(readerNotifierProvider);
+            return switch (provider) {
+              AsyncData(:final value) => Stack(
+                  children: List.generate(
+                    value.pages.length,
+                    (index) {
+                      return ReaderBody(
+                        theme: value.theme,
+                        child: value.pages.reversed.elementAt(index),
+                      );
+                    },
+                  ),
+                ),
+              AsyncError(:final error) => Center(child: Text(error.toString())),
+              _ => const Center(child: CircularProgressIndicator()),
+            };
+          }),
+        ],
+      ),
     );
   }
 }
