@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/page/explore.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/explore.dart';
@@ -10,80 +11,47 @@ import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
-class ExploreView extends StatefulWidget {
+class ExploreView extends ConsumerStatefulWidget {
   const ExploreView({super.key});
 
   @override
-  State<ExploreView> createState() => _ExploreViewState();
+  ConsumerState<ExploreView> createState() => _ExploreViewState();
 }
 
-class _ExploreViewState extends State<ExploreView>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return Consumer(builder: (context, ref, child) {
-      final provider = ref.watch(exploreBooksProvider);
-      return switch (provider) {
-        AsyncData(:final value) => RefreshIndicator(
-            onRefresh: () => handleRefresh(ref),
-            child: value.isEmpty
-                ? const Center(child: Text('空空如也'))
-                : ListView.separated(
-                    itemBuilder: (context, index) {
-                      final layout = value[index].layout;
-                      final books = value[index].books;
-                      final title = value[index].title;
-                      return switch (layout) {
-                        'banner' => _ExploreBanner(
-                            key: ValueKey(title),
-                            books: books,
-                          ),
-                        'card' => _ExploreList(
-                            key: ValueKey(title),
-                            books: books,
-                            title: title,
-                          ),
-                        'grid' => _ExploreGrid(
-                            key: ValueKey(title),
-                            books: books,
-                            title: title,
-                          ),
-                        _ => const SizedBox(),
-                      };
-                    },
-                    itemCount: value.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 16),
-                  ),
-          ),
-        AsyncLoading() => const Center(child: CircularProgressIndicator()),
-        _ => const SizedBox(),
-      };
-    });
-  }
-
-  Future<void> handleRefresh(WidgetRef ref) async {
-    final notifier = ref.read(exploreBooksProvider.notifier);
-    await notifier.refresh();
-  }
-
-  @override
-  bool get wantKeepAlive => true;
-}
-
-class _ExploreBanner extends StatefulWidget {
-  const _ExploreBanner({super.key, required this.books});
-
+class _Banner extends StatefulWidget {
   final List<Book> books;
 
+  const _Banner({super.key, required this.books});
+
   @override
-  State<_ExploreBanner> createState() => __ExploreBannerState();
+  State<_Banner> createState() => _BannerState();
 }
 
-class __ExploreBannerState extends State<_ExploreBanner> {
+class _BannerState extends State<_Banner> {
   List<Book> books = [];
   PageController controller = PageController();
+
+  @override
+  Widget build(BuildContext context) {
+    final pageView = PageView.builder(
+      controller: controller,
+      itemBuilder: (_, index) => _BannerTile(books[index]),
+      itemCount: books.length,
+    );
+    return SizedBox(height: 200, child: pageView);
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  void handleTap(BuildContext context, WidgetRef ref, int index) {
+    const BookInformationPageRoute().push(context);
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    notifier.update(books[index]);
+  }
 
   @override
   void initState() {
@@ -103,61 +71,95 @@ class __ExploreBannerState extends State<_ExploreBanner> {
       controller.jumpToPage(1);
     });
   }
+}
+
+class _BannerTile extends ConsumerWidget {
+  final Book book;
+  const _BannerTile(this.book);
 
   @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 120,
-      child: PageView.builder(
-        controller: controller,
-        itemBuilder: (context, index) {
-          return Consumer(builder: (context, ref, child) {
-            return GestureDetector(
-              onTap: () => handleTap(context, ref, index),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: CachedNetworkImage(
-                    fit: BoxFit.cover,
-                    imageUrl: books[index].cover,
-                    errorWidget: (context, url, error) => Image.asset(
-                      'asset/image/default_cover.jpg',
-                      fit: BoxFit.cover,
-                    ),
-                    placeholder: (context, url) => Image.asset(
-                      'asset/image/default_cover.jpg',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          });
-        },
-        itemCount: books.length,
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final placeholder = Image.asset(
+      'asset/image/default_cover.jpg',
+      fit: BoxFit.cover,
+    );
+    final image = CachedNetworkImage(
+      fit: BoxFit.cover,
+      imageUrl: book.cover,
+      errorWidget: (context, url, error) => placeholder,
+      placeholder: (context, url) => placeholder,
+    );
+    final clip = ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: image,
+    );
+    const edgeInsets = EdgeInsets.symmetric(horizontal: 16);
+    return GestureDetector(
+      onTap: () => handleTap(context, ref),
+      child: Padding(padding: edgeInsets, child: clip),
     );
   }
 
-  void handleTap(BuildContext context, WidgetRef ref, int index) {
+  void handleTap(BuildContext context, WidgetRef ref) {
     const BookInformationPageRoute().push(context);
     final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.update(books[index]);
+    notifier.update(book);
   }
 }
 
-class _ExploreList extends StatelessWidget {
-  const _ExploreList({super.key, required this.books, required this.title});
+class _ExploreViewState extends ConsumerState<ExploreView>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
 
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    final provider = ref.watch(exploreBooksProvider);
+    return provider.when(data: data, error: error, loading: loading);
+  }
+
+  Widget data(List<ExploreResult> results) {
+    if (results.isEmpty) return const Center(child: Text('空空如也'));
+    final listView = ListView.separated(
+      itemBuilder: (context, index) => _itemBuilder(results[index]),
+      itemCount: results.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
+    );
+    return RefreshIndicator(
+      onRefresh: () => handleRefresh(ref),
+      child: listView,
+    );
+  }
+
+  Widget error(Object error, StackTrace stackTrace) {
+    return Center(child: Text(error.toString()));
+  }
+
+  Future<void> handleRefresh(WidgetRef ref) async {
+    final notifier = ref.read(exploreBooksProvider.notifier);
+    await notifier.refresh();
+  }
+
+  Widget loading() => const Center(child: CircularProgressIndicator());
+
+  Widget _itemBuilder(ExploreResult result) {
+    final layout = result.layout;
+    final books = result.books;
+    final title = result.title;
+    return switch (layout) {
+      'banner' => _Banner(key: ValueKey(title), books: books),
+      'card' => _List(key: ValueKey(title), books: books, title: title),
+      'grid' => _Grid(key: ValueKey(title), books: books, title: title),
+      _ => const SizedBox(),
+    };
+  }
+}
+
+class _Grid extends StatelessWidget {
   final List<Book> books;
   final String title;
+  const _Grid({super.key, required this.books, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -167,120 +169,143 @@ class _ExploreList extends StatelessWidget {
     final shadow = colorScheme.shadow;
     final textTheme = theme.textTheme;
     final titleLarge = textTheme.titleLarge;
-    final itemCount = min(books.length, 3);
-    List<Widget> tiles = [];
-    for (var i = 0; i < itemCount; i++) {
-      tiles.add(_ExploreListTile(book: books[i]));
-      if (i < books.length - 1) {
-        tiles.add(const SizedBox(height: 8));
-      }
-    }
+    final itemCount = min(books.length, 4);
+    final mediaQueryData = MediaQuery.of(context);
+    final width = mediaQueryData.size.width;
+    final widthPerBookCover = ((width - 16 * 4 - 8 * 3) / 4);
+    final heightPerBookCover = widthPerBookCover * 4 / 3;
+    const heightPerBookName = 14 * 1.2 * 2; // extra 1 for line gap
+    const heightPerBookSpan = 12 * 1.2; // extra 1 for line gap
+    double heightPerBook = 0;
+    heightPerBook += heightPerBookCover;
+    heightPerBook += heightPerBookName;
+    heightPerBook += 8;
+    heightPerBook += heightPerBookSpan;
+    heightPerBook += 8;
+    final titleStyle = titleLarge?.copyWith(fontWeight: FontWeight.bold);
+    const edgeInsets = EdgeInsets.symmetric(horizontal: 16, vertical: 4);
+    const buttonStyle = ButtonStyle(
+      minimumSize: WidgetStatePropertyAll(Size.zero),
+      padding: WidgetStatePropertyAll(edgeInsets),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+    final outlinedButton = OutlinedButton(
+      style: buttonStyle,
+      onPressed: () => handleTap(context),
+      child: const Text('更多'),
+    );
+    final titleChildren = [
+      Text(title, style: titleStyle),
+      const Spacer(),
+      outlinedButton
+    ];
+    final delegate = SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 4,
+      childAspectRatio: widthPerBookCover / heightPerBook,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+    );
+    final childBuilderDelegate = SliverChildBuilderDelegate(
+      (_, index) => _GridTile(book: books[index]),
+      childCount: itemCount,
+    );
+    final gridView = GridView.custom(
+      gridDelegate: delegate,
+      childrenDelegate: childBuilderDelegate,
+      physics: const NeverScrollableScrollPhysics(),
+    );
+    final children = [
+      Row(children: titleChildren),
+      const SizedBox(height: 8),
+      SizedBox(height: heightPerBook + 1, child: gridView)
+    ];
+    final boxShadow = BoxShadow(
+      blurRadius: 16,
+      color: shadow.withOpacity(0.05),
+      offset: const Offset(8, 8),
+    );
+    final boxDecoration = BoxDecoration(
+      borderRadius: BorderRadius.circular(8),
+      boxShadow: [boxShadow],
+      color: surface,
+    );
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 16,
-            color: shadow.withOpacity(0.05),
-            offset: const Offset(8, 8),
-          ),
-        ],
-        color: surface,
-      ),
+      decoration: boxDecoration,
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
-      child: Column(children: [
-        Row(
-          children: [
-            Text(
-              title,
-              style: titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const Spacer(),
-            OutlinedButton(
-              style: const ButtonStyle(
-                minimumSize: WidgetStatePropertyAll(Size.zero),
-                padding: WidgetStatePropertyAll(
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                ),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              onPressed: () => handleTap(context),
-              child: const Text('更多'),
-            )
-          ],
-        ),
-        const SizedBox(height: 8),
-        ...tiles,
-      ]),
+      child: Column(children: children),
     );
   }
 
   void handleTap(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-      return ExploreListPage(books: books, title: title);
-    }));
+    final page = ExploreListPage(books: books, title: title);
+    final route = MaterialPageRoute(builder: (_) => page);
+    Navigator.of(context).push(route);
   }
 }
 
-class _ExploreListTile extends StatelessWidget {
-  const _ExploreListTile({required this.book});
-
+class _GridTile extends ConsumerWidget {
   final Book book;
 
+  const _GridTile({required this.book});
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mediaQueryData = MediaQuery.of(context);
+    final width = mediaQueryData.size.width;
+    final widthPerBookCover = ((width - 16 * 4 - 8 * 3) / 4);
+    final heightPerBookCover = widthPerBookCover * 4 / 3;
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
     final colorScheme = theme.colorScheme;
     final onSurface = colorScheme.onSurface;
-    return Consumer(builder: (context, ref, child) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => handleTap(context, ref),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            BookCover(height: 80, url: book.cover, width: 60),
-            const SizedBox(width: 16),
-            Expanded(
-              child: SizedBox(
-                height: 80,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      book.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const Spacer(),
-                    Text(
-                      book.introduction.replaceAll(RegExp(r'\s'), ''),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: bodyMedium?.copyWith(
-                        color: onSurface.withOpacity(0.75),
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      _buildSubtitle() ?? '',
-                      style: bodySmall?.copyWith(
-                        color: onSurface.withOpacity(0.5),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    });
+    final bookCover = BookCover(
+      url: book.cover,
+      height: heightPerBookCover,
+      width: widthPerBookCover,
+    );
+    const strutStyle = StrutStyle(
+      fontSize: 14,
+      height: 1.2,
+      forceStrutHeight: true,
+    );
+    final title = Text(
+      book.name,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+      strutStyle: strutStyle,
+    );
+    const authorStrutStyle = StrutStyle(
+      fontSize: 12,
+      height: 1.2,
+      forceStrutHeight: true,
+    );
+    final subtitle = Text(
+      _buildSubtitle() ?? '',
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: bodySmall?.copyWith(color: onSurface.withOpacity(0.5)),
+      strutStyle: authorStrutStyle,
+    );
+    final children = [
+      bookCover,
+      const SizedBox(height: 8),
+      title,
+      const SizedBox(height: 8),
+      subtitle,
+    ];
+    final column = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
+    );
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => handleTap(context, ref),
+      child: column,
+    );
   }
 
   void handleTap(BuildContext context, WidgetRef ref) {
@@ -307,11 +332,10 @@ class _ExploreListTile extends StatelessWidget {
   }
 }
 
-class _ExploreGrid extends StatelessWidget {
-  const _ExploreGrid({super.key, required this.books, required this.title});
-
+class _List extends StatelessWidget {
   final List<Book> books;
   final String title;
+  const _List({super.key, required this.books, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -321,139 +345,115 @@ class _ExploreGrid extends StatelessWidget {
     final shadow = colorScheme.shadow;
     final textTheme = theme.textTheme;
     final titleLarge = textTheme.titleLarge;
-    final itemCount = min(books.length, 4);
-    final mediaQueryData = MediaQuery.of(context);
-    final width = mediaQueryData.size.width;
-    final widthPerBookCover = ((width - 16 * 4 - 8 * 3) / 4);
-    final heightPerBookCover = widthPerBookCover * 4 / 3;
-    const heightPerBookName = 14 * 1.2 * 2; // extra 1 for line gap
-    const heightPerBookSpan = 12 * 1.2; // extra 1 for line gap
-    final heightPerBook =
-        heightPerBookCover + heightPerBookName + 8 + heightPerBookSpan + 8;
+    final itemCount = min(books.length, 3);
+    List<Widget> tiles = [];
+    for (var i = 0; i < itemCount; i++) {
+      tiles.add(_ListTile(book: books[i]));
+      if (i < books.length - 1) {
+        tiles.add(const SizedBox(height: 8));
+      }
+    }
+    final titleStyle = titleLarge?.copyWith(fontWeight: FontWeight.bold);
+    const edgeInsets = EdgeInsets.symmetric(horizontal: 16, vertical: 4);
+    const buttonStyle = ButtonStyle(
+      minimumSize: WidgetStatePropertyAll(Size.zero),
+      padding: WidgetStatePropertyAll(edgeInsets),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+    final outlinedButton = OutlinedButton(
+      style: buttonStyle,
+      onPressed: () => handleTap(context),
+      child: const Text('更多'),
+    );
+    final rowChildren = [
+      Text(title, style: titleStyle),
+      const Spacer(),
+      outlinedButton
+    ];
+    final columnChildren = [
+      Row(children: rowChildren),
+      const SizedBox(height: 8),
+      ...tiles,
+    ];
+    final boxShadow = BoxShadow(
+      blurRadius: 16,
+      color: shadow.withOpacity(0.05),
+      offset: const Offset(8, 8),
+    );
+    final boxDecoration = BoxDecoration(
+      borderRadius: BorderRadius.circular(8),
+      boxShadow: [boxShadow],
+      color: surface,
+    );
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 16,
-            color: shadow.withOpacity(0.05),
-            offset: const Offset(8, 8),
-          ),
-        ],
-        color: surface,
-      ),
+      decoration: boxDecoration,
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
-      child: Column(children: [
-        Row(
-          children: [
-            Text(
-              title,
-              style: titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const Spacer(),
-            OutlinedButton(
-              style: const ButtonStyle(
-                minimumSize: WidgetStatePropertyAll(Size.zero),
-                padding: WidgetStatePropertyAll(
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                ),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              onPressed: () => handleTap(context),
-              child: const Text('更多'),
-            )
-          ],
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: heightPerBook + 1,
-          child: GridView.custom(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: widthPerBookCover / heightPerBook,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-            ),
-            childrenDelegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return _ExploreGridTile(book: books[index]);
-              },
-              childCount: itemCount,
-            ),
-            physics: const NeverScrollableScrollPhysics(),
-          ),
-        )
-      ]),
+      child: Column(children: columnChildren),
     );
   }
 
   void handleTap(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-      return ExploreListPage(books: books, title: title);
-    }));
+    final page = ExploreListPage(books: books, title: title);
+    final route = MaterialPageRoute(builder: (_) => page);
+    Navigator.of(context).push(route);
   }
 }
 
-class _ExploreGridTile extends StatelessWidget {
-  const _ExploreGridTile({required this.book});
-
+class _ListTile extends ConsumerWidget {
   final Book book;
 
+  const _ListTile({required this.book});
+
   @override
-  Widget build(BuildContext context) {
-    final mediaQueryData = MediaQuery.of(context);
-    final width = mediaQueryData.size.width;
-    final widthPerBookCover = ((width - 16 * 4 - 8 * 3) / 4);
-    final heightPerBookCover = widthPerBookCover * 4 / 3;
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
     final colorScheme = theme.colorScheme;
     final onSurface = colorScheme.onSurface;
-    return Consumer(builder: (context, ref, child) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => handleTap(context, ref),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            BookCover(
-              url: book.cover,
-              height: heightPerBookCover,
-              width: widthPerBookCover,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              book.name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-              strutStyle: const StrutStyle(
-                fontSize: 14,
-                height: 1.2,
-                forceStrutHeight: true,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _buildSubtitle() ?? '',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: bodySmall?.copyWith(
-                color: onSurface.withOpacity(0.5),
-              ),
-              strutStyle: const StrutStyle(
-                fontSize: 12,
-                height: 1.2,
-                forceStrutHeight: true,
-              ),
-            ),
-          ],
-        ),
-      );
-    });
+    final title = Text(
+      book.name,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+    );
+    final introduction = Text(
+      book.introduction.replaceAll(RegExp(r'\s'), ''),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: bodyMedium?.copyWith(color: onSurface.withOpacity(0.75)),
+    );
+    final subtitle = Text(
+      _buildSubtitle() ?? '',
+      style: bodySmall?.copyWith(color: onSurface.withOpacity(0.5)),
+    );
+    final columnChildren = [
+      title,
+      const Spacer(),
+      introduction,
+      const Spacer(),
+      subtitle,
+    ];
+    final column = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: columnChildren,
+    );
+    final rowChildren = [
+      BookCover(height: 80, url: book.cover, width: 60),
+      const SizedBox(width: 16),
+      Expanded(child: SizedBox(height: 80, child: column)),
+    ];
+    final tile = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: rowChildren,
+    );
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => handleTap(context, ref),
+      child: tile,
+    );
   }
 
   void handleTap(BuildContext context, WidgetRef ref) {

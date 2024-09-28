@@ -20,15 +20,43 @@ class ReaderPage extends ConsumerStatefulWidget {
   ConsumerState<ReaderPage> createState() => _ReaderPageState();
 }
 
+class _CacheIndicator extends ConsumerWidget {
+  const _CacheIndicator();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
+    final primary = colorScheme.primary;
+    final progress = ref.watch(cacheProgressNotifierProvider);
+    final innerDecoration = ShapeDecoration(
+      color: primary,
+      shape: const StadiumBorder(),
+    );
+    final innerContainer = AnimatedContainer(
+      decoration: innerDecoration,
+      duration: const Duration(milliseconds: 300),
+      height: 160 * progress.progress,
+      width: 8,
+    );
+    final shapeDecoration = ShapeDecoration(
+      color: surfaceContainerHighest,
+      shape: const StadiumBorder(),
+    );
+    return Container(
+      alignment: Alignment.bottomCenter,
+      decoration: shapeDecoration,
+      height: 160,
+      width: 8,
+      child: innerContainer,
+    );
+  }
+}
+
 class _ReaderPageState extends ConsumerState<ReaderPage> {
   bool caching = false;
   double progress = 0;
-
-  @override
-  void deactivate() {
-    ref.invalidate(booksProvider);
-    super.deactivate();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,43 +130,43 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     if (book.chapters.isNotEmpty) {
       title = book.chapters.elementAt(index).name;
     }
-    return Stack(
-      children: [
-        BookReader(
-          author: book.author,
-          cover: BookCover(height: 48, width: 36, url: book.cover),
-          cursor: cursor,
-          darkMode: darkMode,
-          eInkMode: eInkMode,
-          future: (index) => getContent(ref, index),
-          index: index,
-          modes: modes,
-          name: book.name,
-          theme: theme,
-          title: title,
-          total: book.chapters.length,
-          onCached: (value) => handleCached(ref, value),
-          onCataloguePressed: handleCataloguePressed,
-          onChapterChanged: (index) => handleChapterChanged(ref, index),
-          onDarkModePressed: () => toggleDarkMode(ref),
-          onDetailPressed: handleDetailPressed,
-          onMessage: handleMessage,
-          onPop: (index, cursor) => handlePop(ref),
-          onProgressChanged: (cursor) => handleProgressChanged(ref, cursor),
-          onRefresh: (index) => handleRefresh(ref, index),
-          onSettingPressed: handleSettingPressed,
-          onSourcePressed: handleSourcePressed,
-        ),
-        if (caching)
-          const Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: EdgeInsets.only(right: 8.0),
-              child: _CacheIndicator(),
-            ),
-          ),
-      ],
+    final bookReader = BookReader(
+      author: book.author,
+      cover: BookCover(height: 48, width: 36, url: book.cover),
+      cursor: cursor,
+      darkMode: darkMode,
+      eInkMode: eInkMode,
+      future: (index) => getContent(ref, index),
+      index: index,
+      modes: modes,
+      name: book.name,
+      theme: theme,
+      title: title,
+      total: book.chapters.length,
+      onCached: (value) => handleCached(ref, value),
+      onCataloguePressed: handleCataloguePressed,
+      onChapterChanged: (index) => handleChapterChanged(ref, index),
+      onDarkModePressed: () => toggleDarkMode(ref),
+      onDetailPressed: handleDetailPressed,
+      onMessage: handleMessage,
+      onPop: (index, cursor) => handlePop(ref),
+      onProgressChanged: (cursor) => handleProgressChanged(ref, cursor),
+      onRefresh: (index) => handleRefresh(ref, index),
+      onSettingPressed: handleSettingPressed,
+      onSourcePressed: handleSourcePressed,
     );
+    const indicator = Padding(
+      padding: EdgeInsets.only(right: 8.0),
+      child: _CacheIndicator(),
+    );
+    const align = Align(alignment: Alignment.centerRight, child: indicator);
+    return Stack(children: [bookReader, if (caching) align]);
+  }
+
+  @override
+  void deactivate() {
+    ref.invalidate(booksProvider);
+    super.deactivate();
   }
 
   Future<String> getContent(WidgetRef ref, int index) async {
@@ -150,44 +178,6 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     //     Paginator(size: Size(100, 100), text: content, theme: ReaderTheme());
     // paginator.paginate(content);
     return content;
-  }
-
-  void handleMessage(String message) {
-    Message.of(context).show(message);
-  }
-
-  Future<String> handleRefresh(WidgetRef ref, int index) async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    return notifier.getContent(index, reacquire: true);
-  }
-
-  void handleProgressChanged(WidgetRef ref, int cursor) async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    return notifier.refreshCursor(cursor);
-  }
-
-  void handleChapterChanged(WidgetRef ref, int index) async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    return notifier.refreshIndex(index);
-  }
-
-  void handleCataloguePressed() {
-    final book = ref.read(bookNotifierProvider);
-    BookCataloguePageRoute(index: book.index).push(context);
-  }
-
-  void handleSourcePressed() {
-    const BookSourceListPageRoute().push(context);
-  }
-
-  void handlePop(WidgetRef ref) async {
-    Navigator.of(context).pop();
-    ref.invalidate(booksProvider);
-  }
-
-  void toggleDarkMode(WidgetRef ref) async {
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.toggleDarkMode();
   }
 
   void handleCached(WidgetRef ref, int amount) async {
@@ -206,42 +196,49 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     });
   }
 
+  void handleCataloguePressed() {
+    final book = ref.read(bookNotifierProvider);
+    BookCataloguePageRoute(index: book.index).push(context);
+  }
+
+  void handleChapterChanged(WidgetRef ref, int index) async {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    return notifier.refreshIndex(index);
+  }
+
   void handleDetailPressed() {
     const BookInformationPageRoute().push(context);
+  }
+
+  void handleMessage(String message) {
+    Message.of(context).show(message);
+  }
+
+  void handlePop(WidgetRef ref) async {
+    Navigator.of(context).pop();
+    ref.invalidate(booksProvider);
+  }
+
+  void handleProgressChanged(WidgetRef ref, int cursor) async {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    return notifier.refreshCursor(cursor);
+  }
+
+  Future<String> handleRefresh(WidgetRef ref, int index) async {
+    final notifier = ref.read(bookNotifierProvider.notifier);
+    return notifier.getContent(index, reacquire: true);
   }
 
   void handleSettingPressed() {
     const BookReaderThemePageRoute().push(context);
   }
-}
 
-class _CacheIndicator extends StatelessWidget {
-  const _CacheIndicator();
+  void handleSourcePressed() {
+    const BookSourceListPageRoute().push(context);
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
-    final primary = colorScheme.primary;
-    return Container(
-      alignment: Alignment.bottomCenter,
-      decoration: ShapeDecoration(
-        color: surfaceContainerHighest,
-        shape: const StadiumBorder(),
-      ),
-      height: 160,
-      width: 8,
-      child: Consumer(builder: (context, ref, child) {
-        final progress = ref.watch(cacheProgressNotifierProvider);
-        return DecoratedBox(
-          decoration: ShapeDecoration(
-            color: primary,
-            shape: const StadiumBorder(),
-          ),
-          child: SizedBox(height: 160 * progress.progress, width: 8),
-        );
-      }),
-    );
+  void toggleDarkMode(WidgetRef ref) async {
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.toggleDarkMode();
   }
 }
