@@ -322,7 +322,7 @@ class _SourceTile extends StatelessWidget {
               ),
             ),
             IconTheme.merge(
-              data: IconThemeData(color: primary, size: 12),
+              data: IconThemeData(color: primary, size: 16),
               child: Row(
                 children: [
                   if (source.enabled) const Icon(Icons.search_outlined),

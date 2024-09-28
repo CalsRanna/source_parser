@@ -8,10 +8,10 @@ class RuleGroupLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final onSurface = colorScheme.onSurface.withOpacity(0.5);
-    final style = theme.textTheme.labelMedium?.copyWith(color: onSurface);
+    final secondary = colorScheme.secondary;
+    final style = TextStyle(color: secondary, fontSize: 16);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Text(label, style: style),
     );
   }

@@ -2,17 +2,143 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:json_view/json_view.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/string_extension.dart';
+import 'package:source_parser/widget/rule_group_label.dart';
 
 class SourceDebuggerPage extends StatefulWidget {
   const SourceDebuggerPage({super.key});
 
   @override
   State<StatefulWidget> createState() => _SourceDebuggerPageState();
+}
+
+class _DebugButton extends ConsumerWidget {
+  const _DebugButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return IconButton(
+      icon: const Icon(Icons.bug_report_outlined),
+      onPressed: () => debug(context, ref),
+    );
+  }
+
+  void debug(BuildContext context, WidgetRef ref) async {
+    try {
+      final notifier = ref.read(sourceDebuggerProvider.notifier);
+      notifier.debug();
+    } catch (e) {
+      final message = Message.of(context);
+      message.show(e.toString());
+    }
+  }
+}
+
+class _JsonDataPage extends StatelessWidget {
+  final String data;
+  final String? title;
+  const _JsonDataPage(this.data, {this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final serializable = _canSerialize();
+    if (!serializable) return _buildText();
+    final json = jsonDecode(data);
+    if (json is List) return _buildList(context, json);
+    return _buildMap(context, json);
+  }
+
+  void handleTap(BuildContext context, String text, String title) {
+    if (text.isEmpty) return;
+    final page = _JsonDataPage(text, title: title);
+    final route = MaterialPageRoute(builder: (_) => page);
+    Navigator.of(context).push(route);
+  }
+
+  Widget _buildList(BuildContext context, List<dynamic> list) {
+    final appBar = AppBar(title: Text(title ?? '解析数据'));
+    final listView = ListView.builder(
+      itemBuilder: (context, i) => _listBuilder(context, list[i], i),
+      itemCount: list.length,
+    );
+    return Scaffold(appBar: appBar, body: listView);
+  }
+
+  Widget _buildMap(BuildContext context, dynamic map) {
+    final appBar = AppBar(title: Text(title ?? '解析数据'));
+    final entries = map.entries.toList();
+    final listView = ListView.builder(
+      itemBuilder: (context, i) => _mapBuilder(context, entries[i]),
+      itemCount: entries.length,
+    );
+    return Scaffold(appBar: appBar, body: listView);
+  }
+
+  Scaffold _buildText() {
+    final appBar = AppBar(title: Text(title ?? '解析数据'));
+    final scrollView = SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Text(data),
+    );
+    return Scaffold(appBar: appBar, body: scrollView);
+  }
+
+  bool _canSerialize() {
+    try {
+      jsonDecode(data);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  Widget _listBuilder(BuildContext context, Map map, int index) {
+    final subtitle = Text(
+      map.toString(),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+    return ListTile(
+      title: Text((index + 1).toString()),
+      subtitle: subtitle,
+      trailing: Icon(Icons.chevron_right_outlined),
+      onTap: () => handleTap(context, jsonEncode(map), '${index + 1}'),
+    );
+  }
+
+  Widget _mapBuilder(BuildContext context, MapEntry entry) {
+    final title = entry.key.toString();
+    final subtitle = entry.value.toString();
+    final text = Text(
+      subtitle.plain() ?? '',
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+    return ListTile(
+      title: Text(title),
+      trailing: Icon(Icons.chevron_right_outlined),
+      subtitle: text,
+      onTap: () => handleTap(context, subtitle, title),
+    );
+  }
+}
+
+class _RawDataPage extends StatelessWidget {
+  final String data;
+  const _RawDataPage(this.data);
+
+  @override
+  Widget build(BuildContext context) {
+    final appBar = AppBar(title: const Text('原始数据'));
+    final scrollView = SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Text(data),
+    );
+    return Scaffold(appBar: appBar, body: scrollView);
+  }
 }
 
 class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
@@ -33,28 +159,18 @@ class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          Consumer(builder: (context, ref, child) {
-            return IconButton(
-              icon: const Icon(Icons.bug_report_outlined),
-              onPressed: () => debug(ref),
-            );
-          })
-        ],
-        title: const Text('书源调试'),
-      ),
+      appBar: AppBar(actions: [_DebugButton()], title: const Text('书源调试')),
       body: Consumer(builder: (context, ref, child) {
-        final provider = ref.watch(sourceDebuggerProvider);
+        final state = ref.watch(sourceDebuggerProvider);
         return StreamBuilder(
-          stream: provider.value,
+          stream: state.value,
           builder: (context, snapshot) {
             Widget indicator = const LinearProgressIndicator();
             if (snapshot.connectionState == ConnectionState.done) {
-              indicator = const SizedBox(height: 4);
+              indicator = const SizedBox();
             }
             Widget list = const SizedBox();
-            if (!provider.isLoading && snapshot.data != null) {
+            if (!state.isLoading && snapshot.data != null) {
               final result = snapshot.data!;
               list = ListView.builder(
                 itemBuilder: (context, index) {
@@ -76,14 +192,13 @@ class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
                     default:
                       break;
                   }
-                  return _DebugResultTile(
+                  return _Tile(
                     response: result[index].raw,
                     result: json,
                     title: result[index].title,
                   );
                 },
                 itemCount: result.length,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
               );
             }
             return Column(children: [indicator, Expanded(child: list)]);
@@ -91,16 +206,6 @@ class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
         );
       }),
     );
-  }
-
-  void debug(WidgetRef ref) async {
-    try {
-      final notifier = ref.read(sourceDebuggerProvider.notifier);
-      notifier.debug();
-    } catch (e) {
-      final message = Message.of(context);
-      message.show(e.toString());
-    }
   }
 
   Map<String, dynamic> _remove(Map<String, dynamic> map, List<String> keys) {
@@ -111,152 +216,63 @@ class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
   }
 }
 
-class _DebugResultTile extends StatelessWidget {
-  const _DebugResultTile({
+class _Tile extends StatelessWidget {
+  final String? response;
+
+  final dynamic result;
+  final String title;
+  const _Tile({
     this.response,
     this.result,
     required this.title,
   });
 
-  final String? response;
-  final dynamic result;
-  final String title;
-
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.15),
-      elevation: 0,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              title,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          ListTile(
-            subtitle: Text(
-              response.plain() ?? '解析失败',
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-            title: const Text('原始数据'),
-            trailing: const Icon(Icons.chevron_right_outlined),
-            onTap: () => showRawData(context),
-          ),
-          if (result != null)
-            ListTile(
-              title: const Text('解析数据'),
-              subtitle: Text(
-                jsonEncode(result),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              trailing: const Icon(Icons.chevron_right_outlined),
-              onTap: () => showJsonData(context),
-            ),
-        ],
-      ),
+    final rawSubtitle = Text(
+      response.plain() ?? '解析失败',
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
     );
-  }
-
-  void showRawData(BuildContext context) {
-    if (response != null) {
-      showModalBottomSheet(
-        context: context,
-        builder: (context) => _RawDataView(rawData: response!),
-      );
-    }
+    final rawTile = ListTile(
+      subtitle: rawSubtitle,
+      title: const Text('原始数据'),
+      trailing: const Icon(Icons.chevron_right_outlined),
+      onTap: () => showRawData(context),
+    );
+    final parseSubtitle = Text(
+      result.toString(),
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
+    );
+    final parseTile = ListTile(
+      title: const Text('解析数据'),
+      subtitle: parseSubtitle,
+      trailing: const Icon(Icons.chevron_right_outlined),
+      onTap: () => showJsonData(context),
+    );
+    final children = [
+      RuleGroupLabel(title),
+      rawTile,
+      if (result != null) parseTile,
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
+    );
   }
 
   void showJsonData(BuildContext context) {
-    if (result != null) {
-      showModalBottomSheet(
-        context: context,
-        builder: (context) => _ParsedDataView(parsed: result),
-      );
-    }
-  }
-}
-
-class _RawDataView extends StatelessWidget {
-  const _RawDataView({required this.rawData});
-
-  final String rawData;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                '原始数据',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => handleTap(context),
-              )
-            ],
-          ),
-          Expanded(child: SingleChildScrollView(child: Text(rawData))),
-        ],
-      ),
-    );
+    if (result == null) return;
+    final page = _JsonDataPage(jsonEncode(result));
+    final route = MaterialPageRoute(builder: (_) => page);
+    Navigator.of(context).push(route);
   }
 
-  void handleTap(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-}
-
-class _ParsedDataView extends StatelessWidget {
-  const _ParsedDataView({required this.parsed});
-
-  final dynamic parsed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                '解析数据',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => handleTap(context),
-              )
-            ],
-          ),
-          Expanded(
-            child: JsonView(
-              json: parsed,
-              styleScheme: const JsonStyleScheme(openAtStart: true),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  void handleTap(BuildContext context) {
-    Navigator.of(context).pop();
+  void showRawData(BuildContext context) {
+    if (response == null) return;
+    final page = _RawDataPage(response!);
+    final route = MaterialPageRoute(builder: (_) => page);
+    Navigator.of(context).push(route);
   }
 }
