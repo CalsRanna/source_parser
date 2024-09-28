@@ -29,7 +29,7 @@ class _SearchPageState extends State<SearchPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final onSurface = colorScheme.onSurface;
-    final surfaceVariant = colorScheme.surfaceVariant;
+    final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
     final medium = theme.textTheme.bodyMedium;
     final suffixIcon = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -138,7 +138,7 @@ class _SearchPageState extends State<SearchPage> {
                       vertical: 8,
                     ),
                     child: Divider(
-                      color: surfaceVariant.withOpacity(0.25),
+                      color: surfaceContainerHighest.withOpacity(0.25),
                       height: 1,
                     ),
                   ),

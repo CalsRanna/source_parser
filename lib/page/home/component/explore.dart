@@ -163,7 +163,7 @@ class _ExploreList extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final background = colorScheme.background;
+    final surface = colorScheme.surface;
     final shadow = colorScheme.shadow;
     final textTheme = theme.textTheme;
     final titleLarge = textTheme.titleLarge;
@@ -185,7 +185,7 @@ class _ExploreList extends StatelessWidget {
             offset: const Offset(8, 8),
           ),
         ],
-        color: background,
+        color: surface,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
@@ -199,8 +199,8 @@ class _ExploreList extends StatelessWidget {
             const Spacer(),
             OutlinedButton(
               style: const ButtonStyle(
-                minimumSize: MaterialStatePropertyAll(Size.zero),
-                padding: MaterialStatePropertyAll(
+                minimumSize: WidgetStatePropertyAll(Size.zero),
+                padding: WidgetStatePropertyAll(
                   EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 ),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -317,7 +317,7 @@ class _ExploreGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final background = colorScheme.background;
+    final surface = colorScheme.surface;
     final shadow = colorScheme.shadow;
     final textTheme = theme.textTheme;
     final titleLarge = textTheme.titleLarge;
@@ -340,7 +340,7 @@ class _ExploreGrid extends StatelessWidget {
             offset: const Offset(8, 8),
           ),
         ],
-        color: background,
+        color: surface,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
@@ -354,8 +354,8 @@ class _ExploreGrid extends StatelessWidget {
             const Spacer(),
             OutlinedButton(
               style: const ButtonStyle(
-                minimumSize: MaterialStatePropertyAll(Size.zero),
-                padding: MaterialStatePropertyAll(
+                minimumSize: WidgetStatePropertyAll(Size.zero),
+                padding: WidgetStatePropertyAll(
                   EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 ),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,

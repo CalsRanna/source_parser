@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:blurhash_ffi/blurhash_the_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_tts/flutter_tts.dart';
+// import 'package:flutter_tts/flutter_tts.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/schema/book.dart';
 
@@ -17,13 +17,13 @@ class ListenerPage extends ConsumerStatefulWidget {
 }
 
 class _ListenerPageState extends ConsumerState<ListenerPage> {
-  FlutterTts tts = FlutterTts();
+  // FlutterTts tts = FlutterTts();
   bool speaking = false;
   List<_TtsVoiceConfig> voiceConfigs = [];
 
   @override
   void dispose() {
-    tts.stop();
+    // tts.stop();
     super.dispose();
   }
 
@@ -33,14 +33,14 @@ class _ListenerPageState extends ConsumerState<ListenerPage> {
   }
 
   void initVoices() async {
-    List<dynamic> voices = await tts.getVoices;
-    setState(() {
-      voiceConfigs = voices
-          .map((voice) => _TtsVoiceConfig.fromJson(voice))
-          .where((config) => config.locale.startsWith('zh'))
-          .toList();
-    });
-    tts.setVoice(voiceConfigs.first.toJson());
+    // List<dynamic> voices = await tts.getVoices;
+    // setState(() {
+    //   voiceConfigs = voices
+    //       .map((voice) => _TtsVoiceConfig.fromJson(voice))
+    //       .where((config) => config.locale.startsWith('zh'))
+    //       .toList();
+    // });
+    // tts.setVoice(voiceConfigs.first.toJson());
   }
 
   @override
@@ -182,11 +182,11 @@ class _ListenerPageState extends ConsumerState<ListenerPage> {
       speaking = !speaking;
     });
     if (speaking) {
-      final notifier = ref.read(bookNotifierProvider.notifier);
-      final content = await notifier.getContent(widget.book.index);
-      tts.speak(content);
+      // final notifier = ref.read(bookNotifierProvider.notifier);
+      // final content = await notifier.getContent(widget.book.index);
+      // tts.speak(content);
     } else {
-      tts.pause();
+      // tts.pause();
     }
   }
 }

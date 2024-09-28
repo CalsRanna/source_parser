@@ -71,7 +71,7 @@ class _SourceListPageState extends State<SourceListPage> {
       builder: (_) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        final surfaceVariant = colorScheme.surfaceVariant;
+        final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
         return ListView(children: [
           ListTile(
             title: const Text('网络导入'),
@@ -87,7 +87,7 @@ class _SourceListPageState extends State<SourceListPage> {
             title: const Text('导出所有书源'),
             onTap: () => exportSource(context),
           ),
-          Divider(color: surfaceVariant.withOpacity(0.25), height: 1),
+          Divider(color: surfaceContainerHighest.withOpacity(0.25), height: 1),
           Consumer(builder: (_, ref, child) {
             return ListTile(
               title: const Text('校验书源'),
@@ -297,8 +297,8 @@ class _SourceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final surfaceVariant = colorScheme.surfaceVariant;
-    final color = source.enabled ? null : surfaceVariant;
+    final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
+    final color = source.enabled ? null : surfaceContainerHighest;
     final primary = colorScheme.primary;
     return InkWell(
       onTap: handleTap,

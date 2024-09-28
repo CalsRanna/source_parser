@@ -71,7 +71,7 @@ class _ShelfGridTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final onBackground = colorScheme.onBackground;
+    final onSurface = colorScheme.onSurface;
     return Consumer(builder: (context, ref, child) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -93,7 +93,7 @@ class _ShelfGridTile extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 height: 1.2,
-                color: onBackground.withOpacity(0.5),
+                color: onSurface.withOpacity(0.5),
               ),
             ),
           ],
@@ -195,8 +195,7 @@ class _ShelfListTile extends StatelessWidget {
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
     final colorScheme = theme.colorScheme;
-    final onBackground = colorScheme.onBackground;
-
+    final onSurface = colorScheme.onSurface;
     return Consumer(builder: (context, ref, child) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -224,13 +223,13 @@ class _ShelfListTile extends StatelessWidget {
                       Text(
                         _buildSubtitle() ?? '',
                         style: bodySmall?.copyWith(
-                          color: onBackground.withOpacity(0.5),
+                          color: onSurface.withOpacity(0.5),
                         ),
                       ),
                       Text(
                         _buildLatestChapter() ?? '',
                         style: bodySmall?.copyWith(
-                          color: onBackground.withOpacity(0.5),
+                          color: onSurface.withOpacity(0.5),
                         ),
                       ),
                     ],

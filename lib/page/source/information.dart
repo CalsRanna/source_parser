@@ -16,7 +16,7 @@ class SourceInformationConfigurationPage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
             Card(
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               elevation: 0,
               child: Column(
                 children: [
@@ -30,7 +30,7 @@ class SourceInformationConfigurationPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Card(
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               elevation: 0,
               child: Column(
                 children: [

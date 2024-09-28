@@ -15,7 +15,7 @@ class ExploreListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final surfaceVariant = colorScheme.surfaceVariant;
+    final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: ListView.separated(
@@ -31,7 +31,7 @@ class ExploreListPage extends StatelessWidget {
               vertical: 8,
             ),
             child: Divider(
-              color: surfaceVariant.withOpacity(0.25),
+              color: surfaceContainerHighest.withOpacity(0.25),
               height: 1,
             ),
           );

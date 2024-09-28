@@ -222,12 +222,12 @@ class _CacheIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final surfaceVariant = colorScheme.surfaceVariant;
+    final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
     final primary = colorScheme.primary;
     return Container(
       alignment: Alignment.bottomCenter,
       decoration: ShapeDecoration(
-        color: surfaceVariant,
+        color: surfaceContainerHighest,
         shape: const StadiumBorder(),
       ),
       height: 160,

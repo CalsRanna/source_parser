@@ -15,7 +15,7 @@ class SourceFormPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final surfaceVariant = colorScheme.surfaceVariant;
+    final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
     final error = colorScheme.error;
     return Scaffold(
       appBar: AppBar(
@@ -41,7 +41,7 @@ class SourceFormPage extends StatelessWidget {
           Consumer(builder: (context, ref, child) {
             final source = ref.watch(formSourceProvider);
             return Card(
-              color: surfaceVariant,
+              color: surfaceContainerHighest,
               elevation: 0,
               child: Column(
                 children: [
@@ -62,7 +62,7 @@ class SourceFormPage extends StatelessWidget {
           }),
           const SizedBox(height: 8),
           Card(
-            color: surfaceVariant,
+            color: surfaceContainerHighest,
             elevation: 0,
             child: Column(
               children: [
@@ -76,7 +76,7 @@ class SourceFormPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Card(
-            color: surfaceVariant,
+            color: surfaceContainerHighest,
             elevation: 0,
             child: Column(
               children: [
@@ -104,7 +104,7 @@ class SourceFormPage extends StatelessWidget {
           Consumer(builder: (context, ref, child) {
             final source = ref.watch(formSourceProvider);
             return Card(
-              color: surfaceVariant,
+              color: surfaceContainerHighest,
               elevation: 0,
               child: Column(
                 children: [

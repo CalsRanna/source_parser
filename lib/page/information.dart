@@ -214,8 +214,8 @@ class _BottomBar extends StatelessWidget {
               final onPrimary = colorScheme.onPrimary;
               return ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(primary),
-                  foregroundColor: MaterialStatePropertyAll(onPrimary),
+                  backgroundColor: WidgetStatePropertyAll(primary),
+                  foregroundColor: WidgetStatePropertyAll(onPrimary),
                 ),
                 onPressed: () => startReader(context, ref, book.index),
                 child: Text(readerText),
@@ -258,8 +258,8 @@ class _ListenBook extends StatelessWidget {
     return Consumer(builder: (context, ref, child) {
       return ElevatedButton(
         style: ButtonStyle(
-          backgroundColor: MaterialStatePropertyAll(primaryContainer),
-          foregroundColor: MaterialStatePropertyAll(onPrimaryContainer),
+          backgroundColor: WidgetStatePropertyAll(primaryContainer),
+          foregroundColor: WidgetStatePropertyAll(onPrimaryContainer),
         ),
         onPressed: () => navigate(context, ref),
         child: const Text('听书'),
