@@ -1,5 +1,5 @@
-import 'package:book_reader/book_reader.dart';
 import 'package:flutter/material.dart';
+import 'package:source_parser/widget/reader.dart';
 
 /// Paginator is a class used to paginate the content into different pages.
 class Paginator {

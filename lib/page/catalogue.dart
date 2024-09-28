@@ -1,9 +1,9 @@
-import 'package:cached_network/cached_network.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/router/router.dart';
+import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/message.dart';
 
 class CataloguePage extends StatefulWidget {

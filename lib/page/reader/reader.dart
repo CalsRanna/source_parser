@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:book_reader/book_reader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/book.dart';
@@ -12,6 +11,7 @@ import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/book_cover.dart';
+import 'package:source_parser/widget/reader.dart';
 
 class ReaderPage extends ConsumerStatefulWidget {
   const ReaderPage({super.key});

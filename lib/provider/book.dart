@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:cached_network/cached_network.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:isar/isar.dart';
 import 'package:lpinyin/lpinyin.dart';
@@ -10,6 +9,7 @@ import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/parser.dart';
 
 part 'book.g.dart';

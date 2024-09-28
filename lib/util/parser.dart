@@ -2,9 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 
-import 'package:cached_network/cached_network.dart';
 import 'package:charset/charset.dart';
-import 'package:html_parser_plus/html_parser_plus.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/model/debug.dart';
@@ -12,6 +10,8 @@ import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/util/cache_network.dart';
+import 'package:source_parser/util/html_parser_plus.dart';
 import 'package:source_parser/util/semaphore.dart';
 
 class Parser {

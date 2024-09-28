@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:cached_network/cached_network.dart';
 import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:source_parser/model/cache.dart';
@@ -8,6 +7,7 @@ import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/semaphore.dart';
 
 part 'cache.g.dart';
