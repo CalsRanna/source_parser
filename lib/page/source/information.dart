@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
+import 'package:source_parser/widget/rule_group_label.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
 class SourceInformationConfigurationPage extends StatelessWidget {
@@ -13,72 +14,53 @@ class SourceInformationConfigurationPage extends StatelessWidget {
       body: Consumer(builder: (context, ref, child) {
         final source = ref.watch(formSourceProvider);
         return ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
-            Card(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              elevation: 0,
-              child: Column(
-                children: [
-                  RuleTile(
-                    title: '请求方法',
-                    value: source.informationMethod,
-                    onTap: () => selectMethod(context),
-                  ),
-                ],
-              ),
+            RuleGroupLabel('基本配置'),
+            RuleTile(
+              title: '请求方法',
+              value: source.informationMethod,
+              onTap: () => selectMethod(context),
             ),
-            const SizedBox(height: 8),
-            Card(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              elevation: 0,
-              child: Column(
-                children: [
-                  RuleTile(
-                    title: '作者规则',
-                    value: source.informationAuthor,
-                    onChange: (value) => updateInformationAuthor(ref, value),
-                  ),
-                  RuleTile(
-                    title: '目录URL规则',
-                    value: source.informationCatalogueUrl,
-                    onChange: (value) =>
-                        updateInformationCatalogueUrl(ref, value),
-                  ),
-                  RuleTile(
-                    title: '分类规则',
-                    value: source.informationCategory,
-                    onChange: (value) => updateInformationCategory(ref, value),
-                  ),
-                  RuleTile(
-                    title: '封面规则',
-                    value: source.informationCover,
-                    onChange: (value) => updateInformationCover(ref, value),
-                  ),
-                  RuleTile(
-                    title: '简介规则',
-                    value: source.informationIntroduction,
-                    onChange: (value) =>
-                        updateInformationIntroduction(ref, value),
-                  ),
-                  RuleTile(
-                    title: '最新章节规则',
-                    value: source.informationLatestChapter,
-                    onChange: (value) =>
-                        updateInformationLatestChapter(ref, value),
-                  ),
-                  RuleTile(
-                    title: '书名规则',
-                    value: source.informationName,
-                    onChange: (value) => updateInformationName(ref, value),
-                  ),
-                  RuleTile(
-                    title: '字数规则',
-                    value: source.informationWordCount,
-                    onChange: (value) => updateInformationWordCount(ref, value),
-                  ),
-                ],
-              ),
+            RuleGroupLabel('详情规则'),
+            RuleTile(
+              title: '作者规则',
+              value: source.informationAuthor,
+              onChange: (value) => updateInformationAuthor(ref, value),
+            ),
+            RuleTile(
+              title: '目录URL规则',
+              value: source.informationCatalogueUrl,
+              onChange: (value) => updateInformationCatalogueUrl(ref, value),
+            ),
+            RuleTile(
+              title: '分类规则',
+              value: source.informationCategory,
+              onChange: (value) => updateInformationCategory(ref, value),
+            ),
+            RuleTile(
+              title: '封面规则',
+              value: source.informationCover,
+              onChange: (value) => updateInformationCover(ref, value),
+            ),
+            RuleTile(
+              title: '简介规则',
+              value: source.informationIntroduction,
+              onChange: (value) => updateInformationIntroduction(ref, value),
+            ),
+            RuleTile(
+              title: '最新章节规则',
+              value: source.informationLatestChapter,
+              onChange: (value) => updateInformationLatestChapter(ref, value),
+            ),
+            RuleTile(
+              title: '书名规则',
+              value: source.informationName,
+              onChange: (value) => updateInformationName(ref, value),
+            ),
+            RuleTile(
+              title: '字数规则',
+              value: source.informationWordCount,
+              onChange: (value) => updateInformationWordCount(ref, value),
             ),
           ],
         );

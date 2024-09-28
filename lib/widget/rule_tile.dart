@@ -30,36 +30,37 @@ class RuleTile extends StatelessWidget {
       size: 16,
     );
 
-    return GestureDetector(
+    return ListTile(
       onTap: () => handleTap(context),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Text(title),
+      title: Row(
+        children: [
+          Text(title),
+          const SizedBox(width: 8),
+          if (trailing != null)
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: trailing!,
+              ),
+            ),
+          if (trailing == null) ...[
+            Expanded(
+              child: Text(
+                value?.plain() ?? '',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+              ),
+            ),
             const SizedBox(width: 8),
-            if (trailing != null)
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: trailing!,
-                ),
-              ),
-            if (trailing == null) ...[
-              Expanded(
-                child: Text(
-                  value?.plain() ?? '',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.end,
-                ),
-              ),
-              const SizedBox(width: 8),
-              icon
-            ]
-          ],
-        ),
+            icon
+          ]
+        ],
       ),
+      // child: Padding(
+      //   padding: const EdgeInsets.symmetric(vertical: 16.0),
+      // child: ,
+      // ),
     );
   }
 

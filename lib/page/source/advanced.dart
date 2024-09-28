@@ -18,62 +18,44 @@ class SourceAdvancedConfigurationPage extends StatelessWidget {
         builder: (context, ref, child) {
           final source = ref.watch(formSourceProvider);
           return ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
-              Card(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                elevation: 0,
-                child: Column(
-                  children: [
-                    RuleTile(
-                      title: '启用',
-                      trailing: SizedBox(
-                        height: 14,
-                        child: Switch(
-                          value: source.enabled,
-                          onChanged: (value) => triggerEnabled(ref),
-                        ),
-                      ),
-                      onTap: () => triggerEnabled(ref),
-                    ),
-                    RuleTile(
-                      bordered: false,
-                      title: '发现',
-                      trailing: SizedBox(
-                        height: 14,
-                        child: Switch(
-                          value: source.exploreEnabled,
-                          onChanged: (value) => triggerExploreEnabled(ref),
-                        ),
-                      ),
-                      onTap: () => triggerExploreEnabled(ref),
-                    ),
-                  ],
+              RuleTile(
+                title: '启用',
+                trailing: SizedBox(
+                  height: 14,
+                  child: Switch(
+                    value: source.enabled,
+                    onChanged: (value) => triggerEnabled(ref),
+                  ),
                 ),
+                onTap: () => triggerEnabled(ref),
               ),
-              const SizedBox(height: 8),
-              Card(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                elevation: 0,
-                child: Column(
-                  children: [
-                    RuleTile(
-                      title: '备注',
-                      value: source.comment,
-                      onChange: (value) => updateComment(ref, value),
-                    ),
-                    RuleTile(
-                      title: '请求头',
-                      value: source.header,
-                      onChange: (value) => updateHeader(ref, value),
-                    ),
-                    RuleTile(
-                      title: '编码',
-                      value: source.charset,
-                      onTap: () => selectCharset(context),
-                    ),
-                  ],
+              RuleTile(
+                bordered: false,
+                title: '发现',
+                trailing: SizedBox(
+                  height: 14,
+                  child: Switch(
+                    value: source.exploreEnabled,
+                    onChanged: (value) => triggerExploreEnabled(ref),
+                  ),
                 ),
+                onTap: () => triggerExploreEnabled(ref),
+              ),
+              RuleTile(
+                title: '备注',
+                value: source.comment,
+                onChange: (value) => updateComment(ref, value),
+              ),
+              RuleTile(
+                title: '请求头',
+                value: source.header,
+                onChange: (value) => updateHeader(ref, value),
+              ),
+              RuleTile(
+                title: '编码',
+                value: source.charset,
+                onTap: () => selectCharset(context),
               ),
             ],
           );

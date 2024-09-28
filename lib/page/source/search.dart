@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
+import 'package:source_parser/widget/rule_group_label.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
 class SourceSearchConfigurationPage extends StatelessWidget {
@@ -14,89 +15,73 @@ class SourceSearchConfigurationPage extends StatelessWidget {
       body: Consumer(builder: (context, ref, child) {
         final source = ref.watch(formSourceProvider);
         return ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
-            Card(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              elevation: 0,
-              child: Column(
-                children: [
-                  RuleTile(
-                    title: '搜索URL',
-                    value: source.searchUrl,
-                    onChange: (value) => updateSearchUrl(ref, value),
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '请求方法',
-                    value: source.searchMethod,
-                    onTap: () => selectMethod(context),
-                  ),
-                ],
-              ),
+            RuleGroupLabel('基本配置'),
+            RuleTile(
+              title: '搜索URL',
+              value: source.searchUrl,
+              onChange: (value) => updateSearchUrl(ref, value),
             ),
-            const SizedBox(height: 8),
-            Card(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              elevation: 0,
-              child: Column(
-                children: [
-                  RuleTile(
-                    bordered: false,
-                    title: '书籍列表规则',
-                    value: source.searchBooks,
-                    onChange: (value) => updateSearchBooks(ref, value),
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '作者规则',
-                    value: source.searchAuthor,
-                    onChange: (value) => updateSearchAuthor(ref, value),
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '分类规则',
-                    value: source.searchCategory,
-                    onChange: (value) => updateSearchCategory(ref, value),
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '封面规则',
-                    value: source.searchCover,
-                    onChange: (value) => updateSearchCover(ref, value),
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '简介规则',
-                    value: source.searchIntroduction,
-                    onChange: (value) => updateSearchIntroduction(ref, value),
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '最新章节规则',
-                    value: source.searchLatestChapter,
-                    onChange: (value) => updateSearchLatestChapter(ref, value),
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '书名规则',
-                    value: source.searchName,
-                    onChange: (value) => updateSearchName(ref, value),
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '详情URL规则',
-                    value: source.searchInformationUrl,
-                    onChange: (value) => updateSearchInformationUrl(ref, value),
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '字数规则',
-                    value: source.searchWordCount,
-                    onChange: (value) => updateSearchWordCount(ref, value),
-                  ),
-                ],
-              ),
+            RuleTile(
+              bordered: false,
+              title: '请求方法',
+              value: source.searchMethod,
+              onTap: () => selectMethod(context),
+            ),
+            RuleGroupLabel('搜索规则'),
+            RuleTile(
+              bordered: false,
+              title: '书籍列表规则',
+              value: source.searchBooks,
+              onChange: (value) => updateSearchBooks(ref, value),
+            ),
+            RuleTile(
+              bordered: false,
+              title: '作者规则',
+              value: source.searchAuthor,
+              onChange: (value) => updateSearchAuthor(ref, value),
+            ),
+            RuleTile(
+              bordered: false,
+              title: '分类规则',
+              value: source.searchCategory,
+              onChange: (value) => updateSearchCategory(ref, value),
+            ),
+            RuleTile(
+              bordered: false,
+              title: '封面规则',
+              value: source.searchCover,
+              onChange: (value) => updateSearchCover(ref, value),
+            ),
+            RuleTile(
+              bordered: false,
+              title: '简介规则',
+              value: source.searchIntroduction,
+              onChange: (value) => updateSearchIntroduction(ref, value),
+            ),
+            RuleTile(
+              bordered: false,
+              title: '最新章节规则',
+              value: source.searchLatestChapter,
+              onChange: (value) => updateSearchLatestChapter(ref, value),
+            ),
+            RuleTile(
+              bordered: false,
+              title: '书名规则',
+              value: source.searchName,
+              onChange: (value) => updateSearchName(ref, value),
+            ),
+            RuleTile(
+              bordered: false,
+              title: '详情URL规则',
+              value: source.searchInformationUrl,
+              onChange: (value) => updateSearchInformationUrl(ref, value),
+            ),
+            RuleTile(
+              bordered: false,
+              title: '字数规则',
+              value: source.searchWordCount,
+              onChange: (value) => updateSearchWordCount(ref, value),
             ),
           ],
         );

@@ -4,6 +4,7 @@ import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/widget/debug_button.dart';
 import 'package:source_parser/util/message.dart';
+import 'package:source_parser/widget/rule_group_label.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
 class SourceFormPage extends StatelessWidget {
@@ -15,7 +16,6 @@ class SourceFormPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
     final error = colorScheme.error;
     return Scaffold(
       appBar: AppBar(
@@ -36,92 +36,67 @@ class SourceFormPage extends StatelessWidget {
         }),
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
+          RuleGroupLabel('基本信息'),
           Consumer(builder: (context, ref, child) {
             final source = ref.watch(formSourceProvider);
-            return Card(
-              color: surfaceContainerHighest,
-              elevation: 0,
-              child: Column(
-                children: [
-                  RuleTile(
-                    title: '名称',
-                    value: source.name,
-                    onChange: (value) => updateName(ref, value),
-                  ),
-                  RuleTile(
-                    bordered: false,
-                    title: '网址',
-                    value: source.url,
-                    onChange: (value) => updateUrl(ref, value),
-                  )
-                ],
-              ),
+            return Column(
+              children: [
+                RuleTile(
+                  title: '名称',
+                  value: source.name,
+                  onChange: (value) => updateName(ref, value),
+                ),
+                RuleTile(
+                  bordered: false,
+                  title: '网址',
+                  value: source.url,
+                  onChange: (value) => updateUrl(ref, value),
+                )
+              ],
             );
           }),
-          const SizedBox(height: 8),
-          Card(
-            color: surfaceContainerHighest,
-            elevation: 0,
-            child: Column(
-              children: [
-                RuleTile(
-                  bordered: false,
-                  title: '高级',
-                  onTap: () => navigate(context, 'advanced-configuration'),
-                ),
-              ],
-            ),
+          RuleTile(
+            bordered: false,
+            title: '高级',
+            onTap: () => navigate(context, 'advanced-configuration'),
           ),
-          const SizedBox(height: 8),
-          Card(
-            color: surfaceContainerHighest,
-            elevation: 0,
-            child: Column(
-              children: [
-                RuleTile(
-                  title: '搜索',
-                  onTap: () => navigate(context, 'search-configuration'),
-                ),
-                RuleTile(
-                  title: '详情',
-                  onTap: () => navigate(context, 'information-configuration'),
-                ),
-                RuleTile(
-                  title: '目录',
-                  onTap: () => navigate(context, 'catalogue-configuration'),
-                ),
-                RuleTile(
-                  bordered: false,
-                  title: '正文',
-                  onTap: () => navigate(context, 'content-configuration'),
-                ),
-              ],
-            ),
+          RuleGroupLabel('规则配置'),
+          RuleTile(
+            title: '搜索',
+            onTap: () => navigate(context, 'search-configuration'),
+          ),
+          RuleTile(
+            title: '详情',
+            onTap: () => navigate(context, 'information-configuration'),
+          ),
+          RuleTile(
+            title: '目录',
+            onTap: () => navigate(context, 'catalogue-configuration'),
+          ),
+          RuleTile(
+            bordered: false,
+            title: '正文',
+            onTap: () => navigate(context, 'content-configuration'),
           ),
           const SizedBox(height: 8),
           Consumer(builder: (context, ref, child) {
             final source = ref.watch(formSourceProvider);
-            return Card(
-              color: surfaceContainerHighest,
-              elevation: 0,
-              child: Column(
-                children: [
-                  RuleTile(
-                    title: '发现',
-                    value: source.exploreJson,
-                    onChange: (value) => updateExploreJson(ref, value),
-                  ),
-                ],
-              ),
+            return Column(
+              children: [
+                RuleTile(
+                  title: '发现',
+                  value: source.exploreJson,
+                  onChange: (value) => updateExploreJson(ref, value),
+                ),
+              ],
             );
           }),
           Consumer(builder: (context, ref, child) {
             final source = ref.watch(formSourceProvider);
             if (source.id.isNegative) return const SizedBox();
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 onPressed: () => deleteSource(context),
                 child: Text('删除', style: TextStyle(color: error)),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/widget/debug_button.dart';
+import 'package:source_parser/widget/rule_group_label.dart';
 import 'package:source_parser/widget/rule_tile.dart';
 
 class SourceContentConfigurationPage extends StatelessWidget {
@@ -13,54 +14,30 @@ class SourceContentConfigurationPage extends StatelessWidget {
       body: Consumer(builder: (context, ref, child) {
         final source = ref.watch(formSourceProvider);
         return ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
-            Card(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              elevation: 0,
-              child: Column(
-                children: [
-                  RuleTile(
-                    title: '请求方法',
-                    value: source.contentMethod,
-                    onTap: () => selectMethod(context),
-                  ),
-                ],
-              ),
+            RuleGroupLabel('基本配置'),
+            RuleTile(
+              title: '请求方法',
+              value: source.contentMethod,
+              onTap: () => selectMethod(context),
             ),
-            const SizedBox(height: 8),
-            Card(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              elevation: 0,
-              child: Column(
-                children: [
-                  RuleTile(
-                    title: '正文规则',
-                    value: source.contentContent,
-                    onChange: (value) => updateContentContent(ref, value),
-                  ),
-                ],
-              ),
+            RuleGroupLabel('正文规则'),
+            RuleTile(
+              title: '正文规则',
+              value: source.contentContent,
+              onChange: (value) => updateContentContent(ref, value),
             ),
-            const SizedBox(height: 8),
-            Card(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              elevation: 0,
-              child: Column(
-                children: [
-                  RuleTile(
-                    title: '下一页URL规则',
-                    value: source.contentPagination,
-                    onChange: (value) => updateContentPagination(ref, value),
-                  ),
-                  RuleTile(
-                    title: '校验规则',
-                    value: source.contentPaginationValidation,
-                    onChange: (value) =>
-                        updateContentPaginationValidation(ref, value),
-                  ),
-                ],
-              ),
+            RuleGroupLabel('分页配置'),
+            RuleTile(
+              title: '下一页URL规则',
+              value: source.contentPagination,
+              onChange: (value) => updateContentPagination(ref, value),
+            ),
+            RuleTile(
+              title: '校验规则',
+              value: source.contentPaginationValidation,
+              onChange: (value) =>
+                  updateContentPaginationValidation(ref, value),
             ),
           ],
         );
