@@ -48,20 +48,17 @@
 
 ##  TestFlight
 
-> 仅有**10000**个名额，先到先得
-
 [点击进入 TestFlight 内测](https://testflight.apple.com/join/eVmnwilc)
 
-## 👩‍💻 书源编写
+## 👩‍💻 书源
 
-提供了一个示例网络书源： [https://raw.githubusercontent.com/CalsRanna/rule_sample/master/sources.json](https://raw.githubusercontent.com/CalsRanna/rule_sample/master/sources.json)
+这里提供了一个简单的示例书源合集。
 
-在 **书源管理——右上角——导入网络书源** 中导入即可（请提前科学上网），相关教程编写中
+[示例书源](https://raw.githubusercontent.com/CalsRanna/rule_sample/master/sources.json)
 
-## 🔗 基础组件
+在 **书源管理——右上角——导入网络书源** 中导入即可（请提前科学上网）。
 
-- [CalsRanna/book_reader](https://github.com/CalsRanna/book_reader)： 小说阅读器核心组件
-- [CalsRanna/html_parser_plus](https://github.com/CalsRanna/html_parser_plus)： 用于书源解析,支持 xPath 和 jsonPath 语法，通过管道连接自定义函数
+> 书源相关教程准备中。
 
 ## 🔧 Building
 
@@ -83,4 +80,16 @@ flutter build appbundle
 
 ```bash
 flutter build ipa
+```
+
+### MacOS
+
+```bash
+flutter build macos
+```
+
+### Windows
+
+```bash
+flutter build windows
 ```

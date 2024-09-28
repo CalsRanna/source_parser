@@ -271,7 +271,18 @@ class _SourceListPageState extends State<SourceListPage> {
     final directory = await getApplicationDocumentsDirectory();
     final filePath = path.join(directory.path, 'sources.json');
     await File(filePath).writeAsString(jsonEncode(json));
-    Share.shareXFiles([XFile(filePath)], subject: 'sources.json');
+    if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      final bytes = await File(filePath).readAsBytes();
+      final output = await FilePicker.platform.saveFile(
+        dialogTitle: '导出书源',
+        fileName: 'sources.json',
+        bytes: File(filePath).readAsBytesSync(),
+      );
+      if (output == null) return;
+      File(output).writeAsBytes(bytes);
+    } else {
+      Share.shareXFiles([XFile(filePath)], subject: 'sources.json');
+    }
   }
 
   void editSource(WidgetRef ref, int id) async {
