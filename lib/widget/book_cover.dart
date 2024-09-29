@@ -6,6 +6,11 @@ import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/widget/loading.dart';
 
 class BookCover extends StatelessWidget {
+  final double borderRadius;
+  final double height;
+  final double width;
+  final String url;
+
   const BookCover({
     super.key,
     this.borderRadius = 4,
@@ -14,29 +19,23 @@ class BookCover extends StatelessWidget {
     required this.url,
   });
 
-  final double borderRadius;
-  final double height;
-  final double width;
-  final String url;
-
   @override
   Widget build(BuildContext context) {
+    final defaultCover = Image.asset(
+      'asset/image/default_cover.jpg',
+      fit: BoxFit.cover,
+    );
+    final cachedNetworkImage = CachedNetworkImage(
+      errorWidget: (context, url, error) => defaultCover,
+      fit: BoxFit.cover,
+      height: height,
+      imageUrl: url,
+      placeholder: (context, url) => defaultCover,
+      width: width,
+    );
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
-      child: CachedNetworkImage(
-        width: width,
-        height: height,
-        fit: BoxFit.cover,
-        imageUrl: url,
-        errorWidget: (context, url, error) => Image.asset(
-          'asset/image/default_cover.jpg',
-          fit: BoxFit.cover,
-        ),
-        placeholder: (context, url) => Image.asset(
-          'asset/image/default_cover.jpg',
-          fit: BoxFit.cover,
-        ),
-      ),
+      child: cachedNetworkImage,
     );
   }
 }
@@ -56,30 +55,13 @@ class _BookCoverSelectorState extends ConsumerState<BookCoverSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, ref, child) {
-      final provider = ref.watch(bookCoversProvider);
-      return switch (provider) {
-        AsyncData(:final value) => GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              childAspectRatio: 3 / 4,
-              crossAxisCount: 3,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-            ),
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () => handleTap(ref, value[index]),
-                child: BookCover(height: 120, url: value[index], width: 90),
-              );
-            },
-            itemCount: value.length,
-            padding: const EdgeInsets.all(16),
-          ),
-        AsyncError(:final error) => Center(child: Text(error.toString())),
-        AsyncLoading() => const Center(child: LoadingIndicator()),
-        _ => const SizedBox(),
-      };
-    });
+    final provider = ref.watch(bookCoversProvider);
+    return switch (provider) {
+      AsyncData(:final value) => _buildAsyncData(value),
+      AsyncError(:final error) => Center(child: Text(error.toString())),
+      AsyncLoading() => const Center(child: LoadingIndicator()),
+      _ => const SizedBox(),
+    };
   }
 
   void getCovers(WidgetRef ref) async {
@@ -104,5 +86,27 @@ class _BookCoverSelectorState extends ConsumerState<BookCoverSelector> {
   void initState() {
     super.initState();
     getCovers(ref);
+  }
+
+  GridView _buildAsyncData(List<String> covers) {
+    const delegate = SliverGridDelegateWithFixedCrossAxisCount(
+      childAspectRatio: 3 / 4,
+      crossAxisCount: 3,
+      crossAxisSpacing: 8,
+      mainAxisSpacing: 8,
+    );
+    return GridView.builder(
+      gridDelegate: delegate,
+      itemBuilder: (context, index) => _itemBuilder(covers, index),
+      itemCount: covers.length,
+      padding: const EdgeInsets.all(16),
+    );
+  }
+
+  Widget _itemBuilder(List<String> covers, int index) {
+    return GestureDetector(
+      onTap: () => handleTap(ref, covers[index]),
+      child: BookCover(height: 120, url: covers[index], width: 90),
+    );
   }
 }

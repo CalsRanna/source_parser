@@ -133,7 +133,10 @@ class _SourceListPageState extends State<SourceListPage> {
       (event) {
         if (!context.mounted) return;
       },
-      onDone: () => Navigator.of(context).pop(),
+      onDone: () {
+        if (!context.mounted) return;
+        Navigator.of(context).pop();
+      },
     );
   }
 
@@ -276,7 +279,6 @@ class _SourceListPageState extends State<SourceListPage> {
       final output = await FilePicker.platform.saveFile(
         dialogTitle: '导出书源',
         fileName: 'sources.json',
-        bytes: File(filePath).readAsBytesSync(),
       );
       if (output == null) return;
       File(output).writeAsBytes(bytes);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class RuleGroupLabel extends StatelessWidget {
   final String label;
+
   const RuleGroupLabel(this.label, {super.key});
 
   @override
