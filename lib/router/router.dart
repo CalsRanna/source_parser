@@ -16,7 +16,7 @@ import 'package:source_parser/page/source/form.dart';
 import 'package:source_parser/page/source/information.dart';
 import 'package:source_parser/page/source/search.dart';
 import 'package:source_parser/page/source/source.dart';
-import 'package:source_parser/page/theme.dart';
+import 'package:source_parser/page/theme/theme.dart';
 
 part 'router.g.dart';
 

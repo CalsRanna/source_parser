@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/page/theme/color_picker.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/setting.dart';
 
@@ -117,6 +118,11 @@ class ReaderThemePage extends StatelessWidget {
                   ],
                 ),
               ),
+              ListTile(
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const ColorPicker())),
+                title: Text('Color Generator'),
+              )
             ],
           );
         },
