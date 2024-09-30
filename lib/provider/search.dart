@@ -14,7 +14,7 @@ class TopSearchBooks extends _$TopSearchBooks {
     final setting = await ref.read(settingNotifierProvider.future);
     final duration = Duration(hours: setting.cacheDuration.floor());
     final timeout = Duration(milliseconds: setting.timeout);
-    return await Parser.today(duration, timeout);
+    return await Parser.topSearch(duration, timeout);
   }
 }
 

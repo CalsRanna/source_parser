@@ -15,6 +15,65 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
+class _Search extends ConsumerWidget {
+  final TextEditingController controller;
+  const _Search({required this.controller});
+
+  bool get showSuffix => controller.text.isNotEmpty;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final onSurface = colorScheme.onSurface;
+    final icon = Icon(Icons.cancel, color: onSurface.withOpacity(0.25));
+    final gestureDetector = GestureDetector(onTap: clear, child: icon);
+    final suffixIcon = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: gestureDetector,
+    );
+    final outlineInputBorder = OutlineInputBorder(
+      borderSide: BorderSide.none,
+      borderRadius: BorderRadius.circular(20),
+    );
+    const edgeInsets = EdgeInsets.symmetric(
+      horizontal: 16,
+      vertical: 8,
+    );
+    final inputDecoration = InputDecoration(
+      fillColor: onSurface.withOpacity(0.05),
+      filled: true,
+      border: outlineInputBorder,
+      contentPadding: edgeInsets,
+      isCollapsed: true,
+      isDense: true,
+      hintText: '输入查询关键字',
+      suffixIcon: showSuffix ? suffixIcon : null,
+      suffixIconConstraints: const BoxConstraints(maxHeight: 30),
+    );
+    return TextField(
+      controller: controller,
+      decoration: inputDecoration,
+      style: const TextStyle(fontSize: 14),
+      textInputAction: TextInputAction.search,
+      onSubmitted: (value) => search(ref, value),
+      onTapOutside: (_) => handleTapOutside(context),
+    );
+  }
+
+  void clear() {
+    controller.text = '';
+  }
+
+  void handleTapOutside(BuildContext context) {
+    FocusScope.of(context).unfocus();
+  }
+
+  void search(WidgetRef ref, String credential) async {
+    controller.text = credential;
+  }
+}
+
 class _SearchPageState extends State<SearchPage> {
   var books = <Book>[];
   final controller = TextEditingController();
@@ -31,53 +90,14 @@ class _SearchPageState extends State<SearchPage> {
     final onSurface = colorScheme.onSurface;
     final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
     final medium = theme.textTheme.bodyMedium;
+    final icon = Icon(Icons.cancel, color: onSurface.withOpacity(0.25));
     final suffixIcon = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: GestureDetector(
-        onTap: clear,
-        child: Icon(Icons.cancel, color: onSurface.withOpacity(0.25)),
-      ),
+      child: GestureDetector(onTap: clear, child: icon),
     );
     final cancel = TextButton(
       onPressed: () => pop(context),
       child: Text('取消', style: medium),
-    );
-    final Widget body = SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Consumer(builder: (context, ref, child) {
-              final provider = ref.watch(topSearchBooksProvider);
-              final books = switch (provider) {
-                AsyncData(:final value) => value,
-                _ => [],
-              };
-              List<Widget> children = books.map((book) {
-                return ActionChip(
-                  label: Text(book.name),
-                  labelPadding: EdgeInsets.zero,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  onPressed: () => search(ref, book.name),
-                );
-              }).toList();
-              if (children.isEmpty) return const SizedBox();
-              final theme = Theme.of(context);
-              final textTheme = theme.textTheme;
-              final titleMedium = textTheme.titleMedium;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('热门搜索', style: titleMedium),
-                  const SizedBox(height: 8),
-                  Wrap(runSpacing: 8, spacing: 8, children: children),
-                ],
-              );
-            }),
-          ],
-        ),
-      ),
     );
     return Scaffold(
       appBar: AppBar(
@@ -115,7 +135,7 @@ class _SearchPageState extends State<SearchPage> {
         titleSpacing: 0,
       ),
       body: Consumer(builder: (context, ref, child) {
-        if (!showResult) return body;
+        if (!showResult) return _Trending(onPressed: search);
         final provider = ref.watch(searchBooksProvider(query));
         return StreamBuilder(
           stream: provider.value,
@@ -178,9 +198,7 @@ class _SearchPageState extends State<SearchPage> {
     showResult = query.isNotEmpty;
     controller.addListener(() {
       setState(() {
-        if (controller.text.isEmpty) {
-          showResult = false;
-        }
+        showResult = controller.text.isNotEmpty;
         showSuffix = controller.text.isNotEmpty;
       });
     });
@@ -201,57 +219,57 @@ class _SearchPageState extends State<SearchPage> {
   }
 }
 
-class _SearchTile extends StatelessWidget {
+class _SearchTile extends ConsumerWidget {
   final Book book;
 
   const _SearchTile({required this.book});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
-    return Consumer(builder: (context, ref, child) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => _handleTap(context, ref),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              BookCover(url: book.cover),
-              const SizedBox(width: 16),
-              Expanded(
-                child: SizedBox(
-                  height: 96,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        book.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: bodyMedium,
-                      ),
-                      Text(_buildSubtitle() ?? '', style: bodySmall),
-                      const Spacer(),
-                      Text(
-                        book.introduction.replaceAll(RegExp(r'\s'), ''),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    });
+    final title = Text(
+      book.name,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: bodyMedium,
+    );
+    final introduction = Text(
+      book.introduction.replaceAll(RegExp(r'\s'), ''),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: bodyMedium,
+    );
+    final children = [
+      title,
+      Text(_buildSubtitle() ?? '', style: bodySmall),
+      const Spacer(),
+      introduction,
+    ];
+    final column = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
+    );
+    final rowChildren = [
+      BookCover(url: book.cover),
+      const SizedBox(width: 16),
+      Expanded(child: SizedBox(height: 96, child: column)),
+    ];
+    final row = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: rowChildren,
+    );
+    final padding = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: row,
+    );
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _handleTap(context, ref),
+      child: padding,
+    );
   }
 
   String? _buildSubtitle() {
@@ -275,5 +293,43 @@ class _SearchTile extends StatelessWidget {
     const BookInformationPageRoute().push(context);
     final notifier = ref.read(bookNotifierProvider.notifier);
     notifier.update(book);
+  }
+}
+
+class _Trending extends ConsumerWidget {
+  final void Function(WidgetRef, String)? onPressed;
+  const _Trending({this.onPressed});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final books = ref.watch(topSearchBooksProvider).valueOrNull;
+    if (books == null) return const SizedBox();
+    if (books.isEmpty) return const SizedBox();
+    List<Widget> chips = books.map((book) => _buildChip(ref, book)).toList();
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final titleMedium = textTheme.titleMedium;
+    final children = [
+      Text('热门搜索', style: titleMedium),
+      const SizedBox(height: 8),
+      Wrap(runSpacing: 8, spacing: 8, children: chips),
+    ];
+    final column = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
+    );
+    const edgeInsets = EdgeInsets.symmetric(horizontal: 16.0);
+    return Padding(padding: edgeInsets, child: column);
+  }
+
+  void handlePressed(WidgetRef ref, String name) {
+    onPressed?.call(ref, name);
+  }
+
+  Widget _buildChip(WidgetRef ref, Book book) {
+    return ActionChip(
+      label: Text(book.name),
+      onPressed: () => handlePressed(ref, book.name),
+    );
   }
 }
