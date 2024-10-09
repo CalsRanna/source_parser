@@ -6,7 +6,7 @@ import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/string_extension.dart';
-import 'package:source_parser/widget/rule_group_label.dart';
+import 'package:source_parser/page/source/component/rule_group_label.dart';
 
 class SourceDebuggerPage extends StatefulWidget {
   const SourceDebuggerPage({super.key});

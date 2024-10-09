@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class RuleInput extends StatefulWidget {
+class RuleInputPage extends StatefulWidget {
   final void Function(String)? onChange;
   final String? placeholder;
   final String? text;
   final String title;
 
-  const RuleInput({
+  const RuleInputPage({
     super.key,
     this.onChange,
     this.placeholder,
@@ -15,10 +15,10 @@ class RuleInput extends StatefulWidget {
   });
 
   @override
-  State<RuleInput> createState() => _RuleInputState();
+  State<RuleInputPage> createState() => _RuleInputPageState();
 }
 
-class _RuleInputState extends State<RuleInput> {
+class _RuleInputPageState extends State<RuleInputPage> {
   final controller = TextEditingController();
   final focusNode = FocusNode();
 

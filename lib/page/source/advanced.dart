@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/page/source/component/debug_button.dart';
-import 'package:source_parser/widget/rule_tile.dart';
+import 'package:source_parser/page/source/component/rule_tile.dart';
 
 class SourceAdvancedConfigurationPage extends StatelessWidget {
   const SourceAdvancedConfigurationPage({super.key});

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/page/source/component/debug_button.dart';
-import 'package:source_parser/widget/rule_group_label.dart';
-import 'package:source_parser/widget/rule_tile.dart';
+import 'package:source_parser/page/source/component/rule_group_label.dart';
+import 'package:source_parser/page/source/component/rule_tile.dart';
 
 class SourceSearchConfigurationPage extends StatelessWidget {
   const SourceSearchConfigurationPage({super.key});
@@ -82,6 +82,15 @@ class SourceSearchConfigurationPage extends StatelessWidget {
               title: '字数规则',
               value: source.searchWordCount,
               onChange: (value) => updateSearchWordCount(ref, value),
+            ),
+            RuleGroupLabel('分页规则'),
+            RuleTile(
+              title: '下一页URL规则',
+              onChange: (value) {},
+            ),
+            RuleTile(
+              title: '校验规则',
+              onChange: (value) => {},
             ),
           ],
         );

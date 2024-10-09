@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:source_parser/util/string_extension.dart';
 import 'package:source_parser/page/source/rule_input.dart';
+import 'package:source_parser/util/string_extension.dart';
 
 class RuleTile extends StatelessWidget {
   final bool? bordered;
@@ -24,21 +24,12 @@ class RuleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final defaultTrailing = Icon(Icons.arrow_forward_ios_outlined, size: 14);
-    final text = Text(
-      value?.plain() ?? '',
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-    );
-    final children = [Flexible(child: text), trailing ?? defaultTrailing];
-    final row = Row(mainAxisSize: MainAxisSize.min, children: children);
-    final mediaQuery = MediaQuery.of(context);
-    final size = mediaQuery.size;
-    final boxConstraints = BoxConstraints(maxWidth: size.width / 3 * 2);
+    final defaultTrailing = Icon(Icons.chevron_right_outlined);
     return ListTile(
       onTap: () => handleTap(context),
+      subtitle: _buildSubtitle(),
       title: Text(title),
-      trailing: ConstrainedBox(constraints: boxConstraints, child: row),
+      trailing: trailing ?? defaultTrailing,
     );
   }
 
@@ -52,5 +43,23 @@ class RuleTile extends StatelessWidget {
     );
     final route = MaterialPageRoute(builder: (context) => page);
     Navigator.of(context).push(route);
+  }
+
+  Widget? _buildSubtitle() {
+    final subtitle = _getSubtitle();
+    if (subtitle == null) return null;
+    return Text(
+      subtitle,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  String? _getSubtitle() {
+    final placeholder = this.placeholder?.plain();
+    final subtitle = value?.plain();
+    if (subtitle == null) return placeholder;
+    if (subtitle.isEmpty) return placeholder;
+    return subtitle;
   }
 }

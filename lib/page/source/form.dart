@@ -4,8 +4,8 @@ import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/page/source/component/debug_button.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:source_parser/widget/rule_group_label.dart';
-import 'package:source_parser/widget/rule_tile.dart';
+import 'package:source_parser/page/source/component/rule_group_label.dart';
+import 'package:source_parser/page/source/component/rule_tile.dart';
 
 class SourceFormPage extends StatelessWidget {
   const SourceFormPage({super.key, this.id});
@@ -43,28 +43,24 @@ class SourceFormPage extends StatelessWidget {
             return Column(
               children: [
                 RuleTile(
+                  onChange: (value) => updateName(ref, value),
+                  placeholder: '书源名称',
                   title: '名称',
                   value: source.name,
-                  onChange: (value) => updateName(ref, value),
                 ),
                 RuleTile(
-                  bordered: false,
+                  onChange: (value) => updateUrl(ref, value),
+                  placeholder: '书源网址，一般为网站域名，用于补全链接',
                   title: '网址',
                   value: source.url,
-                  onChange: (value) => updateUrl(ref, value),
                 )
               ],
             );
           }),
-          RuleTile(
-            bordered: false,
-            title: '高级',
-            onTap: () => navigate(context, 'advanced-configuration'),
-          ),
           RuleGroupLabel('规则配置'),
           RuleTile(
-            title: '搜索',
             onTap: () => navigate(context, 'search-configuration'),
+            title: '搜索',
           ),
           RuleTile(
             title: '详情',
@@ -79,19 +75,23 @@ class SourceFormPage extends StatelessWidget {
             title: '正文',
             onTap: () => navigate(context, 'content-configuration'),
           ),
-          const SizedBox(height: 8),
           Consumer(builder: (context, ref, child) {
             final source = ref.watch(formSourceProvider);
-            return Column(
-              children: [
-                RuleTile(
-                  title: '发现',
-                  value: source.exploreJson,
-                  onChange: (value) => updateExploreJson(ref, value),
-                ),
-              ],
+            if (!source.exploreEnabled) return const SizedBox();
+            return RuleTile(
+              title: '发现',
+              value: source.exploreJson,
+              onChange: (value) => updateExploreJson(ref, value),
+              placeholder: '发现配置，配置后可在发现页使用',
             );
           }),
+          RuleGroupLabel('其他信息'),
+          RuleTile(
+            onTap: () => navigate(context, 'advanced-configuration'),
+            placeholder: '其他配置，一般不需要填写',
+            title: '高级',
+          ),
+          const SizedBox(height: 8),
           Consumer(builder: (context, ref, child) {
             final source = ref.watch(formSourceProvider);
             if (source.id.isNegative) return const SizedBox();

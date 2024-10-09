@@ -14,7 +14,6 @@ import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/loading.dart';
-import 'package:source_parser/widget/source_tag.dart';
 
 class SourceListPage extends StatefulWidget {
   const SourceListPage({super.key});
@@ -31,7 +30,7 @@ class _SourceListPageState extends State<SourceListPage> {
         actions: [
           IconButton(
             onPressed: importSource,
-            icon: const Icon(Icons.more_horiz_outlined),
+            icon: const Icon(Icons.more_vert_outlined),
           )
         ],
         title: const Text('书源管理'),
@@ -53,7 +52,6 @@ class _SourceListPageState extends State<SourceListPage> {
                 onTap: (id) => editSource(ref, id),
               );
             },
-            itemExtent: 56,
           );
         },
       ),
@@ -66,112 +64,16 @@ class _SourceListPageState extends State<SourceListPage> {
     );
   }
 
-  void importSource() async {
-    showModalBottomSheet(
-      builder: (_) {
-        final theme = Theme.of(context);
-        final colorScheme = theme.colorScheme;
-        final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
-        return ListView(children: [
-          ListTile(
-            title: const Text('网络导入'),
-            onTap: importNetworkSource,
-          ),
-          Consumer(builder: ((context, ref, child) {
-            return ListTile(
-              title: const Text('本地导入'),
-              onTap: () => importLocalSource(ref),
-            );
-          })),
-          ListTile(
-            title: const Text('导出所有书源'),
-            onTap: () => exportSource(context),
-          ),
-          Divider(color: surfaceContainerHighest.withOpacity(0.25), height: 1),
-          Consumer(builder: (_, ref, child) {
-            return ListTile(
-              title: const Text('校验书源'),
-              onTap: () => validateSources(context, ref),
-            );
-          })
-        ]);
-      },
-      context: context,
-    );
-  }
-
-  void validateSources(BuildContext context, WidgetRef ref) async {
-    Navigator.of(context).pop();
-    showDialog(
-      barrierDismissible: false,
-      builder: (context) {
-        return const UnconstrainedBox(
-          child: SizedBox(
-            height: 160,
-            width: 320,
-            child: Dialog(
-              insetPadding: EdgeInsets.zero,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  LoadingIndicator(),
-                  Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text('校验书源需要的时间比较长，请耐心等待'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-      context: context,
-    );
+  void confirm(
+    WidgetRef ref,
+    List<Source> newSources,
+    List<Source> oldSources, {
+    bool override = false,
+  }) async {
+    final router = Navigator.of(context);
     final notifier = ref.read(sourcesProvider.notifier);
-    final stream = await notifier.validate();
-    stream.listen(
-      (event) {
-        if (!context.mounted) return;
-      },
-      onDone: () {
-        if (!context.mounted) return;
-        Navigator.of(context).pop();
-      },
-    );
-  }
-
-  void importNetworkSource() async {
-    Navigator.of(context).pop();
-    showModalBottomSheet(
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            Consumer(builder: (context, ref, child) {
-              return TextField(
-                decoration: const InputDecoration(hintText: '导入网络书源'),
-                onSubmitted: (value) =>
-                    confirmImporting(ref, value, from: 'network'),
-              );
-            }),
-            const SizedBox(height: 8),
-            const SelectableText('目前仅支持GitHub仓库中文件的原始地址。'),
-          ],
-        ),
-      ),
-      context: context,
-    );
-    // router.pop();
-  }
-
-  void importLocalSource(WidgetRef ref) async {
-    Navigator.of(context).pop();
-    final result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      final file = File(result.files.single.path!);
-      final content = await file.readAsString();
-      confirmImporting(ref, content, from: 'local');
-    }
+    await notifier.confirmImport(newSources, oldSources, override: override);
+    router.pop();
   }
 
   void confirmImporting(
@@ -250,16 +152,16 @@ class _SourceListPageState extends State<SourceListPage> {
     }
   }
 
-  void confirm(
-    WidgetRef ref,
-    List<Source> newSources,
-    List<Source> oldSources, {
-    bool override = false,
-  }) async {
-    final router = Navigator.of(context);
-    final notifier = ref.read(sourcesProvider.notifier);
-    await notifier.confirmImport(newSources, oldSources, override: override);
-    router.pop();
+  void createSource(WidgetRef ref) {
+    const SourceCreateFormPageRoute().push(context);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.create();
+  }
+
+  void editSource(WidgetRef ref, int id) async {
+    SourceEditFormPageRoute(id: id).push(context);
+    final notifier = ref.read(formSourceProvider.notifier);
+    notifier.edit(id);
   }
 
   void exportSource(BuildContext context) async {
@@ -287,67 +189,142 @@ class _SourceListPageState extends State<SourceListPage> {
     }
   }
 
-  void editSource(WidgetRef ref, int id) async {
-    SourceEditFormPageRoute(id: id).push(context);
-    final notifier = ref.read(formSourceProvider.notifier);
-    notifier.edit(id);
+  void importLocalSource(WidgetRef ref) async {
+    Navigator.of(context).pop();
+    final result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      final file = File(result.files.single.path!);
+      final content = await file.readAsString();
+      confirmImporting(ref, content, from: 'local');
+    }
   }
 
-  void createSource(WidgetRef ref) {
-    const SourceCreateFormPageRoute().push(context);
-    final notifier = ref.read(formSourceProvider.notifier);
-    notifier.create();
+  void importNetworkSource() async {
+    Navigator.of(context).pop();
+    showModalBottomSheet(
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            Consumer(builder: (context, ref, child) {
+              return TextField(
+                decoration: const InputDecoration(hintText: '导入网络书源'),
+                onSubmitted: (value) =>
+                    confirmImporting(ref, value, from: 'network'),
+              );
+            }),
+            const SizedBox(height: 8),
+            const SelectableText('目前仅支持GitHub仓库中文件的原始地址。'),
+          ],
+        ),
+      ),
+      context: context,
+    );
+    // router.pop();
+  }
+
+  void importSource() async {
+    showModalBottomSheet(
+      showDragHandle: true,
+      builder: (_) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
+        return ListView(children: [
+          ListTile(
+            title: const Text('网络导入'),
+            onTap: importNetworkSource,
+          ),
+          Consumer(builder: ((context, ref, child) {
+            return ListTile(
+              title: const Text('本地导入'),
+              onTap: () => importLocalSource(ref),
+            );
+          })),
+          ListTile(
+            title: const Text('导出所有书源'),
+            onTap: () => exportSource(context),
+          ),
+          Divider(color: surfaceContainerHighest.withOpacity(0.25), height: 1),
+          Consumer(builder: (_, ref, child) {
+            return ListTile(
+              title: const Text('校验书源'),
+              onTap: () => validateSources(context, ref),
+            );
+          })
+        ]);
+      },
+      context: context,
+    );
+  }
+
+  void validateSources(BuildContext context, WidgetRef ref) async {
+    Navigator.of(context).pop();
+    showDialog(
+      barrierDismissible: false,
+      builder: (context) {
+        return const UnconstrainedBox(
+          child: SizedBox(
+            height: 160,
+            width: 320,
+            child: Dialog(
+              insetPadding: EdgeInsets.zero,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  LoadingIndicator(),
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text('校验书源需要的时间比较长，请耐心等待'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      context: context,
+    );
+    final notifier = ref.read(sourcesProvider.notifier);
+    final stream = await notifier.validate();
+    stream.listen(
+      (event) {
+        if (!context.mounted) return;
+      },
+      onDone: () {
+        if (!context.mounted) return;
+        Navigator.of(context).pop();
+      },
+    );
   }
 }
 
 class _SourceTile extends StatelessWidget {
-  const _SourceTile({super.key, required this.source, this.onTap});
-
   final Source source;
+
   final void Function(int)? onTap;
+  const _SourceTile({super.key, required this.source, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
-    final color = source.enabled ? null : surfaceContainerHighest;
-    final primary = colorScheme.primary;
-    return InkWell(
+    final listTile = ListTile(
       onTap: handleTap,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: DefaultTextStyle.merge(
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: color),
-                child: Text.rich(
-                  TextSpan(
-                    text: source.name,
-                    children: [WidgetSpan(child: SourceTag(source.comment))],
-                  ),
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-            IconTheme.merge(
-              data: IconThemeData(color: primary, size: 16),
-              child: Row(
-                children: [
-                  if (source.enabled) const Icon(Icons.search_outlined),
-                  if (source.exploreEnabled == true) const SizedBox(width: 8),
-                  if (source.exploreEnabled == true)
-                    const Icon(Icons.explore_outlined)
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      title: Text(source.name),
+      subtitle: Text(source.url),
+      trailing: Icon(Icons.chevron_right_outlined),
+    );
+    final comment = source.comment.replaceAll('，', ',');
+    final comments = comment.split(',').where((item) => item.isNotEmpty);
+    final chips = comments.map((item) => Chip(label: Text(item))).toList();
+    if (source.exploreEnabled) chips.insert(0, Chip(label: Text('发现页')));
+    final wrap = Wrap(runSpacing: 8, spacing: 8, children: chips);
+    final padding = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: wrap,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [listTile, padding],
     );
   }
 

@@ -46,7 +46,9 @@ class _HomePageState extends State<HomePage> {
               )
             ];
           },
+          offset: Offset(0, 8),
           onSelected: (value) => updateShelfMode(ref, value),
+          position: PopupMenuPosition.under,
         );
       }),
     ];
@@ -75,7 +77,9 @@ class _HomePageState extends State<HomePage> {
               );
             }).toList();
           },
+          offset: Offset(0, 8),
           onSelected: (value) => updateExploreSource(ref, value),
+          position: PopupMenuPosition.under,
         );
       })
     ];

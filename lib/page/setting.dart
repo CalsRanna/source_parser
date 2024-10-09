@@ -34,15 +34,11 @@ class _CacheDurationTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final setting = ref.watch(settingNotifierProvider).valueOrNull;
     final hour = setting?.cacheDuration.floor() ?? 8;
-    final children = [
-      const Text('缓存时长'),
-      Expanded(child: Text(_buildText(hour), textAlign: TextAlign.end)),
-    ];
     return ListTile(
       onTap: () => handleTap(context, ref),
       subtitle: const Text('网络请求缓存的有效时长，不影响缓存的封面和章节'),
-      title: Row(children: children),
-      trailing: Icon(Icons.arrow_forward_ios_outlined, size: 14),
+      title: const Text('缓存时长'),
+      trailing: Text(_buildText(hour)),
     );
   }
 
@@ -85,14 +81,10 @@ class _ClearCacheTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final size = ref.watch(cacheSizeProvider).valueOrNull ?? '';
-    final children = [
-      const Text('清理缓存'),
-      Expanded(child: Text(size, textAlign: TextAlign.end))
-    ];
     return ListTile(
       onTap: () => handleTap(context, ref),
-      title: Row(children: children),
-      trailing: Icon(Icons.arrow_forward_ios_outlined, size: 14),
+      title: const Text('清理缓存'),
+      trailing: Text(size),
     );
   }
 
@@ -153,15 +145,11 @@ class _MaxConcurrent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final setting = ref.watch(settingNotifierProvider).valueOrNull;
     final maxConcurrent = setting?.maxConcurrent.floor() ?? 16;
-    final children = [
-      const Text('最大线程数量'),
-      Expanded(child: Text('$maxConcurrent线程', textAlign: TextAlign.end))
-    ];
     return ListTile(
       onTap: () => handleTap(context, ref),
       subtitle: const Text('搜索书籍和缓存章节内容时，最大并发请求数量'),
-      title: Row(children: children),
-      trailing: Icon(Icons.arrow_forward_ios_outlined, size: 14),
+      title: const Text('最大线程数量'),
+      trailing: Text('$maxConcurrent线程'),
     );
   }
 
@@ -218,15 +206,11 @@ class _TimeoutTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final setting = ref.watch(settingNotifierProvider).valueOrNull;
     final timeout = setting?.timeout ?? 30 * 1000;
-    final children = [
-      const Text('请求超时'),
-      Expanded(child: Text(_buildText(timeout), textAlign: TextAlign.end))
-    ];
     return ListTile(
       onTap: () => handleTap(context, ref),
       subtitle: const Text('网络请求最大等待时长，超时将取消请求'),
-      title: Row(children: children),
-      trailing: Icon(Icons.arrow_forward_ios_outlined, size: 14),
+      title: const Text('请求超时'),
+      trailing: Text(_buildText(timeout)),
     );
   }
 
@@ -292,15 +276,11 @@ class _TurningModeTile extends ConsumerWidget {
     List<String> modes = [];
     if (turningMode & 1 == 1) modes.add('滑动翻页');
     if (turningMode & 2 == 2) modes.add('点击翻页');
-    final children = [
-      const Text('翻页方式'),
-      Expanded(child: Text(modes.join('，'), textAlign: TextAlign.end))
-    ];
     return ListTile(
       onTap: () => handleTap(context),
-      title: Row(children: children),
+      title: const Text('翻页方式'),
       subtitle: const Text('阅读界面的翻页方式'),
-      trailing: Icon(Icons.arrow_forward_ios_outlined, size: 14),
+      trailing: Text(modes.join('，')),
     );
   }
 

@@ -42,13 +42,8 @@ class _SettingTile extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final primary = colorScheme.primary;
-    final onSurfaceVariant = colorScheme.onSurfaceVariant;
-    var leading = icon != null ? Icon(icon, color: primary) : null;
-    final trailing = Icon(
-      Icons.arrow_forward_ios,
-      color: onSurfaceVariant,
-      size: 16,
-    );
+    final leading = icon != null ? Icon(icon, color: primary) : null;
+    final trailing = Icon(Icons.chevron_right_outlined);
     return ListTile(
       leading: leading,
       title: Text(title),
