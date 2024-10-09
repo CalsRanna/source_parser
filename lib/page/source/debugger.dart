@@ -132,10 +132,12 @@ class _RawDataPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appBar = AppBar(title: const Text('原始数据'));
-    final scrollView = SingleChildScrollView(
+    final appBar = AppBar(title: const Text('网页数据'));
+    final paragraphs = data.split('\n');
+    final scrollView = ListView.builder(
+      itemBuilder: (_, index) => Text(paragraphs[index]),
+      itemCount: paragraphs.length,
       padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Text(data),
     );
     return Scaffold(appBar: appBar, body: scrollView);
   }
@@ -193,7 +195,7 @@ class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
                       break;
                   }
                   return _Tile(
-                    response: result[index].raw,
+                    response: result[index].html,
                     result: json,
                     title: result[index].title,
                   );
@@ -236,7 +238,7 @@ class _Tile extends StatelessWidget {
     );
     final rawTile = ListTile(
       subtitle: rawSubtitle,
-      title: const Text('原始数据'),
+      title: const Text('网页数据'),
       trailing: const Icon(Icons.chevron_right_outlined),
       onTap: () => showRawData(context),
     );

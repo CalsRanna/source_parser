@@ -25,11 +25,11 @@ class DebugResult {
 class DebugResultNew {
   DebugResultNew({
     this.title = '',
-    this.raw = '',
+    this.html = '',
     this.json = '',
   });
 
   String title;
-  String raw;
+  String html;
   String json;
 }

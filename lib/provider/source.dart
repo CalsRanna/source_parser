@@ -165,12 +165,10 @@ class FormSource extends _$FormSource {
   }
 
   Future<Stream<DebugResultNew>> debug() async {
-    const defaultCredential = '都市';
     final setting = await ref.read(settingNotifierProvider.future);
     final duration = setting.cacheDuration;
     final timeout = setting.timeout;
     final stream = await Parser.debug(
-      defaultCredential,
       state,
       Duration(hours: duration.floor()),
       Duration(milliseconds: timeout),
@@ -184,13 +182,11 @@ class SourceDebugger extends _$SourceDebugger {
   @override
   Future<Stream<List<DebugResultNew>>> build() async {
     final controller = StreamController<List<DebugResultNew>>();
-    const defaultCredential = '都市';
     final source = ref.read(formSourceProvider);
     final setting = await ref.read(settingNotifierProvider.future);
     final duration = setting.cacheDuration;
     final timeout = setting.timeout;
-    var stream = await Parser.debug(
-      defaultCredential,
+    var stream = Parser.debug(
       source,
       Duration(hours: duration.floor()),
       Duration(milliseconds: timeout),
@@ -206,7 +202,7 @@ class SourceDebugger extends _$SourceDebugger {
         if (showExtra && result.title == '正文') {
           results.add(DebugResultNew(
             json: result.json,
-            raw: jsonDecode(result.json)['content'].codeUnits.toString(),
+            html: jsonDecode(result.json)['content'].codeUnits.toString(),
             title: '正文Unicode编码',
           ));
         }
