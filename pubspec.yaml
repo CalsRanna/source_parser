@@ -19,15 +19,21 @@ dependencies:
   cupertino_icons: ^1.0.2
   dio: ^5.0.1
   file_picker: ^8.1.2
-  flutter_android_volume_keydown: ^1.0.0
+  flutter_android_volume_keydown:
+    version: ^1.0.0
+    path: ./lib/vendor/flutter_android_volume_keydown
   flutter_colorpicker: ^1.0.3
   flutter_native_splash: ^2.3.2
   flutter_riverpod: ^2.4.9
   go_router: ^14.2.8
   html: ^0.15.0
   http: ^1.1.0
-  isar: ^3.0.5
-  isar_flutter_libs: ^3.0.5
+  isar:
+    version: ^3.0.5
+    hosted: https://pub.isar-community.dev/
+  isar_flutter_libs:
+    version: ^3.0.5
+    hosted: https://pub.isar-community.dev/
   json_path: ^0.6.3
   json_view: ^0.4.2
   logger: ^2.0.2+1
@@ -51,7 +57,9 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.1
   go_router_builder: ^2.4.1
-  isar_generator: ^3.0.5
+  isar_generator:
+    version: ^3.0.5
+    hosted: https://pub.isar-community.dev/
   riverpod_generator: ^2.3.9
 
 flutter:
@@ -59,28 +67,3 @@ flutter:
 
   assets:
     - asset/image/
-
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  remove_alpha_ios: true
-  image_path: "asset/image/icon.jpg"
-  min_sdk_android: 21
-  web:
-    generate: true
-    image_path: "asset/image/icon.jpg"
-  windows:
-    generate: true
-    image_path: "asset/image/icon.jpg"
-    icon_size: 48
-  macos:
-    generate: true
-    image_path: "asset/image/launcher_Icon_macos_512.png"
-
-flutter_native_splash:
-  color: "#ffffff"
-  image: "asset/image/splash.jpg"
-  ios_content_mode: scaleAspectFit
-  android_12:
-    icon_background_color: "#ffffff"
-    image: "asset/image/logo.jpg"
