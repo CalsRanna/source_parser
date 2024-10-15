@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:source_parser/router/router.gr.dart';
 
+final routerConfig = AppRouter().config();
+
 @AutoRouterConfig()
 class AppRouter extends RootStackRouter {
   @override

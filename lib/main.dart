@@ -50,7 +50,7 @@ class _SourceParserState extends ConsumerState<SourceParser> {
       builders: {TargetPlatform.android: NoAnimationPageTransitionBuilder()},
     );
     return MaterialApp.router(
-      routerConfig: AppRouter().config(),
+      routerConfig: routerConfig,
       theme: ThemeData(
         brightness: darkMode ? Brightness.dark : Brightness.light,
         colorSchemeSeed: const Color(0xFF63BBD0),
