@@ -1,10 +1,11 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/setting.dart';
-import 'package:source_parser/router/router.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -13,6 +14,7 @@ import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/widget/loading.dart';
 import 'package:source_parser/widget/source_tag.dart';
 
+@RoutePage()
 class AvailableSourceListPage extends StatefulWidget {
   const AvailableSourceListPage({super.key});
 
@@ -144,7 +146,7 @@ class _AvailableSourceListPageState extends State<AvailableSourceListPage> {
     Message.of(context).show(message);
     Navigator.of(context).pop();
     Navigator.of(context).pop();
-    const BookReaderPageRoute().pushReplacement(context);
+    AutoRouter.of(context).replace(ReaderRoute());
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   }
 }

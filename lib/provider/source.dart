@@ -168,7 +168,7 @@ class FormSource extends _$FormSource {
     final setting = await ref.read(settingNotifierProvider.future);
     final duration = setting.cacheDuration;
     final timeout = setting.timeout;
-    final stream = await Parser.debug(
+    final stream = Parser.debug(
       state,
       Duration(hours: duration.floor()),
       Duration(milliseconds: timeout),

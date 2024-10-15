@@ -1,11 +1,13 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/book.dart';
-import 'package:source_parser/router/router.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/message.dart';
 
+@RoutePage()
 class CataloguePage extends StatefulWidget {
   final int index;
 
@@ -129,15 +131,10 @@ class _CataloguePageState extends State<CataloguePage> {
 
   void startReader(WidgetRef ref, int index) async {
     final navigator = Navigator.of(context);
-    navigator.popUntil(_predicate);
-    const BookReaderPageRoute().push(context);
+    navigator.pop();
+    AutoRouter.of(context).push(ReaderRoute());
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     final bookNotifier = ref.read(bookNotifierProvider.notifier);
     bookNotifier.startReader(cursor: 0, index: index);
-  }
-
-  bool _predicate(Route<dynamic> route) {
-    return ModalRoute.withName('bookInformation').call(route) ||
-        ModalRoute.withName('home').call(route);
   }
 }

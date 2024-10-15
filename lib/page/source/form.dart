@@ -1,12 +1,14 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/source.dart';
-import 'package:source_parser/router/router.dart';
 import 'package:source_parser/page/source/component/debug_button.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/page/source/component/rule_group_label.dart';
 import 'package:source_parser/page/source/component/rule_tile.dart';
 
+@RoutePage()
 class SourceFormPage extends StatelessWidget {
   const SourceFormPage({super.key, this.id});
 
@@ -143,19 +145,19 @@ class SourceFormPage extends StatelessWidget {
   void navigate(BuildContext context, String route) {
     switch (route) {
       case 'advanced-configuration':
-        const SourceFormAdvancedConfigurationPageRoute().push(context);
+        AutoRouter.of(context).push(SourceAdvancedConfigurationRoute());
         break;
       case 'search-configuration':
-        const SourceFormSearchConfigurationPageRoute().push(context);
+        AutoRouter.of(context).push(SourceSearchConfigurationRoute());
         break;
       case 'information-configuration':
-        const SourceFormInformationConfigurationPageRoute().push(context);
+        AutoRouter.of(context).push(SourceInformationConfigurationRoute());
         break;
       case 'catalogue-configuration':
-        const SourceFormCatalogueConfigurationPageRoute().push(context);
+        AutoRouter.of(context).push(SourceCatalogueConfigurationRoute());
         break;
       case 'content-configuration':
-        const SourceFormContentConfigurationPageRoute().push(context);
+        AutoRouter.of(context).push(SourceContentConfigurationRoute());
         break;
       default:
         break;

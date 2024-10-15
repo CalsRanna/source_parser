@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,12 +10,13 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:source_parser/provider/source.dart';
-import 'package:source_parser/router/router.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/loading.dart';
 
+@RoutePage()
 class SourceListPage extends StatefulWidget {
   const SourceListPage({super.key});
 
@@ -153,13 +155,13 @@ class _SourceListPageState extends State<SourceListPage> {
   }
 
   void createSource(WidgetRef ref) {
-    const SourceCreateFormPageRoute().push(context);
+    AutoRouter.of(context).push(SourceFormRoute());
     final notifier = ref.read(formSourceProvider.notifier);
     notifier.create();
   }
 
   void editSource(WidgetRef ref, int id) async {
-    SourceEditFormPageRoute(id: id).push(context);
+    AutoRouter.of(context).push(SourceFormRoute(id: id));
     final notifier = ref.read(formSourceProvider.notifier);
     notifier.edit(id);
   }

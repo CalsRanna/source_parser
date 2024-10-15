@@ -1,5 +1,6 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:source_parser/router/router.dart';
+import 'package:source_parser/router/router.gr.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -56,16 +57,16 @@ class _SettingTile extends StatelessWidget {
     if (route == null) return;
     switch (route) {
       case '/book-source':
-        const SourceListPageRoute().push(context);
+        AutoRouter.of(context).push(SourceListRoute());
         break;
       case '/reader-theme':
-        const BookReaderThemePageRoute().push(context);
+        AutoRouter.of(context).push(ReaderThemeRoute());
         break;
       case '/setting/advanced':
-        const SettingPageRoute().push(context);
+        AutoRouter.of(context).push(SettingRoute());
         break;
       case '/setting/about':
-        const AboutPageRoute().push(context);
+        AutoRouter.of(context).push(AboutRoute());
         break;
       default:
         break;

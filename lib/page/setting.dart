@@ -1,11 +1,13 @@
 import 'dart:io';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/util/message.dart';
 
+@RoutePage()
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/model/debug.dart';
@@ -8,6 +9,7 @@ import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/string_extension.dart';
 import 'package:source_parser/page/source/component/rule_group_label.dart';
 
+@RoutePage()
 class SourceDebuggerPage extends StatefulWidget {
   const SourceDebuggerPage({super.key});
 

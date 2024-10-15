@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/source.dart';
@@ -5,6 +6,7 @@ import 'package:source_parser/page/source/component/debug_button.dart';
 import 'package:source_parser/page/source/component/rule_group_label.dart';
 import 'package:source_parser/page/source/component/rule_tile.dart';
 
+@RoutePage()
 class SourceCatalogueConfigurationPage extends StatelessWidget {
   const SourceCatalogueConfigurationPage({super.key});
   @override

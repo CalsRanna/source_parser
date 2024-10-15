@@ -37,7 +37,7 @@ final currentSourceProvider =
 );
 
 typedef _$CurrentSource = AutoDisposeAsyncNotifier<Source?>;
-String _$formSourceHash() => r'56d9daea8792c1c71c5ba6ee3eed9f606b924ff5';
+String _$formSourceHash() => r'e65f5e34fee0bd0f5805229aeaca870b9a293be3';
 
 /// See also [FormSource].
 @ProviderFor(FormSource)
@@ -51,7 +51,7 @@ final formSourceProvider = NotifierProvider<FormSource, Source>.internal(
 );
 
 typedef _$FormSource = Notifier<Source>;
-String _$sourceDebuggerHash() => r'13fea0bca1528afbd2d1213a5c5fd120724d8167';
+String _$sourceDebuggerHash() => r'2882ea3f840bf413c2014f48a4d6d4d7319eda37';
 
 /// See also [SourceDebugger].
 @ProviderFor(SourceDebugger)

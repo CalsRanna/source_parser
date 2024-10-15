@@ -1,7 +1,8 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/book.dart';
-import 'package:source_parser/router/router.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
@@ -92,7 +93,7 @@ class _ExploreTile extends StatelessWidget {
   }
 
   void handleTap(BuildContext context, WidgetRef ref) {
-    const BookInformationPageRoute().push(context);
+    AutoRouter.of(context).push(InformationRoute());
     final notifier = ref.read(bookNotifierProvider.notifier);
     notifier.update(book);
   }

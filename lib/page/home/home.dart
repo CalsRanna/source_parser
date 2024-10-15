@@ -1,15 +1,17 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/page/home/component/explore.dart';
 import 'package:source_parser/provider/setting.dart';
-import 'package:source_parser/router/router.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/page/home/component/profile.dart';
 import 'package:source_parser/page/home/component/shelf.dart';
 import 'package:source_parser/schema/source.dart';
 
+@RoutePage()
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -148,7 +150,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void handlePressed() {
-    const SearchPageRoute().push(context);
+    AutoRouter.of(context).push(SearchRoute());
   }
 
   void updateShelfMode(WidgetRef ref, String value) async {

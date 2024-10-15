@@ -1,10 +1,11 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/page/listener.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/setting.dart';
-import 'package:source_parser/router/router.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
@@ -144,7 +145,7 @@ class _ShelfGridTile extends StatelessWidget {
   }
 
   void _handleTap(BuildContext context, WidgetRef ref) {
-    const BookReaderPageRoute().push(context);
+    AutoRouter.of(context).push(ReaderRoute());
     final notifier = ref.read(bookNotifierProvider.notifier);
     notifier.update(book);
   }
@@ -300,7 +301,7 @@ class _ShelfListTile extends StatelessWidget {
   }
 
   void _handleTap(BuildContext context, WidgetRef ref) {
-    const BookReaderPageRoute().push(context);
+    AutoRouter.of(context).push(ReaderRoute());
     final notifier = ref.read(bookNotifierProvider.notifier);
     notifier.update(book);
   }
@@ -517,7 +518,7 @@ class _ShelfTileBottomSheet extends StatelessWidget {
 
   void showInformation(BuildContext context, WidgetRef ref) {
     Navigator.of(context).pop();
-    const BookInformationPageRoute().push(context);
+    AutoRouter.of(context).push(InformationRoute());
   }
 
   void toggleArchive(BuildContext context, WidgetRef ref) async {

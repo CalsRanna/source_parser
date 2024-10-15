@@ -1,18 +1,20 @@
 import 'dart:ui';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/page/listener.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/source.dart';
-import 'package:source_parser/router/router.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/book_cover.dart';
 import 'package:source_parser/widget/loading.dart';
 
+@RoutePage()
 class InformationPage extends ConsumerStatefulWidget {
   const InformationPage({super.key});
 
@@ -230,7 +232,7 @@ class _BottomBar extends StatelessWidget {
   void startReader(BuildContext context, WidgetRef ref, int index) async {
     final navigator = Navigator.of(context);
     navigator.popUntil(_predicate);
-    const BookReaderPageRoute().push(context);
+    AutoRouter.of(context).push(ReaderRoute());
     final bookNotifier = ref.read(bookNotifierProvider.notifier);
     bookNotifier.startReader(index: index);
   }
@@ -332,7 +334,7 @@ class _Catalogue extends StatelessWidget {
   void handleTap(BuildContext context, WidgetRef ref) {
     if (loading) return;
     final book = ref.read(bookNotifierProvider);
-    BookCataloguePageRoute(index: book.index).push(context);
+    AutoRouter.of(context).push(CatalogueRoute(index: book.index));
   }
 }
 
@@ -419,7 +421,7 @@ class _Information extends StatelessWidget {
   }
 
   void searchSameAuthor(BuildContext context) {
-    SearchPageRoute(credential: book.author).push(context);
+    AutoRouter.of(context).push(SearchRoute());
   }
 
   String _buildSpan(Book book) {
@@ -570,7 +572,7 @@ class _Source extends StatelessWidget {
   }
 
   void handleTap(BuildContext context) {
-    const BookSourceListPageRoute().push(context);
+    AutoRouter.of(context).push(AvailableSourceListRoute());
   }
 }
 

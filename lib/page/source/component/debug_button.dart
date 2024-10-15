@@ -1,6 +1,7 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/router/router.dart';
+import 'package:source_parser/router/router.gr.dart';
 
 class DebugButton extends ConsumerWidget {
   const DebugButton({super.key});
@@ -14,6 +15,6 @@ class DebugButton extends ConsumerWidget {
   }
 
   void handlePressed(BuildContext context, WidgetRef ref) {
-    const SourceDebuggerPageRoute().push(context);
+    AutoRouter.of(context).push(SourceDebuggerRoute());
   }
 }

@@ -1,8 +1,10 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/page/theme/color_picker.dart';
 import 'package:source_parser/provider/setting.dart';
 
+@RoutePage()
 class ReaderThemePage extends StatelessWidget {
   const ReaderThemePage({super.key});
 

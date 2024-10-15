@@ -2,17 +2,19 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/setting.dart';
-import 'package:source_parser/router/router.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/book_cover.dart';
 import 'package:source_parser/widget/reader.dart';
 
+@RoutePage()
 class ReaderPage extends ConsumerStatefulWidget {
   const ReaderPage({super.key});
 
@@ -198,7 +200,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
 
   void handleCataloguePressed() {
     final book = ref.read(bookNotifierProvider);
-    BookCataloguePageRoute(index: book.index).push(context);
+    AutoRouter.of(context).push(CatalogueRoute(index: book.index));
   }
 
   void handleChapterChanged(WidgetRef ref, int index) async {
@@ -207,7 +209,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   }
 
   void handleDetailPressed() {
-    const BookInformationPageRoute().push(context);
+    AutoRouter.of(context).push(InformationRoute());
   }
 
   void handleMessage(String message) {
@@ -230,11 +232,11 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   }
 
   void handleSettingPressed() {
-    const BookReaderThemePageRoute().push(context);
+    AutoRouter.of(context).push(ReaderThemeRoute());
   }
 
   void handleSourcePressed() {
-    const BookSourceListPageRoute().push(context);
+    AutoRouter.of(context).push(AvailableSourceListRoute());
   }
 
   void toggleDarkMode(WidgetRef ref) async {
