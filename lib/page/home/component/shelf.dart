@@ -7,46 +7,34 @@ import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
-import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
-class ShelfView extends StatefulWidget {
+class ShelfView extends ConsumerWidget {
   const ShelfView({super.key});
 
   @override
-  State<ShelfView> createState() => _ShelfViewState();
-}
-
-class _ShelfViewState extends State<ShelfView> {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer(builder: (context, ref, child) {
-      final provider = ref.watch(settingNotifierProvider);
-      final setting = switch (provider) {
-        AsyncData(:final value) => value,
-        _ => Setting(),
-      };
-      final mode = setting.shelfMode;
-      final books = ref.watch(booksProvider);
-      final value = switch (books) {
-        AsyncData(:final value) => value,
-        _ => <Book>[],
-      };
-      Widget child;
-      if (mode == 'list') {
-        child = _ShelfListView(books: value);
-      } else {
-        child = _ShelfGridView(books: value);
-      }
-      return RefreshIndicator(
-        onRefresh: () => refresh(ref),
-        child: child,
-      );
-    });
+  Widget build(BuildContext context, WidgetRef ref) {
+    final setting = ref.watch(settingNotifierProvider).valueOrNull;
+    final mode = setting?.shelfMode ?? 'list';
+    final books = ref.watch(booksProvider);
+    final value = switch (books) {
+      AsyncData(:final value) => value,
+      _ => <Book>[],
+    };
+    Widget child;
+    if (mode == 'list') {
+      child = _ShelfListView(books: value);
+    } else {
+      child = _ShelfGridView(books: value);
+    }
+    return RefreshIndicator(
+      onRefresh: () => refresh(context, ref),
+      child: child,
+    );
   }
 
-  Future<void> refresh(WidgetRef ref) async {
+  Future<void> refresh(BuildContext context, WidgetRef ref) async {
     final message = Message.of(context);
     try {
       final notifier = ref.read(booksProvider.notifier);
