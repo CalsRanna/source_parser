@@ -217,6 +217,8 @@ class _ShelfListTile extends StatelessWidget {
                       ),
                       Text(
                         _buildLatestChapter() ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: bodySmall?.copyWith(
                           color: onSurface.withOpacity(0.5),
                         ),
@@ -466,10 +468,9 @@ class _ShelfTileBottomSheet extends StatelessWidget {
   }
 
   void confirm(BuildContext context, WidgetRef ref) async {
-    final navigator = Navigator.of(context);
+    Navigator.pop(context);
     final notifier = ref.read(booksProvider.notifier);
     notifier.delete(book);
-    navigator.popUntil(ModalRoute.withName('home'));
   }
 
   void remove(BuildContext context, WidgetRef ref) {

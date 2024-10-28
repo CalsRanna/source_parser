@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/listener.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/setting.dart';
@@ -194,7 +195,9 @@ class _BottomBar extends StatelessWidget {
               _ => false,
             };
             final icon = Icon(
-              inShelf ? Icons.check_outlined : Icons.library_add_outlined,
+              inShelf
+                  ? HugeIcons.strokeRoundedTick02
+                  : HugeIcons.strokeRoundedLibrary,
             );
             final shelfText = Text(inShelf ? '已在书架' : '加入书架');
             return TextButton(

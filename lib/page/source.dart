@@ -29,14 +29,14 @@ class _AvailableSourceListPageState extends State<AvailableSourceListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          Consumer(builder: (context, ref, child) {
-            return TextButton(
-              onPressed: () => reset(ref),
-              child: const Text('重置'),
-            );
-          })
-        ],
+        // actions: [
+        //   Consumer(builder: (context, ref, child) {
+        //     return TextButton(
+        //       onPressed: () => reset(ref),
+        //       child: const Text('重置'),
+        //     );
+        //   })
+        // ],
         title: const Text('可用书源'),
       ),
       body: Consumer(builder: (context, ref, child) {

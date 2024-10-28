@@ -152,9 +152,15 @@ class Parser {
       final sender = ReceivePort();
       final receiver = ReceivePort();
       final isolate = await Isolate.spawn(_getExplore, sender.sendPort);
-      (await sender.first as SendPort).send(
-        [network, duration, rule, exploreUrl, source, receiver.sendPort],
-      );
+      var message = [
+        network,
+        duration,
+        rule,
+        exploreUrl,
+        source,
+        receiver.sendPort
+      ];
+      (await sender.first as SendPort).send(message);
       final task = receiver.forEach((element) {
         if (element is ExploreResult) {
           results.add(element);

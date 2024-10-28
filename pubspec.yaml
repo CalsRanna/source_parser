@@ -28,6 +28,7 @@ dependencies:
   flutter_riverpod: ^2.4.9
   html: ^0.15.0
   http: ^1.1.0
+  hugeicons: ^0.0.7
   isar:
     version: ^3.0.5
     hosted: https://pub.isar-community.dev/

@@ -7,15 +7,10 @@ class Message {
 
   void show(String message) {
     if (!context.mounted) return;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final primary = colorScheme.primary;
-    final onPrimary = colorScheme.onPrimary;
     final messenger = ScaffoldMessenger.of(context);
     final snackBar = SnackBar(
-      backgroundColor: primary,
       behavior: SnackBarBehavior.floating,
-      content: Text(message, style: TextStyle(color: onPrimary)),
+      content: Text(message),
       duration: const Duration(seconds: 1),
     );
     messenger.hideCurrentSnackBar();

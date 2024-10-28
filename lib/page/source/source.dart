@@ -309,24 +309,18 @@ class _SourceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final listTile = ListTile(
+    var theme = Theme.of(context);
+    var colorScheme = theme.colorScheme;
+    var secondaryContainer = colorScheme.secondaryContainer;
+    var circleAvatar = CircleAvatar(
+      backgroundColor: source.enabled ? null : secondaryContainer,
+      child: Text(source.name.substring(0, 1)),
+    );
+    return ListTile(
+      leading: circleAvatar,
       onTap: handleTap,
       title: Text(source.name),
       subtitle: Text(source.url),
-      trailing: Icon(Icons.chevron_right_outlined),
-    );
-    final comment = source.comment.replaceAll('，', ',');
-    final comments = comment.split(',').where((item) => item.isNotEmpty);
-    final chips = comments.map((item) => Chip(label: Text(item))).toList();
-    if (source.exploreEnabled) chips.insert(0, Chip(label: Text('发现页')));
-    final wrap = Wrap(runSpacing: 8, spacing: 8, children: chips);
-    final padding = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: wrap,
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [listTile, padding],
     );
   }
 
