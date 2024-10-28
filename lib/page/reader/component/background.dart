@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/page/reader/component/page.dart';
+import 'package:source_parser/model/reader_theme.dart';
 import 'package:source_parser/provider/setting.dart';
 
 class ReaderBackground extends ConsumerWidget {
@@ -13,15 +13,17 @@ class ReaderBackground extends ConsumerWidget {
     var setting = ref.watch(provider).valueOrNull;
     var darkMode = setting?.darkMode ?? false;
     var backgroundColor = darkMode ? Colors.black : theme.backgroundColor;
-    Widget body = const SizedBox();
-    if (theme.backgroundImage.isNotEmpty) {
-      body = Image.asset(
-        theme.backgroundImage,
-        fit: BoxFit.cover,
-        height: double.infinity,
-        width: double.infinity,
-      );
-    }
+    Widget body = _buildBody();
     return Scaffold(backgroundColor: backgroundColor, body: body);
+  }
+
+  Widget _buildBody() {
+    if (theme.backgroundImage.isEmpty) return const SizedBox();
+    return Image.asset(
+      theme.backgroundImage,
+      fit: BoxFit.cover,
+      height: double.infinity,
+      width: double.infinity,
+    );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:source_parser/page/reader/component/page.dart';
+import 'package:source_parser/model/reader_theme.dart';
 
 /// A utility class for splitting content into pages for a reader application.
 ///

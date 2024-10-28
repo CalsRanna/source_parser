@@ -17,7 +17,7 @@ import 'package:source_parser/page/information.dart' as _i5;
 import 'package:source_parser/page/reader/reader.dart' as _i6;
 import 'package:source_parser/page/search/search.dart' as _i8;
 import 'package:source_parser/page/setting.dart' as _i9;
-import 'package:source_parser/page/source.dart' as _i2;
+import 'package:source_parser/page/available_source/source.dart' as _i2;
 import 'package:source_parser/page/source/advanced.dart' as _i10;
 import 'package:source_parser/page/source/catalogue.dart' as _i11;
 import 'package:source_parser/page/source/content.dart' as _i12;

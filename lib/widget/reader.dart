@@ -6,6 +6,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_android_volume_keydown/flutter_android_volume_keydown.dart';
+import 'package:source_parser/model/reader_theme.dart';
 import 'package:source_parser/page/reader/component/background.dart';
 import 'package:source_parser/page/reader/component/overlay.dart';
 import 'package:source_parser/page/reader/component/page.dart';

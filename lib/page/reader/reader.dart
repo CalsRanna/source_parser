@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/model/reader_theme.dart';
 import 'package:source_parser/page/reader/component/indicator.dart';
 import 'package:source_parser/page/reader/component/page.dart';
 import 'package:source_parser/provider/book.dart';
