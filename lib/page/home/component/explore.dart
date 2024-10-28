@@ -58,6 +58,7 @@ class _BannerState extends State<_Banner> {
   void initState() {
     super.initState();
     final itemCount = min(widget.books.length, 3);
+    if (itemCount == 0) return;
     final limitedBooks = widget.books.sublist(0, itemCount);
     books = [widget.books[itemCount - 1], ...limitedBooks, widget.books[0]];
     controller.addListener(() {

@@ -239,43 +239,42 @@ class Parser {
     return _importSource(html);
   }
 
-  static Future<Stream<Book>> search(
+  static Stream<Book> search(
     String credential,
     int maxConcurrent,
     Duration duration,
     Duration timeout,
-  ) async {
+  ) async* {
     final sources = await isar.sources.filter().enabledEqualTo(true).findAll();
-    final temporaryDirectory = await getTemporaryDirectory();
+    final directory = await getTemporaryDirectory();
     final network = CachedNetwork(
-      temporaryDirectory: temporaryDirectory,
+      temporaryDirectory: directory,
       timeout: timeout,
     );
-    var closed = 0;
     final controller = StreamController<Book>();
+    var count = 0;
     final semaphore = Semaphore(maxConcurrent);
     for (var source in sources) {
       await semaphore.acquire();
       final sender = ReceivePort();
       final receiver = ReceivePort();
       final isolate = await Isolate.spawn(_searchInIsolate, sender.sendPort);
-      (await sender.first as SendPort).send(
-        [network, duration, source, credential, receiver.sendPort],
-      );
-      receiver.forEach((element) async {
-        if (element is Book) {
-          controller.add(element);
+      var message = [network, duration, source, credential, receiver.sendPort];
+      (await sender.first as SendPort).send(message);
+      receiver.listen((item) {
+        if (item is Book) {
+          controller.add(item);
         } else {
           isolate.kill();
-          closed++;
+          count++;
           semaphore.release();
-          if (closed == sources.length) {
+          if (count == sources.length) {
             controller.close();
           }
         }
       });
     }
-    return controller.stream;
+    yield* controller.stream;
   }
 
   static Future<List<Book>> today(

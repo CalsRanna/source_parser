@@ -10,6 +10,7 @@ import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/cache_network.dart';
+import 'package:source_parser/util/logger.dart';
 import 'package:source_parser/util/parser.dart';
 
 part 'book.g.dart';
@@ -248,7 +249,7 @@ class BookNotifier extends _$BookNotifier {
     final maxConcurrent = setting.maxConcurrent;
     final timeout = setting.timeout;
     List<AvailableSource> sources = [...state.sources];
-    var stream = await Parser.search(
+    var stream = Parser.search(
       state.name,
       maxConcurrent.floor(),
       Duration(hours: duration.floor()),
@@ -436,5 +437,78 @@ class InShelf extends _$InShelf {
     });
     ref.invalidate(booksProvider);
     ref.invalidateSelf();
+  }
+}
+
+@riverpod
+class SearchLoading extends _$SearchLoading {
+  @override
+  bool build(String credential) {
+    return false;
+  }
+
+  void start() {
+    state = true;
+  }
+
+  void stop() {
+    state = false;
+  }
+}
+
+@riverpod
+class SearchBooks extends _$SearchBooks {
+  @override
+  List<Book> build(String credential) {
+    return [];
+  }
+
+  Future<void> search() async {
+    var provider = searchLoadingProvider(credential);
+    var notifier = ref.read(provider.notifier);
+    notifier.start();
+    var setting = await ref.read(settingNotifierProvider.future);
+    var duration = Duration(hours: setting.cacheDuration.floor());
+    var timeout = Duration(milliseconds: setting.timeout);
+    var maxConcurrent = setting.maxConcurrent.floor();
+    var stream = Parser.search(credential, maxConcurrent, duration, timeout);
+    stream.listen(_listenStream, onDone: () {
+      notifier.stop();
+    }, onError: (error) {
+      logger.e(error);
+    });
+  }
+
+  void _listenStream(Book book) async {
+    final filteredBook = await _getFilteredBook(book);
+    if (filteredBook == null) return;
+    var existingBook = _getExistingBook(filteredBook);
+    if (existingBook == null) {
+      state = [...state, filteredBook];
+      return;
+    }
+    existingBook.sources.addAll(filteredBook.sources);
+    if (filteredBook.cover.length > existingBook.cover.length) {
+      existingBook.cover = filteredBook.cover;
+    }
+    if (filteredBook.introduction.length > existingBook.introduction.length) {
+      existingBook.introduction = filteredBook.introduction;
+    }
+    state = [...state];
+  }
+
+  Future<Book?> _getFilteredBook(Book book) async {
+    final setting = await ref.read(settingNotifierProvider.future);
+    if (!setting.searchFilter) return book;
+    final conditionA = book.name.contains(credential);
+    final conditionB = book.author.contains(credential);
+    final filtered = conditionA || conditionB;
+    return filtered ? book : null;
+  }
+
+  Book? _getExistingBook(Book book) {
+    return state.where((item) {
+      return item.name == book.name && item.author == book.author;
+    }).firstOrNull;
   }
 }
