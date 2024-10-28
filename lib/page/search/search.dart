@@ -20,9 +20,9 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final medium = theme.textTheme.bodyMedium;
-    final cancel = TextButton(
+    var theme = Theme.of(context);
+    var medium = theme.textTheme.bodyMedium;
+    var cancel = TextButton(
       onPressed: () => pop(context),
       child: Text('取消', style: medium),
     );
@@ -40,9 +40,10 @@ class _SearchPageState extends State<SearchPage> {
       title: input,
       titleSpacing: 0,
     );
-    final trending = SearchTrending(onPressed: handlePressed);
+    var trending = SearchTrending(onPressed: handlePressed);
     if (credential.isEmpty) return Scaffold(appBar: appBar, body: trending);
-    return Scaffold(appBar: appBar, body: SearchResult(credential));
+    var result = SearchResult(credential, key: ValueKey(credential));
+    return Scaffold(appBar: appBar, body: result);
   }
 
   void handleClear() {

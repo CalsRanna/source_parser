@@ -421,7 +421,7 @@ class _Information extends StatelessWidget {
   }
 
   void searchSameAuthor(BuildContext context) {
-    AutoRouter.of(context).push(SearchRoute());
+    AutoRouter.of(context).push(SearchRoute(credential: book.author));
   }
 
   String _buildSpan(Book book) {

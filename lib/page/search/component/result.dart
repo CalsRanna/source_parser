@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/page/search/component/indicator.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
@@ -16,6 +17,18 @@ class SearchResult extends ConsumerStatefulWidget {
 
 class _SearchResultState extends ConsumerState<SearchResult> {
   @override
+  Widget build(BuildContext context) {
+    var provider = searchBooksProvider(widget.credential);
+    final books = ref.watch(provider);
+    if (books.isEmpty) return SearchIndicator(widget.credential);
+    return ListView.separated(
+      itemBuilder: (_, index) => _Tile(book: books[index]),
+      itemCount: books.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+    );
+  }
+
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -28,18 +41,6 @@ class _SearchResultState extends ConsumerState<SearchResult> {
     var provider = searchBooksProvider(widget.credential);
     var notifier = ref.read(provider.notifier);
     notifier.search();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var provider = searchBooksProvider(widget.credential);
-    final books = ref.watch(provider);
-    if (books.isEmpty) return const Center(child: Text('没有搜索结果'));
-    return ListView.separated(
-      itemBuilder: (_, index) => _Tile(book: books[index]),
-      itemCount: books.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
-    );
   }
 }
 
