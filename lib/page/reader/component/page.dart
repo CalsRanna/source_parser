@@ -72,7 +72,7 @@ class ReaderPage extends StatelessWidget {
       onTapUp: (details) => handleTap(context, details),
       child: column,
     );
-    return Scaffold(body: gestureDetector);
+    return Scaffold(backgroundColor: Colors.transparent, body: gestureDetector);
   }
 
   void handleHorizontalDrag(BuildContext context, DragEndDetails details) {
