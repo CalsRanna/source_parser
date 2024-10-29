@@ -30,6 +30,7 @@ dependencies:
   html: ^0.15.0
   http: ^1.1.0
   hugeicons: ^0.0.7
+  icloud_storage_sync: ^0.0.1
   isar:
     version: ^3.0.5
     hosted: https://pub.isar-community.dev/

@@ -5,6 +5,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:isar/isar.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -32,7 +33,7 @@ class _SourceListPageState extends State<SourceListPage> {
         actions: [
           IconButton(
             onPressed: importSource,
-            icon: const Icon(Icons.more_vert_outlined),
+            icon: const Icon(HugeIcons.strokeRoundedMoreVertical),
           )
         ],
         title: const Text('书源管理'),
@@ -60,7 +61,7 @@ class _SourceListPageState extends State<SourceListPage> {
       floatingActionButton: Consumer(builder: (context, ref, child) {
         return FloatingActionButton(
           onPressed: () => createSource(ref),
-          child: const Icon(Icons.add_outlined),
+          child: const Icon(HugeIcons.strokeRoundedAdd01),
         );
       }),
     );

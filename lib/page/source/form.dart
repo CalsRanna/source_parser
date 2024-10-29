@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/page/source/component/debug_button.dart';
 import 'package:source_parser/router/router.gr.dart';
@@ -26,7 +27,7 @@ class SourceFormPage extends StatelessWidget {
           Consumer(builder: (context, ref, child) {
             return IconButton(
               onPressed: () => storeBookSource(context, ref),
-              icon: const Icon(Icons.check_outlined),
+              icon: const Icon(HugeIcons.strokeRoundedTick02),
             );
           })
         ],

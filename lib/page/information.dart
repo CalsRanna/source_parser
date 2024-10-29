@@ -325,7 +325,7 @@ class _Catalogue extends StatelessWidget {
                     '共${book.chapters.length}章',
                     textAlign: TextAlign.right,
                   ),
-                  const Icon(Icons.chevron_right_outlined)
+                  const Icon(HugeIcons.strokeRoundedArrowRight01)
                 ]
               ],
             ),
@@ -393,7 +393,7 @@ class _Information extends StatelessWidget {
                       children: [
                         Text(book.author),
                         const Icon(
-                          Icons.arrow_forward_ios_outlined,
+                          HugeIcons.strokeRoundedArrowRight01,
                           color: Colors.white,
                           size: 14,
                         )
@@ -512,7 +512,7 @@ class _IntroductionState extends State<_Introduction> {
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Icon(
-                    Icons.keyboard_arrow_down_outlined,
+                    HugeIcons.strokeRoundedArrowDown01,
                     color: surfaceTint,
                     size: 12,
                   ),
@@ -565,7 +565,7 @@ class _Source extends StatelessWidget {
                       textAlign: TextAlign.right,
                     ),
                   ),
-                  const Icon(Icons.chevron_right_outlined)
+                  const Icon(HugeIcons.strokeRoundedArrowRight01)
                 ],
               ),
             ],

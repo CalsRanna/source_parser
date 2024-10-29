@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/listener.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
@@ -378,8 +379,9 @@ class _ShelfTileBottomSheet extends StatelessWidget {
         Consumer(builder: (context, ref, child) {
           final book = ref.watch(bookNotifierProvider);
           final archived = book.archive;
-          final icon =
-              archived ? Icons.archive_outlined : Icons.unarchive_outlined;
+          final icon = archived
+              ? HugeIcons.strokeRoundedArchive02
+              : HugeIcons.strokeRoundedQuillWrite01;
           final text = archived ? '已完结' : '连载中';
           return Container(
             decoration: BoxDecoration(
@@ -391,12 +393,13 @@ class _ShelfTileBottomSheet extends StatelessWidget {
                 Row(
                   children: [
                     _SheetAction(
-                      icon: const Icon(Icons.info_outline),
+                      icon:
+                          const Icon(HugeIcons.strokeRoundedInformationCircle),
                       text: '详情',
                       onTap: () => showInformation(context, ref),
                     ),
                     _SheetAction(
-                      icon: const Icon(Icons.image_search_outlined),
+                      icon: const Icon(HugeIcons.strokeRoundedImage02),
                       text: '更改封面',
                       onTap: () => selectCover(context, ref),
                     ),
@@ -406,7 +409,7 @@ class _ShelfTileBottomSheet extends StatelessWidget {
                       onTap: () => toggleArchive(context, ref),
                     ),
                     _SheetAction(
-                      icon: const Icon(Icons.delete_forever_outlined),
+                      icon: const Icon(HugeIcons.strokeRoundedDelete02),
                       text: '移出书架',
                       onTap: () => remove(context, ref),
                     ),
@@ -415,12 +418,12 @@ class _ShelfTileBottomSheet extends StatelessWidget {
                 Row(
                   children: [
                     _SheetAction(
-                      icon: const Icon(Icons.file_download_outlined),
+                      icon: const Icon(HugeIcons.strokeRoundedDownload04),
                       text: '缓存',
                       onTap: () => cache(context, ref),
                     ),
                     _SheetAction(
-                      icon: const Icon(Icons.file_download_off_outlined),
+                      icon: const Icon(HugeIcons.strokeRoundedClean),
                       text: '清除缓存',
                       onTap: () => clearCache(context, ref),
                     ),

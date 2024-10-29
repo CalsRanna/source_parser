@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/util/message.dart';
@@ -257,7 +258,9 @@ class _TurningModeListTile extends ConsumerWidget {
     final turningMode = setting?.turningMode ?? 3;
     return ListTile(
       title: Text(title),
-      trailing: turningMode & mode == mode ? Icon(Icons.check) : null,
+      trailing: turningMode & mode == mode
+          ? Icon(HugeIcons.strokeRoundedTick02)
+          : null,
       onTap: () => updateTurningMode(ref, mode),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/router/router.gr.dart';
 
 class ProfileView extends StatelessWidget {
@@ -8,22 +9,22 @@ class ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const source = _SettingTile(
-      icon: Icons.view_agenda_outlined,
+      icon: HugeIcons.strokeRoundedSourceCodeCircle,
       route: '/book-source',
       title: '书源管理',
     );
     const theme = _SettingTile(
-      icon: Icons.format_color_text_outlined,
+      icon: HugeIcons.strokeRoundedTextFont,
       route: '/reader-theme',
       title: '阅读主题',
     );
     const setting = _SettingTile(
-      icon: Icons.settings_outlined,
+      icon: HugeIcons.strokeRoundedSettings01,
       route: '/setting/advanced',
       title: '设置',
     );
     const about = _SettingTile(
-      icon: Icons.info_outline_rounded,
+      icon: HugeIcons.strokeRoundedInformationCircle,
       route: '/setting/about',
       title: '关于元夕',
     );
@@ -44,7 +45,7 @@ class _SettingTile extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final primary = colorScheme.primary;
     final leading = icon != null ? Icon(icon, color: primary) : null;
-    final trailing = Icon(Icons.chevron_right_outlined);
+    final trailing = Icon(HugeIcons.strokeRoundedArrowRight01);
     return ListTile(
       leading: leading,
       title: Text(title),

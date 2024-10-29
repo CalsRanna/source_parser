@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -23,7 +24,7 @@ class _AboutPageState extends State<AboutPage> {
     final textTheme = theme.textTheme;
     final labelSmall = textTheme.labelSmall;
     final action = IconButton(
-      icon: const Icon(Icons.help_outline),
+      icon: const Icon(HugeIcons.strokeRoundedHelpCircle),
       onPressed: navigateGithub,
     );
     final style = labelSmall?.copyWith(

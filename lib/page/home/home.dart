@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:isar/isar.dart';
 import 'package:source_parser/page/home/component/explore.dart';
 import 'package:source_parser/page/home/component/profile.dart';
@@ -37,7 +38,8 @@ class _DarkModeToggler extends ConsumerWidget {
   }
 
   Icon _buildIcon(bool darkMode) {
-    var data = darkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined;
+    var data =
+        darkMode ? HugeIcons.strokeRoundedSun03 : HugeIcons.strokeRoundedMoon02;
     return Icon(data);
   }
 }
@@ -50,7 +52,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final searchButton = IconButton(
       onPressed: handlePressed,
-      icon: const Icon(Icons.search),
+      icon: const Icon(HugeIcons.strokeRoundedSearch01),
     );
     final shelfActions = [searchButton, _ShelfModeSelector()];
     final exploreActions = <Widget>[searchButton, _SourceSelector()];
@@ -113,22 +115,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<NavigationDestination> _getDestinations(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final primary = colorScheme.primary;
     final shelf = NavigationDestination(
-      icon: const Icon(Icons.local_library_outlined),
-      selectedIcon: Icon(Icons.local_library, color: primary),
+      icon: const Icon(HugeIcons.strokeRoundedBookOpen02),
       label: '书架',
     );
     final explorer = NavigationDestination(
-      icon: const Icon(Icons.explore_outlined),
-      selectedIcon: Icon(Icons.explore, color: primary),
+      icon: const Icon(HugeIcons.strokeRoundedDiscoverCircle),
       label: '发现',
     );
     final profile = NavigationDestination(
-      icon: const Icon(Icons.person_outline),
-      selectedIcon: Icon(Icons.person, color: primary),
+      icon: const Icon(HugeIcons.strokeRoundedUser),
       label: '我的',
     );
     return [shelf, explorer, profile];
@@ -143,7 +139,7 @@ class _ShelfModeSelector extends ConsumerWidget {
     final setting = ref.watch(settingNotifierProvider).valueOrNull;
     final shelfMode = setting?.shelfMode ?? 'list';
     return PopupMenuButton(
-      icon: const Icon(Icons.more_vert_outlined),
+      icon: const Icon(HugeIcons.strokeRoundedMoreVertical),
       itemBuilder: (_) => _itemBuilder(shelfMode),
       offset: Offset(0, 8),
       onSelected: (value) => updateShelfMode(ref, value),
@@ -171,7 +167,7 @@ class _SourceSelector extends ConsumerWidget {
     final setting = ref.watch(settingNotifierProvider).valueOrNull;
     final source = setting?.exploreSource ?? 0;
     return PopupMenuButton(
-      icon: const Icon(Icons.tune_outlined),
+      icon: const Icon(HugeIcons.strokeRoundedMenu01),
       initialValue: source,
       itemBuilder: (_) => _itemBuilder(),
       offset: Offset(0, 8),

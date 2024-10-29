@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/util/string_extension.dart';
 import 'package:source_parser/page/source/rule_input.dart';
 
@@ -24,7 +25,7 @@ class RuleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final defaultTrailing = Icon(Icons.arrow_forward_ios_outlined, size: 14);
+    final defaultTrailing = Icon(HugeIcons.strokeRoundedArrowRight01, size: 14);
     final text = Text(
       value?.plain() ?? '',
       maxLines: 1,

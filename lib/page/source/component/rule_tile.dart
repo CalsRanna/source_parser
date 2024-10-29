@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/source/rule_input.dart';
 import 'package:source_parser/util/string_extension.dart';
 
@@ -24,7 +25,7 @@ class RuleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final defaultTrailing = Icon(Icons.chevron_right_outlined);
+    final defaultTrailing = Icon(HugeIcons.strokeRoundedArrowRight01);
     return ListTile(
       onTap: () => handleTap(context),
       subtitle: _buildSubtitle(),

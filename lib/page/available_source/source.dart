@@ -3,6 +3,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
@@ -89,7 +90,7 @@ class AvailableSourceListPage extends ConsumerWidget {
     return ListTile(
       subtitle: _buildSubtitle(context, book, index),
       title: _buildTitle(context, book, index),
-      trailing: active ? const Icon(Icons.check) : null,
+      trailing: active ? const Icon(HugeIcons.strokeRoundedTick02) : null,
       onTap: () => switchSource(context, ref, index),
     );
   }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/util/message.dart';
@@ -23,7 +24,7 @@ class _DebugButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return IconButton(
-      icon: const Icon(Icons.bug_report_outlined),
+      icon: const Icon(HugeIcons.strokeRoundedCursorMagicSelection02),
       onPressed: () => debug(context, ref),
     );
   }
@@ -106,7 +107,7 @@ class _JsonDataPage extends StatelessWidget {
     return ListTile(
       title: Text((index + 1).toString()),
       subtitle: subtitle,
-      trailing: Icon(Icons.chevron_right_outlined),
+      trailing: Icon(HugeIcons.strokeRoundedArrowRight01),
       onTap: () => handleTap(context, jsonEncode(map), '${index + 1}'),
     );
   }
@@ -121,7 +122,7 @@ class _JsonDataPage extends StatelessWidget {
     );
     return ListTile(
       title: Text(title),
-      trailing: Icon(Icons.chevron_right_outlined),
+      trailing: Icon(HugeIcons.strokeRoundedArrowRight01),
       subtitle: text,
       onTap: () => handleTap(context, subtitle, title),
     );
@@ -241,7 +242,7 @@ class _Tile extends StatelessWidget {
     final rawTile = ListTile(
       subtitle: rawSubtitle,
       title: const Text('网页数据'),
-      trailing: const Icon(Icons.chevron_right_outlined),
+      trailing: const Icon(HugeIcons.strokeRoundedArrowRight01),
       onTap: () => showRawData(context),
     );
     final parseSubtitle = Text(
@@ -252,7 +253,7 @@ class _Tile extends StatelessWidget {
     final parseTile = ListTile(
       title: const Text('解析数据'),
       subtitle: parseSubtitle,
-      trailing: const Icon(Icons.chevron_right_outlined),
+      trailing: const Icon(HugeIcons.strokeRoundedArrowRight01),
       onTap: () => showJsonData(context),
     );
     final children = [

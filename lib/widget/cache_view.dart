@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:path_provider/path_provider.dart';
 
 class CacheView extends StatefulWidget {
@@ -32,7 +33,7 @@ class _CacheViewState extends State<CacheView> {
     List<Widget>? actions = [];
     final iconButton = IconButton(
       onPressed: backward,
-      icon: const Icon(Icons.arrow_upward_outlined),
+      icon: const Icon(HugeIcons.strokeRoundedArrowUp01),
     );
     if (!isRoot) actions = [iconButton];
     final delegate = SliverGridDelegateWithFixedCrossAxisCount(
@@ -100,11 +101,11 @@ class _CacheViewState extends State<CacheView> {
   }
 
   Widget _itemBuilder(FileSystemEntity entity, double width) {
-    IconData icon = Icons.description_outlined;
+    IconData icon = HugeIcons.strokeRoundedFile01;
     String name = getName(entity);
     String date = getDate(entity);
     String size = getSize(entity);
-    if (isDirectory(entity)) icon = Icons.folder_outlined;
+    if (isDirectory(entity)) icon = HugeIcons.strokeRoundedFolder01;
     final style = TextStyle(color: Colors.black.withOpacity(0.4), fontSize: 12);
     final children = [
       Icon(icon, color: Colors.black.withOpacity(0.4), size: width),

@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/search/component/result.dart';
 import 'package:source_parser/page/search/component/trending.dart';
 import 'package:source_parser/provider/book.dart';
@@ -154,7 +155,7 @@ class _ClearButton extends ConsumerWidget {
     var colorScheme = theme.colorScheme;
     var onSurface = colorScheme.onSurface;
     var icon = Icon(
-      Icons.cancel,
+      HugeIcons.strokeRoundedCancelCircle,
       color: onSurface.withOpacity(0.25),
       size: 20,
     );

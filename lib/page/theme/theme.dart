@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/theme/color_picker.dart';
 import 'package:source_parser/provider/setting.dart';
 
@@ -13,7 +14,7 @@ class ReaderThemePage extends StatelessWidget {
     final listTile = ListTile(
       onTap: () => ColorPicker.pick(context),
       title: Text('Color Generator'),
-      trailing: const Icon(Icons.chevron_right_outlined),
+      trailing: const Icon(HugeIcons.strokeRoundedArrowRight01),
     );
     final children = [
       _HeightTile(),
@@ -111,7 +112,9 @@ class _ColorTile extends StatelessWidget {
       height: 28,
       padding: const EdgeInsets.all(1),
       width: 28,
-      child: active ? Icon(Icons.check, size: 16, color: primary) : null,
+      child: active
+          ? Icon(HugeIcons.strokeRoundedTick02, size: 16, color: primary)
+          : null,
     );
     return GestureDetector(onTap: onTap, child: container);
   }
@@ -126,7 +129,7 @@ class _FontSizeTile extends ConsumerWidget {
     final fontSize = setting?.fontSize ?? 18;
     var decreaseButton = OutlinedButton(
       onPressed: () => handleTap(ref, -1),
-      child: Icon(Icons.text_decrease_outlined),
+      child: Icon(HugeIcons.strokeRoundedRemove01),
     );
     final theme = Theme.of(context);
     final style = theme.textTheme.bodyMedium;
@@ -137,7 +140,7 @@ class _FontSizeTile extends ConsumerWidget {
     );
     final increaseButton = OutlinedButton(
       onPressed: () => handleTap(ref, 1),
-      child: Icon(Icons.text_increase_outlined),
+      child: Icon(HugeIcons.strokeRoundedAdd01),
     );
     final row = Row(
       mainAxisSize: MainAxisSize.min,
