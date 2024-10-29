@@ -257,19 +257,40 @@ class BookNotifier extends _$BookNotifier {
     );
     stream = stream.asBroadcastStream();
     stream.listen((book) async {
+      var builder = isar.sources.filter();
+      var source = await builder.idEqualTo(book.sourceId).findFirst();
+      if (source == null) return;
       final sameAuthor = book.author == state.author;
       final sameName = book.name == state.name;
-      final sameSource = sources.where((source) {
-        return source.id == book.sourceId;
-      }).isNotEmpty;
-      if (sameAuthor && sameName && !sameSource) {
-        final builder = isar.sources.filter();
-        final source = await builder.idEqualTo(book.sourceId).findFirst();
-        if (source != null) {
-          var availableSource = AvailableSource();
-          availableSource.id = source.id;
-          availableSource.url = book.url;
-          sources.add(availableSource);
+      if (sameAuthor && sameName) {
+        if (book.latestChapter.isEmpty) {
+          book.latestChapter = await Parser.getLatestChapter(
+            book.name,
+            book.url,
+            source,
+            Duration(hours: duration.floor()),
+            Duration(milliseconds: timeout),
+          );
+        }
+        final sameSource = sources.where((source) {
+          return source.id == book.sourceId;
+        }).firstOrNull;
+        if (sameSource == null) {
+          final builder = isar.sources.filter();
+          var source = await builder.idEqualTo(book.sourceId).findFirst();
+          if (source != null) {
+            var availableSource = AvailableSource();
+            availableSource.id = source.id;
+            availableSource.latestChapter = book.latestChapter;
+            availableSource.name = source.name;
+            availableSource.url = book.url;
+            sources.add(availableSource);
+          }
+        } else {
+          final builder = isar.sources.filter();
+          var source = await builder.idEqualTo(book.sourceId).findFirst();
+          sameSource.name = source?.name ?? '';
+          sameSource.latestChapter = book.latestChapter;
         }
       }
     });

@@ -161,6 +161,9 @@ class Chapter {
 @Name('available_sources')
 class AvailableSource {
   int id = 0;
+  @Name('latest_chapter')
+  String latestChapter = '';
+  String name = '';
   String url = '';
 
   AvailableSource();
@@ -168,16 +171,30 @@ class AvailableSource {
   factory AvailableSource.fromJson(Map<String, dynamic> json) {
     return AvailableSource()
       ..id = json['id'] ?? 0
+      ..latestChapter = json['latest_chapter'] ?? ''
+      ..name = json['name'] ?? ''
       ..url = json['url'] ?? '';
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'url': url};
+    return {
+      'id': id,
+      'latest_chapter': latestChapter,
+      'name': name,
+      'url': url
+    };
   }
 
-  AvailableSource copyWith({int? id, String? url}) {
+  AvailableSource copyWith({
+    int? id,
+    String? latestChapter,
+    String? name,
+    String? url,
+  }) {
     return AvailableSource()
       ..id = id ?? this.id
+      ..latestChapter = latestChapter ?? this.latestChapter
+      ..name = name ?? this.name
       ..url = url ?? this.url;
   }
 
