@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -110,10 +111,10 @@ class _BookInformationState extends ConsumerState<InformationPage> {
       AsyncData(:final value) => value,
       _ => null,
     };
-    return RefreshIndicator(
-      onRefresh: () => getInformation(ref),
-      child: Scaffold(
-        body: CustomScrollView(
+    return Scaffold(
+      body: EasyRefresh(
+        onRefresh: () => getInformation(ref),
+        child: CustomScrollView(
           slivers: [
             SliverAppBar(
               expandedHeight: 200,
@@ -146,8 +147,8 @@ class _BookInformationState extends ConsumerState<InformationPage> {
             )
           ],
         ),
-        bottomNavigationBar: const _BottomBar(),
       ),
+      bottomNavigationBar: const _BottomBar(),
     );
   }
 

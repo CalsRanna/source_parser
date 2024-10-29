@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +27,7 @@ class AvailableSourceListPage extends ConsumerWidget {
       itemCount: book.sources.length,
       itemExtent: 72,
     );
-    var body = RefreshIndicator(
+    var body = EasyRefresh(
       onRefresh: () => handleRefresh(context, ref),
       child: listView,
     );

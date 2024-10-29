@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/model/explore.dart';
@@ -128,7 +129,7 @@ class _ExploreViewState extends ConsumerState<ExploreView>
       itemCount: results.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
     );
-    return RefreshIndicator(
+    return EasyRefresh(
       onRefresh: () => handleRefresh(ref),
       child: listView,
     );
