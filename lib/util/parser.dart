@@ -728,6 +728,7 @@ class Parser {
           final author = parser.query(items[i], source.searchAuthor);
           final category = parser.query(items[i], source.searchCategory);
           var cover = parser.query(items[i], source.searchCover);
+          var needFurtherParse = cover.isEmpty;
           if (!cover.startsWith('http')) {
             cover = '${source.url}$cover';
           }
@@ -738,16 +739,38 @@ class Parser {
           if (!url.startsWith('http')) {
             url = '${source.url}$url';
           }
+          var latestChapter =
+              parser.query(items[i], source.searchLatestChapter);
+          if (!needFurtherParse) needFurtherParse = latestChapter.isEmpty;
+          if (needFurtherParse) {
+            html = await network.request(
+              url,
+              charset: source.charset,
+              duration: duration,
+              method: method,
+            );
+            document = parser.parse(html);
+            cover = parser.query(document, source.informationCover);
+            if (!cover.startsWith('http')) {
+              cover = '${source.url}$cover';
+            }
+            latestChapter = parser.query(
+              document,
+              source.informationLatestChapter,
+            );
+          }
           if (name.isNotEmpty) {
             var availableSource = AvailableSource();
             availableSource.id = source.id;
             availableSource.name = source.name;
             availableSource.url = url;
+            availableSource.latestChapter = latestChapter;
             var book = Book();
             book.author = author;
             book.category = category;
             book.cover = cover;
             book.introduction = introduction;
+            book.latestChapter = latestChapter;
             book.name = name;
             book.sourceId = source.id;
             book.sources = [availableSource];
