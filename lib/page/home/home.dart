@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> {
     final settingActions = <Widget>[_DarkModeToggler()];
     final action = [shelfActions, exploreActions, settingActions][_index];
     final title = Text(['书架', '发现', '我的'].elementAt(_index));
-    const children = [ShelfView(), ExploreView(), ProfileView()];
+    const children = [BookshelfView(), ExploreView(), ProfileView()];
     final body = PageView(
       controller: controller,
       onPageChanged: handlePageChanged,
