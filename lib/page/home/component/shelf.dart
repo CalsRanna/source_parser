@@ -504,7 +504,8 @@ class _RemoveDialog extends StatelessWidget {
   }
 
   void confirm(BuildContext context) async {
-    Navigator.pop(context);
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
     var container = ProviderScope.containerOf(context);
     final notifier = container.read(booksProvider.notifier);
     notifier.delete(book);
