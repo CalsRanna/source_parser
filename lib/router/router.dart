@@ -18,6 +18,7 @@ class AppRouter extends RootStackRouter {
       AutoRoute(page: SearchRoute.page),
       AutoRoute(page: CatalogueRoute.page),
       AutoRoute(page: AvailableSourceListRoute.page),
+      AutoRoute(page: AvailableSourceFormRoute.page),
       AutoRoute(page: SourceDebuggerRoute.page),
       AutoRoute(page: SourceAdvancedConfigurationRoute.page),
       AutoRoute(page: SourceSearchConfigurationRoute.page),

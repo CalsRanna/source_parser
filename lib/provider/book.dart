@@ -182,6 +182,39 @@ class BookNotifier extends _$BookNotifier {
     );
   }
 
+  Future<String> addSource(String url) async {
+    if (url.isEmpty) return '网址不能为空';
+    var availableSources = state.sources;
+    if (availableSources.any((source) => source.url == url)) return '网址已存在';
+    logger.d(url);
+    var host = Uri.parse(url).host;
+    logger.d(host);
+    final builder = isar.sources.filter();
+    final source = await builder.urlContains(host).findFirst();
+    if (source == null) return '未找到该网址对应的书源';
+    final setting = await ref.read(settingNotifierProvider.future);
+    final duration = setting.cacheDuration;
+    final timeout = setting.timeout;
+    var latestChapter = await Parser.getLatestChapter(
+      state.name,
+      url,
+      source,
+      Duration(hours: duration.floor()),
+      Duration(milliseconds: timeout),
+    );
+    var availableSource = AvailableSource()
+      ..id = source.id
+      ..latestChapter = latestChapter
+      ..name = source.name
+      ..url = url;
+    state = state.copyWith(sources: [...availableSources, availableSource]);
+    await isar.writeTxn(() async {
+      await isar.books.put(state);
+    });
+    ref.invalidate(booksProvider);
+    return '添加成功';
+  }
+
   Future<String> refreshSource(int index) async {
     final builder = isar.sources.filter();
     final source = await builder.idEqualTo(state.sources[index].id).findFirst();

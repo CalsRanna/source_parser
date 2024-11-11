@@ -26,7 +26,40 @@ class AvailableSourceListPage extends ConsumerWidget {
       onRefresh: () => handleRefresh(context, ref),
       child: listView,
     );
-    return Scaffold(appBar: AppBar(title: const Text('可用书源')), body: body);
+    var button = IconButton(
+      onPressed: () => navigateAvailableSourceForm(context, ref),
+      icon: Icon(HugeIcons.strokeRoundedAdd01),
+    );
+    return Scaffold(
+      appBar: AppBar(actions: [button], title: const Text('可用书源')),
+      body: body,
+    );
+  }
+
+  Future<void> navigateAvailableSourceForm(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    var router = AutoRouter.of(context);
+    var url = await router.push<String>(AvailableSourceFormRoute());
+    if (url == null) return;
+    if (!context.mounted) return;
+    showDialog(
+      barrierDismissible: false,
+      builder: (context) => const _AddSourceDialog(),
+      context: context,
+    );
+    try {
+      var provider = bookNotifierProvider;
+      var notifier = ref.read(provider.notifier);
+      var message = await notifier.addSource(url);
+      if (!context.mounted) return;
+      Navigator.of(context).pop();
+      Message.of(context).show(message);
+    } catch (error) {
+      Navigator.of(context).pop();
+      Message.of(context).show(error.toString());
+    }
   }
 
   Future<void> handleRefresh(BuildContext context, WidgetRef ref) async {
@@ -92,6 +125,30 @@ class AvailableSourceListPage extends ConsumerWidget {
       title: _buildTitle(context, book, index),
       trailing: active ? const Icon(HugeIcons.strokeRoundedTick02) : null,
       onTap: () => switchSource(context, ref, index),
+    );
+  }
+}
+
+class _AddSourceDialog extends StatelessWidget {
+  const _AddSourceDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    const children = [
+      LoadingIndicator(),
+      SizedBox(height: 16),
+      Text('正在添加书源'),
+    ];
+    const column = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: children,
+    );
+    const dialog = Dialog(
+      insetPadding: EdgeInsets.zero,
+      child: column,
+    );
+    return const UnconstrainedBox(
+      child: SizedBox(height: 160, width: 160, child: dialog),
     );
   }
 }
