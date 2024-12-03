@@ -290,6 +290,7 @@ class _BookReaderState extends State<BookReader>
     var overlay = ReaderOverlay(
       onCached: handleCached,
       onRemoved: handleOverlayRemoved,
+      title: widget.name,
     );
     var children = [background, page, if (showOverlay) overlay];
     return Stack(children: children);

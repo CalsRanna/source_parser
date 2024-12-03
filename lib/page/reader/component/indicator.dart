@@ -12,10 +12,7 @@ class CacheIndicator extends ConsumerWidget {
     final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
     final primary = colorScheme.primary;
     final progress = ref.watch(cacheProgressNotifierProvider);
-    final innerDecoration = ShapeDecoration(
-      color: primary,
-      shape: const StadiumBorder(),
-    );
+    final innerDecoration = BoxDecoration(color: primary);
     final innerContainer = AnimatedContainer(
       decoration: innerDecoration,
       duration: const Duration(milliseconds: 300),
@@ -26,12 +23,15 @@ class CacheIndicator extends ConsumerWidget {
       color: surfaceContainerHighest,
       shape: const StadiumBorder(),
     );
-    return Container(
-      alignment: Alignment.bottomCenter,
-      decoration: shapeDecoration,
-      height: 160,
-      width: 8,
-      child: innerContainer,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: Container(
+        alignment: Alignment.bottomCenter,
+        decoration: shapeDecoration,
+        height: 160,
+        width: 8,
+        child: innerContainer,
+      ),
     );
   }
 }

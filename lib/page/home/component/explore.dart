@@ -510,8 +510,10 @@ class _SourceSelector extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MenuAnchor(
+      alignmentOffset: Offset(-132, 12),
       builder: (_, controller, __) => _builder(controller),
       menuChildren: _buildMenuChildren(ref),
+      style: MenuStyle(alignment: Alignment.bottomRight),
     );
   }
 

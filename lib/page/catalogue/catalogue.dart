@@ -101,7 +101,7 @@ class _CataloguePageState extends ConsumerState<CataloguePage> {
   void startReader(WidgetRef ref, int index) async {
     final navigator = Navigator.of(context);
     navigator.pop();
-    AutoRouter.of(context).push(ReaderRoute());
+    AutoRouter.of(context).replace(ReaderRoute());
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     final bookNotifier = ref.read(bookNotifierProvider.notifier);
     bookNotifier.startReader(cursor: 0, index: index);

@@ -386,6 +386,20 @@ class BookNotifier extends _$BookNotifier {
     });
   }
 
+  Future<void> updateChapter(int index) async {
+    state = state.copyWith(cursor: 0, index: index);
+    await isar.writeTxn(() async {
+      isar.books.put(state);
+    });
+  }
+
+  Future<void> updateCursor(int cursor) async {
+    state = state.copyWith(cursor: cursor);
+    await isar.writeTxn(() async {
+      isar.books.put(state);
+    });
+  }
+
   Future<void> nextChapter() async {
     if (state.index + 1 >= state.chapters.length) return;
     state = state.copyWith(cursor: 0, index: state.index + 1);

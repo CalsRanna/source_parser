@@ -114,6 +114,8 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
       title: title,
       total: book.chapters.length,
       onCached: (value) => handleCached(ref, value),
+      onChapterChanged: (value) => handleChapterChanged(ref, value),
+      onProgressChanged: (value) => handleProgressChanged(ref, value),
     );
     const indicator = Padding(
       padding: EdgeInsets.only(right: 8.0),
@@ -154,5 +156,17 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     setState(() {
       caching = false;
     });
+  }
+
+  void handleChapterChanged(WidgetRef ref, int index) {
+    var provider = bookNotifierProvider;
+    var notifier = ref.read(provider.notifier);
+    notifier.updateChapter(index);
+  }
+
+  void handleProgressChanged(WidgetRef ref, int value) {
+    var provider = bookNotifierProvider;
+    var notifier = ref.read(provider.notifier);
+    notifier.updateCursor(value);
   }
 }

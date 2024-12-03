@@ -12,12 +12,18 @@ import 'package:source_parser/util/message.dart';
 class ReaderOverlay extends ConsumerWidget {
   final void Function(int)? onCached;
   final void Function()? onRemoved;
-  const ReaderOverlay({super.key, this.onCached, this.onRemoved});
+  final String title;
+  const ReaderOverlay({
+    super.key,
+    this.onCached,
+    this.onRemoved,
+    required this.title,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final layout = ref.watch(readerLayoutNotifierProviderProvider).valueOrNull;
-    if (layout == null) return const Center(child: CircularProgressIndicator());
+    if (layout == null) return const SizedBox();
     final appBarButtons = _buildButtons(layout.appBarButtons);
     final bottomBarButtons = _buildButtons(layout.bottomBarButtons);
     var body = GestureDetector(
@@ -26,7 +32,7 @@ class ReaderOverlay extends ConsumerWidget {
       child: SizedBox(height: double.infinity, width: double.infinity),
     );
     return Scaffold(
-      appBar: AppBar(actions: appBarButtons),
+      appBar: AppBar(actions: appBarButtons, title: Text(title)),
       backgroundColor: Colors.transparent,
       body: body,
       bottomNavigationBar: BottomAppBar(child: Row(children: bottomBarButtons)),
@@ -61,20 +67,39 @@ class ReaderOverlay extends ConsumerWidget {
   }
 }
 
+class _CacheButton extends StatelessWidget {
+  final void Function(int)? onCached;
+  const _CacheButton({this.onCached});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () => openBottomSheet(context),
+      icon: const Icon(HugeIcons.strokeRoundedDownload04),
+    );
+  }
+
+  void openBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => _CacheSheet(onCached: onCached),
+      showDragHandle: true,
+    );
+  }
+}
+
 class _CacheSheet extends StatelessWidget {
   final void Function(int)? onCached;
-  const _CacheSheet({super.key, this.onCached});
+  const _CacheSheet({this.onCached});
 
   @override
   Widget build(BuildContext context) {
     var edgeInsets = MediaQuery.of(context).padding;
     var children = [
-      TextButton(onPressed: () => handleTap(context, 50), child: Text('后面五十章')),
-      TextButton(
-          onPressed: () => handleTap(context, 100), child: Text('后面100章')),
-      TextButton(
-          onPressed: () => handleTap(context, 200), child: Text('后面200章')),
-      TextButton(onPressed: () => handleTap(context, 0), child: Text('全部剩余章节')),
+      TextButton(onPressed: () => handleTap(context, 50), child: Text('50章')),
+      TextButton(onPressed: () => handleTap(context, 100), child: Text('100章')),
+      TextButton(onPressed: () => handleTap(context, 200), child: Text('200章')),
+      TextButton(onPressed: () => handleTap(context, 0), child: Text('全部章节')),
     ];
     return GridView.count(
       childAspectRatio: 4,
@@ -94,45 +119,8 @@ class _CacheSheet extends StatelessWidget {
   }
 }
 
-class _CacheButton extends StatelessWidget {
-  final void Function(int)? onCached;
-  const _CacheButton({super.key, this.onCached});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => openBottomSheet(context),
-      icon: const Icon(HugeIcons.strokeRoundedDownload04),
-    );
-  }
-
-  void openBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => _CacheSheet(onCached: onCached),
-      showDragHandle: true,
-    );
-  }
-}
-
-class _InformationButton extends StatelessWidget {
-  const _InformationButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => navigateBookInformation(context),
-      icon: const Icon(HugeIcons.strokeRoundedBook01),
-    );
-  }
-
-  void navigateBookInformation(BuildContext context) {
-    AutoRouter.of(context).push(InformationRoute());
-  }
-}
-
 class _CatalogueButton extends ConsumerWidget {
-  const _CatalogueButton({super.key});
+  const _CatalogueButton();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -149,40 +137,8 @@ class _CatalogueButton extends ConsumerWidget {
   }
 }
 
-class _SourceButton extends StatelessWidget {
-  const _SourceButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => navigateSourceSwitcher(context),
-      icon: const Icon(HugeIcons.strokeRoundedExchange01),
-    );
-  }
-
-  void navigateSourceSwitcher(BuildContext context) {
-    AutoRouter.of(context).push(AvailableSourceListRoute());
-  }
-}
-
-class _ThemeButton extends StatelessWidget {
-  const _ThemeButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => navigateReaderTheme(context),
-      icon: const Icon(HugeIcons.strokeRoundedTextFont),
-    );
-  }
-
-  void navigateReaderTheme(BuildContext context) {
-    AutoRouter.of(context).push(ReaderThemeRoute());
-  }
-}
-
 class _DarkModeButton extends ConsumerWidget {
-  const _DarkModeButton({super.key});
+  const _DarkModeButton();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -204,27 +160,95 @@ class _DarkModeButton extends ConsumerWidget {
   }
 }
 
-class _PreviousChapterButton extends ConsumerWidget {
-  const _PreviousChapterButton({super.key});
-
+class _FloatingButton extends StatelessWidget {
+  const _FloatingButton();
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return IconButton(
-      onPressed: () => goPreviousChapter(context, ref),
-      icon: const Icon(HugeIcons.strokeRoundedPrevious),
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () => navigateBookListener(context),
+      child: const Icon(HugeIcons.strokeRoundedHeadphones),
     );
   }
 
-  void goPreviousChapter(BuildContext context, WidgetRef ref) {
+  void navigateBookListener(BuildContext context) {
+    Message.of(context).show('开发中，但很有可能会移除该功能');
+  }
+}
+
+class _InformationButton extends StatelessWidget {
+  const _InformationButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () => navigateBookInformation(context),
+      icon: const Icon(HugeIcons.strokeRoundedBook01),
+    );
+  }
+
+  void navigateBookInformation(BuildContext context) {
+    AutoRouter.of(context).push(InformationRoute());
+  }
+}
+
+class _MenuButton extends ConsumerWidget {
+  const _MenuButton();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var menuChildren = [
+      MenuItemButton(
+        leadingIcon: const Icon(HugeIcons.strokeRoundedBook01),
+        onPressed: () => navigateBookInformation(context),
+        child: const Text('书籍信息'),
+      ),
+      MenuItemButton(
+        leadingIcon: const Icon(HugeIcons.strokeRoundedMenu01),
+        onPressed: () => navigateBookCatalogue(context, ref),
+        child: const Text('章节目录'),
+      ),
+      MenuItemButton(
+        leadingIcon: const Icon(HugeIcons.strokeRoundedTextFont),
+        onPressed: () => navigateReaderTheme(context),
+        child: const Text('阅读主题'),
+      ),
+    ];
+    return MenuAnchor(
+      alignmentOffset: Offset(0, 28),
+      builder: (_, controller, __) => _builder(controller),
+      menuChildren: menuChildren,
+      style: MenuStyle(alignment: Alignment.topLeft),
+    );
+  }
+
+  void handleTap(MenuController controller) {
+    if (controller.isOpen) return controller.close();
+    controller.open();
+  }
+
+  void navigateBookCatalogue(BuildContext context, WidgetRef ref) {
     var provider = bookNotifierProvider;
-    var notifier = ref.read(provider.notifier);
-    notifier.previousChapter();
+    var book = ref.read(provider);
+    AutoRouter.of(context).push(CatalogueRoute(index: book.index));
+  }
+
+  void navigateBookInformation(BuildContext context) {
+    AutoRouter.of(context).push(InformationRoute());
+  }
+
+  void navigateReaderTheme(BuildContext context) {
+    AutoRouter.of(context).push(ReaderThemeRoute());
+  }
+
+  Widget _builder(MenuController controller) {
+    return IconButton(
+      onPressed: () => handleTap(controller),
+      icon: const Icon(HugeIcons.strokeRoundedMoreVertical),
+    );
   }
 }
 
 class _NextChapterButton extends ConsumerWidget {
-  const _NextChapterButton({super.key});
-
+  const _NextChapterButton();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return IconButton(
@@ -240,64 +264,48 @@ class _NextChapterButton extends ConsumerWidget {
   }
 }
 
-class _FloatingButton extends StatelessWidget {
-  const _FloatingButton({super.key});
-
+class _PreviousChapterButton extends ConsumerWidget {
+  const _PreviousChapterButton();
   @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => navigateBookListener(context),
-      child: const Icon(HugeIcons.strokeRoundedHeadphones),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return IconButton(
+      onPressed: () => goPreviousChapter(context, ref),
+      icon: const Icon(HugeIcons.strokeRoundedPrevious),
     );
   }
 
-  void navigateBookListener(BuildContext context) {
-    Message.of(context).show('开发中，但很有可能会移除该功能');
+  void goPreviousChapter(BuildContext context, WidgetRef ref) {
+    var provider = bookNotifierProvider;
+    var notifier = ref.read(provider.notifier);
+    notifier.previousChapter();
   }
 }
 
-class _MenuButton extends ConsumerWidget {
-  const _MenuButton({super.key});
+class _SourceButton extends StatelessWidget {
+  const _SourceButton();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return MenuAnchor(
-      menuChildren: [
-        MenuItemButton(
-          leadingIcon: const Icon(HugeIcons.strokeRoundedBook01),
-          onPressed: () => navigateBookInformation(context),
-          child: const Text('书籍信息'),
-        ),
-        MenuItemButton(
-          leadingIcon: const Icon(HugeIcons.strokeRoundedMenu01),
-          onPressed: () => navigateBookCatalogue(context, ref),
-          child: const Text('章节目录'),
-        ),
-        MenuItemButton(
-          leadingIcon: const Icon(HugeIcons.strokeRoundedTextFont),
-          onPressed: () => navigateReaderTheme(context),
-          child: const Text('阅读主题'),
-        ),
-      ],
-      builder: (_, controller, __) => IconButton(
-        onPressed: () => handleTap(controller),
-        icon: const Icon(HugeIcons.strokeRoundedMoreVertical),
-      ),
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () => navigateSourceSwitcher(context),
+      icon: const Icon(HugeIcons.strokeRoundedExchange01),
     );
   }
 
-  void handleTap(MenuController controller) {
-    controller.open();
+  void navigateSourceSwitcher(BuildContext context) {
+    AutoRouter.of(context).push(AvailableSourceListRoute());
   }
+}
 
-  void navigateBookCatalogue(BuildContext context, WidgetRef ref) {
-    var provider = bookNotifierProvider;
-    var book = ref.read(provider);
-    AutoRouter.of(context).push(CatalogueRoute(index: book.index));
-  }
+class _ThemeButton extends StatelessWidget {
+  const _ThemeButton();
 
-  void navigateBookInformation(BuildContext context) {
-    AutoRouter.of(context).push(InformationRoute());
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () => navigateReaderTheme(context),
+      icon: const Icon(HugeIcons.strokeRoundedTextFont),
+    );
   }
 
   void navigateReaderTheme(BuildContext context) {
