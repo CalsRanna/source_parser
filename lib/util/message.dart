@@ -16,4 +16,12 @@ class Message {
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(snackBar);
   }
+
+  static SnackBar snackBar(String message) {
+    return SnackBar(
+      behavior: SnackBarBehavior.floating,
+      content: Text(message),
+      duration: const Duration(seconds: 1),
+    );
+  }
 }

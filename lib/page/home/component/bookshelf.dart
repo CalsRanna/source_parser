@@ -44,7 +44,12 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
       onRefresh: () => refresh(context, ref),
       child: child,
     );
-    return Scaffold(appBar: appBar, body: easyRefresh);
+    return ScaffoldMessenger(
+      child: Scaffold(
+        appBar: appBar,
+        body: easyRefresh,
+      ),
+    );
   }
 
   Future<void> refresh(BuildContext context, WidgetRef ref) async {
@@ -566,17 +571,47 @@ class _SheetAction extends StatelessWidget {
 class _ShelfModeSelector extends ConsumerWidget {
   const _ShelfModeSelector();
 
+  Future<void> addBook(BuildContext context, WidgetRef ref) async {
+    var route = BookFormRoute();
+    var url = await AutoRouter.of(context).push<String?>(route);
+    if (url == null) return;
+    if (url.isEmpty) return;
+    if (!context.mounted) return;
+    var messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentMaterialBanner();
+    var sizedBox = SizedBox(
+      height: 16,
+      width: 16,
+      child: CircularProgressIndicator(strokeWidth: 1),
+    );
+    var materialBanner = MaterialBanner(
+      actions: [TextButton(onPressed: null, child: Text('取消'))],
+      content: Text('正在添加书籍'),
+      leading: sizedBox,
+    );
+    messenger.showMaterialBanner(materialBanner);
+    try {
+      var provider = booksProvider;
+      var notifier = ref.read(provider.notifier);
+      await notifier.addBook(url);
+      messenger.hideCurrentMaterialBanner();
+    } on Exception catch (e) {
+      messenger.hideCurrentMaterialBanner();
+      messenger.showSnackBar(Message.snackBar(e.toString()));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final shelfMode = setting?.shelfMode ?? 'list';
-    return PopupMenuButton(
-      icon: const Icon(HugeIcons.strokeRoundedMoreVertical),
-      itemBuilder: (_) => _itemBuilder(shelfMode),
-      offset: Offset(0, 8),
-      onSelected: (value) => updateShelfMode(ref, value),
-      position: PopupMenuPosition.under,
+    return MenuAnchor(
+      builder: (_, controller, __) => _builder(controller),
+      menuChildren: _buildMenuChildren(context, ref),
     );
+  }
+
+  void handleTap(MenuController controller) {
+    if (controller.isOpen) return controller.close();
+    controller.open();
   }
 
   void updateShelfMode(WidgetRef ref, String value) async {
@@ -584,9 +619,31 @@ class _ShelfModeSelector extends ConsumerWidget {
     notifier.updateShelfMode(value);
   }
 
-  List<PopupMenuEntry> _itemBuilder(String shelfMode) {
-    final value = shelfMode == 'list' ? 'grid' : 'list';
-    final text = Text(shelfMode == 'list' ? '网格模式' : '列表模式');
-    return [PopupMenuItem(value: value, child: text)];
+  Widget _builder(MenuController controller) {
+    return IconButton(
+      onPressed: () => handleTap(controller),
+      icon: const Icon(HugeIcons.strokeRoundedMoreVertical),
+    );
+  }
+
+  List<Widget> _buildMenuChildren(BuildContext context, WidgetRef ref) {
+    final setting = ref.watch(settingNotifierProvider).valueOrNull;
+    final shelfMode = setting?.shelfMode ?? 'list';
+    var modeIcon = Icon(HugeIcons.strokeRoundedMenuCircle);
+    if (shelfMode == 'grid') modeIcon = Icon(HugeIcons.strokeRoundedMenu01);
+    var mode = shelfMode == 'grid' ? 'list' : 'grid';
+    var text = Text(shelfMode == 'grid' ? '列表模式' : '网格模式');
+    var modeButton = MenuItemButton(
+      leadingIcon: modeIcon,
+      onPressed: () => updateShelfMode(ref, mode),
+      child: text,
+    );
+    var additionIcon = Icon(HugeIcons.strokeRoundedAdd01);
+    var additionButton = MenuItemButton(
+      leadingIcon: additionIcon,
+      onPressed: () => addBook(context, ref),
+      child: Text('新增书籍'),
+    );
+    return [modeButton, additionButton];
   }
 }

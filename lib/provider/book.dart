@@ -15,11 +15,77 @@ import 'package:source_parser/util/parser.dart';
 
 part 'book.g.dart';
 
+@riverpod
+class BookCovers extends _$BookCovers {
+  @override
+  Future<List<String>> build() async {
+    final book = ref.watch(bookNotifierProvider);
+    final setting = await ref.read(settingNotifierProvider.future);
+    final duration = setting.cacheDuration;
+    final timeout = setting.timeout;
+    List<String> covers = [];
+    for (var availableSource in book.sources) {
+      final source =
+          await isar.sources.filter().idEqualTo(availableSource.id).findFirst();
+      if (source == null) continue;
+      final information = await Parser.getInformation(
+        book.name,
+        availableSource.url,
+        source,
+        Duration(hours: duration.floor()),
+        Duration(milliseconds: timeout),
+      );
+      final cover = information.cover;
+      if (cover.isNotEmpty) {
+        covers.add(cover);
+      }
+    }
+    return covers;
+  }
+}
+
 @Riverpod(keepAlive: true)
 class BookNotifier extends _$BookNotifier {
+  Future<String> addSource(String url) async {
+    if (url.isEmpty) return '网址不能为空';
+    var availableSources = state.sources;
+    if (availableSources.any((source) => source.url == url)) return '网址已存在';
+    logger.d(url);
+    var host = Uri.parse(url).host;
+    logger.d(host);
+    final builder = isar.sources.filter();
+    final source = await builder.urlContains(host).findFirst();
+    if (source == null) return '未找到该网址对应的书源';
+    final setting = await ref.read(settingNotifierProvider.future);
+    final duration = setting.cacheDuration;
+    final timeout = setting.timeout;
+    var latestChapter = await Parser.getLatestChapter(
+      state.name,
+      url,
+      source,
+      Duration(hours: duration.floor()),
+      Duration(milliseconds: timeout),
+    );
+    var availableSource = AvailableSource()
+      ..id = source.id
+      ..latestChapter = latestChapter
+      ..name = source.name
+      ..url = url;
+    state = state.copyWith(sources: [...availableSources, availableSource]);
+    await isar.writeTxn(() async {
+      await isar.books.put(state);
+    });
+    ref.invalidate(booksProvider);
+    return '添加成功';
+  }
+
   @override
   Book build() {
     return Book();
+  }
+
+  void clearCache() {
+    CacheManager(prefix: state.name).clearCache();
   }
 
   Future<String> getContent(int index, {bool reacquire = false}) async {
@@ -182,39 +248,6 @@ class BookNotifier extends _$BookNotifier {
     );
   }
 
-  Future<String> addSource(String url) async {
-    if (url.isEmpty) return '网址不能为空';
-    var availableSources = state.sources;
-    if (availableSources.any((source) => source.url == url)) return '网址已存在';
-    logger.d(url);
-    var host = Uri.parse(url).host;
-    logger.d(host);
-    final builder = isar.sources.filter();
-    final source = await builder.urlContains(host).findFirst();
-    if (source == null) return '未找到该网址对应的书源';
-    final setting = await ref.read(settingNotifierProvider.future);
-    final duration = setting.cacheDuration;
-    final timeout = setting.timeout;
-    var latestChapter = await Parser.getLatestChapter(
-      state.name,
-      url,
-      source,
-      Duration(hours: duration.floor()),
-      Duration(milliseconds: timeout),
-    );
-    var availableSource = AvailableSource()
-      ..id = source.id
-      ..latestChapter = latestChapter
-      ..name = source.name
-      ..url = url;
-    state = state.copyWith(sources: [...availableSources, availableSource]);
-    await isar.writeTxn(() async {
-      await isar.books.put(state);
-    });
-    ref.invalidate(booksProvider);
-    return '添加成功';
-  }
-
   Future<String> refreshSource(int index) async {
     final builder = isar.sources.filter();
     final source = await builder.idEqualTo(state.sources[index].id).findFirst();
@@ -368,43 +401,66 @@ class BookNotifier extends _$BookNotifier {
   void update(Book book) {
     state = book;
   }
-
-  void clearCache() {
-    CacheManager(prefix: state.name).clearCache();
-  }
-}
-
-@riverpod
-class BookCovers extends _$BookCovers {
-  @override
-  Future<List<String>> build() async {
-    final book = ref.watch(bookNotifierProvider);
-    final setting = await ref.read(settingNotifierProvider.future);
-    final duration = setting.cacheDuration;
-    final timeout = setting.timeout;
-    List<String> covers = [];
-    for (var availableSource in book.sources) {
-      final source =
-          await isar.sources.filter().idEqualTo(availableSource.id).findFirst();
-      if (source == null) continue;
-      final information = await Parser.getInformation(
-        book.name,
-        availableSource.url,
-        source,
-        Duration(hours: duration.floor()),
-        Duration(milliseconds: timeout),
-      );
-      final cover = information.cover;
-      if (cover.isNotEmpty) {
-        covers.add(cover);
-      }
-    }
-    return covers;
-  }
 }
 
 @riverpod
 class Books extends _$Books {
+  Future<bool> _exist(String url) async {
+    var books = await future;
+    List<AvailableSource> sources = [];
+    for (var book in books) {
+      sources.addAll(book.sources);
+    }
+    List<String> urls = [];
+    for (var source in sources) {
+      urls.add(source.url);
+    }
+    return urls.contains(url);
+  }
+
+  Future<void> addBook(String url) async {
+    if (await _exist(url)) throw Exception('该网址对应的书籍已存在');
+    var host = Uri.parse(url).host;
+    final builder = isar.sources.filter();
+    final source = await builder.urlContains(host).findFirst();
+    if (source == null) throw Exception('未找到该网址对应的书源');
+    final setting = await ref.read(settingNotifierProvider.future);
+    final duration = Duration(hours: setting.cacheDuration.floor());
+    final timeout = Duration(milliseconds: setting.timeout);
+    var book = await Parser.getInformation('', url, source, duration, timeout);
+    var latestChapter = await Parser.getLatestChapter(
+        book.name, url, source, duration, timeout);
+    var availableSource = AvailableSource()
+      ..id = source.id
+      ..latestChapter = latestChapter
+      ..name = source.name
+      ..url = url;
+    var books = await future;
+    var sameBook = books.where((item) => item.name == book.name).firstOrNull;
+    if (sameBook != null) {
+      sameBook.sources = [...sameBook.sources, availableSource];
+      await isar.writeTxn(() async {
+        await isar.books.put(sameBook);
+      });
+    } else {
+      book.sourceId = source.id;
+      book.sources = [availableSource];
+      var stream = await Parser.getChapters(
+          book.name, book.catalogueUrl, source, duration, timeout);
+      stream = stream.asBroadcastStream();
+      List<Chapter> chapters = [];
+      stream.listen((chapter) {
+        chapters.add(chapter);
+      });
+      await stream.last;
+      book.chapters = chapters;
+      await isar.writeTxn(() async {
+        await isar.books.put(book);
+      });
+    }
+    ref.invalidateSelf();
+  }
+
   @override
   Future<List<Book>> build() async {
     final builder = isar.books.where();
@@ -495,22 +551,6 @@ class InShelf extends _$InShelf {
 }
 
 @riverpod
-class SearchLoading extends _$SearchLoading {
-  @override
-  bool build(String credential) {
-    return false;
-  }
-
-  void start() {
-    state = true;
-  }
-
-  void stop() {
-    state = false;
-  }
-}
-
-@riverpod
 class SearchBooks extends _$SearchBooks {
   @override
   List<Book> build(String credential) {
@@ -533,6 +573,21 @@ class SearchBooks extends _$SearchBooks {
     });
   }
 
+  Book? _getExistingBook(Book book) {
+    return state.where((item) {
+      return item.name == book.name && item.author == book.author;
+    }).firstOrNull;
+  }
+
+  Future<Book?> _getFilteredBook(Book book) async {
+    final setting = await ref.read(settingNotifierProvider.future);
+    if (!setting.searchFilter) return book;
+    final conditionA = book.name.contains(credential);
+    final conditionB = book.author.contains(credential);
+    final filtered = conditionA || conditionB;
+    return filtered ? book : null;
+  }
+
   void _listenStream(Book book) async {
     final filteredBook = await _getFilteredBook(book);
     if (filteredBook == null) return;
@@ -550,19 +605,20 @@ class SearchBooks extends _$SearchBooks {
     }
     state = [...state];
   }
+}
 
-  Future<Book?> _getFilteredBook(Book book) async {
-    final setting = await ref.read(settingNotifierProvider.future);
-    if (!setting.searchFilter) return book;
-    final conditionA = book.name.contains(credential);
-    final conditionB = book.author.contains(credential);
-    final filtered = conditionA || conditionB;
-    return filtered ? book : null;
+@riverpod
+class SearchLoading extends _$SearchLoading {
+  @override
+  bool build(String credential) {
+    return false;
   }
 
-  Book? _getExistingBook(Book book) {
-    return state.where((item) {
-      return item.name == book.name && item.author == book.author;
-    }).firstOrNull;
+  void start() {
+    state = true;
+  }
+
+  void stop() {
+    state = false;
   }
 }
