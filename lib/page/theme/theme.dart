@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/theme/color_picker.dart';
 import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/router/router.gr.dart';
 
 @RoutePage()
 class ReaderThemePage extends StatelessWidget {
@@ -11,16 +12,12 @@ class ReaderThemePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final listTile = ListTile(
-      onTap: () => ColorPicker.pick(context),
-      title: Text('Color Generator'),
-      trailing: const Icon(HugeIcons.strokeRoundedArrowRight01),
-    );
     final children = [
       _HeightTile(),
       _FontSizeTile(),
       _BackgroundTile(),
-      listTile
+      _LayoutTile(),
+      _ColorGeneratorTile(),
     ];
     return Scaffold(
       appBar: AppBar(title: const Text('阅读主题')),
@@ -79,6 +76,19 @@ class _BackgroundTile extends ConsumerWidget {
   void handleTap(WidgetRef ref, int colorValue) async {
     final notifier = ref.read(settingNotifierProvider.notifier);
     notifier.updateBackgroundColor(colorValue);
+  }
+}
+
+class _ColorGeneratorTile extends StatelessWidget {
+  const _ColorGeneratorTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () => ColorPicker.pick(context),
+      title: Text('Color Generator'),
+      trailing: const Icon(HugeIcons.strokeRoundedArrowRight01),
+    );
   }
 }
 
@@ -191,5 +201,18 @@ class _HeightTile extends ConsumerWidget {
   void handleSelected(WidgetRef ref, double value) async {
     final notifier = ref.read(settingNotifierProvider.notifier);
     notifier.updateLineSpace(value);
+  }
+}
+
+class _LayoutTile extends StatelessWidget {
+  const _LayoutTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () => AutoRouter.of(context).push(ReaderLayoutRoute()),
+      title: Text('布局'),
+      trailing: const Icon(HugeIcons.strokeRoundedArrowRight01),
+    );
   }
 }

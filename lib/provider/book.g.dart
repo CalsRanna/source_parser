@@ -6,20 +6,6 @@ part of 'book.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$bookNotifierHash() => r'304ade78330efaaea546ee313d31fdaa3f74aa2a';
-
-/// See also [BookNotifier].
-@ProviderFor(BookNotifier)
-final bookNotifierProvider = NotifierProvider<BookNotifier, Book>.internal(
-  BookNotifier.new,
-  name: r'bookNotifierProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$bookNotifierHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$BookNotifier = Notifier<Book>;
 String _$bookCoversHash() => r'8b6dc3f7513f41076764958af04c2c583ac0175b';
 
 /// See also [BookCovers].
@@ -35,7 +21,21 @@ final bookCoversProvider =
 );
 
 typedef _$BookCovers = AutoDisposeAsyncNotifier<List<String>>;
-String _$booksHash() => r'903cc4c0f23b0268e6470a53b2b0651faaf1cc8f';
+String _$bookNotifierHash() => r'e3398fcbf2482da17f49f22456dd029f2b5e8c77';
+
+/// See also [BookNotifier].
+@ProviderFor(BookNotifier)
+final bookNotifierProvider = NotifierProvider<BookNotifier, Book>.internal(
+  BookNotifier.new,
+  name: r'bookNotifierProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$bookNotifierHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$BookNotifier = Notifier<Book>;
+String _$booksHash() => r'a4feafdb5c4b4c84a57e682c13c71b68d37bf132';
 
 /// See also [Books].
 @ProviderFor(Books)
@@ -65,7 +65,7 @@ final inShelfProvider =
 );
 
 typedef _$InShelf = AutoDisposeAsyncNotifier<bool>;
-String _$searchLoadingHash() => r'8b80255cb8d4fa83254a22839ab671bb043d0276';
+String _$searchBooksHash() => r'6405775410dbd921475bef9c94d75b6859141d21';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -87,148 +87,6 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
-
-abstract class _$SearchLoading extends BuildlessAutoDisposeNotifier<bool> {
-  late final String credential;
-
-  bool build(
-    String credential,
-  );
-}
-
-/// See also [SearchLoading].
-@ProviderFor(SearchLoading)
-const searchLoadingProvider = SearchLoadingFamily();
-
-/// See also [SearchLoading].
-class SearchLoadingFamily extends Family<bool> {
-  /// See also [SearchLoading].
-  const SearchLoadingFamily();
-
-  /// See also [SearchLoading].
-  SearchLoadingProvider call(
-    String credential,
-  ) {
-    return SearchLoadingProvider(
-      credential,
-    );
-  }
-
-  @override
-  SearchLoadingProvider getProviderOverride(
-    covariant SearchLoadingProvider provider,
-  ) {
-    return call(
-      provider.credential,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'searchLoadingProvider';
-}
-
-/// See also [SearchLoading].
-class SearchLoadingProvider
-    extends AutoDisposeNotifierProviderImpl<SearchLoading, bool> {
-  /// See also [SearchLoading].
-  SearchLoadingProvider(
-    String credential,
-  ) : this._internal(
-          () => SearchLoading()..credential = credential,
-          from: searchLoadingProvider,
-          name: r'searchLoadingProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$searchLoadingHash,
-          dependencies: SearchLoadingFamily._dependencies,
-          allTransitiveDependencies:
-              SearchLoadingFamily._allTransitiveDependencies,
-          credential: credential,
-        );
-
-  SearchLoadingProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.credential,
-  }) : super.internal();
-
-  final String credential;
-
-  @override
-  bool runNotifierBuild(
-    covariant SearchLoading notifier,
-  ) {
-    return notifier.build(
-      credential,
-    );
-  }
-
-  @override
-  Override overrideWith(SearchLoading Function() create) {
-    return ProviderOverride(
-      origin: this,
-      override: SearchLoadingProvider._internal(
-        () => create()..credential = credential,
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        credential: credential,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeNotifierProviderElement<SearchLoading, bool> createElement() {
-    return _SearchLoadingProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is SearchLoadingProvider && other.credential == credential;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, credential.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-mixin SearchLoadingRef on AutoDisposeNotifierProviderRef<bool> {
-  /// The parameter `credential` of this provider.
-  String get credential;
-}
-
-class _SearchLoadingProviderElement
-    extends AutoDisposeNotifierProviderElement<SearchLoading, bool>
-    with SearchLoadingRef {
-  _SearchLoadingProviderElement(super.provider);
-
-  @override
-  String get credential => (origin as SearchLoadingProvider).credential;
-}
-
-String _$searchBooksHash() => r'84873fd91b453277921a8bbce8b649471f3ec9ba';
 
 abstract class _$SearchBooks extends BuildlessAutoDisposeNotifier<List<Book>> {
   late final String credential;
@@ -368,6 +226,148 @@ class _SearchBooksProviderElement
 
   @override
   String get credential => (origin as SearchBooksProvider).credential;
+}
+
+String _$searchLoadingHash() => r'8b80255cb8d4fa83254a22839ab671bb043d0276';
+
+abstract class _$SearchLoading extends BuildlessAutoDisposeNotifier<bool> {
+  late final String credential;
+
+  bool build(
+    String credential,
+  );
+}
+
+/// See also [SearchLoading].
+@ProviderFor(SearchLoading)
+const searchLoadingProvider = SearchLoadingFamily();
+
+/// See also [SearchLoading].
+class SearchLoadingFamily extends Family<bool> {
+  /// See also [SearchLoading].
+  const SearchLoadingFamily();
+
+  /// See also [SearchLoading].
+  SearchLoadingProvider call(
+    String credential,
+  ) {
+    return SearchLoadingProvider(
+      credential,
+    );
+  }
+
+  @override
+  SearchLoadingProvider getProviderOverride(
+    covariant SearchLoadingProvider provider,
+  ) {
+    return call(
+      provider.credential,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'searchLoadingProvider';
+}
+
+/// See also [SearchLoading].
+class SearchLoadingProvider
+    extends AutoDisposeNotifierProviderImpl<SearchLoading, bool> {
+  /// See also [SearchLoading].
+  SearchLoadingProvider(
+    String credential,
+  ) : this._internal(
+          () => SearchLoading()..credential = credential,
+          from: searchLoadingProvider,
+          name: r'searchLoadingProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$searchLoadingHash,
+          dependencies: SearchLoadingFamily._dependencies,
+          allTransitiveDependencies:
+              SearchLoadingFamily._allTransitiveDependencies,
+          credential: credential,
+        );
+
+  SearchLoadingProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.credential,
+  }) : super.internal();
+
+  final String credential;
+
+  @override
+  bool runNotifierBuild(
+    covariant SearchLoading notifier,
+  ) {
+    return notifier.build(
+      credential,
+    );
+  }
+
+  @override
+  Override overrideWith(SearchLoading Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: SearchLoadingProvider._internal(
+        () => create()..credential = credential,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        credential: credential,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeNotifierProviderElement<SearchLoading, bool> createElement() {
+    return _SearchLoadingProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SearchLoadingProvider && other.credential == credential;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, credential.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin SearchLoadingRef on AutoDisposeNotifierProviderRef<bool> {
+  /// The parameter `credential` of this provider.
+  String get credential;
+}
+
+class _SearchLoadingProviderElement
+    extends AutoDisposeNotifierProviderElement<SearchLoading, bool>
+    with SearchLoadingRef {
+  _SearchLoadingProviderElement(super.provider);
+
+  @override
+  String get credential => (origin as SearchLoadingProvider).credential;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

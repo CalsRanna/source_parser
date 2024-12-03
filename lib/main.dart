@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
+import 'package:source_parser/schema/layout.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/router/router.dart';
@@ -16,6 +17,7 @@ void main() async {
   final directory = await getApplicationDocumentsDirectory();
   isar = await Isar.open([
     BookSchema,
+    ReaderLayoutSchema,
     SettingSchema,
     SourceSchema,
   ], directory: directory.path);
