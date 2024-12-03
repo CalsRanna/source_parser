@@ -11,7 +11,6 @@ import 'package:source_parser/page/reader/component/page.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/setting.dart';
-import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/book_cover.dart';
@@ -115,16 +114,6 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
       title: title,
       total: book.chapters.length,
       onCached: (value) => handleCached(ref, value),
-      onCataloguePressed: handleCataloguePressed,
-      onChapterChanged: (index) => handleChapterChanged(ref, index),
-      onDarkModePressed: () => toggleDarkMode(ref),
-      onDetailPressed: handleDetailPressed,
-      onMessage: handleMessage,
-      onPop: (index, cursor) => handlePop(ref),
-      onProgressChanged: (cursor) => handleProgressChanged(ref, cursor),
-      onRefresh: (index) => handleRefresh(ref, index),
-      onSettingPressed: handleSettingPressed,
-      onSourcePressed: handleSourcePressed,
     );
     const indicator = Padding(
       padding: EdgeInsets.only(right: 8.0),
@@ -165,51 +154,5 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     setState(() {
       caching = false;
     });
-  }
-
-  void handleCataloguePressed() {
-    final book = ref.read(bookNotifierProvider);
-    AutoRouter.of(context).push(CatalogueRoute(index: book.index));
-  }
-
-  void handleChapterChanged(WidgetRef ref, int index) async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    return notifier.refreshIndex(index);
-  }
-
-  void handleDetailPressed() {
-    AutoRouter.of(context).push(InformationRoute());
-  }
-
-  void handleMessage(String message) {
-    Message.of(context).show(message);
-  }
-
-  void handlePop(WidgetRef ref) async {
-    Navigator.of(context).pop();
-    ref.invalidate(booksProvider);
-  }
-
-  void handleProgressChanged(WidgetRef ref, int cursor) async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    return notifier.refreshCursor(cursor);
-  }
-
-  Future<String> handleRefresh(WidgetRef ref, int index) async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    return notifier.getContent(index, reacquire: true);
-  }
-
-  void handleSettingPressed() {
-    AutoRouter.of(context).push(ReaderThemeRoute());
-  }
-
-  void handleSourcePressed() {
-    AutoRouter.of(context).push(AvailableSourceListRoute());
-  }
-
-  void toggleDarkMode(WidgetRef ref) async {
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.toggleDarkMode();
   }
 }
