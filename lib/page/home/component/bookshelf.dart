@@ -3,6 +3,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:source_parser/page/home/widget/search_button.dart';
 import 'package:source_parser/page/listener.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
@@ -12,11 +13,26 @@ import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
-class BookshelfView extends ConsumerWidget {
+class BookshelfView extends ConsumerStatefulWidget {
   const BookshelfView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _BookshelfViewState();
+}
+
+class _BookshelfViewState extends ConsumerState<BookshelfView>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    var appBar = AppBar(
+      actions: [SearchButton(), _ShelfModeSelector()],
+      centerTitle: true,
+      title: Text('书架'),
+    );
     final setting = ref.watch(settingNotifierProvider).valueOrNull;
     final mode = setting?.shelfMode ?? 'list';
     final books = ref.watch(booksProvider).valueOrNull ?? <Book>[];
@@ -24,7 +40,11 @@ class BookshelfView extends ConsumerWidget {
       'list' => _ListView(books: books),
       _ => _GridView(books: books),
     };
-    return EasyRefresh(onRefresh: () => refresh(context, ref), child: child);
+    var easyRefresh = EasyRefresh(
+      onRefresh: () => refresh(context, ref),
+      child: child,
+    );
+    return Scaffold(appBar: appBar, body: easyRefresh);
   }
 
   Future<void> refresh(BuildContext context, WidgetRef ref) async {
@@ -540,5 +560,33 @@ class _SheetAction extends StatelessWidget {
       child: padding,
     );
     return Expanded(child: gestureDetector);
+  }
+}
+
+class _ShelfModeSelector extends ConsumerWidget {
+  const _ShelfModeSelector();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final setting = ref.watch(settingNotifierProvider).valueOrNull;
+    final shelfMode = setting?.shelfMode ?? 'list';
+    return PopupMenuButton(
+      icon: const Icon(HugeIcons.strokeRoundedMoreVertical),
+      itemBuilder: (_) => _itemBuilder(shelfMode),
+      offset: Offset(0, 8),
+      onSelected: (value) => updateShelfMode(ref, value),
+      position: PopupMenuPosition.under,
+    );
+  }
+
+  void updateShelfMode(WidgetRef ref, String value) async {
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.updateShelfMode(value);
+  }
+
+  List<PopupMenuEntry> _itemBuilder(String shelfMode) {
+    final value = shelfMode == 'list' ? 'grid' : 'list';
+    final text = Text(shelfMode == 'list' ? '网格模式' : '列表模式');
+    return [PopupMenuItem(value: value, child: text)];
   }
 }

@@ -218,3 +218,20 @@ class SourceDebugger extends _$SourceDebugger {
     ref.invalidateSelf();
   }
 }
+
+@riverpod
+class ExploreSourcesNotifier extends _$ExploreSourcesNotifier {
+  @override
+  Future<List<Source>> build() async {
+    var sources = await ref.read(sourcesProvider.future);
+    return sources.where((source) => source.exploreEnabled).toList();
+  }
+
+  void select(int id) async {
+    var provider = settingNotifierProvider;
+    var setting = await ref.read(provider.future);
+    if (setting.exploreSource == id) return;
+    var notifier = ref.read(provider.notifier);
+    notifier.updateExploreSource(id);
+  }
+}

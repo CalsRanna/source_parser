@@ -68,5 +68,22 @@ final sourceDebuggerProvider = AutoDisposeAsyncNotifierProvider<SourceDebugger,
 
 typedef _$SourceDebugger
     = AutoDisposeAsyncNotifier<Stream<List<DebugResultNew>>>;
+String _$exploreSourcesNotifierHash() =>
+    r'fb881a0f9b942f1e0e3c0a9f27f7d7e5caf2c0be';
+
+/// See also [ExploreSourcesNotifier].
+@ProviderFor(ExploreSourcesNotifier)
+final exploreSourcesNotifierProvider = AutoDisposeAsyncNotifierProvider<
+    ExploreSourcesNotifier, List<Source>>.internal(
+  ExploreSourcesNotifier.new,
+  name: r'exploreSourcesNotifierProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$exploreSourcesNotifierHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$ExploreSourcesNotifier = AutoDisposeAsyncNotifier<List<Source>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

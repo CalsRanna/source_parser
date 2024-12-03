@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.gr.dart';
 
 class ProfileView extends StatelessWidget {
@@ -8,36 +10,71 @@ class ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const source = _SettingTile(
+    var appBar = AppBar(
+      actions: [_DarkModeToggler()],
+      centerTitle: true,
+      title: Text('我的'),
+    );
+    var source = _SettingTile(
       icon: HugeIcons.strokeRoundedSourceCodeCircle,
-      route: '/book-source',
+      onTap: () => handleTap(context, const SourceListRoute()),
       title: '书源管理',
     );
-    const theme = _SettingTile(
+    var theme = _SettingTile(
       icon: HugeIcons.strokeRoundedTextFont,
-      route: '/reader-theme',
+      onTap: () => handleTap(context, const ReaderThemeRoute()),
       title: '阅读主题',
     );
-    const setting = _SettingTile(
+    var setting = _SettingTile(
       icon: HugeIcons.strokeRoundedSettings01,
-      route: '/setting/advanced',
+      onTap: () => handleTap(context, const SettingRoute()),
       title: '设置',
     );
-    const about = _SettingTile(
+    var about = _SettingTile(
       icon: HugeIcons.strokeRoundedInformationCircle,
-      route: '/setting/about',
+      onTap: () => handleTap(context, const AboutRoute()),
       title: '关于元夕',
     );
-    return ListView(children: [source, theme, setting, about]);
+    var listView = ListView(children: [source, theme, setting, about]);
+    return Scaffold(appBar: appBar, body: listView);
+  }
+
+  void handleTap(BuildContext context, PageRouteInfo route) {
+    AutoRouter.of(context).push(route);
+  }
+}
+
+class _DarkModeToggler extends ConsumerWidget {
+  const _DarkModeToggler();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final setting = ref.watch(settingNotifierProvider).valueOrNull;
+    final darkMode = setting?.darkMode ?? false;
+    return IconButton(
+      icon: _buildIcon(darkMode),
+      onPressed: () => toggleDarkMode(ref),
+    );
+  }
+
+  void toggleDarkMode(WidgetRef ref) async {
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.toggleDarkMode();
+  }
+
+  Icon _buildIcon(bool darkMode) {
+    var icon = HugeIcons.strokeRoundedMoon02;
+    if (darkMode) icon = HugeIcons.strokeRoundedSun03;
+    return Icon(icon);
   }
 }
 
 class _SettingTile extends StatelessWidget {
   final IconData? icon;
-  final String? route;
+  final void Function()? onTap;
   final String title;
 
-  const _SettingTile({this.icon, this.route, required this.title});
+  const _SettingTile({this.icon, this.onTap, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -50,27 +87,7 @@ class _SettingTile extends StatelessWidget {
       leading: leading,
       title: Text(title),
       trailing: trailing,
-      onTap: () => handleTap(context),
+      onTap: onTap,
     );
-  }
-
-  void handleTap(BuildContext context) {
-    if (route == null) return;
-    switch (route) {
-      case '/book-source':
-        AutoRouter.of(context).push(SourceListRoute());
-        break;
-      case '/reader-theme':
-        AutoRouter.of(context).push(ReaderThemeRoute());
-        break;
-      case '/setting/advanced':
-        AutoRouter.of(context).push(SettingRoute());
-        break;
-      case '/setting/about':
-        AutoRouter.of(context).push(AboutRoute());
-        break;
-      default:
-        break;
-    }
   }
 }

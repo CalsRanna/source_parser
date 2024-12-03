@@ -5,12 +5,17 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/page/explore.dart';
+import 'package:source_parser/page/home/widget/search_button.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/explore.dart';
+import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
+import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class ExploreView extends ConsumerStatefulWidget {
@@ -118,11 +123,32 @@ class _ExploreViewState extends ConsumerState<ExploreView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final provider = ref.watch(exploreBooksProvider);
-    return provider.when(data: data, error: error, loading: loading);
+    var appBar = AppBar(
+      actions: [SearchButton(), _SourceSelector()],
+      centerTitle: true,
+      title: Text('发现'),
+    );
+    var provider = exploreBooksProvider;
+    var state = ref.watch(provider);
+    var child = switch (state) {
+      AsyncData(:final value) => _buildData(value),
+      AsyncError(:final error, :final stackTrace) =>
+        _buildError(error, stackTrace),
+      AsyncLoading() => _buildLoading(),
+      _ => const SizedBox(),
+    };
+    return Scaffold(
+      appBar: appBar,
+      body: child,
+    );
   }
 
-  Widget data(List<ExploreResult> results) {
+  Future<void> handleRefresh(WidgetRef ref) async {
+    final notifier = ref.read(exploreBooksProvider.notifier);
+    await notifier.refresh();
+  }
+
+  Widget _buildData(List<ExploreResult> results) {
     if (results.isEmpty) return const Center(child: Text('空空如也'));
     final listView = ListView.separated(
       itemBuilder: (context, index) => _itemBuilder(results[index]),
@@ -135,16 +161,11 @@ class _ExploreViewState extends ConsumerState<ExploreView>
     );
   }
 
-  Widget error(Object error, StackTrace stackTrace) {
+  Widget _buildError(Object error, StackTrace stackTrace) {
     return Center(child: Text(error.toString()));
   }
 
-  Future<void> handleRefresh(WidgetRef ref) async {
-    final notifier = ref.read(exploreBooksProvider.notifier);
-    await notifier.refresh();
-  }
-
-  Widget loading() => const Center(child: CircularProgressIndicator());
+  Widget _buildLoading() => const Center(child: CircularProgressIndicator());
 
   Widget _itemBuilder(ExploreResult result) {
     final layout = result.layout;
@@ -480,5 +501,56 @@ class _ListTile extends ConsumerWidget {
       spans.add(book.words);
     }
     return spans.isNotEmpty ? spans.join(' · ') : null;
+  }
+}
+
+class _SourceSelector extends ConsumerWidget {
+  const _SourceSelector();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MenuAnchor(
+      builder: (_, controller, __) => _builder(controller),
+      menuChildren: _buildMenuChildren(ref),
+    );
+  }
+
+  void handleSelect(WidgetRef ref, Source source) {
+    var provider = exploreSourcesNotifierProvider;
+    var notifier = ref.read(provider.notifier);
+    notifier.select(source.id);
+  }
+
+  void handleTap(MenuController controller) {
+    if (controller.isOpen) return controller.close();
+    controller.open();
+  }
+
+  Widget _builder(MenuController controller) {
+    return IconButton(
+      onPressed: () => handleTap(controller),
+      icon: const Icon(HugeIcons.strokeRoundedFilter),
+    );
+  }
+
+  List<Widget> _buildMenuChildren(WidgetRef ref) {
+    var sourceProvider = exploreSourcesNotifierProvider;
+    var sources = ref.watch(sourceProvider).valueOrNull;
+    if (sources == null) return const [SizedBox()];
+    if (sources.isEmpty) return const [Text('空空如也')];
+    var settingProvider = settingNotifierProvider;
+    final setting = ref.watch(settingProvider).valueOrNull;
+    final id = setting?.exploreSource ?? 0;
+    var children = sources.map((source) => _toElement(ref, source, id));
+    return children.toList();
+  }
+
+  Widget _toElement(WidgetRef ref, Source source, int id) {
+    var icon = Icon(HugeIcons.strokeRoundedTick02);
+    return MenuItemButton(
+      onPressed: () => handleSelect(ref, source),
+      trailingIcon: source.id == id ? icon : null,
+      child: Text(source.name),
+    );
   }
 }
