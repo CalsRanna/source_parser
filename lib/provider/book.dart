@@ -386,6 +386,22 @@ class BookNotifier extends _$BookNotifier {
     });
   }
 
+  Future<void> nextChapter() async {
+    if (state.index + 1 >= state.chapters.length) return;
+    state = state.copyWith(cursor: 0, index: state.index + 1);
+    await isar.writeTxn(() async {
+      isar.books.put(state);
+    });
+  }
+
+  Future<void> previousChapter() async {
+    if (state.index <= 0) return;
+    state = state.copyWith(cursor: 0, index: state.index - 1);
+    await isar.writeTxn(() async {
+      isar.books.put(state);
+    });
+  }
+
   Future<void> toggleArchive() async {
     state = state.copyWith(archive: !state.archive);
     var builder = isar.books.filter();

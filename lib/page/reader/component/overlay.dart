@@ -218,7 +218,7 @@ class _PreviousChapterButton extends ConsumerWidget {
   void goPreviousChapter(BuildContext context, WidgetRef ref) {
     var provider = bookNotifierProvider;
     var notifier = ref.read(provider.notifier);
-    // notifier.previousChapter();
+    notifier.previousChapter();
   }
 }
 
@@ -236,7 +236,7 @@ class _NextChapterButton extends ConsumerWidget {
   void goNextChapter(BuildContext context, WidgetRef ref) {
     var provider = bookNotifierProvider;
     var notifier = ref.read(provider.notifier);
-    // notifier.nextChapter();
+    notifier.nextChapter();
   }
 }
 

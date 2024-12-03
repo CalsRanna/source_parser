@@ -21,7 +21,7 @@ final bookCoversProvider =
 );
 
 typedef _$BookCovers = AutoDisposeAsyncNotifier<List<String>>;
-String _$bookNotifierHash() => r'e3398fcbf2482da17f49f22456dd029f2b5e8c77';
+String _$bookNotifierHash() => r'e7dc305fb052cc7f647af4ca5767f2af82d62b99';
 
 /// See also [BookNotifier].
 @ProviderFor(BookNotifier)
