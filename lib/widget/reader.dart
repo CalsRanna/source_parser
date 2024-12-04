@@ -269,7 +269,7 @@ class _BookReaderState extends State<BookReader>
   @override
   Widget build(BuildContext context) {
     var background = ReaderBackground(theme: theme);
-    var page = ReaderPage(
+    var page = BookReaderPage(
       batteryLevel: batteryLevel,
       cursor: min(cursor, pages.length - 1),
       eInkMode: widget.eInkMode,

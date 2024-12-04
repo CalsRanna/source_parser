@@ -5,7 +5,7 @@ import 'package:source_parser/model/reader_theme.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.gr.dart';
 
-class ReaderPage extends StatelessWidget {
+class BookReaderPage extends StatelessWidget {
   final int batteryLevel;
   final int cursor;
   final bool eInkMode;
@@ -22,7 +22,7 @@ class ReaderPage extends StatelessWidget {
   final void Function()? onPageUp;
   final void Function()? onRefresh;
   final void Function()? onSourcePressed;
-  const ReaderPage({
+  const BookReaderPage({
     super.key,
     required this.batteryLevel,
     required this.cursor,

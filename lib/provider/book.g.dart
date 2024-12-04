@@ -21,7 +21,7 @@ final bookCoversProvider =
 );
 
 typedef _$BookCovers = AutoDisposeAsyncNotifier<List<String>>;
-String _$bookNotifierHash() => r'e7dc305fb052cc7f647af4ca5767f2af82d62b99';
+String _$bookNotifierHash() => r'c5cfb574d6a204f60c1a1e104e6ce16164da7c11';
 
 /// See also [BookNotifier].
 @ProviderFor(BookNotifier)
@@ -214,6 +214,8 @@ class SearchBooksProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin SearchBooksRef on AutoDisposeNotifierProviderRef<List<Book>> {
   /// The parameter `credential` of this provider.
   String get credential;
@@ -356,6 +358,8 @@ class SearchLoadingProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin SearchLoadingRef on AutoDisposeNotifierProviderRef<bool> {
   /// The parameter `credential` of this provider.
   String get credential;
@@ -370,4 +374,4 @@ class _SearchLoadingProviderElement
   String get credential => (origin as SearchLoadingProvider).credential;
 }
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
