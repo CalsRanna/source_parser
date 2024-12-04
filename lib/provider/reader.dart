@@ -48,6 +48,7 @@ class ReaderSizeNotifier extends _$ReaderSizeNotifier {
 class ReaderStateNotifier extends _$ReaderStateNotifier {
   @override
   Future<ReaderState> build(Book book) async {
+    await Future.delayed(const Duration(milliseconds: 300));
     try {
       var index = book.index;
       var cursor = book.cursor;
@@ -122,22 +123,16 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
           if (nextChapterPages.isEmpty) return;
         }
 
-        // 预加载下下章
-        var futureChapterPages = <TextSpan>[];
-        if (currentChapterIndex + 2 < book.chapters.length) {
-          futureChapterPages = await _getChapterPages(currentChapterIndex + 2);
-        }
-
         final newChapterIndex = currentChapterIndex + 1;
         final newPageIndex = 0;
 
-        // 更新状态：当前章节变为下一章，确保显示第一页
+        // 立即更新状态：当前章节变为下一章，确保显示第一页
         state = AsyncData(readerState.copyWith(
           chapterIndex: newChapterIndex,
           pageIndex: newPageIndex,
           previousChapterPages: readerState.currentChapterPages,
           currentChapterPages: nextChapterPages,
-          nextChapterPages: futureChapterPages,
+          nextChapterPages: readerState.nextChapterPages, // 保持已预加载的下一章内容
           pages: [
             readerState.currentChapterPages.last, // 上一章的最后一页
             nextChapterPages[0], // 这一章的第一页
@@ -146,8 +141,20 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
           ],
         ));
 
-        // 同步进度
-        await _syncProgress(newChapterIndex, newPageIndex);
+        _syncProgress(newChapterIndex, newPageIndex);
+
+        // 异步预加载下下章
+        if (currentChapterIndex + 2 < book.chapters.length) {
+          _getChapterPages(currentChapterIndex + 2).then((futureChapterPages) {
+            if (futureChapterPages.isNotEmpty) {
+              future.then((currentState) {
+                state = AsyncData(currentState.copyWith(
+                  nextChapterPages: futureChapterPages,
+                ));
+              });
+            }
+          });
+        }
       } else {
         // 在当前章节内翻页
         var newPageIndex = currentPageIndex + 1;
@@ -156,6 +163,8 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
         // 构建新的三页视图
         if (newPageIndex > 0) {
           pages.add(readerState.currentChapterPages[newPageIndex - 1]);
+        } else if (readerState.previousChapterPages.isNotEmpty) {
+          pages.add(readerState.previousChapterPages.last);
         }
         pages.add(readerState.currentChapterPages[newPageIndex]);
         if (newPageIndex + 1 < readerState.currentChapterPages.length) {
@@ -169,8 +178,7 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
           pages: pages,
         ));
 
-        // 同步进度
-        await _syncProgress(currentChapterIndex, newPageIndex);
+        _syncProgress(currentChapterIndex, newPageIndex);
       }
     }
 
@@ -189,21 +197,15 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
           if (previousChapterPages.isEmpty) return;
         }
 
-        // 预加载上上章
-        var prePreviousChapterPages = <TextSpan>[];
-        if (currentChapterIndex > 1) {
-          prePreviousChapterPages =
-              await _getChapterPages(currentChapterIndex - 2);
-        }
-
         final newChapterIndex = currentChapterIndex - 1;
         final newPageIndex = previousChapterPages.length - 1;
 
-        // 更新状态：当前章节变为上一章
+        // 立即更新状态：当前章节变为上一章
         state = AsyncData(readerState.copyWith(
           chapterIndex: newChapterIndex,
           pageIndex: newPageIndex,
-          previousChapterPages: prePreviousChapterPages,
+          previousChapterPages:
+              readerState.previousChapterPages, // 保持已预加载的上一章内容
           currentChapterPages: previousChapterPages,
           nextChapterPages: readerState.currentChapterPages,
           pages: [
@@ -214,8 +216,21 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
           ],
         ));
 
-        // 同步进度
-        await _syncProgress(newChapterIndex, newPageIndex);
+        _syncProgress(newChapterIndex, newPageIndex);
+
+        // 异步预加载上上章
+        if (currentChapterIndex > 1) {
+          _getChapterPages(currentChapterIndex - 2)
+              .then((prePreviousChapterPages) {
+            if (prePreviousChapterPages.isNotEmpty) {
+              future.then((currentState) {
+                state = AsyncData(currentState.copyWith(
+                  previousChapterPages: prePreviousChapterPages,
+                ));
+              });
+            }
+          });
+        }
       } else {
         // 在当前章节内翻页
         var newPageIndex = currentPageIndex - 1;
@@ -234,13 +249,9 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
           pageIndex: newPageIndex,
           pages: pages,
         ));
-
-        // 同步进度
-        await _syncProgress(currentChapterIndex, newPageIndex);
+        _syncProgress(currentChapterIndex, newPageIndex);
       }
     }
-
-    await future;
   }
 
   ReaderState _createEmptyState(Book book, int index, int cursor) {
@@ -273,17 +284,13 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
   }
 
   Future<void> _syncProgress(int chapterIndex, int pageIndex) async {
-    try {
-      final updatedBook = book.copyWith(
-        index: chapterIndex,
-        cursor: pageIndex,
-      );
-      await isar.writeTxn(() async {
-        await isar.books.put(updatedBook);
-      });
-    } catch (e) {
-      print('Error syncing progress: $e');
-    }
+    final updatedBook = book.copyWith(
+      index: chapterIndex,
+      cursor: pageIndex,
+    );
+    await isar.writeTxn(() async {
+      await isar.books.put(updatedBook);
+    });
   }
 }
 

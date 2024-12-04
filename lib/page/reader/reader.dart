@@ -42,6 +42,7 @@ class __ReaderPageState extends ConsumerState<_ReaderPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('rebuilt');
     var theme = ref.watch(readerThemeNotifierProvider).valueOrNull;
     var provider = readerStateNotifierProvider(widget.book);
     var state = ref.watch(provider);
@@ -54,8 +55,30 @@ class __ReaderPageState extends ConsumerState<_ReaderPage> {
     };
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: widget.onTap,
+      onTapUp: handleTapUp,
       child: page,
+    );
+  }
+
+  Future<void> handleTapUp(TapUpDetails details) async {
+    if (_isAnimating) return;
+    // 左中右三部分，中间触发widget.onTap,左右分别翻页
+    var position = details.localPosition;
+    var width = MediaQuery.of(context).size.width;
+    var index = 0;
+    if (position.dx < width / 3) {
+      index = 0;
+    } else if (position.dx > width / 3 * 2) {
+      index = 2;
+    } else {
+      index = 1;
+    }
+    if (index == 1) return widget.onTap?.call();
+    // await handlePageChanged(ref, index);
+    controller.animateToPage(
+      index,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 
@@ -69,7 +92,8 @@ class __ReaderPageState extends ConsumerState<_ReaderPage> {
   Future<void> handlePageChanged(WidgetRef ref, int index) async {
     final notifier =
         ref.read(readerStateNotifierProvider(widget.book).notifier);
-    await notifier.updatePageIndex(index);
+    // await notifier.updatePageIndex(index); // await 会导致页面先rebuilt在跳转
+    notifier.updatePageIndex(index);
     controller.jumpToPage(1);
   }
 
