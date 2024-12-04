@@ -19,8 +19,6 @@ import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:source_parser/widget/book_cover.dart';
-import 'package:source_parser/widget/reader.dart';
 
 class BookReaderRevisited extends StatefulWidget {
   final Book book;
@@ -36,6 +34,117 @@ class ReaderPage extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<ReaderPage> createState() => _ReaderPageState();
+}
+
+class __ReaderPageState extends ConsumerState<_ReaderPage> {
+  final controller = PageController(initialPage: 1);
+  bool _isAnimating = false;
+
+  @override
+  Widget build(BuildContext context) {
+    var theme = ref.watch(readerThemeNotifierProvider).valueOrNull;
+    var provider = readerStateNotifierProvider(widget.book);
+    var state = ref.watch(provider);
+    var page = switch (state) {
+      AsyncData(:final value) => _buildData(ref, value, theme ?? ReaderTheme()),
+      AsyncError(:final error, :final stackTrace) =>
+        _buildError(ref, error, stackTrace, theme ?? ReaderTheme()),
+      AsyncLoading() => _buildLoading(),
+      _ => const SizedBox(),
+    };
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: widget.onTap,
+      child: page,
+    );
+  }
+
+  @override
+  void dispose() {
+    controller.removeListener(_handleScroll);
+    controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> handlePageChanged(WidgetRef ref, int index) async {
+    final notifier =
+        ref.read(readerStateNotifierProvider(widget.book).notifier);
+    await notifier.updatePageIndex(index);
+    controller.jumpToPage(1);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    controller.addListener(_handleScroll);
+  }
+
+  Widget _buildData(WidgetRef ref, ReaderState state, ReaderTheme theme) {
+    if (state.pages.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    return PageView.builder(
+      controller: controller,
+      itemBuilder: (_, index) => _itemBuilder(state, theme, index),
+      itemCount: state.pages.length,
+    );
+  }
+
+  Widget _buildError(
+      WidgetRef ref, Object error, StackTrace stackTrace, ReaderTheme theme) {
+    return BookReaderPageRevisited.builder(
+      builder: () => Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(error.toString()),
+            Text(stackTrace.toString()),
+          ],
+        ),
+      ),
+      eInkMode: false,
+      modes: [],
+      pageIndex: 0,
+      title: '',
+      theme: theme,
+    );
+  }
+
+  Widget _buildLoading() {
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  void _handleScroll() {
+    if (_isAnimating) return;
+
+    final position = controller.page ?? 1;
+    if (position <= 0.0 || position >= 2.0) {
+      _isAnimating = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await handlePageChanged(ref, position <= 0.0 ? 0 : 2);
+        _isAnimating = false;
+      });
+    }
+  }
+
+  Widget _itemBuilder(ReaderState state, ReaderTheme theme, int index) {
+    var book = state.book;
+    var chapters = book.chapters;
+    var title = book.name;
+    if (book.cursor > 0) title = chapters[book.index].name;
+    return BookReaderPageRevisited(
+      eInkMode: false,
+      modes: [],
+      textSpan: state.pages[index],
+      pageIndex: state.pageIndex,
+      title: title,
+      theme: theme,
+    );
+  }
 }
 
 class _BookReaderRevisitedState extends State<BookReaderRevisited> {
@@ -111,91 +220,13 @@ class _ReaderCacheIndicator extends StatelessWidget {
   }
 }
 
-class _ReaderPage extends ConsumerWidget {
+class _ReaderPage extends ConsumerStatefulWidget {
   final Book book;
   final void Function()? onTap;
   const _ReaderPage({required this.book, this.onTap});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var theme = ref.watch(readerThemeNotifierProvider).valueOrNull;
-    var provider = readerStateNotifierProvider(book);
-    var state = ref.watch(provider);
-    var page = switch (state) {
-      AsyncData(:final value) => _buildData(value, theme ?? ReaderTheme()),
-      AsyncError(:final error, :final stackTrace) =>
-        _buildError(ref, error, stackTrace, theme ?? ReaderTheme()),
-      AsyncLoading() => _buildLoading(),
-      _ => const SizedBox(),
-    };
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: page,
-    );
-  }
-
-  Widget _buildData(ReaderState state, ReaderTheme theme) {
-    if (state.currentChapterPages.isEmpty) {
-      return BookReaderPageRevisited.builder(
-        builder: () => Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('空空如也'),
-            SizedBox(width: double.infinity),
-            TextButton(onPressed: () {}, child: Text('重试'))
-          ],
-        ),
-        eInkMode: false,
-        modes: [],
-        pageIndex: state.pageIndex,
-        title: state.book.name,
-        theme: theme,
-      );
-    }
-    return PageView.builder(
-      itemBuilder: (_, index) => _itemBuilder(state, theme, index),
-      itemCount: state.currentChapterPages.length,
-    );
-  }
-
-  Widget _buildError(
-      WidgetRef ref, Object error, StackTrace stackTrace, ReaderTheme theme) {
-    return BookReaderPageRevisited.builder(
-      builder: () => Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(error.toString()),
-            Text(stackTrace.toString()),
-          ],
-        ),
-      ),
-      eInkMode: false,
-      modes: [],
-      pageIndex: 0,
-      title: '',
-      theme: theme,
-    );
-  }
-
-  Widget _buildLoading() {
-    return const Center(child: CircularProgressIndicator());
-  }
-
-  Widget _itemBuilder(ReaderState state, ReaderTheme theme, int index) {
-    return BookReaderPageRevisited(
-      eInkMode: false,
-      modes: [],
-      textSpan: state.currentChapterPages[index],
-      pageIndex: state.pageIndex,
-      title: state.book.name,
-      theme: theme,
-    );
-  }
+  ConsumerState<_ReaderPage> createState() => __ReaderPageState();
 }
 
 class _ReaderPageState extends ConsumerState<ReaderPage> {
@@ -296,5 +327,11 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     return Stack(
       children: [BookReaderRevisited(book: book), if (caching) align],
     );
+  }
+
+  @override
+  void deactivate() {
+    ref.invalidate(booksProvider);
+    super.deactivate();
   }
 }

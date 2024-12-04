@@ -15,17 +15,246 @@ import 'package:source_parser/util/splitter.dart';
 
 part 'reader.g.dart';
 
+@Riverpod(keepAlive: true)
+class MediaQueryDataNotifier extends _$MediaQueryDataNotifier {
+  @override
+  MediaQueryData build() => MediaQueryData();
+
+  void updateSize(MediaQueryData data) {
+    state = data;
+  }
+}
+
+@riverpod
+class ReaderSizeNotifier extends _$ReaderSizeNotifier {
+  @override
+  Future<Size> build() async {
+    var mediaQueryData = ref.watch(mediaQueryDataNotifierProvider);
+    var screenSize = mediaQueryData.size;
+    var theme = await ref.watch(readerThemeNotifierProvider.future);
+    var headerHeight = theme.headerStyle.fontSize! * theme.headerStyle.height!;
+    var headerPadding = theme.headerPadding.vertical;
+    var footerHeight = theme.footerStyle.fontSize! * theme.footerStyle.height!;
+    var footerPadding = theme.footerPadding.vertical;
+    var width = screenSize.width - theme.pagePadding.horizontal;
+    var height = screenSize.height - theme.pagePadding.vertical;
+    height -= headerHeight + headerPadding;
+    height -= footerHeight + footerPadding;
+    return Size(width, height);
+  }
+}
+
 @riverpod
 class ReaderStateNotifier extends _$ReaderStateNotifier {
   @override
   Future<ReaderState> build(Book book) async {
-    var currentChapterPages = await _getCurrentChapterPages();
-    return ReaderState()
-      ..book = book
-      ..currentChapterPages = currentChapterPages;
+    try {
+      var index = book.index;
+      var cursor = book.cursor;
+      List<TextSpan> currentChapterPages;
+      try {
+        currentChapterPages = await _getChapterPages(index);
+      } catch (e) {
+        return _createEmptyState(book, index, cursor);
+      }
+      if (currentChapterPages.isEmpty) {
+        return _createEmptyState(book, index, cursor);
+      }
+      List<TextSpan> nextChapterPages = [];
+      if (index + 1 < book.chapters.length) {
+        try {
+          var pages = await _getChapterPages(index + 1);
+          if (pages.isNotEmpty) nextChapterPages = pages;
+        } catch (e) {}
+      }
+
+      List<TextSpan> previousChapterPages = [];
+      if (index > 0) {
+        try {
+          var pages = await _getChapterPages(index - 1);
+          if (pages.isNotEmpty) previousChapterPages = pages;
+        } catch (e) {}
+      }
+      cursor = cursor.clamp(0, currentChapterPages.length - 1);
+      List<TextSpan> pages = [];
+      if (cursor > 0 && cursor - 1 < currentChapterPages.length) {
+        pages.add(currentChapterPages[cursor - 1]);
+      } else if (previousChapterPages.isNotEmpty) {
+        pages.add(previousChapterPages.last);
+      }
+      pages.add(currentChapterPages[cursor]);
+      if (cursor + 1 < currentChapterPages.length) {
+        pages.add(currentChapterPages[cursor + 1]);
+      } else if (nextChapterPages.isNotEmpty) {
+        pages.add(nextChapterPages.first);
+      }
+      return ReaderState()
+        ..book = book
+        ..chapterIndex = index
+        ..pageIndex = cursor
+        ..currentChapterPages = currentChapterPages
+        ..nextChapterPages = nextChapterPages
+        ..previousChapterPages = previousChapterPages
+        ..pages = pages;
+    } catch (e) {
+      return _createEmptyState(book, book.index, book.cursor);
+    }
   }
 
-  Future<List<TextSpan>> _getCurrentChapterPages() async {
+  Future<void> updatePageIndex(int index) async {
+    if (index == 1) return;
+
+    var readerState = await future;
+    var currentPageIndex = readerState.pageIndex;
+    var currentChapterIndex = readerState.chapterIndex;
+
+    // 向后翻页
+    if (index == 2) {
+      // 如果当前页是章节的最后一页，需要切换到下一章
+      if (currentPageIndex >= readerState.currentChapterPages.length - 1) {
+        // 检查是否还有下一章
+        if (currentChapterIndex + 1 >= book.chapters.length) return;
+
+        // 加载下一章内容
+        var nextChapterPages = readerState.nextChapterPages;
+        if (nextChapterPages.isEmpty) {
+          nextChapterPages = await _getChapterPages(currentChapterIndex + 1);
+          if (nextChapterPages.isEmpty) return;
+        }
+
+        // 预加载下下章
+        var futureChapterPages = <TextSpan>[];
+        if (currentChapterIndex + 2 < book.chapters.length) {
+          futureChapterPages = await _getChapterPages(currentChapterIndex + 2);
+        }
+
+        final newChapterIndex = currentChapterIndex + 1;
+        final newPageIndex = 0;
+
+        // 更新状态：当前章节变为下一章，确保显示第一页
+        state = AsyncData(readerState.copyWith(
+          chapterIndex: newChapterIndex,
+          pageIndex: newPageIndex,
+          previousChapterPages: readerState.currentChapterPages,
+          currentChapterPages: nextChapterPages,
+          nextChapterPages: futureChapterPages,
+          pages: [
+            readerState.currentChapterPages.last, // 上一章的最后一页
+            nextChapterPages[0], // 这一章的第一页
+            if (nextChapterPages.length > 1) // 这一章的第二页（如果有）
+              nextChapterPages[1],
+          ],
+        ));
+
+        // 同步进度
+        await _syncProgress(newChapterIndex, newPageIndex);
+      } else {
+        // 在当前章节内翻页
+        var newPageIndex = currentPageIndex + 1;
+        var pages = <TextSpan>[];
+
+        // 构建新的三页视图
+        if (newPageIndex > 0) {
+          pages.add(readerState.currentChapterPages[newPageIndex - 1]);
+        }
+        pages.add(readerState.currentChapterPages[newPageIndex]);
+        if (newPageIndex + 1 < readerState.currentChapterPages.length) {
+          pages.add(readerState.currentChapterPages[newPageIndex + 1]);
+        } else if (readerState.nextChapterPages.isNotEmpty) {
+          pages.add(readerState.nextChapterPages[0]);
+        }
+
+        state = AsyncData(readerState.copyWith(
+          pageIndex: newPageIndex,
+          pages: pages,
+        ));
+
+        // 同步进度
+        await _syncProgress(currentChapterIndex, newPageIndex);
+      }
+    }
+
+    // 向前翻页
+    if (index == 0) {
+      // 如果当前页是章节的第一页，需要切换到上一章
+      if (currentPageIndex <= 0) {
+        // 检查是否还有上一章
+        if (currentChapterIndex <= 0) return;
+
+        // 加载上一章内容
+        var previousChapterPages = readerState.previousChapterPages;
+        if (previousChapterPages.isEmpty) {
+          previousChapterPages =
+              await _getChapterPages(currentChapterIndex - 1);
+          if (previousChapterPages.isEmpty) return;
+        }
+
+        // 预加载上上章
+        var prePreviousChapterPages = <TextSpan>[];
+        if (currentChapterIndex > 1) {
+          prePreviousChapterPages =
+              await _getChapterPages(currentChapterIndex - 2);
+        }
+
+        final newChapterIndex = currentChapterIndex - 1;
+        final newPageIndex = previousChapterPages.length - 1;
+
+        // 更新状态：当前章节变为上一章
+        state = AsyncData(readerState.copyWith(
+          chapterIndex: newChapterIndex,
+          pageIndex: newPageIndex,
+          previousChapterPages: prePreviousChapterPages,
+          currentChapterPages: previousChapterPages,
+          nextChapterPages: readerState.currentChapterPages,
+          pages: [
+            if (newPageIndex > 0) // 上一章的倒数第二页（如果有）
+              previousChapterPages[newPageIndex - 1],
+            previousChapterPages[newPageIndex], // 上一章的最后一页
+            readerState.currentChapterPages[0], // 当前章的第一页
+          ],
+        ));
+
+        // 同步进度
+        await _syncProgress(newChapterIndex, newPageIndex);
+      } else {
+        // 在当前章节内翻页
+        var newPageIndex = currentPageIndex - 1;
+        var pages = <TextSpan>[];
+
+        // 构建新的三页视图
+        if (newPageIndex > 0) {
+          pages.add(readerState.currentChapterPages[newPageIndex - 1]);
+        } else if (readerState.previousChapterPages.isNotEmpty) {
+          pages.add(readerState.previousChapterPages.last);
+        }
+        pages.add(readerState.currentChapterPages[newPageIndex]);
+        pages.add(readerState.currentChapterPages[newPageIndex + 1]);
+
+        state = AsyncData(readerState.copyWith(
+          pageIndex: newPageIndex,
+          pages: pages,
+        ));
+
+        // 同步进度
+        await _syncProgress(currentChapterIndex, newPageIndex);
+      }
+    }
+
+    await future;
+  }
+
+  ReaderState _createEmptyState(Book book, int index, int cursor) {
+    return ReaderState()
+      ..book = book
+      ..chapterIndex = index
+      ..pageIndex = cursor
+      ..currentChapterPages = []
+      ..nextChapterPages = []
+      ..previousChapterPages = []
+      ..pages = [];
+  }
+
+  Future<List<TextSpan>> _getChapterPages(int index) async {
     var setting = await ref.read(settingNotifierProvider.future);
     var timeout = Duration(milliseconds: setting.timeout);
     var source =
@@ -35,12 +264,26 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       name: book.name,
       source: source,
       timeout: timeout,
-      title: book.chapters[book.index].name,
-      url: book.chapters[book.index].url,
+      title: book.chapters[index].name,
+      url: book.chapters[index].url,
     );
     var theme = await ref.watch(readerThemeNotifierProvider.future);
     var size = await ref.watch(readerSizeNotifierProvider.future);
     return Splitter(size: size, theme: theme).split(chapter);
+  }
+
+  Future<void> _syncProgress(int chapterIndex, int pageIndex) async {
+    try {
+      final updatedBook = book.copyWith(
+        index: chapterIndex,
+        cursor: pageIndex,
+      );
+      await isar.writeTxn(() async {
+        await isar.books.put(updatedBook);
+      });
+    } catch (e) {
+      print('Error syncing progress: $e');
+    }
   }
 }
 
@@ -81,34 +324,5 @@ class ReaderThemeNotifier extends _$ReaderThemeNotifier {
     );
     print(theme.pageStyle);
     return theme;
-  }
-}
-
-@riverpod
-class ReaderSizeNotifier extends _$ReaderSizeNotifier {
-  @override
-  Future<Size> build() async {
-    var mediaQueryData = ref.watch(mediaQueryDataNotifierProvider);
-    var screenSize = mediaQueryData.size;
-    var theme = await ref.watch(readerThemeNotifierProvider.future);
-    var headerHeight = theme.headerStyle.fontSize! * theme.headerStyle.height!;
-    var headerPadding = theme.headerPadding.vertical;
-    var footerHeight = theme.footerStyle.fontSize! * theme.footerStyle.height!;
-    var footerPadding = theme.footerPadding.vertical;
-    var width = screenSize.width - theme.pagePadding.horizontal;
-    var height = screenSize.height - theme.pagePadding.vertical;
-    height -= headerHeight + headerPadding;
-    height -= footerHeight + footerPadding;
-    return Size(width, height);
-  }
-}
-
-@Riverpod(keepAlive: true)
-class MediaQueryDataNotifier extends _$MediaQueryDataNotifier {
-  @override
-  MediaQueryData build() => MediaQueryData();
-
-  void updateSize(MediaQueryData data) {
-    state = data;
   }
 }
