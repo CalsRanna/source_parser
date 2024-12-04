@@ -92,7 +92,6 @@ class Splitter {
     if (end >= content.length) {
       span = _fillLastPageSpan(span);
     }
-
     return _Page(span, end);
   }
 

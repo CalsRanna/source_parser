@@ -38,8 +38,8 @@ class ReaderSizeNotifier extends _$ReaderSizeNotifier {
     var footerPadding = theme.footerPadding.vertical;
     var width = screenSize.width - theme.pagePadding.horizontal;
     var height = screenSize.height - theme.pagePadding.vertical;
-    height -= headerHeight + headerPadding;
-    height -= footerHeight + footerPadding;
+    height -= (headerHeight + headerPadding);
+    height -= (footerHeight + footerPadding);
     return Size(width, height);
   }
 }
@@ -52,6 +52,7 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
     try {
       var index = book.index;
       var cursor = book.cursor;
+
       List<TextSpan> currentChapterPages;
       try {
         currentChapterPages = await _getChapterPages(index);
@@ -61,11 +62,14 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       if (currentChapterPages.isEmpty) {
         return _createEmptyState(book, index, cursor);
       }
+
       List<TextSpan> nextChapterPages = [];
       if (index + 1 < book.chapters.length) {
         try {
           var pages = await _getChapterPages(index + 1);
-          if (pages.isNotEmpty) nextChapterPages = pages;
+          if (pages.isNotEmpty) {
+            nextChapterPages = pages;
+          }
         } catch (e) {}
       }
 
@@ -73,22 +77,32 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       if (index > 0) {
         try {
           var pages = await _getChapterPages(index - 1);
-          if (pages.isNotEmpty) previousChapterPages = pages;
+          if (pages.isNotEmpty) {
+            previousChapterPages = pages;
+          }
         } catch (e) {}
       }
+
       cursor = cursor.clamp(0, currentChapterPages.length - 1);
       List<TextSpan> pages = [];
-      if (cursor > 0 && cursor - 1 < currentChapterPages.length) {
+
+      // 处理前一页的显示
+      if (cursor > 0) {
         pages.add(currentChapterPages[cursor - 1]);
       } else if (previousChapterPages.isNotEmpty) {
         pages.add(previousChapterPages.last);
       }
+
+      // 添加当前页
       pages.add(currentChapterPages[cursor]);
+
+      // 处理后一页的显示
       if (cursor + 1 < currentChapterPages.length) {
         pages.add(currentChapterPages[cursor + 1]);
       } else if (nextChapterPages.isNotEmpty) {
         pages.add(nextChapterPages.first);
       }
+
       return ReaderState()
         ..book = book
         ..chapterIndex = index
@@ -114,7 +128,17 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       // 如果当前页是章节的最后一页，需要切换到下一章
       if (currentPageIndex >= readerState.currentChapterPages.length - 1) {
         // 检查是否还有下一章
-        if (currentChapterIndex + 1 >= book.chapters.length) return;
+        if (currentChapterIndex + 1 >= book.chapters.length) {
+          // 如果是最后一章最后一页，保持当前状态
+          state = AsyncData(readerState.copyWith(
+            pages: [
+              if (currentPageIndex > 0)
+                readerState.currentChapterPages[currentPageIndex - 1],
+              readerState.currentChapterPages[currentPageIndex],
+            ],
+          ));
+          return;
+        }
 
         // 加载下一章内容
         var nextChapterPages = readerState.nextChapterPages;
@@ -187,7 +211,17 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       // 如果当前页是章节的第一页，需要切换到上一章
       if (currentPageIndex <= 0) {
         // 检查是否还有上一章
-        if (currentChapterIndex <= 0) return;
+        if (currentChapterIndex <= 0) {
+          // 如果是第一章第一页，保持当前状态
+          state = AsyncData(readerState.copyWith(
+            pages: [
+              readerState.currentChapterPages[currentPageIndex],
+              if (readerState.currentChapterPages.length > 1)
+                readerState.currentChapterPages[currentPageIndex + 1],
+            ],
+          ));
+          return;
+        }
 
         // 加载上一章内容
         var previousChapterPages = readerState.previousChapterPages;
@@ -271,16 +305,35 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
     var source =
         await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
     if (source == null) return [];
-    var chapter = await Parser.getContent(
-      name: book.name,
-      source: source,
-      timeout: timeout,
-      title: book.chapters[index].name,
-      url: book.chapters[index].url,
-    );
-    var theme = await ref.watch(readerThemeNotifierProvider.future);
-    var size = await ref.watch(readerSizeNotifierProvider.future);
-    return Splitter(size: size, theme: theme).split(chapter);
+
+    // 最多重试3次
+    for (var i = 0; i < 3; i++) {
+      var chapter = await Parser.getContent(
+        name: book.name,
+        source: source,
+        timeout: timeout,
+        title: book.chapters[index].name,
+        url: book.chapters[index].url,
+        // 第一次不重新获取，后续重试时重新获取
+        reacquire: i > 0,
+      );
+
+      if (chapter.isNotEmpty) {
+        var theme = await ref.watch(readerThemeNotifierProvider.future);
+        var size = await ref.watch(readerSizeNotifierProvider.future);
+        var pages = Splitter(size: size, theme: theme).split(chapter);
+        if (pages.isNotEmpty) {
+          return pages;
+        }
+      }
+
+      // 如果获取失败或内容为空，等待一段时间后重试
+      if (i < 2) {
+        await Future.delayed(Duration(milliseconds: 500 * (i + 1)));
+      }
+    }
+
+    return [];
   }
 
   Future<void> _syncProgress(int chapterIndex, int pageIndex) async {
@@ -329,7 +382,6 @@ class ReaderThemeNotifier extends _$ReaderThemeNotifier {
         height: lineSpace,
       ),
     );
-    print(theme.pageStyle);
     return theme;
   }
 }

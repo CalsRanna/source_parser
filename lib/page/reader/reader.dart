@@ -42,7 +42,6 @@ class __ReaderPageState extends ConsumerState<_ReaderPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('rebuilt');
     var theme = ref.watch(readerThemeNotifierProvider).valueOrNull;
     var provider = readerStateNotifierProvider(widget.book);
     var state = ref.watch(provider);
@@ -105,9 +104,7 @@ class __ReaderPageState extends ConsumerState<_ReaderPage> {
 
   Widget _buildData(WidgetRef ref, ReaderState state, ReaderTheme theme) {
     if (state.pages.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
     return PageView.builder(
       controller: controller,
