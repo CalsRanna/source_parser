@@ -47,9 +47,9 @@ class _ReaderPageState extends State<ReaderPage> {
   @override
   Widget build(BuildContext context) {
     var readerOverlay = ReaderOverlay(
+      book: widget.book,
       onCached: handleCached,
       onRemoved: handleRemoved,
-      title: widget.book.name,
     );
     var children = [
       ReaderBackground(),
@@ -110,8 +110,7 @@ class _ReaderPageState extends State<ReaderPage> {
 
   void _refreshShelf() {
     var container = ProviderScope.containerOf(context);
-    var notifier = container.read(booksProvider.notifier);
-    notifier.refresh();
+    container.invalidate(booksProvider);
   }
 
   void _showUiOverlays() {

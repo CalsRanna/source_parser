@@ -7,18 +7,19 @@ import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/layout.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.gr.dart';
+import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/layout.dart';
 import 'package:source_parser/util/message.dart';
 
 class ReaderOverlay extends ConsumerWidget {
+  final Book book;
   final void Function(int)? onCached;
   final void Function()? onRemoved;
-  final String title;
   const ReaderOverlay({
     super.key,
+    required this.book,
     this.onCached,
     this.onRemoved,
-    required this.title,
   });
 
   @override
@@ -33,7 +34,7 @@ class ReaderOverlay extends ConsumerWidget {
     );
     final bottomBarButtons = _buildBottomButtons(layout.bottomBarButtons);
     return Scaffold(
-      appBar: AppBar(actions: appBarButtons, title: Text(title)),
+      appBar: AppBar(actions: appBarButtons, title: Text(book.name)),
       backgroundColor: Colors.transparent,
       body: body,
       bottomNavigationBar: BottomAppBar(child: Row(children: bottomBarButtons)),
@@ -55,7 +56,7 @@ class ReaderOverlay extends ConsumerWidget {
       ButtonPosition.catalogue => _CatalogueButton(),
       ButtonPosition.darkMode => _DarkModeButton(),
       ButtonPosition.information => _InformationButton(),
-      ButtonPosition.nextChapter => _NextChapterButton(),
+      ButtonPosition.nextChapter => _NextChapterButton(book: book),
       ButtonPosition.previousChapter => _PreviousChapterButton(),
       ButtonPosition.source => _SourceButton(),
       ButtonPosition.theme => _ThemeButton(),
@@ -167,9 +168,9 @@ class _MenuButton extends ConsumerWidget {
         child: const Text('书籍信息'),
       ),
       MenuItemButton(
-        leadingIcon: const Icon(HugeIcons.strokeRoundedMenu01),
-        onPressed: () => navigateBookCatalogue(context, ref),
-        child: const Text('章节目录'),
+        leadingIcon: const Icon(HugeIcons.strokeRoundedExchange01),
+        onPressed: () => navigateSourceSwitcher(context),
+        child: const Text('切换书源'),
       ),
       MenuItemButton(
         leadingIcon: const Icon(HugeIcons.strokeRoundedTextFont),
@@ -190,18 +191,16 @@ class _MenuButton extends ConsumerWidget {
     controller.open();
   }
 
-  void navigateBookCatalogue(BuildContext context, WidgetRef ref) {
-    var provider = bookNotifierProvider;
-    var book = ref.read(provider);
-    AutoRouter.of(context).push(CatalogueRoute(index: book.index));
-  }
-
   void navigateBookInformation(BuildContext context) {
     AutoRouter.of(context).push(InformationRoute());
   }
 
   void navigateReaderTheme(BuildContext context) {
     AutoRouter.of(context).push(ReaderThemeRoute());
+  }
+
+  void navigateSourceSwitcher(BuildContext context) {
+    AutoRouter.of(context).push(AvailableSourceListRoute());
   }
 
   Widget _builder(MenuController controller) {
@@ -213,7 +212,8 @@ class _MenuButton extends ConsumerWidget {
 }
 
 class _NextChapterButton extends ConsumerWidget {
-  const _NextChapterButton();
+  final Book book;
+  const _NextChapterButton({required this.book});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return IconButton(
@@ -223,9 +223,9 @@ class _NextChapterButton extends ConsumerWidget {
   }
 
   void goNextChapter(BuildContext context, WidgetRef ref) {
-    var provider = bookNotifierProvider;
-    var notifier = ref.read(provider.notifier);
-    notifier.nextChapter();
+    // var provider = readerStateNotifierProvider(book);
+    // var notifier = ref.read(provider.notifier);
+    // notifier.updatePageIndex(index);
   }
 }
 

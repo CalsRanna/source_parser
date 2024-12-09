@@ -321,8 +321,8 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       index: chapterIndex,
       cursor: pageIndex,
     );
-    await isar.writeTxn(() async {
-      await isar.books.put(updatedBook);
+    isar.writeTxn(() async {
+      isar.books.put(updatedBook);
     });
   }
 }
