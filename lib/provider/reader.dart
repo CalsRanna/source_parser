@@ -301,35 +301,17 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
     var source =
         await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
     if (source == null) return [];
-
-    // 最多重试3次
-    for (var i = 0; i < 3; i++) {
-      var chapter = await Parser.getContent(
-        name: book.name,
-        source: source,
-        timeout: timeout,
-        title: book.chapters[index].name,
-        url: book.chapters[index].url,
-        // 第一次不重新获取，后续重试时重新获取
-        reacquire: i > 0,
-      );
-
-      if (chapter.isNotEmpty) {
-        var theme = await ref.watch(readerThemeNotifierProvider.future);
-        var size = await ref.watch(readerSizeNotifierProvider.future);
-        var pages = Splitter(size: size, theme: theme).split(chapter);
-        if (pages.isNotEmpty) {
-          return pages;
-        }
-      }
-
-      // 如果获取失败或内容为空，等待一段时间后重试
-      if (i < 2) {
-        await Future.delayed(Duration(milliseconds: 500 * (i + 1)));
-      }
-    }
-
-    return [];
+    var chapter = await Parser.getContent(
+      name: book.name,
+      source: source,
+      timeout: timeout,
+      title: book.chapters[index].name,
+      url: book.chapters[index].url,
+    );
+    if (chapter.isEmpty) return [];
+    var theme = await ref.read(readerThemeNotifierProvider.future);
+    var size = await ref.read(readerSizeNotifierProvider.future);
+    return Splitter(size: size, theme: theme).split(chapter);
   }
 
   Future<void> _syncProgress(int chapterIndex, int pageIndex) async {

@@ -34,6 +34,7 @@ class ReaderView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var state = ref.watch(readerThemeNotifierProvider).valueOrNull;
+    print(state?.pageStyle);
     var theme = state ?? ReaderTheme();
     var header = _Header(
       padding: theme.headerPadding,
@@ -71,8 +72,7 @@ class _Content extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var text = RichText(text: textSpan);
-    return Padding(padding: padding, child: text);
+    return Padding(padding: padding, child: RichText(text: textSpan));
   }
 }
 

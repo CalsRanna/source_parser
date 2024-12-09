@@ -6,7 +6,7 @@ part of 'book.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$bookCoversHash() => r'e51cc27007efc229a2c68d70f47b552947cb738e';
+String _$bookCoversHash() => r'339ca83d9891d050f1d982aaf21f9991dffd70a0';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -173,7 +173,7 @@ class _BookCoversProviderElement
   Book get book => (origin as BookCoversProvider).book;
 }
 
-String _$bookNotifierHash() => r'c5cfb574d6a204f60c1a1e104e6ce16164da7c11';
+String _$bookNotifierHash() => r'cad02d1c60a33ed9dd265162d564232bc2ecc235';
 
 /// See also [BookNotifier].
 @ProviderFor(BookNotifier)
