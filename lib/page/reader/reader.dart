@@ -67,12 +67,6 @@ class _ReaderPageState extends State<ReaderPage> {
     super.deactivate();
   }
 
-  void _refreshShelf() {
-    var container = ProviderScope.containerOf(context);
-    var notifier = container.read(booksProvider.notifier);
-    notifier.refresh();
-  }
-
   void handleCached(int amount) async {
     setState(() {
       showCache = true;
@@ -112,6 +106,12 @@ class _ReaderPageState extends State<ReaderPage> {
 
   void _hideUiOverlays() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+  }
+
+  void _refreshShelf() {
+    var container = ProviderScope.containerOf(context);
+    var notifier = container.read(booksProvider.notifier);
+    notifier.refresh();
   }
 
   void _showUiOverlays() {
@@ -212,9 +212,10 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     var child = Center(child: Text('空空如也'));
     return ReaderView.builder(
       builder: () => child,
+      chapterText: '',
       eInkMode: false,
-      pageIndex: 0,
-      title: widget.book.name,
+      progressText: '',
+      headerText: widget.book.name,
     );
   }
 
@@ -234,14 +235,42 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     );
     return ReaderView.builder(
       builder: () => padding,
+      chapterText: '',
       eInkMode: false,
-      pageIndex: 0,
-      title: widget.book.name,
+      progressText: '',
+      headerText: widget.book.name,
     );
   }
 
   Widget _buildLoading() {
     return const Center(child: CircularProgressIndicator());
+  }
+
+  String _getChapterText(ReaderState state, int index) {
+    var pageIndex = switch (index) {
+      0 => state.pageIndex - 1,
+      1 => state.pageIndex,
+      2 => state.pageIndex + 1,
+      _ => 0,
+    };
+    return '${pageIndex + 1}/${state.currentChapterPages.length}';
+  }
+
+  String _getHeaderText(ReaderState state) {
+    if (state.book.cursor == 0) return state.book.name;
+    return state.book.chapters[state.book.index].name;
+  }
+
+  String _getProgressText(ReaderState state) {
+    var chapterLength = state.book.chapters.length;
+    var chapterIndex = state.chapterIndex;
+    var pageLength = state.currentChapterPages.length;
+    var pageIndex = state.pageIndex;
+    var chapterProgress = chapterIndex / chapterLength;
+    var pageProgress = pageIndex / pageLength;
+    var progress = chapterProgress + pageProgress * 1 / chapterLength;
+    var text = (progress * 100).toStringAsFixed(2);
+    return '$text%';
   }
 
   void _handleScroll() {
@@ -258,15 +287,12 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
   }
 
   Widget _itemBuilder(ReaderState state, int index) {
-    var book = state.book;
-    var chapters = book.chapters;
-    var title = book.name;
-    if (book.cursor > 0) title = chapters[book.index].name;
     return ReaderView(
+      chapterText: _getChapterText(state, index),
       eInkMode: false,
+      headerText: _getHeaderText(state),
       textSpan: state.pages[index],
-      pageIndex: state.pageIndex,
-      title: title,
+      progressText: _getProgressText(state),
     );
   }
 }

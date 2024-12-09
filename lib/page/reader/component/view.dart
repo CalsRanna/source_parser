@@ -7,25 +7,28 @@ import 'package:source_parser/provider/reader.dart';
 class ReaderView extends ConsumerWidget {
   final Widget Function()? builder;
   final bool eInkMode;
+  final String chapterText;
+  final String headerText;
   final TextSpan textSpan;
-  final int pageIndex;
-  final String title;
+  final String progressText;
 
   const ReaderView({
     super.key,
     this.builder,
+    required this.chapterText,
     required this.eInkMode,
+    required this.headerText,
     required this.textSpan,
-    required this.pageIndex,
-    required this.title,
+    required this.progressText,
   });
 
   const ReaderView.builder({
     super.key,
+    required this.chapterText,
     required this.builder,
     required this.eInkMode,
-    required this.pageIndex,
-    required this.title,
+    required this.headerText,
+    required this.progressText,
   }) : textSpan = const TextSpan();
 
   @override
@@ -35,7 +38,7 @@ class ReaderView extends ConsumerWidget {
     var header = _Header(
       padding: theme.headerPadding,
       style: theme.headerStyle,
-      title: title,
+      title: headerText,
     );
     Widget content = _Content(
       padding: theme.pagePadding,
@@ -44,10 +47,9 @@ class ReaderView extends ConsumerWidget {
     );
     if (builder != null) content = builder!.call();
     var footer = _Footer(
-      cursor: pageIndex,
-      length: 10,
+      chapterText: chapterText,
       padding: theme.footerPadding,
-      progress: 0.8326,
+      progressText: progressText,
       style: theme.footerStyle,
     );
     return Column(
@@ -75,17 +77,15 @@ class _Content extends StatelessWidget {
 }
 
 class _Footer extends StatefulWidget {
-  final int cursor;
-  final int length;
+  final String chapterText;
   final EdgeInsets padding;
-  final double progress;
+  final String progressText;
   final TextStyle style;
 
   const _Footer({
-    required this.cursor,
-    required this.length,
+    required this.chapterText,
     required this.padding,
-    required this.progress,
+    required this.progressText,
     required this.style,
   });
 
@@ -153,13 +153,11 @@ class _FooterState extends State<_Footer> {
   }
 
   Widget _buildPage() {
-    var text = '${(widget.cursor + 1)}/${widget.length}';
-    return Text(text, style: widget.style);
+    return Text(widget.chapterText, style: widget.style);
   }
 
   Widget _buildProgress() {
-    var progress = (widget.progress * 100).toStringAsFixed(2);
-    return Text('$progress%', style: widget.style);
+    return Text(widget.progressText, style: widget.style);
   }
 
   Widget _buildTime() {
