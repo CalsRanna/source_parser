@@ -23,14 +23,6 @@ class ReaderPage extends ConsumerStatefulWidget {
   ConsumerState<ReaderPage> createState() => _ReaderPageState();
 }
 
-class _Reader extends StatefulWidget {
-  final Book book;
-  const _Reader({required this.book});
-
-  @override
-  State<_Reader> createState() => _ReaderState();
-}
-
 class _ReaderBackground extends ConsumerWidget {
   const _ReaderBackground();
 
@@ -41,32 +33,39 @@ class _ReaderBackground extends ConsumerWidget {
   }
 }
 
-class _ReaderCacheIndicator extends StatelessWidget {
+class _ReaderCacheIndicator extends ConsumerWidget {
   const _ReaderCacheIndicator();
 
   @override
-  Widget build(BuildContext context) {
-    const indicator = Padding(
+  Widget build(BuildContext context, WidgetRef ref) {
+    var progress = ref.watch(cacheProgressNotifierProvider);
+    var indicator = Padding(
       padding: EdgeInsets.only(right: 8.0),
-      child: ReaderCacheIndicator(),
+      child: ReaderCacheIndicator(progress: progress.progress),
     );
     return Align(alignment: Alignment.centerRight, child: indicator);
   }
 }
 
 class _ReaderPageState extends ConsumerState<ReaderPage> {
-  bool caching = false;
-  double progress = 0;
+  bool showOverlay = false;
+  bool showCache = false;
 
   @override
   Widget build(BuildContext context) {
     final book = ref.watch(bookNotifierProvider);
-    const indicator = Padding(
-      padding: EdgeInsets.only(right: 8.0),
-      child: ReaderCacheIndicator(),
+    var readerOverlay = ReaderOverlay(
+      onCached: handleCached,
+      onRemoved: handleRemoved,
+      title: book.name,
     );
-    const align = Align(alignment: Alignment.centerRight, child: indicator);
-    return Stack(children: [_Reader(book: book), if (caching) align]);
+    var children = [
+      _ReaderBackground(),
+      _ReaderView(book: book, onTap: handleTap),
+      if (showCache) _ReaderCacheIndicator(),
+      if (showOverlay) readerOverlay,
+    ];
+    return Stack(children: children);
   }
 
   @override
@@ -74,38 +73,16 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     ref.invalidate(booksProvider);
     super.deactivate();
   }
-}
-
-class _ReaderState extends State<_Reader> {
-  bool showOverlay = false;
-  bool showCache = false;
-
-  @override
-  Widget build(BuildContext context) {
-    var readerOverlay = ReaderOverlay(
-      onCached: handleCached,
-      onRemoved: handleRemoved,
-      title: widget.book.name,
-    );
-    var children = [
-      _ReaderBackground(),
-      _ReaderView(book: widget.book, onTap: handleTap),
-      if (showCache) _ReaderCacheIndicator(),
-      if (showOverlay) readerOverlay,
-    ];
-    return Stack(children: children);
-  }
 
   void handleCached(int amount) async {
     setState(() {
       showCache = true;
     });
-    var container = ProviderScope.containerOf(context);
-    final notifier = container.read(cacheProgressNotifierProvider.notifier);
+    final notifier = ref.read(cacheProgressNotifierProvider.notifier);
     await notifier.cacheChapters(amount: amount);
     if (!mounted) return;
     final message = Message.of(context);
-    final progress = container.read(cacheProgressNotifierProvider);
+    final progress = ref.read(cacheProgressNotifierProvider);
     message.show('缓存完毕，${progress.succeed}章成功，${progress.failed}章失败');
     await Future.delayed(const Duration(seconds: 1));
     setState(() {

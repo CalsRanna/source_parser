@@ -25,13 +25,13 @@ class ReaderOverlay extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final layout = ref.watch(readerLayoutNotifierProviderProvider).valueOrNull;
     if (layout == null) return const SizedBox();
-    final appBarButtons = _buildButtons(layout.appBarButtons);
-    final bottomBarButtons = _buildButtons(layout.bottomBarButtons);
+    final appBarButtons = layout.appBarButtons.map(_toElement).toList();
     var body = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onRemoved,
       child: SizedBox(height: double.infinity, width: double.infinity),
     );
+    final bottomBarButtons = _buildBottomButtons(layout.bottomBarButtons);
     return Scaffold(
       appBar: AppBar(actions: appBarButtons, title: Text(title)),
       backgroundColor: Colors.transparent,
@@ -42,7 +42,7 @@ class ReaderOverlay extends ConsumerWidget {
     );
   }
 
-  List<Widget> _buildButtons(List<ButtonPosition> positions) {
+  List<Widget> _buildBottomButtons(List<ButtonPosition> positions) {
     var buttons = positions.map(_toElement).toList();
     buttons.insert(0, _MenuButton());
     return buttons;

@@ -52,11 +52,10 @@ class ReaderView extends StatelessWidget {
       progress: 0.8326,
       style: theme.footerStyle,
     );
-    var column = Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [header, Expanded(child: content), footer],
     );
-    return column;
   }
 }
 

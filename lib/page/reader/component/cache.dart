@@ -1,37 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/provider/cache.dart';
 
-class ReaderCacheIndicator extends ConsumerWidget {
-  const ReaderCacheIndicator({super.key});
+class ReaderCacheIndicator extends StatelessWidget {
+  final double progress;
+  const ReaderCacheIndicator({super.key, required this.progress});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final surfaceContainerHighest = colorScheme.surfaceContainerHighest;
     final primary = colorScheme.primary;
-    final progress = ref.watch(cacheProgressNotifierProvider);
     final innerDecoration = BoxDecoration(color: primary);
     final innerContainer = AnimatedContainer(
       decoration: innerDecoration,
       duration: const Duration(milliseconds: 300),
-      height: 160 * progress.progress,
+      height: 160 * progress,
       width: 8,
     );
-    final shapeDecoration = ShapeDecoration(
+    final outerDecoration = ShapeDecoration(
       color: surfaceContainerHighest,
       shape: const StadiumBorder(),
     );
+    var outerContainer = Container(
+      alignment: Alignment.bottomCenter,
+      decoration: outerDecoration,
+      height: 160,
+      width: 8,
+      child: innerContainer,
+    );
     return ClipRRect(
       borderRadius: BorderRadius.circular(4),
-      child: Container(
-        alignment: Alignment.bottomCenter,
-        decoration: shapeDecoration,
-        height: 160,
-        width: 8,
-        child: innerContainer,
-      ),
+      child: outerContainer,
     );
   }
 }
