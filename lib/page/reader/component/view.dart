@@ -77,7 +77,11 @@ class _Content extends StatelessWidget {
   Widget build(BuildContext context) {
     var merger = Merger(chapterStyle: chapterStyle, contentStyle: contentStyle);
     var span = merger.merge(text);
-    return Padding(padding: padding, child: RichText(text: span));
+    return Container(
+      padding: padding,
+      width: double.infinity,
+      child: RichText(text: span),
+    );
   }
 }
 
@@ -125,25 +129,21 @@ class _FooterState extends State<_Footer> {
     final colorScheme = theme.colorScheme;
     final primary = colorScheme.primary;
     final onBackground = colorScheme.outline;
-    var outerDecoration = BoxDecoration(
-      borderRadius: BorderRadius.circular(2),
-      color: onBackground.withOpacity(0.25),
-    );
-    var innerDecoration = BoxDecoration(
-      borderRadius: BorderRadius.circular(2),
+    var innerContainer = Container(
       color: primary.withOpacity(0.5),
-    );
-    var container = Container(
-      decoration: innerDecoration,
       height: 8,
       width: 16 * (battery / 100),
     );
-    var body = Container(
+    var outerContainer = Container(
       alignment: Alignment.centerLeft,
-      decoration: outerDecoration,
+      color: onBackground.withOpacity(0.25),
       height: 8,
       width: 16,
-      child: container,
+      child: innerContainer,
+    );
+    var body = ClipRRect(
+      borderRadius: BorderRadius.circular(2),
+      child: outerContainer,
     );
     const borderRadius = BorderRadius.only(
       topRight: Radius.circular(1),

@@ -24,7 +24,7 @@ final mediaQueryDataNotifierProvider =
 
 typedef _$MediaQueryDataNotifier = Notifier<MediaQueryData>;
 String _$readerSizeNotifierHash() =>
-    r'f32b91f90be2f0b3ea5c142c608f98414148f7fe';
+    r'66fc343622d8f1df7917a22393182f2db0ed5b5b';
 
 /// See also [ReaderSizeNotifier].
 @ProviderFor(ReaderSizeNotifier)

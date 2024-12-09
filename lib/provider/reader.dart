@@ -45,7 +45,6 @@ class ReaderSizeNotifier extends _$ReaderSizeNotifier {
     var height = screenSize.height - pagePadding.vertical;
     height -= (headerPadding.vertical + headerHeight);
     height -= (footerPadding.vertical + footerHeight);
-    print(Size(width, height));
     return Size(width, height);
   }
 
