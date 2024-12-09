@@ -169,28 +169,11 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
 
   Future<void> handleTapUp(TapUpDetails details) async {
     if (_isAnimating) return;
-    var position = details.localPosition;
-    var width = MediaQuery.of(context).size.width;
-    var height = MediaQuery.of(context).size.height;
-    var index = 0;
-    if (position.dx < width / 3) {
-      index = 0;
-    } else if (position.dx > width / 3 * 2) {
-      index = 2;
-    } else {
-      if (position.dy < height / 4) {
-        index = 0;
-      } else if (position.dy > height / 4 * 3) {
-        index = 2;
-      }
-      index = 1;
-    }
+    var index = _calculateIndex(details);
     if (index == 1) return widget.onTap?.call();
-    controller.animateToPage(
-      index,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    var duration = Duration(milliseconds: 300);
+    var curve = Curves.easeInOut;
+    controller.animateToPage(index, curve: curve, duration: duration);
   }
 
   @override
@@ -244,6 +227,18 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
 
   Widget _buildLoading() {
     return const Center(child: CircularProgressIndicator());
+  }
+
+  int _calculateIndex(TapUpDetails details) {
+    var position = details.localPosition;
+    var size = MediaQuery.of(context).size;
+    var horizontalThreshold = size.width / 3;
+    var verticalThreshold = size.height / 4;
+    if (position.dx < horizontalThreshold) return 0;
+    if (position.dx > horizontalThreshold * 2) return 2;
+    if (position.dy < verticalThreshold) return 0;
+    if (position.dy > verticalThreshold * 3) return 2;
+    return 1;
   }
 
   String _getChapterText(ReaderState state, int index) {
