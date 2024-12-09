@@ -66,9 +66,9 @@ class Splitter {
     List<String> paragraphs = text.split('\n');
     List<TextSpan> children = [];
     if (isFirstPage && paragraphs.isNotEmpty) {
-      // Add spacing before title using newlines
-      children.add(TextSpan(text: '\n', style: theme.chapterStyle));
-      children.add(TextSpan(text: paragraphs.first, style: theme.chapterStyle));
+      // Add spacing around title using newlines
+      var paragraph = '\n${paragraphs.first}\n';
+      children.add(TextSpan(text: paragraph, style: theme.chapterStyle));
       paragraphs.removeAt(0);
     }
     children.addAll(paragraphs.map(_toElement));

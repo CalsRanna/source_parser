@@ -14,9 +14,9 @@ class Merger {
     List<String> paragraphs = pageContent.split('\n');
     List<InlineSpan> children = [];
     if (isFirstPage && paragraphs.isNotEmpty) {
-      // Add spacing before title using newlines
-      children.add(TextSpan(text: '\n', style: chapterStyle));
-      children.add(TextSpan(text: paragraphs.first, style: chapterStyle));
+      // Add spacing around title using newlines
+      var paragraph = '\n${paragraphs.first}\n';
+      children.add(TextSpan(text: paragraph, style: chapterStyle));
       paragraphs.removeAt(0);
     }
     children.addAll(paragraphs.map(_toElement));

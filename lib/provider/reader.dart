@@ -40,8 +40,6 @@ class ReaderSizeNotifier extends _$ReaderSizeNotifier {
     var height = screenSize.height - theme.pagePadding.vertical;
     height -= (headerHeight + headerPadding);
     height -= (footerHeight + footerPadding);
-    // TODO: 因为计算出来的高度和实际高度有偏差，临时解决方案。强制每一行的高度都一样，但是有chapter title，不知道怎么处理暂时这么处理
-    height += 40;
     return Size(width, height);
   }
 }
