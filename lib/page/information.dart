@@ -83,13 +83,14 @@ class _BackgroundImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var bookCover = BookCover(
+      height: double.infinity,
+      url: url,
+      width: double.infinity,
+    );
     return ImageFiltered(
       imageFilter: ImageFilter.blur(sigmaX: 48, sigmaY: 48),
-      child: BookCover(
-        height: double.infinity,
-        url: url,
-        width: double.infinity,
-      ),
+      child: bookCover,
     );
   }
 }
@@ -236,7 +237,8 @@ class _BottomBar extends StatelessWidget {
   void startReader(BuildContext context, WidgetRef ref, int index) async {
     final navigator = Navigator.of(context);
     navigator.popUntil(_predicate);
-    AutoRouter.of(context).push(ReaderRoute());
+    var book = ref.read(bookNotifierProvider);
+    AutoRouter.of(context).push(ReaderRoute(book: book));
     final bookNotifier = ref.read(bookNotifierProvider.notifier);
     bookNotifier.startReader(index: index);
   }

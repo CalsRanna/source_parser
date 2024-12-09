@@ -86,7 +86,8 @@ class AvailableSourceListPage extends ConsumerWidget {
     Message.of(context).show(message);
     Navigator.of(context).pop();
     Navigator.of(context).pop();
-    AutoRouter.of(context).replace(ReaderRoute());
+    var book = ref.read(bookNotifierProvider);
+    AutoRouter.of(context).replace(ReaderRoute(book: book));
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   }
 

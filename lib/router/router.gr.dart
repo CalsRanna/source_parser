@@ -30,6 +30,7 @@ import 'package:source_parser/page/source/information.dart' as _i18;
 import 'package:source_parser/page/source/search.dart' as _i20;
 import 'package:source_parser/page/source/source.dart' as _i19;
 import 'package:source_parser/page/theme/theme.dart' as _i10;
+import 'package:source_parser/schema/book.dart' as _i23;
 
 /// generated route for
 /// [_i1.AboutPage]
@@ -212,10 +213,17 @@ class ReaderLayoutRoute extends _i21.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i9.ReaderPage]
-class ReaderRoute extends _i21.PageRouteInfo<void> {
-  const ReaderRoute({List<_i21.PageRouteInfo>? children})
-      : super(
+class ReaderRoute extends _i21.PageRouteInfo<ReaderRouteArgs> {
+  ReaderRoute({
+    _i22.Key? key,
+    required _i23.Book book,
+    List<_i21.PageRouteInfo>? children,
+  }) : super(
           ReaderRoute.name,
+          args: ReaderRouteArgs(
+            key: key,
+            book: book,
+          ),
           initialChildren: children,
         );
 
@@ -224,9 +232,29 @@ class ReaderRoute extends _i21.PageRouteInfo<void> {
   static _i21.PageInfo page = _i21.PageInfo(
     name,
     builder: (data) {
-      return const _i9.ReaderPage();
+      final args = data.argsAs<ReaderRouteArgs>();
+      return _i9.ReaderPage(
+        key: args.key,
+        book: args.book,
+      );
     },
   );
+}
+
+class ReaderRouteArgs {
+  const ReaderRouteArgs({
+    this.key,
+    required this.book,
+  });
+
+  final _i22.Key? key;
+
+  final _i23.Book book;
+
+  @override
+  String toString() {
+    return 'ReaderRouteArgs{key: $key, book: $book}';
+  }
 }
 
 /// generated route for

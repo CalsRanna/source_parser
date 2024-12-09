@@ -16,11 +16,12 @@ import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/util/message.dart';
 
 @RoutePage()
-class ReaderPage extends ConsumerStatefulWidget {
-  const ReaderPage({super.key});
+class ReaderPage extends StatefulWidget {
+  final Book book;
+  const ReaderPage({super.key, required this.book});
 
   @override
-  ConsumerState<ReaderPage> createState() => _ReaderPageState();
+  State<ReaderPage> createState() => _ReaderPageState();
 }
 
 enum ReaderViewTurningMode { drag, tap }
@@ -39,21 +40,20 @@ class _ReaderCacheIndicator extends ConsumerWidget {
   }
 }
 
-class _ReaderPageState extends ConsumerState<ReaderPage> {
+class _ReaderPageState extends State<ReaderPage> {
   bool showOverlay = false;
   bool showCache = false;
 
   @override
   Widget build(BuildContext context) {
-    final book = ref.watch(bookNotifierProvider);
     var readerOverlay = ReaderOverlay(
       onCached: handleCached,
       onRemoved: handleRemoved,
-      title: book.name,
+      title: widget.book.name,
     );
     var children = [
       ReaderBackground(),
-      _ReaderView(book: book, onTap: handleTap),
+      _ReaderView(book: widget.book, onTap: handleTap),
       if (showCache) _ReaderCacheIndicator(),
       if (showOverlay) readerOverlay,
     ];
@@ -63,19 +63,26 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   @override
   void deactivate() {
     _showUiOverlays();
-    ref.invalidate(booksProvider);
+    _refreshShelf();
     super.deactivate();
+  }
+
+  void _refreshShelf() {
+    var container = ProviderScope.containerOf(context);
+    var notifier = container.read(booksProvider.notifier);
+    notifier.refresh();
   }
 
   void handleCached(int amount) async {
     setState(() {
       showCache = true;
     });
-    final notifier = ref.read(cacheProgressNotifierProvider.notifier);
+    var container = ProviderScope.containerOf(context);
+    final notifier = container.read(cacheProgressNotifierProvider.notifier);
     await notifier.cacheChapters(amount: amount);
     if (!mounted) return;
     final message = Message.of(context);
-    final progress = ref.read(cacheProgressNotifierProvider);
+    final progress = container.read(cacheProgressNotifierProvider);
     message.show('缓存完毕，${progress.succeed}章成功，${progress.failed}章失败');
     await Future.delayed(const Duration(seconds: 1));
     setState(() {

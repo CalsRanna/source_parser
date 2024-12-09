@@ -335,7 +335,7 @@ class _GridTile extends ConsumerWidget {
   }
 
   void _handleTap(BuildContext context, WidgetRef ref) {
-    AutoRouter.of(context).push(ReaderRoute());
+    AutoRouter.of(context).push(ReaderRoute(book: book));
     final notifier = ref.read(bookNotifierProvider.notifier);
     notifier.update(book);
   }
@@ -482,7 +482,7 @@ class _ListTile extends ConsumerWidget {
   }
 
   void _handleTap(BuildContext context, WidgetRef ref) {
-    AutoRouter.of(context).push(ReaderRoute());
+    AutoRouter.of(context).push(ReaderRoute(book: book));
     final notifier = ref.read(bookNotifierProvider.notifier);
     notifier.update(book);
   }
