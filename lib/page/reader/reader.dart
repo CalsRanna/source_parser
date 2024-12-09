@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/model/reader_state.dart';
 import 'package:source_parser/page/reader/component/background.dart';
@@ -61,6 +62,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
 
   @override
   void deactivate() {
+    _showUiOverlays();
     ref.invalidate(booksProvider);
     super.deactivate();
   }
@@ -82,15 +84,34 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   }
 
   void handleRemoved() {
+    _hideUiOverlays();
     setState(() {
       showOverlay = false;
     });
   }
 
   void handleTap() {
+    _showUiOverlays();
     setState(() {
       showOverlay = true;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _hideUiOverlays();
+  }
+
+  void _hideUiOverlays() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+  }
+
+  void _showUiOverlays() {
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
   }
 }
 
