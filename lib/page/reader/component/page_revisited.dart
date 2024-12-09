@@ -55,7 +55,7 @@ class BookReaderPageRevisited extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [header, Expanded(child: content), footer],
     );
-    return Scaffold(body: column);
+    return column;
   }
 }
 

@@ -64,12 +64,18 @@ class __ReaderPageState extends ConsumerState<_ReaderPage> {
     // 左中右三部分，中间触发widget.onTap,左右分别翻页
     var position = details.localPosition;
     var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
     var index = 0;
     if (position.dx < width / 3) {
       index = 0;
     } else if (position.dx > width / 3 * 2) {
       index = 2;
     } else {
+      if (position.dy < height / 4) {
+        index = 0;
+      } else if (position.dy > height / 4 * 3) {
+        index = 2;
+      }
       index = 1;
     }
     if (index == 1) return widget.onTap?.call();
@@ -111,6 +117,7 @@ class __ReaderPageState extends ConsumerState<_ReaderPage> {
       itemBuilder: (_, index) => _itemBuilder(state, theme, index),
       itemCount: state.pages.length,
     );
+    // return Container(color: Colors.white);
   }
 
   Widget _buildError(
