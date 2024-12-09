@@ -19,11 +19,11 @@ class Merger {
       children.add(TextSpan(text: paragraphs.first, style: chapterStyle));
       paragraphs.removeAt(0);
     }
-    children.addAll(paragraphs.map(_buildTextSpan));
+    children.addAll(paragraphs.map(_toElement));
     return TextSpan(children: children);
   }
 
-  TextSpan _buildTextSpan(String paragraph) {
+  TextSpan _toElement(String paragraph) {
     return TextSpan(text: '$paragraph\n', style: contentStyle);
   }
 }

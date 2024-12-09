@@ -41,19 +41,15 @@ class Splitter {
     List<String> pages = [];
     int cursor = 0;
     bool isFirstPage = true;
-
     try {
       while (cursor < content.length) {
         cursor = _skipLeadingNewlines(content, cursor, isFirstPage);
         if (cursor >= content.length) break;
-
-        final page = _createPage(content, cursor, isFirstPage);
-        if (page.end <= cursor) break; // Prevent infinite loop
-
-        final pageContent = content.substring(cursor, page.end);
+        var end = _findEnd(content, cursor, isFirstPage);
+        if (end <= cursor) break; // Prevent infinite loop
+        final pageContent = content.substring(cursor, end);
         pages.add(isFirstPage ? '\n$pageContent' : pageContent);
-
-        cursor = page.end;
+        cursor = end;
         isFirstPage = false;
       }
       return pages;
@@ -64,31 +60,19 @@ class Splitter {
 
   /// Builds a [TextSpan] from the given text, splitting it into paragraphs.
   ///
-  /// If [withTitle] is true and there are paragraphs, the first paragraph will be
+  /// If [isFirstPage] is true and there are paragraphs, the first paragraph will be
   /// styled as a chapter title.
-  TextSpan _buildTextSpan(String text, {required bool withTitle}) {
+  TextSpan _buildTextSpan(String text, {required bool isFirstPage}) {
     List<String> paragraphs = text.split('\n');
-    List<InlineSpan> children = [];
-
-    if (withTitle && paragraphs.isNotEmpty) {
+    List<TextSpan> children = [];
+    if (isFirstPage && paragraphs.isNotEmpty) {
       // Add spacing before title using newlines
       children.add(TextSpan(text: '\n', style: theme.chapterStyle));
       children.add(TextSpan(text: paragraphs.first, style: theme.chapterStyle));
       paragraphs.removeAt(0);
     }
-
-    children.addAll(
-        paragraphs.map((p) => TextSpan(text: '$p\n', style: theme.pageStyle)));
-
+    children.addAll(paragraphs.map(_toElement));
     return TextSpan(children: children);
-  }
-
-  /// Creates a single page of content starting from [start].
-  ///
-  /// Returns a [_Page] containing the page's ending position.
-  _Page _createPage(String content, int start, bool isFirstPage) {
-    final end = _findEnd(content, start, isFirstPage);
-    return _Page(end);
   }
 
   /// Finds the end index for a page starting from [start].
@@ -99,28 +83,19 @@ class Splitter {
     int low = start;
     int high = content.length;
     int lastGoodEnd = start;
-
     while (low < high) {
       int mid = low + ((high - low) >> 1);
       String text = content.substring(start, mid);
-      TextSpan span = _buildTextSpan(text, withTitle: isFirstPage);
-
-      if (_layout(span)) {
+      _painter.text = _buildTextSpan(text, isFirstPage: isFirstPage);
+      _painter.layout(maxWidth: size.width);
+      if (_painter.height <= size.height) {
         lastGoodEnd = mid;
         low = mid + 1;
       } else {
         high = mid;
       }
     }
-
     return lastGoodEnd;
-  }
-
-  /// Checks if the [TextSpan] can be painted properly in the available area.
-  bool _layout(TextSpan span) {
-    _painter.text = span;
-    _painter.layout(maxWidth: size.width);
-    return _painter.height <= size.height;
   }
 
   /// Skips leading newlines for non-first pages.
@@ -134,6 +109,10 @@ class Splitter {
     }
     return cursor;
   }
+
+  TextSpan _toElement(String paragraph) {
+    return TextSpan(text: '$paragraph\n', style: theme.pageStyle);
+  }
 }
 
 /// Exception thrown when text splitting fails.
@@ -143,12 +122,4 @@ class SplitterException implements Exception {
 
   @override
   String toString() => message;
-}
-
-/// Information about a created page.
-class _Page {
-  /// The ending position in the original content.
-  final int end;
-
-  _Page(this.end);
 }
