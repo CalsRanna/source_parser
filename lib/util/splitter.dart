@@ -25,7 +25,7 @@ class Splitter {
   /// [size] defines the available space for each page.
   /// [theme] provides the styling configuration for different text elements.
   Splitter({required this.size, required this.theme})
-      : _painter = TextPainter(textDirection: TextDirection.ltr);
+      : _painter = TextPainter(textDirection: theme.textDirection);
 
   /// Splits the given [content] into pages.
   ///

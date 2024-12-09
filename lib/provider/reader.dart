@@ -32,11 +32,11 @@ class ReaderSizeNotifier extends _$ReaderSizeNotifier {
     var mediaQueryData = ref.watch(mediaQueryDataNotifierProvider);
     var screenSize = mediaQueryData.size;
     var theme = await ref.watch(readerThemeNotifierProvider.future);
+    var width = screenSize.width - theme.pagePadding.horizontal;
     var headerHeight = theme.headerStyle.fontSize! * theme.headerStyle.height!;
     var headerPadding = theme.headerPadding.vertical;
     var footerHeight = theme.footerStyle.fontSize! * theme.footerStyle.height!;
     var footerPadding = theme.footerPadding.vertical;
-    var width = screenSize.width - theme.pagePadding.horizontal;
     var height = screenSize.height - theme.pagePadding.vertical;
     height -= (headerHeight + headerPadding);
     height -= (footerHeight + footerPadding);
