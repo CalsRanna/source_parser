@@ -29,16 +29,16 @@ class Splitter {
 
   /// Splits the given [content] into pages.
   ///
-  /// Returns a list of [TextSpan]s, where each [TextSpan] represents a page of content.
-  /// Each page is optimally filled while respecting the size constraints and styling rules.
+  /// Returns a list of [String]s, where each string represents a page of content.
+  /// Each page is optimally filled while respecting the size constraints.
   ///
-  /// The first page may contain leading newlines, but subsequent pages will have them removed.
-  /// The last page will be filled with newlines to maintain consistent page height.
+  /// The first page will be prefixed with a newline character to indicate it should
+  /// display the chapter title. Other pages will never start with a newline.
   ///
   /// Throws a [SplitterException] if splitting fails.
-  List<TextSpan> split(String content) {
+  List<String> split(String content) {
     if (content.isEmpty) return [];
-    List<TextSpan> pages = [];
+    List<String> pages = [];
     int cursor = 0;
     bool isFirstPage = true;
 
@@ -50,7 +50,9 @@ class Splitter {
         final page = _createPage(content, cursor, isFirstPage);
         if (page.end <= cursor) break; // Prevent infinite loop
 
-        pages.add(page.span);
+        final pageContent = content.substring(cursor, page.end);
+        pages.add(isFirstPage ? '\n$pageContent' : pageContent);
+
         cursor = page.end;
         isFirstPage = false;
       }
@@ -83,31 +85,10 @@ class Splitter {
 
   /// Creates a single page of content starting from [start].
   ///
-  /// Returns a [_Page] containing the page's [TextSpan] and ending position.
+  /// Returns a [_Page] containing the page's ending position.
   _Page _createPage(String content, int start, bool isFirstPage) {
     final end = _findEnd(content, start, isFirstPage);
-    final text = content.substring(start, end);
-    var span = _buildTextSpan(text, withTitle: isFirstPage);
-
-    if (end >= content.length) {
-      span = _fillLastPageSpan(span);
-    }
-    return _Page(span, end);
-  }
-
-  /// Fills the last page [TextSpan] with newlines to make it full.
-  ///
-  /// Uses binary search to add the maximum number of newlines that can fit
-  /// within the page constraints.
-  TextSpan _fillLastPageSpan(TextSpan span) {
-    List<InlineSpan> children = List<InlineSpan>.from(span.children ?? [span]);
-
-    while (_layout(TextSpan(children: children))) {
-      children.add(TextSpan(text: '\n', style: theme.pageStyle));
-    }
-    children.removeLast(); // Remove the last newline that made it overflow
-
-    return TextSpan(children: children);
+    return _Page(end);
   }
 
   /// Finds the end index for a page starting from [start].
@@ -166,11 +147,8 @@ class SplitterException implements Exception {
 
 /// Information about a created page.
 class _Page {
-  /// The text content of the page.
-  final TextSpan span;
-
   /// The ending position in the original content.
   final int end;
 
-  _Page(this.span, this.end);
+  _Page(this.end);
 }

@@ -289,9 +289,9 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
   Widget _itemBuilder(ReaderState state, int index) {
     return ReaderView(
       chapterText: _getChapterText(state, index),
+      contentText: state.pages[index],
       eInkMode: false,
       headerText: _getHeaderText(state),
-      textSpan: state.pages[index],
       progressText: _getProgressText(state),
     );
   }

@@ -53,7 +53,7 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       var index = book.index;
       var cursor = book.cursor;
 
-      List<TextSpan> currentChapterPages;
+      List<String> currentChapterPages;
       try {
         currentChapterPages = await _getChapterPages(index);
       } catch (e) {
@@ -63,7 +63,7 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
         return _createEmptyState(book, index, cursor);
       }
 
-      List<TextSpan> nextChapterPages = [];
+      List<String> nextChapterPages = [];
       if (index + 1 < book.chapters.length) {
         var pages = await _getChapterPages(index + 1);
         if (pages.isNotEmpty) {
@@ -71,7 +71,7 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
         }
       }
 
-      List<TextSpan> previousChapterPages = [];
+      List<String> previousChapterPages = [];
       if (index > 0) {
         var pages = await _getChapterPages(index - 1);
         if (pages.isNotEmpty) {
@@ -80,7 +80,7 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       }
 
       cursor = cursor.clamp(0, currentChapterPages.length - 1);
-      List<TextSpan> pages = [];
+      List<String> pages = [];
 
       // 处理前一页的显示
       if (cursor > 0) {
@@ -178,7 +178,7 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       } else {
         // 在当前章节内翻页
         var newPageIndex = currentPageIndex + 1;
-        var pages = <TextSpan>[];
+        var pages = <String>[];
 
         // 构建新的三页视图
         if (newPageIndex > 0) {
@@ -264,7 +264,7 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       } else {
         // 在当前章节内翻页
         var newPageIndex = currentPageIndex - 1;
-        var pages = <TextSpan>[];
+        var pages = <String>[];
 
         // 构建新的三页视图
         if (newPageIndex > 0) {
@@ -295,7 +295,7 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       ..pages = [];
   }
 
-  Future<List<TextSpan>> _getChapterPages(int index) async {
+  Future<List<String>> _getChapterPages(int index) async {
     var setting = await ref.read(settingNotifierProvider.future);
     var timeout = Duration(milliseconds: setting.timeout);
     var source =

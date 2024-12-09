@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/model/reader_theme.dart';
 import 'package:source_parser/provider/reader.dart';
+import 'package:source_parser/util/merger.dart';
 
 class ReaderView extends ConsumerWidget {
   final Widget Function()? builder;
   final bool eInkMode;
   final String chapterText;
   final String headerText;
-  final TextSpan textSpan;
+  final String contentText;
   final String progressText;
 
   const ReaderView({
@@ -18,7 +19,7 @@ class ReaderView extends ConsumerWidget {
     required this.chapterText,
     required this.eInkMode,
     required this.headerText,
-    required this.textSpan,
+    required this.contentText,
     required this.progressText,
   });
 
@@ -29,22 +30,22 @@ class ReaderView extends ConsumerWidget {
     required this.eInkMode,
     required this.headerText,
     required this.progressText,
-  }) : textSpan = const TextSpan();
+  }) : contentText = '';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var state = ref.watch(readerThemeNotifierProvider).valueOrNull;
-    print(state?.pageStyle);
     var theme = state ?? ReaderTheme();
     var header = _Header(
       padding: theme.headerPadding,
       style: theme.headerStyle,
-      title: headerText,
+      text: headerText,
     );
     Widget content = _Content(
+      chapterStyle: theme.chapterStyle,
+      contentStyle: theme.pageStyle,
       padding: theme.pagePadding,
-      style: theme.pageStyle,
-      textSpan: textSpan,
+      text: contentText,
     );
     if (builder != null) content = builder!.call();
     var footer = _Footer(
@@ -61,18 +62,22 @@ class ReaderView extends ConsumerWidget {
 }
 
 class _Content extends StatelessWidget {
+  final TextStyle chapterStyle;
+  final TextStyle contentStyle;
   final EdgeInsets padding;
-  final TextStyle style;
-  final TextSpan textSpan;
+  final String text;
   const _Content({
+    required this.chapterStyle,
+    required this.contentStyle,
     required this.padding,
-    required this.style,
-    required this.textSpan,
+    required this.text,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: padding, child: RichText(text: textSpan));
+    var merger = Merger(chapterStyle: chapterStyle, contentStyle: contentStyle);
+    var span = merger.merge(text);
+    return Padding(padding: padding, child: RichText(text: span));
   }
 }
 
@@ -176,17 +181,19 @@ class _FooterState extends State<_Footer> {
 class _Header extends StatelessWidget {
   final EdgeInsets padding;
   final TextStyle style;
-  final String title;
+  final String text;
 
   const _Header({
     required this.padding,
     required this.style,
-    required this.title,
+    required this.text,
   });
 
   @override
   Widget build(BuildContext context) {
-    var text = Text(title, style: style, textAlign: TextAlign.start);
-    return Padding(padding: padding, child: text);
+    return Padding(
+      padding: padding,
+      child: Text(text, style: style, textAlign: TextAlign.start),
+    );
   }
 }
