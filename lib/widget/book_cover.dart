@@ -55,9 +55,10 @@ class _BookCoverSelectorState extends ConsumerState<BookCoverSelector> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = ref.watch(bookCoversProvider);
-    return switch (provider) {
-      AsyncData(:final value) => _buildAsyncData(value),
+    var provider = bookCoversProvider(widget.book);
+    final state = ref.watch(provider);
+    return switch (state) {
+      AsyncData(:final value) => _buildData(value),
       AsyncError(:final error) => Center(child: Text(error.toString())),
       AsyncLoading() => const Center(child: LoadingIndicator()),
       _ => const SizedBox(),
@@ -88,7 +89,7 @@ class _BookCoverSelectorState extends ConsumerState<BookCoverSelector> {
     getCovers(ref);
   }
 
-  GridView _buildAsyncData(List<String> covers) {
+  GridView _buildData(List<String> covers) {
     const delegate = SliverGridDelegateWithFixedCrossAxisCount(
       childAspectRatio: 3 / 4,
       crossAxisCount: 3,

@@ -48,59 +48,64 @@ const BookSchema = CollectionSchema(
       name: r'cover',
       type: IsarType.string,
     ),
-    r'cursor': PropertySchema(
+    r'covers': PropertySchema(
       id: 6,
+      name: r'covers',
+      type: IsarType.stringList,
+    ),
+    r'cursor': PropertySchema(
+      id: 7,
       name: r'cursor',
       type: IsarType.long,
     ),
     r'index': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'index',
       type: IsarType.long,
     ),
     r'introduction': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'introduction',
       type: IsarType.string,
     ),
     r'latest_chapter': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'latest_chapter',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'name',
       type: IsarType.string,
     ),
     r'source_id': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'source_id',
       type: IsarType.long,
     ),
     r'sources': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'sources',
       type: IsarType.objectList,
       target: r'available_sources',
     ),
     r'status': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'status',
       type: IsarType.string,
     ),
     r'updated_at': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'updated_at',
       type: IsarType.string,
     ),
     r'url': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'url',
       type: IsarType.string,
     ),
     r'words': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'words',
       type: IsarType.string,
     )
@@ -140,6 +145,13 @@ int _bookEstimateSize(
     }
   }
   bytesCount += 3 + object.cover.length * 3;
+  bytesCount += 3 + object.covers.length * 3;
+  {
+    for (var i = 0; i < object.covers.length; i++) {
+      final value = object.covers[i];
+      bytesCount += value.length * 3;
+    }
+  }
   bytesCount += 3 + object.introduction.length * 3;
   bytesCount += 3 + object.latestChapter.length * 3;
   bytesCount += 3 + object.name.length * 3;
@@ -176,22 +188,23 @@ void _bookSerialize(
     object.chapters,
   );
   writer.writeString(offsets[5], object.cover);
-  writer.writeLong(offsets[6], object.cursor);
-  writer.writeLong(offsets[7], object.index);
-  writer.writeString(offsets[8], object.introduction);
-  writer.writeString(offsets[9], object.latestChapter);
-  writer.writeString(offsets[10], object.name);
-  writer.writeLong(offsets[11], object.sourceId);
+  writer.writeStringList(offsets[6], object.covers);
+  writer.writeLong(offsets[7], object.cursor);
+  writer.writeLong(offsets[8], object.index);
+  writer.writeString(offsets[9], object.introduction);
+  writer.writeString(offsets[10], object.latestChapter);
+  writer.writeString(offsets[11], object.name);
+  writer.writeLong(offsets[12], object.sourceId);
   writer.writeObjectList<AvailableSource>(
-    offsets[12],
+    offsets[13],
     allOffsets,
     AvailableSourceSchema.serialize,
     object.sources,
   );
-  writer.writeString(offsets[13], object.status);
-  writer.writeString(offsets[14], object.updatedAt);
-  writer.writeString(offsets[15], object.url);
-  writer.writeString(offsets[16], object.words);
+  writer.writeString(offsets[14], object.status);
+  writer.writeString(offsets[15], object.updatedAt);
+  writer.writeString(offsets[16], object.url);
+  writer.writeString(offsets[17], object.words);
 }
 
 Book _bookDeserialize(
@@ -213,24 +226,25 @@ Book _bookDeserialize(
       ) ??
       [];
   object.cover = reader.readString(offsets[5]);
-  object.cursor = reader.readLong(offsets[6]);
+  object.covers = reader.readStringList(offsets[6]) ?? [];
+  object.cursor = reader.readLong(offsets[7]);
   object.id = id;
-  object.index = reader.readLong(offsets[7]);
-  object.introduction = reader.readString(offsets[8]);
-  object.latestChapter = reader.readString(offsets[9]);
-  object.name = reader.readString(offsets[10]);
-  object.sourceId = reader.readLong(offsets[11]);
+  object.index = reader.readLong(offsets[8]);
+  object.introduction = reader.readString(offsets[9]);
+  object.latestChapter = reader.readString(offsets[10]);
+  object.name = reader.readString(offsets[11]);
+  object.sourceId = reader.readLong(offsets[12]);
   object.sources = reader.readObjectList<AvailableSource>(
-        offsets[12],
+        offsets[13],
         AvailableSourceSchema.deserialize,
         allOffsets,
         AvailableSource(),
       ) ??
       [];
-  object.status = reader.readString(offsets[13]);
-  object.updatedAt = reader.readString(offsets[14]);
-  object.url = reader.readString(offsets[15]);
-  object.words = reader.readString(offsets[16]);
+  object.status = reader.readString(offsets[14]);
+  object.updatedAt = reader.readString(offsets[15]);
+  object.url = reader.readString(offsets[16]);
+  object.words = reader.readString(offsets[17]);
   return object;
 }
 
@@ -260,18 +274,20 @@ P _bookDeserializeProp<P>(
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
-      return (reader.readLong(offset)) as P;
+      return (reader.readStringList(offset) ?? []) as P;
     case 7:
       return (reader.readLong(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
       return (reader.readString(offset)) as P;
     case 11:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 12:
+      return (reader.readLong(offset)) as P;
+    case 13:
       return (reader.readObjectList<AvailableSource>(
             offset,
             AvailableSourceSchema.deserialize,
@@ -279,13 +295,13 @@ P _bookDeserializeProp<P>(
             AvailableSource(),
           ) ??
           []) as P;
-    case 13:
-      return (reader.readString(offset)) as P;
     case 14:
       return (reader.readString(offset)) as P;
     case 15:
       return (reader.readString(offset)) as P;
     case 16:
+      return (reader.readString(offset)) as P;
+    case 17:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -985,6 +1001,220 @@ extension BookQueryFilter on QueryBuilder<Book, Book, QFilterCondition> {
         property: r'cover',
         value: '',
       ));
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversElementEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'covers',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'covers',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'covers',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'covers',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversElementStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'covers',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversElementEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'covers',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversElementContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'covers',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversElementMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'covers',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'covers',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'covers',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversLengthEqualTo(
+      int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'covers',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'covers',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'covers',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'covers',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'covers',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Book, Book, QAfterFilterCondition> coversLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'covers',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
     });
   }
 
@@ -2612,6 +2842,12 @@ extension BookQueryWhereDistinct on QueryBuilder<Book, Book, QDistinct> {
     });
   }
 
+  QueryBuilder<Book, Book, QDistinct> distinctByCovers() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'covers');
+    });
+  }
+
   QueryBuilder<Book, Book, QDistinct> distinctByCursor() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'cursor');
@@ -2721,6 +2957,12 @@ extension BookQueryProperty on QueryBuilder<Book, Book, QQueryProperty> {
   QueryBuilder<Book, String, QQueryOperations> coverProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'cover');
+    });
+  }
+
+  QueryBuilder<Book, List<String>, QQueryOperations> coversProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'covers');
     });
   }
 

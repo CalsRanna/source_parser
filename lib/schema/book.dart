@@ -12,6 +12,7 @@ class Book {
   String category = '';
   List<Chapter> chapters = [];
   String cover = '';
+  List<String> covers = [];
   int cursor = 0;
   int index = 0;
   String introduction = '';
@@ -50,6 +51,7 @@ class Book {
       ..category = json['category'] ?? ''
       ..chapters = chapters
       ..cover = json['cover'] ?? ''
+      ..covers = json['covers'] ?? []
       ..cursor = json['cursor'] ?? 0
       ..index = json['index'] ?? 0
       ..introduction = json['introduction'] ?? ''
@@ -72,6 +74,7 @@ class Book {
       'category': category,
       'chapters': chapters.map((chapter) => chapter.toJson()).toList(),
       'cover': cover,
+      'covers': covers,
       'cursor': cursor,
       'index': index,
       'introduction': introduction,
@@ -94,6 +97,7 @@ class Book {
     String? category,
     List<Chapter>? chapters,
     String? cover,
+    List<String>? covers,
     int? cursor,
     int? index,
     String? introduction,
@@ -114,6 +118,7 @@ class Book {
       ..category = category ?? this.category
       ..chapters = chapters ?? this.chapters
       ..cover = cover ?? this.cover
+      ..covers = covers ?? this.covers
       ..cursor = cursor ?? this.cursor
       ..index = index ?? this.index
       ..introduction = introduction ?? this.introduction

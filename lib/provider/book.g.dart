@@ -6,21 +6,173 @@ part of 'book.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$bookCoversHash() => r'8b6dc3f7513f41076764958af04c2c583ac0175b';
+String _$bookCoversHash() => r'e51cc27007efc229a2c68d70f47b552947cb738e';
+
+/// Copied from Dart SDK
+class _SystemHash {
+  _SystemHash._();
+
+  static int combine(int hash, int value) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + value);
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
+    return hash ^ (hash >> 6);
+  }
+
+  static int finish(int hash) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
+    // ignore: parameter_assignments
+    hash = hash ^ (hash >> 11);
+    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+  }
+}
+
+abstract class _$BookCovers
+    extends BuildlessAutoDisposeAsyncNotifier<List<String>> {
+  late final Book book;
+
+  FutureOr<List<String>> build(
+    Book book,
+  );
+}
 
 /// See also [BookCovers].
 @ProviderFor(BookCovers)
-final bookCoversProvider =
-    AutoDisposeAsyncNotifierProvider<BookCovers, List<String>>.internal(
-  BookCovers.new,
-  name: r'bookCoversProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$bookCoversHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+const bookCoversProvider = BookCoversFamily();
 
-typedef _$BookCovers = AutoDisposeAsyncNotifier<List<String>>;
+/// See also [BookCovers].
+class BookCoversFamily extends Family<AsyncValue<List<String>>> {
+  /// See also [BookCovers].
+  const BookCoversFamily();
+
+  /// See also [BookCovers].
+  BookCoversProvider call(
+    Book book,
+  ) {
+    return BookCoversProvider(
+      book,
+    );
+  }
+
+  @override
+  BookCoversProvider getProviderOverride(
+    covariant BookCoversProvider provider,
+  ) {
+    return call(
+      provider.book,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'bookCoversProvider';
+}
+
+/// See also [BookCovers].
+class BookCoversProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<BookCovers, List<String>> {
+  /// See also [BookCovers].
+  BookCoversProvider(
+    Book book,
+  ) : this._internal(
+          () => BookCovers()..book = book,
+          from: bookCoversProvider,
+          name: r'bookCoversProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$bookCoversHash,
+          dependencies: BookCoversFamily._dependencies,
+          allTransitiveDependencies:
+              BookCoversFamily._allTransitiveDependencies,
+          book: book,
+        );
+
+  BookCoversProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.book,
+  }) : super.internal();
+
+  final Book book;
+
+  @override
+  FutureOr<List<String>> runNotifierBuild(
+    covariant BookCovers notifier,
+  ) {
+    return notifier.build(
+      book,
+    );
+  }
+
+  @override
+  Override overrideWith(BookCovers Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: BookCoversProvider._internal(
+        () => create()..book = book,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        book: book,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<BookCovers, List<String>>
+      createElement() {
+    return _BookCoversProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is BookCoversProvider && other.book == book;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, book.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin BookCoversRef on AutoDisposeAsyncNotifierProviderRef<List<String>> {
+  /// The parameter `book` of this provider.
+  Book get book;
+}
+
+class _BookCoversProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<BookCovers, List<String>>
+    with BookCoversRef {
+  _BookCoversProviderElement(super.provider);
+
+  @override
+  Book get book => (origin as BookCoversProvider).book;
+}
+
 String _$bookNotifierHash() => r'c5cfb574d6a204f60c1a1e104e6ce16164da7c11';
 
 /// See also [BookNotifier].
@@ -50,43 +202,150 @@ final booksProvider =
 );
 
 typedef _$Books = AutoDisposeAsyncNotifier<List<Book>>;
-String _$inShelfHash() => r'4d4123c5dfa09dfb00ac3031f9d588960fb90da4';
+String _$inShelfHash() => r'86fb9d7216a26d9e0e00712d4b318790bddfb06d';
+
+abstract class _$InShelf extends BuildlessAutoDisposeAsyncNotifier<bool> {
+  late final Book book;
+
+  FutureOr<bool> build(
+    Book book,
+  );
+}
 
 /// See also [InShelf].
 @ProviderFor(InShelf)
-final inShelfProvider =
-    AutoDisposeAsyncNotifierProvider<InShelf, bool>.internal(
-  InShelf.new,
-  name: r'inShelfProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$inShelfHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+const inShelfProvider = InShelfFamily();
 
-typedef _$InShelf = AutoDisposeAsyncNotifier<bool>;
-String _$searchBooksHash() => r'6405775410dbd921475bef9c94d75b6859141d21';
+/// See also [InShelf].
+class InShelfFamily extends Family<AsyncValue<bool>> {
+  /// See also [InShelf].
+  const InShelfFamily();
 
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
-
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
+  /// See also [InShelf].
+  InShelfProvider call(
+    Book book,
+  ) {
+    return InShelfProvider(
+      book,
+    );
   }
 
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+  @override
+  InShelfProvider getProviderOverride(
+    covariant InShelfProvider provider,
+  ) {
+    return call(
+      provider.book,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'inShelfProvider';
+}
+
+/// See also [InShelf].
+class InShelfProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<InShelf, bool> {
+  /// See also [InShelf].
+  InShelfProvider(
+    Book book,
+  ) : this._internal(
+          () => InShelf()..book = book,
+          from: inShelfProvider,
+          name: r'inShelfProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$inShelfHash,
+          dependencies: InShelfFamily._dependencies,
+          allTransitiveDependencies: InShelfFamily._allTransitiveDependencies,
+          book: book,
+        );
+
+  InShelfProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.book,
+  }) : super.internal();
+
+  final Book book;
+
+  @override
+  FutureOr<bool> runNotifierBuild(
+    covariant InShelf notifier,
+  ) {
+    return notifier.build(
+      book,
+    );
+  }
+
+  @override
+  Override overrideWith(InShelf Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: InShelfProvider._internal(
+        () => create()..book = book,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        book: book,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<InShelf, bool> createElement() {
+    return _InShelfProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is InShelfProvider && other.book == book;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, book.hashCode);
+
+    return _SystemHash.finish(hash);
   }
 }
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin InShelfRef on AutoDisposeAsyncNotifierProviderRef<bool> {
+  /// The parameter `book` of this provider.
+  Book get book;
+}
+
+class _InShelfProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<InShelf, bool>
+    with InShelfRef {
+  _InShelfProviderElement(super.provider);
+
+  @override
+  Book get book => (origin as InShelfProvider).book;
+}
+
+String _$searchBooksHash() => r'6405775410dbd921475bef9c94d75b6859141d21';
 
 abstract class _$SearchBooks extends BuildlessAutoDisposeNotifier<List<Book>> {
   late final String credential;

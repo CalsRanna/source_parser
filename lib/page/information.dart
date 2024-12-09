@@ -149,7 +149,7 @@ class _BookInformationState extends ConsumerState<InformationPage> {
           ],
         ),
       ),
-      bottomNavigationBar: const _BottomBar(),
+      bottomNavigationBar: _BottomBar(book: book),
     );
   }
 
@@ -180,7 +180,8 @@ class _BookInformationState extends ConsumerState<InformationPage> {
 }
 
 class _BottomBar extends StatelessWidget {
-  const _BottomBar();
+  final Book book;
+  const _BottomBar({required this.book});
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +192,7 @@ class _BottomBar extends StatelessWidget {
       child: Row(
         children: [
           Consumer(builder: (context, ref, child) {
-            final provider = ref.watch(inShelfProvider);
+            final provider = ref.watch(inShelfProvider(book));
             final inShelf = switch (provider) {
               AsyncData(:final value) => value,
               _ => false,
@@ -244,7 +245,8 @@ class _BottomBar extends StatelessWidget {
   }
 
   void toggleShelf(WidgetRef ref) async {
-    final notifier = ref.read(inShelfProvider.notifier);
+    var provider = inShelfProvider(book);
+    final notifier = ref.read(provider.notifier);
     notifier.toggleShelf();
   }
 

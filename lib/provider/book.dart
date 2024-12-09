@@ -18,8 +18,8 @@ part 'book.g.dart';
 @riverpod
 class BookCovers extends _$BookCovers {
   @override
-  Future<List<String>> build() async {
-    final book = ref.watch(bookNotifierProvider);
+  Future<List<String>> build(Book book) async {
+    if (book.covers.isNotEmpty) return book.covers;
     final setting = await ref.read(settingNotifierProvider.future);
     final duration = setting.cacheDuration;
     final timeout = setting.timeout;
@@ -39,6 +39,13 @@ class BookCovers extends _$BookCovers {
       if (cover.isNotEmpty) {
         covers.add(cover);
       }
+    }
+    final inShelf = await ref.read(inShelfProvider(book).future);
+    if (inShelf) {
+      var updatedBook = book.copyWith(covers: covers);
+      isar.writeTxn(() async {
+        isar.books.put(updatedBook);
+      });
     }
     return covers;
   }
@@ -156,7 +163,7 @@ class BookNotifier extends _$BookNotifier {
 
   Future<void> refreshCover(String cover) async {
     state = state.copyWith(cover: cover);
-    final inShelf = await ref.read(inShelfProvider.future);
+    final inShelf = await ref.read(inShelfProvider(state).future);
     if (!inShelf) return;
     await isar.writeTxn(() async {
       isar.books.put(state);
@@ -297,7 +304,7 @@ class BookNotifier extends _$BookNotifier {
         sourceId: state.sources[index].id,
         url: url,
       );
-      final inShelf = await ref.read(inShelfProvider.future);
+      final inShelf = await ref.read(inShelfProvider(state).future);
       if (inShelf) {
         await isar.writeTxn(() async {
           isar.books.put(state);
@@ -362,7 +369,7 @@ class BookNotifier extends _$BookNotifier {
     });
     await stream.last;
     state = state.copyWith(sources: sources);
-    final inShelf = await ref.read(inShelfProvider.future);
+    final inShelf = await ref.read(inShelfProvider(state).future);
     if (inShelf) {
       await isar.writeTxn(() async {
         isar.books.put(state);
@@ -549,8 +556,7 @@ class Books extends _$Books {
 @riverpod
 class InShelf extends _$InShelf {
   @override
-  Future<bool> build() async {
-    final book = ref.watch(bookNotifierProvider);
+  Future<bool> build(Book book) async {
     var builder = isar.books.filter();
     builder = builder.nameEqualTo(book.name);
     return await builder.authorEqualTo(book.author).findFirst() != null;
