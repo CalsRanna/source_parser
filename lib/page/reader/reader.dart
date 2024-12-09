@@ -4,7 +4,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/model/reader_state.dart';
-import 'package:source_parser/model/reader_theme.dart';
 import 'package:source_parser/page/reader/component/background.dart';
 import 'package:source_parser/page/reader/component/cache.dart';
 import 'package:source_parser/page/reader/component/overlay.dart';
@@ -23,15 +22,7 @@ class ReaderPage extends ConsumerStatefulWidget {
   ConsumerState<ReaderPage> createState() => _ReaderPageState();
 }
 
-class _ReaderBackground extends ConsumerWidget {
-  const _ReaderBackground();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var theme = ref.watch(readerThemeNotifierProvider).valueOrNull;
-    return ReaderBackground(theme: theme ?? ReaderTheme());
-  }
-}
+enum ReaderViewTurningMode { drag, tap }
 
 class _ReaderCacheIndicator extends ConsumerWidget {
   const _ReaderCacheIndicator();
@@ -60,7 +51,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
       title: book.name,
     );
     var children = [
-      _ReaderBackground(),
+      ReaderBackground(),
       _ReaderView(book: book, onTap: handleTap),
       if (showCache) _ReaderCacheIndicator(),
       if (showOverlay) readerOverlay,
@@ -118,13 +109,12 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
 
   @override
   Widget build(BuildContext context) {
-    var theme = ref.watch(readerThemeNotifierProvider).valueOrNull;
     var provider = readerStateNotifierProvider(widget.book);
     var state = ref.watch(provider);
     var page = switch (state) {
-      AsyncData(:final value) => _buildData(ref, value, theme ?? ReaderTheme()),
+      AsyncData(:final value) => _buildData(ref, value),
       AsyncError(:final error, :final stackTrace) =>
-        _buildError(ref, error, stackTrace, theme ?? ReaderTheme()),
+        _buildError(ref, error, stackTrace),
       AsyncLoading() => _buildLoading(),
       _ => const SizedBox(),
     };
@@ -151,7 +141,6 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
 
   Future<void> handleTapUp(TapUpDetails details) async {
     if (_isAnimating) return;
-    // 左中右三部分，中间触发widget.onTap,左右分别翻页
     var position = details.localPosition;
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
@@ -169,7 +158,6 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
       index = 1;
     }
     if (index == 1) return widget.onTap?.call();
-    // await handlePageChanged(ref, index);
     controller.animateToPage(
       index,
       duration: Duration(milliseconds: 300),
@@ -183,24 +171,26 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     controller.addListener(_handleScroll);
   }
 
-  Widget _buildData(WidgetRef ref, ReaderState state, ReaderTheme theme) {
-    if (state.pages.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
+  Widget _buildData(WidgetRef ref, ReaderState state) {
+    if (state.pages.isEmpty) return _buildEmpty();
     return PageView.builder(
       controller: controller,
-      itemBuilder: (_, index) => _itemBuilder(state, theme, index),
+      itemBuilder: (_, index) => _itemBuilder(state, index),
       itemCount: state.pages.length,
     );
-    // return Container(color: Colors.white);
   }
 
-  Widget _buildError(
-    WidgetRef ref,
-    Object error,
-    StackTrace stackTrace,
-    ReaderTheme theme,
-  ) {
+  Widget _buildEmpty() {
+    var child = Center(child: Text('空空如也'));
+    return ReaderView.builder(
+      builder: () => child,
+      eInkMode: false,
+      pageIndex: 0,
+      title: widget.book.name,
+    );
+  }
+
+  Widget _buildError(WidgetRef ref, Object error, StackTrace stackTrace) {
     var children = [
       Text(error.toString()),
       Text(stackTrace.toString()),
@@ -217,10 +207,8 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     return ReaderView.builder(
       builder: () => padding,
       eInkMode: false,
-      modes: [],
       pageIndex: 0,
-      title: '',
-      theme: theme,
+      title: widget.book.name,
     );
   }
 
@@ -241,18 +229,16 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     }
   }
 
-  Widget _itemBuilder(ReaderState state, ReaderTheme theme, int index) {
+  Widget _itemBuilder(ReaderState state, int index) {
     var book = state.book;
     var chapters = book.chapters;
     var title = book.name;
     if (book.cursor > 0) title = chapters[book.index].name;
     return ReaderView(
       eInkMode: false,
-      modes: [],
       textSpan: state.pages[index],
       pageIndex: state.pageIndex,
       title: title,
-      theme: theme,
     );
   }
 }

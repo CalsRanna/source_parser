@@ -1,39 +1,37 @@
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/model/reader_theme.dart';
+import 'package:source_parser/provider/reader.dart';
 
-class ReaderView extends StatelessWidget {
+class ReaderView extends ConsumerWidget {
   final Widget Function()? builder;
   final bool eInkMode;
-  final List<ReaderPageTurningMode> modes;
   final TextSpan textSpan;
   final int pageIndex;
   final String title;
-  final ReaderTheme theme;
 
   const ReaderView({
     super.key,
     this.builder,
     required this.eInkMode,
-    required this.modes,
     required this.textSpan,
     required this.pageIndex,
     required this.title,
-    required this.theme,
   });
 
   const ReaderView.builder({
     super.key,
     required this.builder,
     required this.eInkMode,
-    required this.modes,
     required this.pageIndex,
     required this.title,
-    required this.theme,
   }) : textSpan = const TextSpan();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    var state = ref.watch(readerThemeNotifierProvider).valueOrNull;
+    var theme = state ?? ReaderTheme();
     var header = _Header(
       padding: theme.headerPadding,
       style: theme.headerStyle,
@@ -58,8 +56,6 @@ class ReaderView extends StatelessWidget {
     );
   }
 }
-
-enum ReaderPageTurningMode { drag, tap }
 
 class _Content extends StatelessWidget {
   final EdgeInsets padding;
@@ -98,27 +94,18 @@ class _Footer extends StatefulWidget {
 }
 
 class _FooterState extends State<_Footer> {
-  late int battery;
-  late String time;
+  int battery = 100;
 
   @override
   Widget build(BuildContext context) {
-    var pageIndicator = Text(
-      '${(widget.cursor + 1)}/${widget.length}',
-      style: widget.style,
-    );
-    var progressIndicator = Text(
-      '${(widget.progress * 100).toStringAsFixed(2)}%',
-      style: widget.style,
-    );
-    var left = Row(children: [pageIndicator, progressIndicator]);
+    const spacer = SizedBox(width: 4);
+    var pageIndicator = _buildPage();
+    var progressIndicator = _buildProgress();
+    var left = Row(children: [pageIndicator, spacer, progressIndicator]);
     var timeIndicator = _buildTime();
     var batteryIndicator = _buildBattery();
-    var right = Row(children: [timeIndicator, batteryIndicator]);
-    var row = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [left, right],
-    );
+    var right = Row(children: [timeIndicator, spacer, batteryIndicator]);
+    var row = Row(children: [left, const Spacer(), right]);
     return Padding(padding: widget.padding, child: row);
   }
 
@@ -126,7 +113,6 @@ class _FooterState extends State<_Footer> {
   void initState() {
     super.initState();
     _calculateBattery();
-    _calculateTime();
   }
 
   Widget _buildBattery() {
@@ -145,7 +131,7 @@ class _FooterState extends State<_Footer> {
     var container = Container(
       decoration: innerDecoration,
       height: 8,
-      width: 16 * (100 / 100),
+      width: 16 * (battery / 100),
     );
     var body = Container(
       alignment: Alignment.centerLeft,
@@ -166,7 +152,18 @@ class _FooterState extends State<_Footer> {
     return Row(children: [body, cap]);
   }
 
+  Widget _buildPage() {
+    var text = '${(widget.cursor + 1)}/${widget.length}';
+    return Text(text, style: widget.style);
+  }
+
+  Widget _buildProgress() {
+    var progress = (widget.progress * 100).toStringAsFixed(2);
+    return Text('$progress%', style: widget.style);
+  }
+
   Widget _buildTime() {
+    var time = DateTime.now().toString().substring(11, 16);
     return Text(time, style: widget.style);
   }
 
@@ -174,13 +171,6 @@ class _FooterState extends State<_Footer> {
     var level = await Battery().batteryLevel;
     setState(() {
       battery = level;
-    });
-  }
-
-  Future<void> _calculateTime() async {
-    var now = DateTime.now();
-    setState(() {
-      time = now.toString().substring(11, 16);
     });
   }
 }
