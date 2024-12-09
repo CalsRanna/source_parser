@@ -14,18 +14,18 @@ extension GetReaderLayoutCollection on Isar {
 }
 
 const ReaderLayoutSchema = CollectionSchema(
-  name: r'ReaderLayout',
-  id: 8113643544944692526,
+  name: r'reader_layouts',
+  id: 4057732081629938849,
   properties: {
-    r'appBarButtons': PropertySchema(
+    r'app_bar_buttons': PropertySchema(
       id: 0,
-      name: r'appBarButtons',
+      name: r'app_bar_buttons',
       type: IsarType.byteList,
       enumMap: _ReaderLayoutappBarButtonsEnumValueMap,
     ),
-    r'bottomBarButtons': PropertySchema(
+    r'bottom_bar_buttons': PropertySchema(
       id: 1,
-      name: r'bottomBarButtons',
+      name: r'bottom_bar_buttons',
       type: IsarType.byteList,
       enumMap: _ReaderLayoutbottomBarButtonsEnumValueMap,
     ),
@@ -272,7 +272,7 @@ extension ReaderLayoutQueryFilter
       appBarButtonsElementEqualTo(ButtonPosition value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'appBarButtons',
+        property: r'app_bar_buttons',
         value: value,
       ));
     });
@@ -286,7 +286,7 @@ extension ReaderLayoutQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'appBarButtons',
+        property: r'app_bar_buttons',
         value: value,
       ));
     });
@@ -300,7 +300,7 @@ extension ReaderLayoutQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'appBarButtons',
+        property: r'app_bar_buttons',
         value: value,
       ));
     });
@@ -315,7 +315,7 @@ extension ReaderLayoutQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'appBarButtons',
+        property: r'app_bar_buttons',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -328,7 +328,7 @@ extension ReaderLayoutQueryFilter
       appBarButtonsLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'appBarButtons',
+        r'app_bar_buttons',
         length,
         true,
         length,
@@ -341,7 +341,7 @@ extension ReaderLayoutQueryFilter
       appBarButtonsIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'appBarButtons',
+        r'app_bar_buttons',
         0,
         true,
         0,
@@ -354,7 +354,7 @@ extension ReaderLayoutQueryFilter
       appBarButtonsIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'appBarButtons',
+        r'app_bar_buttons',
         0,
         false,
         999999,
@@ -370,7 +370,7 @@ extension ReaderLayoutQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'appBarButtons',
+        r'app_bar_buttons',
         0,
         true,
         length,
@@ -386,7 +386,7 @@ extension ReaderLayoutQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'appBarButtons',
+        r'app_bar_buttons',
         length,
         include,
         999999,
@@ -404,7 +404,7 @@ extension ReaderLayoutQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'appBarButtons',
+        r'app_bar_buttons',
         lower,
         includeLower,
         upper,
@@ -417,7 +417,7 @@ extension ReaderLayoutQueryFilter
       bottomBarButtonsElementEqualTo(ButtonPosition value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'bottomBarButtons',
+        property: r'bottom_bar_buttons',
         value: value,
       ));
     });
@@ -431,7 +431,7 @@ extension ReaderLayoutQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'bottomBarButtons',
+        property: r'bottom_bar_buttons',
         value: value,
       ));
     });
@@ -445,7 +445,7 @@ extension ReaderLayoutQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'bottomBarButtons',
+        property: r'bottom_bar_buttons',
         value: value,
       ));
     });
@@ -460,7 +460,7 @@ extension ReaderLayoutQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'bottomBarButtons',
+        property: r'bottom_bar_buttons',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -473,7 +473,7 @@ extension ReaderLayoutQueryFilter
       bottomBarButtonsLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'bottomBarButtons',
+        r'bottom_bar_buttons',
         length,
         true,
         length,
@@ -486,7 +486,7 @@ extension ReaderLayoutQueryFilter
       bottomBarButtonsIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'bottomBarButtons',
+        r'bottom_bar_buttons',
         0,
         true,
         0,
@@ -499,7 +499,7 @@ extension ReaderLayoutQueryFilter
       bottomBarButtonsIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'bottomBarButtons',
+        r'bottom_bar_buttons',
         0,
         false,
         999999,
@@ -515,7 +515,7 @@ extension ReaderLayoutQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'bottomBarButtons',
+        r'bottom_bar_buttons',
         0,
         true,
         length,
@@ -531,7 +531,7 @@ extension ReaderLayoutQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'bottomBarButtons',
+        r'bottom_bar_buttons',
         length,
         include,
         999999,
@@ -549,7 +549,7 @@ extension ReaderLayoutQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'bottomBarButtons',
+        r'bottom_bar_buttons',
         lower,
         includeLower,
         upper,
@@ -692,14 +692,14 @@ extension ReaderLayoutQueryWhereDistinct
   QueryBuilder<ReaderLayout, ReaderLayout, QDistinct>
       distinctByAppBarButtons() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'appBarButtons');
+      return query.addDistinctBy(r'app_bar_buttons');
     });
   }
 
   QueryBuilder<ReaderLayout, ReaderLayout, QDistinct>
       distinctByBottomBarButtons() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'bottomBarButtons');
+      return query.addDistinctBy(r'bottom_bar_buttons');
     });
   }
 
@@ -721,14 +721,14 @@ extension ReaderLayoutQueryProperty
   QueryBuilder<ReaderLayout, List<ButtonPosition>, QQueryOperations>
       appBarButtonsProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'appBarButtons');
+      return query.addPropertyName(r'app_bar_buttons');
     });
   }
 
   QueryBuilder<ReaderLayout, List<ButtonPosition>, QQueryOperations>
       bottomBarButtonsProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'bottomBarButtons');
+      return query.addPropertyName(r'bottom_bar_buttons');
     });
   }
 

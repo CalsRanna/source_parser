@@ -15,7 +15,6 @@ class ReaderLayoutNotifierProvider extends _$ReaderLayoutNotifierProvider {
       appBarButtons: [ButtonPosition.cache, ButtonPosition.darkMode],
       bottomBarButtons: [
         ButtonPosition.catalogue,
-        ButtonPosition.source,
         ButtonPosition.previousChapter,
         ButtonPosition.nextChapter,
       ],

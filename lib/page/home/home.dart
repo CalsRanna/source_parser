@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
       var container = ProviderScope.containerOf(context);
       var provider = mediaQueryDataNotifierProvider;
       var notifier = container.read(provider.notifier);
-      notifier.updateSize(MediaQuery.of(context));
+      notifier.updateMediaQueryData(MediaQuery.of(context));
     });
   }
 

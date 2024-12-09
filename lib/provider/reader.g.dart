@@ -7,7 +7,7 @@ part of 'reader.dart';
 // **************************************************************************
 
 String _$mediaQueryDataNotifierHash() =>
-    r'0d1658c27689a07d02ea6054d8fe7dcd16afd409';
+    r'4c740532e88b29de396a79e71fa191a376444a2d';
 
 /// See also [MediaQueryDataNotifier].
 @ProviderFor(MediaQueryDataNotifier)
@@ -24,7 +24,7 @@ final mediaQueryDataNotifierProvider =
 
 typedef _$MediaQueryDataNotifier = Notifier<MediaQueryData>;
 String _$readerSizeNotifierHash() =>
-    r'2c70bedd21cca8213cc1187d26e82765cedfc647';
+    r'f32b91f90be2f0b3ea5c142c608f98414148f7fe';
 
 /// See also [ReaderSizeNotifier].
 @ProviderFor(ReaderSizeNotifier)
@@ -41,7 +41,7 @@ final readerSizeNotifierProvider =
 
 typedef _$ReaderSizeNotifier = AutoDisposeAsyncNotifier<Size>;
 String _$readerStateNotifierHash() =>
-    r'e1c393e558bf161f70ad02ddbafb23f30845e88a';
+    r'06f5e531311c14fb52456d7c6da65e1bfe5516f2';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -210,7 +210,7 @@ class _ReaderStateNotifierProviderElement
 }
 
 String _$readerThemeNotifierHash() =>
-    r'06119a058456bb0b85e32da89665f175ae879e43';
+    r'db2a48561b765bbe284399f0ebedb10dce183792';
 
 /// See also [ReaderThemeNotifier].
 @ProviderFor(ReaderThemeNotifier)

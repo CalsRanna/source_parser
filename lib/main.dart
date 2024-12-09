@@ -4,12 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/layout.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/schema/source.dart';
-import 'package:source_parser/router/router.dart';
+import 'package:source_parser/util/logger.dart';
 
 void main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +22,33 @@ void main() async {
     SettingSchema,
     SourceSchema,
   ], directory: directory.path);
-  runApp(const ProviderScope(child: SourceParser()));
+  runApp(ProviderScope(observers: [DefaultObserver()], child: SourceParser()));
+}
+
+class DefaultObserver extends ProviderObserver {
+  @override
+  void didUpdateProvider(
+    ProviderBase<Object?> provider,
+    Object? previousValue,
+    Object? newValue,
+    ProviderContainer container,
+  ) {
+    var name = provider.name ?? provider.runtimeType;
+    logger.d('$name changed from $previousValue to $newValue');
+  }
+}
+
+class NoAnimationPageTransitionBuilder extends PageTransitionsBuilder {
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return child;
+  }
 }
 
 class SourceParser extends ConsumerStatefulWidget {
@@ -32,13 +59,6 @@ class SourceParser extends ConsumerStatefulWidget {
 }
 
 class _SourceParserState extends ConsumerState<SourceParser> {
-  @override
-  void initState() {
-    super.initState();
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.migrate();
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(settingNotifierProvider).valueOrNull;
@@ -62,17 +82,11 @@ class _SourceParserState extends ConsumerState<SourceParser> {
       title: '元夕',
     );
   }
-}
 
-class NoAnimationPageTransitionBuilder extends PageTransitionsBuilder {
   @override
-  Widget buildTransitions<T>(
-    PageRoute<T> route,
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    return child;
+  void initState() {
+    super.initState();
+    final notifier = ref.read(settingNotifierProvider.notifier);
+    notifier.migrate();
   }
 }

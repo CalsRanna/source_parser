@@ -3,13 +3,16 @@ import 'package:isar/isar.dart';
 part 'layout.g.dart';
 
 @collection
+@Name('reader_layouts')
 class ReaderLayout {
   Id? id;
 
   @enumerated
+  @Name('app_bar_buttons')
   List<ButtonPosition> appBarButtons;
 
   @enumerated
+  @Name('bottom_bar_buttons')
   List<ButtonPosition> bottomBarButtons;
 
   ReaderLayout({

@@ -20,7 +20,7 @@ class MediaQueryDataNotifier extends _$MediaQueryDataNotifier {
   @override
   MediaQueryData build() => MediaQueryData();
 
-  void updateSize(MediaQueryData data) {
+  void updateMediaQueryData(MediaQueryData data) {
     state = data;
   }
 }
@@ -31,17 +31,29 @@ class ReaderSizeNotifier extends _$ReaderSizeNotifier {
   Future<Size> build() async {
     var mediaQueryData = ref.watch(mediaQueryDataNotifierProvider);
     var screenSize = mediaQueryData.size;
-    var theme = await ref.watch(readerThemeNotifierProvider.future);
-    var width = screenSize.width - theme.pagePadding.horizontal;
-    var headerHeight = theme.headerStyle.fontSize! * theme.headerStyle.height!;
-    var headerPadding = theme.headerPadding.vertical;
-    var footerHeight = theme.footerStyle.fontSize! * theme.footerStyle.height!;
-    var footerPadding = theme.footerPadding.vertical;
-    var height = screenSize.height - theme.pagePadding.vertical;
-    height -= (headerHeight + headerPadding);
-    height -= (footerHeight + footerPadding);
+    var provider = readerThemeNotifierProvider;
+    var pagePadding = await ref.watch(provider.selectAsync(_selectPagePadding));
+    var width = screenSize.width - pagePadding.horizontal;
+    var headerPadding =
+        await ref.watch(provider.selectAsync(_selectHeaderPadding));
+    var headerStyle = await ref.watch(provider.selectAsync(_selectHeaderStyle));
+    var headerHeight = headerStyle.fontSize! * headerStyle.height!;
+    var footerPadding =
+        await ref.watch(provider.selectAsync(_selectFooterPadding));
+    var footerStyle = await ref.watch(provider.selectAsync(_selectFooterStyle));
+    var footerHeight = footerStyle.fontSize! * footerStyle.height!;
+    var height = screenSize.height - pagePadding.vertical;
+    height -= (headerPadding.vertical + headerHeight);
+    height -= (footerPadding.vertical + footerHeight);
+    print(Size(width, height));
     return Size(width, height);
   }
+
+  EdgeInsets _selectHeaderPadding(ReaderTheme theme) => theme.headerPadding;
+  TextStyle _selectHeaderStyle(ReaderTheme theme) => theme.headerStyle;
+  EdgeInsets _selectPagePadding(ReaderTheme theme) => theme.pagePadding;
+  EdgeInsets _selectFooterPadding(ReaderTheme theme) => theme.footerPadding;
+  TextStyle _selectFooterStyle(ReaderTheme theme) => theme.footerStyle;
 }
 
 @riverpod
@@ -298,8 +310,7 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
   Future<List<String>> _getChapterPages(int index) async {
     var setting = await ref.read(settingNotifierProvider.future);
     var timeout = Duration(milliseconds: setting.timeout);
-    var source =
-        await isar.sources.filter().idEqualTo(book.sourceId).findFirst();
+    var source = await _getSource();
     if (source == null) return [];
     var chapter = await Parser.getContent(
       name: book.name,
@@ -309,9 +320,13 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       url: book.chapters[index].url,
     );
     if (chapter.isEmpty) return [];
-    var theme = await ref.read(readerThemeNotifierProvider.future);
     var size = await ref.read(readerSizeNotifierProvider.future);
+    var theme = await ref.read(readerThemeNotifierProvider.future);
     return Splitter(size: size, theme: theme).split(chapter);
+  }
+
+  Future<Source?> _getSource() async {
+    return isar.sources.filter().idEqualTo(book.sourceId).findFirst();
   }
 
   Future<void> _syncProgress(int chapterIndex, int pageIndex) async {
@@ -360,6 +375,7 @@ class ReaderThemeNotifier extends _$ReaderThemeNotifier {
         height: lineSpace,
       ),
     );
+    print(theme);
     return theme;
   }
 }
