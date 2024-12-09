@@ -65,22 +65,18 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
 
       List<TextSpan> nextChapterPages = [];
       if (index + 1 < book.chapters.length) {
-        try {
-          var pages = await _getChapterPages(index + 1);
-          if (pages.isNotEmpty) {
-            nextChapterPages = pages;
-          }
-        } catch (e) {}
+        var pages = await _getChapterPages(index + 1);
+        if (pages.isNotEmpty) {
+          nextChapterPages = pages;
+        }
       }
 
       List<TextSpan> previousChapterPages = [];
       if (index > 0) {
-        try {
-          var pages = await _getChapterPages(index - 1);
-          if (pages.isNotEmpty) {
-            previousChapterPages = pages;
-          }
-        } catch (e) {}
+        var pages = await _getChapterPages(index - 1);
+        if (pages.isNotEmpty) {
+          previousChapterPages = pages;
+        }
       }
 
       cursor = cursor.clamp(0, currentChapterPages.length - 1);

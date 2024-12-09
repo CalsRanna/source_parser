@@ -363,7 +363,7 @@ class Parser {
     message.send(port.sendPort);
     port.listen((message) async {
       final network = message[0] as CachedNetwork;
-      var duration = message[1] as Duration;
+      // var duration = message[1] as Duration;
       var credential = message[2] as String;
       final source = message[3] as Source;
       final sender = message[4] as SendPort;

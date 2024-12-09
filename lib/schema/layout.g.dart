@@ -84,14 +84,14 @@ ReaderLayout _readerLayoutDeserialize(
             .readByteList(offsets[0])
             ?.map((e) =>
                 _ReaderLayoutappBarButtonsValueEnumMap[e] ??
-                ButtonPosition.cache)
+                ButtonPosition.information)
             .toList() ??
         const [],
     bottomBarButtons: reader
             .readByteList(offsets[1])
             ?.map((e) =>
                 _ReaderLayoutbottomBarButtonsValueEnumMap[e] ??
-                ButtonPosition.cache)
+                ButtonPosition.information)
             .toList() ??
         const [],
   );
@@ -111,7 +111,7 @@ P _readerLayoutDeserializeProp<P>(
               .readByteList(offset)
               ?.map((e) =>
                   _ReaderLayoutappBarButtonsValueEnumMap[e] ??
-                  ButtonPosition.cache)
+                  ButtonPosition.information)
               .toList() ??
           const []) as P;
     case 1:
@@ -119,7 +119,7 @@ P _readerLayoutDeserializeProp<P>(
               .readByteList(offset)
               ?.map((e) =>
                   _ReaderLayoutbottomBarButtonsValueEnumMap[e] ??
-                  ButtonPosition.cache)
+                  ButtonPosition.information)
               .toList() ??
           const []) as P;
     case 2:
@@ -130,9 +130,9 @@ P _readerLayoutDeserializeProp<P>(
 }
 
 const _ReaderLayoutappBarButtonsEnumValueMap = {
-  'cache': 0,
-  'darkMode': 1,
-  'menu': 2,
+  'information': 0,
+  'cache': 1,
+  'darkMode': 2,
   'catalogue': 3,
   'source': 4,
   'theme': 5,
@@ -141,9 +141,9 @@ const _ReaderLayoutappBarButtonsEnumValueMap = {
   'nextChapter': 8,
 };
 const _ReaderLayoutappBarButtonsValueEnumMap = {
-  0: ButtonPosition.cache,
-  1: ButtonPosition.darkMode,
-  2: ButtonPosition.menu,
+  0: ButtonPosition.information,
+  1: ButtonPosition.cache,
+  2: ButtonPosition.darkMode,
   3: ButtonPosition.catalogue,
   4: ButtonPosition.source,
   5: ButtonPosition.theme,
@@ -152,9 +152,9 @@ const _ReaderLayoutappBarButtonsValueEnumMap = {
   8: ButtonPosition.nextChapter,
 };
 const _ReaderLayoutbottomBarButtonsEnumValueMap = {
-  'cache': 0,
-  'darkMode': 1,
-  'menu': 2,
+  'information': 0,
+  'cache': 1,
+  'darkMode': 2,
   'catalogue': 3,
   'source': 4,
   'theme': 5,
@@ -163,9 +163,9 @@ const _ReaderLayoutbottomBarButtonsEnumValueMap = {
   'nextChapter': 8,
 };
 const _ReaderLayoutbottomBarButtonsValueEnumMap = {
-  0: ButtonPosition.cache,
-  1: ButtonPosition.darkMode,
-  2: ButtonPosition.menu,
+  0: ButtonPosition.information,
+  1: ButtonPosition.cache,
+  2: ButtonPosition.darkMode,
   3: ButtonPosition.catalogue,
   4: ButtonPosition.source,
   5: ButtonPosition.theme,

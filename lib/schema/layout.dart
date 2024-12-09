@@ -17,13 +17,13 @@ class ReaderLayout {
     this.bottomBarButtons = const [],
   });
 
-  bool get isValid => appBarButtons.length <= 2 && bottomBarButtons.length <= 4;
+  bool get isValid => appBarButtons.length <= 2 && bottomBarButtons.length <= 3;
 }
 
 enum ButtonPosition {
+  information,
   cache,
   darkMode,
-  menu,
   catalogue,
   source,
   theme,

@@ -6,8 +6,42 @@ part of 'reader.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$mediaQueryDataNotifierHash() =>
+    r'0d1658c27689a07d02ea6054d8fe7dcd16afd409';
+
+/// See also [MediaQueryDataNotifier].
+@ProviderFor(MediaQueryDataNotifier)
+final mediaQueryDataNotifierProvider =
+    NotifierProvider<MediaQueryDataNotifier, MediaQueryData>.internal(
+  MediaQueryDataNotifier.new,
+  name: r'mediaQueryDataNotifierProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$mediaQueryDataNotifierHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$MediaQueryDataNotifier = Notifier<MediaQueryData>;
+String _$readerSizeNotifierHash() =>
+    r'2c70bedd21cca8213cc1187d26e82765cedfc647';
+
+/// See also [ReaderSizeNotifier].
+@ProviderFor(ReaderSizeNotifier)
+final readerSizeNotifierProvider =
+    AutoDisposeAsyncNotifierProvider<ReaderSizeNotifier, Size>.internal(
+  ReaderSizeNotifier.new,
+  name: r'readerSizeNotifierProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$readerSizeNotifierHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$ReaderSizeNotifier = AutoDisposeAsyncNotifier<Size>;
 String _$readerStateNotifierHash() =>
-    r'338c368931f0dda94687d567c4be5500584c150e';
+    r'1bb4b7f076a904b1db9d5d07f6edb0cfc1cdeacd';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -176,7 +210,7 @@ class _ReaderStateNotifierProviderElement
 }
 
 String _$readerThemeNotifierHash() =>
-    r'b38aa28156332e3864033adf9559017df5ca2694';
+    r'06119a058456bb0b85e32da89665f175ae879e43';
 
 /// See also [ReaderThemeNotifier].
 @ProviderFor(ReaderThemeNotifier)
@@ -192,39 +226,5 @@ final readerThemeNotifierProvider =
 );
 
 typedef _$ReaderThemeNotifier = AutoDisposeAsyncNotifier<ReaderTheme>;
-String _$readerSizeNotifierHash() =>
-    r'792abc9cdb2d8ed167dcd9a1f53ee70350b07d85';
-
-/// See also [ReaderSizeNotifier].
-@ProviderFor(ReaderSizeNotifier)
-final readerSizeNotifierProvider =
-    AutoDisposeAsyncNotifierProvider<ReaderSizeNotifier, Size>.internal(
-  ReaderSizeNotifier.new,
-  name: r'readerSizeNotifierProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$readerSizeNotifierHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$ReaderSizeNotifier = AutoDisposeAsyncNotifier<Size>;
-String _$mediaQueryDataNotifierHash() =>
-    r'0d1658c27689a07d02ea6054d8fe7dcd16afd409';
-
-/// See also [MediaQueryDataNotifier].
-@ProviderFor(MediaQueryDataNotifier)
-final mediaQueryDataNotifierProvider =
-    NotifierProvider<MediaQueryDataNotifier, MediaQueryData>.internal(
-  MediaQueryDataNotifier.new,
-  name: r'mediaQueryDataNotifierProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$mediaQueryDataNotifierHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$MediaQueryDataNotifier = Notifier<MediaQueryData>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -41,26 +41,24 @@ class _SourceParserState extends ConsumerState<SourceParser> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = ref.watch(settingNotifierProvider);
-    final setting = switch (provider) {
-      AsyncData(:final value) => value,
-      _ => Setting(),
-    };
+    final state = ref.watch(settingNotifierProvider).valueOrNull;
+    final setting = state ?? Setting();
     final darkMode = setting.darkMode;
     final eInkMode = setting.eInkMode;
     final pageTransitionsTheme = PageTransitionsTheme(
       builders: {TargetPlatform.android: NoAnimationPageTransitionBuilder()},
     );
+    var themeData = ThemeData(
+      brightness: darkMode ? Brightness.dark : Brightness.light,
+      colorSchemeSeed: const Color(0xFF63BBD0),
+      pageTransitionsTheme: eInkMode ? pageTransitionsTheme : null,
+      splashFactory: eInkMode ? NoSplash.splashFactory : null,
+      splashColor: eInkMode ? Colors.transparent : null,
+      useMaterial3: true,
+    );
     return MaterialApp.router(
       routerConfig: routerConfig,
-      theme: ThemeData(
-        brightness: darkMode ? Brightness.dark : Brightness.light,
-        colorSchemeSeed: const Color(0xFF63BBD0),
-        pageTransitionsTheme: eInkMode ? pageTransitionsTheme : null,
-        splashFactory: eInkMode ? NoSplash.splashFactory : null,
-        splashColor: eInkMode ? Colors.transparent : null,
-        useMaterial3: true,
-      ),
+      theme: themeData,
       title: '元夕',
     );
   }

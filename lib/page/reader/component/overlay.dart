@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:source_parser/page/reader/component/cache.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/layout.dart';
 import 'package:source_parser/provider/setting.dart';
@@ -41,29 +42,24 @@ class ReaderOverlay extends ConsumerWidget {
     );
   }
 
-  List<Widget> _buildButtons(List<ButtonPosition> types) {
-    return types.map((type) {
-      switch (type) {
-        case ButtonPosition.cache:
-          return _CacheButton(onCached: onCached);
-        case ButtonPosition.darkMode:
-          return _DarkModeButton();
-        case ButtonPosition.catalogue:
-          return _CatalogueButton();
-        case ButtonPosition.source:
-          return _SourceButton();
-        case ButtonPosition.theme:
-          return _ThemeButton();
-        case ButtonPosition.previousChapter:
-          return _PreviousChapterButton();
-        case ButtonPosition.nextChapter:
-          return _NextChapterButton();
-        case ButtonPosition.menu:
-          return _MenuButton();
-        case ButtonPosition.audio:
-          return _FloatingButton();
-      }
-    }).toList();
+  List<Widget> _buildButtons(List<ButtonPosition> positions) {
+    var buttons = positions.map(_toElement).toList();
+    buttons.insert(0, _MenuButton());
+    return buttons;
+  }
+
+  Widget _toElement(ButtonPosition position) {
+    return switch (position) {
+      ButtonPosition.audio => _FloatingButton(),
+      ButtonPosition.cache => _CacheButton(onCached: onCached),
+      ButtonPosition.catalogue => _CatalogueButton(),
+      ButtonPosition.darkMode => _DarkModeButton(),
+      ButtonPosition.information => _InformationButton(),
+      ButtonPosition.nextChapter => _NextChapterButton(),
+      ButtonPosition.previousChapter => _PreviousChapterButton(),
+      ButtonPosition.source => _SourceButton(),
+      ButtonPosition.theme => _ThemeButton(),
+    };
   }
 }
 
@@ -82,40 +78,9 @@ class _CacheButton extends StatelessWidget {
   void openBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => _CacheSheet(onCached: onCached),
+      builder: (context) => ReaderCacheSheet(onCached: onCached),
       showDragHandle: true,
     );
-  }
-}
-
-class _CacheSheet extends StatelessWidget {
-  final void Function(int)? onCached;
-  const _CacheSheet({this.onCached});
-
-  @override
-  Widget build(BuildContext context) {
-    var edgeInsets = MediaQuery.of(context).padding;
-    var children = [
-      TextButton(onPressed: () => handleTap(context, 50), child: Text('50章')),
-      TextButton(onPressed: () => handleTap(context, 100), child: Text('100章')),
-      TextButton(onPressed: () => handleTap(context, 200), child: Text('200章')),
-      TextButton(onPressed: () => handleTap(context, 0), child: Text('全部章节')),
-    ];
-    return GridView.count(
-      childAspectRatio: 4,
-      crossAxisCount: 2,
-      crossAxisSpacing: 8,
-      mainAxisSpacing: 8,
-      padding: EdgeInsets.fromLTRB(16, 0, 16, edgeInsets.bottom + 16),
-      physics: NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      children: children,
-    );
-  }
-
-  void handleTap(BuildContext context, int count) {
-    onCached?.call(count);
-    Navigator.of(context).pop();
   }
 }
 

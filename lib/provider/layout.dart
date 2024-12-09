@@ -37,7 +37,7 @@ class ReaderLayoutNotifierProvider extends _$ReaderLayoutNotifierProvider {
   }
 
   Future<void> updateBottomBarButtons(List<ButtonPosition> buttons) async {
-    if (buttons.length > 4) return;
+    if (buttons.length > 3) return;
     final currentLayout = await future;
     currentLayout.bottomBarButtons = buttons;
     await isar.writeTxn(() async {

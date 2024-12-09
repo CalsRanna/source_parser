@@ -13,32 +13,32 @@ class ReaderLayoutPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final layout = ref.watch(readerLayoutNotifierProviderProvider).valueOrNull;
     if (layout == null) return const Center(child: CircularProgressIndicator());
-
+    var appBarSection = _ButtonSection(
+      title: 'AppBar按钮 (最多2个)',
+      buttons: layout.appBarButtons,
+      onChanged: (positions) => updateAppBarButtons(ref, positions),
+    );
+    var bottomBarSection = _ButtonSection(
+      title: 'BottomBar按钮 (最多3个)',
+      buttons: layout.bottomBarButtons,
+      onChanged: (positions) => updateBottomBarButtons(ref, positions),
+    );
     return Scaffold(
       appBar: AppBar(title: const Text('布局')),
-      body: ListView(
-        children: [
-          _ButtonSection(
-            title: 'AppBar按钮 (最多2个)',
-            buttons: layout.appBarButtons,
-            onChanged: (buttons) {
-              ref
-                  .read(readerLayoutNotifierProviderProvider.notifier)
-                  .updateAppBarButtons(buttons);
-            },
-          ),
-          _ButtonSection(
-            title: 'BottomBar按钮 (最多4个)',
-            buttons: layout.bottomBarButtons,
-            onChanged: (buttons) {
-              ref
-                  .read(readerLayoutNotifierProviderProvider.notifier)
-                  .updateBottomBarButtons(buttons);
-            },
-          ),
-        ],
-      ),
+      body: ListView(children: [appBarSection, bottomBarSection]),
     );
+  }
+
+  void updateAppBarButtons(WidgetRef ref, List<ButtonPosition> positions) {
+    var provider = readerLayoutNotifierProviderProvider;
+    var notifier = ref.read(provider.notifier);
+    notifier.updateAppBarButtons(positions);
+  }
+
+  void updateBottomBarButtons(WidgetRef ref, List<ButtonPosition> positions) {
+    var provider = readerLayoutNotifierProviderProvider;
+    var notifier = ref.read(provider.notifier);
+    notifier.updateBottomBarButtons(positions);
   }
 }
 
@@ -55,94 +55,108 @@ class _ButtonSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var switchListTile = SwitchListTile(
+      onChanged: handleChanged,
+      title: Text(title),
+      value: buttons.isNotEmpty,
+    );
+    var wrap = Wrap(
+      spacing: 16,
+      runSpacing: 16,
+      children: ButtonPosition.values.map(_toElement).toList(),
+    );
+    var children = [
+      switchListTile,
+      Padding(padding: const EdgeInsets.all(16.0), child: wrap),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SwitchListTile(
-          title: Text(title),
-          onChanged: (value) {
-            onChanged(value ? ButtonPosition.values : []);
-          },
-          value: buttons.isNotEmpty,
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: ButtonPosition.values.map((type) {
-              final selected = buttons.contains(type);
-              return FilterChip(
-                showCheckmark: false,
-                selected: selected,
-                label: Text(_getButtonLabel(type)),
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                avatar: Icon(_getButtonIcon(type)),
-                onSelected: (value) {
-                  var newButtons = List<ButtonPosition>.from(buttons);
-                  if (value) {
-                    if (!selected) newButtons.add(type);
-                  } else {
-                    newButtons.remove(type);
-                  }
-                  newButtons.sort((a, b) {
-                    return ButtonPosition.values.indexOf(a).compareTo(
-                          ButtonPosition.values.indexOf(b),
-                        );
-                  });
-                  onChanged(newButtons);
-                },
-              );
-            }).toList(),
-          ),
-        ),
-      ],
+      children: children,
     );
   }
 
-  String _getButtonLabel(ButtonPosition type) {
-    switch (type) {
-      case ButtonPosition.cache:
-        return '缓存';
-      case ButtonPosition.darkMode:
-        return '夜间模式';
-      case ButtonPosition.menu:
-        return '菜单';
-      case ButtonPosition.catalogue:
-        return '目录';
-      case ButtonPosition.source:
-        return '书源';
-      case ButtonPosition.theme:
-        return '主题';
-      case ButtonPosition.audio:
-        return '朗读';
-      case ButtonPosition.previousChapter:
-        return '上一章';
-      case ButtonPosition.nextChapter:
-        return '下一章';
-    }
+  void handleChanged(bool value) {
+    onChanged.call(value ? ButtonPosition.values : []);
   }
 
-  IconData _getButtonIcon(ButtonPosition type) {
-    switch (type) {
-      case ButtonPosition.cache:
-        return HugeIcons.strokeRoundedDownload04;
-      case ButtonPosition.darkMode:
-        return HugeIcons.strokeRoundedMoon02;
-      case ButtonPosition.menu:
-        return HugeIcons.strokeRoundedMoreVertical;
-      case ButtonPosition.catalogue:
-        return HugeIcons.strokeRoundedMenu01;
-      case ButtonPosition.source:
-        return HugeIcons.strokeRoundedExchange01;
-      case ButtonPosition.theme:
-        return HugeIcons.strokeRoundedTextFont;
-      case ButtonPosition.audio:
-        return HugeIcons.strokeRoundedHeadphones;
-      case ButtonPosition.previousChapter:
-        return HugeIcons.strokeRoundedPrevious;
-      case ButtonPosition.nextChapter:
-        return HugeIcons.strokeRoundedNext;
+  void handleSelected(ButtonPosition position) {
+    var newButtons = List<ButtonPosition>.from(buttons);
+    if (newButtons.contains(position)) {
+      newButtons.remove(position);
+    } else {
+      newButtons.add(position);
     }
+    newButtons.sort(_compare);
+    onChanged(newButtons);
+  }
+
+  int _compare(ButtonPosition a, ButtonPosition b) {
+    var indexA = ButtonPosition.values.indexOf(a);
+    var indexB = ButtonPosition.values.indexOf(b);
+    return indexA.compareTo(indexB);
+  }
+
+  Widget _toElement(ButtonPosition position) {
+    var selected = buttons.contains(position);
+    return _Chip(
+      onSelected: () => handleSelected(position),
+      position: position,
+      selected: selected,
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  final void Function()? onSelected;
+  final ButtonPosition position;
+  final bool selected;
+  const _Chip({
+    this.onSelected,
+    required this.position,
+    required this.selected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FilterChip(
+      showCheckmark: false,
+      selected: selected,
+      label: Text(_getButtonLabel(position)),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      avatar: Icon(_getButtonIcon(position)),
+      onSelected: handleSelected,
+    );
+  }
+
+  void handleSelected(bool value) {
+    onSelected?.call();
+  }
+
+  IconData _getButtonIcon(ButtonPosition position) {
+    return switch (position) {
+      ButtonPosition.audio => HugeIcons.strokeRoundedHeadphones,
+      ButtonPosition.cache => HugeIcons.strokeRoundedDownload04,
+      ButtonPosition.catalogue => HugeIcons.strokeRoundedMenu01,
+      ButtonPosition.darkMode => HugeIcons.strokeRoundedMoon02,
+      ButtonPosition.information => HugeIcons.strokeRoundedBook01,
+      ButtonPosition.nextChapter => HugeIcons.strokeRoundedNext,
+      ButtonPosition.previousChapter => HugeIcons.strokeRoundedPrevious,
+      ButtonPosition.source => HugeIcons.strokeRoundedExchange01,
+      ButtonPosition.theme => HugeIcons.strokeRoundedTextFont,
+    };
+  }
+
+  String _getButtonLabel(ButtonPosition position) {
+    return switch (position) {
+      ButtonPosition.audio => '朗读',
+      ButtonPosition.cache => '缓存',
+      ButtonPosition.catalogue => '目录',
+      ButtonPosition.darkMode => '夜间模式',
+      ButtonPosition.information => '信息',
+      ButtonPosition.nextChapter => '下一章',
+      ButtonPosition.previousChapter => '上一章',
+      ButtonPosition.source => '书源',
+      ButtonPosition.theme => '主题',
+    };
   }
 }
