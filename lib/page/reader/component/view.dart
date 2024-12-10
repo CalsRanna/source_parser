@@ -7,26 +7,29 @@ import 'package:source_parser/util/merger.dart';
 
 class ReaderView extends ConsumerWidget {
   final Widget Function()? builder;
-  final bool eInkMode;
   final String chapterText;
-  final String headerText;
   final String contentText;
+  final ReaderTheme? customTheme;
+  final bool eInkMode;
+  final String headerText;
   final String progressText;
 
   const ReaderView({
     super.key,
     this.builder,
     required this.chapterText,
+    required this.contentText,
+    this.customTheme,
     required this.eInkMode,
     required this.headerText,
-    required this.contentText,
     required this.progressText,
   });
 
   const ReaderView.builder({
     super.key,
-    required this.chapterText,
     required this.builder,
+    required this.chapterText,
+    this.customTheme,
     required this.eInkMode,
     required this.headerText,
     required this.progressText,
@@ -35,7 +38,8 @@ class ReaderView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var state = ref.watch(readerThemeNotifierProvider).valueOrNull;
-    var theme = state ?? ReaderTheme();
+    var currentTheme = state ?? ReaderTheme();
+    var theme = customTheme ?? currentTheme;
     var header = _Header(
       padding: theme.headerPadding,
       style: theme.headerStyle,

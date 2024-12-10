@@ -22,7 +22,7 @@ void main() async {
     SettingSchema,
     SourceSchema,
   ], directory: directory.path);
-  runApp(ProviderScope(observers: [DefaultObserver()], child: SourceParser()));
+  runApp(ProviderScope(child: SourceParser()));
 }
 
 class DefaultObserver extends ProviderObserver {

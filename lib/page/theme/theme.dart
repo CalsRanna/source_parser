@@ -17,7 +17,8 @@ class ReaderThemePage extends StatelessWidget {
       _FontSizeTile(),
       _BackgroundTile(),
       _LayoutTile(),
-      _ColorGeneratorTile(),
+      // _ColorGeneratorTile(),
+      _CustomHeightTile(),
     ];
     return Scaffold(
       appBar: AppBar(title: const Text('阅读主题')),
@@ -201,6 +202,23 @@ class _HeightTile extends ConsumerWidget {
   void handleSelected(WidgetRef ref, double value) async {
     final notifier = ref.read(settingNotifierProvider.notifier);
     notifier.updateLineSpace(value);
+  }
+}
+
+class _CustomHeightTile extends StatelessWidget {
+  const _CustomHeightTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () => handleTap(context),
+      title: Text('自定义主题'),
+      trailing: const Icon(HugeIcons.strokeRoundedArrowRight01),
+    );
+  }
+
+  void handleTap(BuildContext context) {
+    AutoRouter.of(context).push(ThemeEditorRoute());
   }
 }
 

@@ -374,7 +374,7 @@ class ReaderThemeNotifier extends _$ReaderThemeNotifier {
         height: lineSpace,
       ),
     );
-    print(theme);
+    print(theme.footerPadding);
     return theme;
   }
 }

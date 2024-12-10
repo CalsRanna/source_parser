@@ -210,7 +210,7 @@ class _ReaderStateNotifierProviderElement
 }
 
 String _$readerThemeNotifierHash() =>
-    r'db2a48561b765bbe284399f0ebedb10dce183792';
+    r'8732389270ecae7177eab5b393cb2396d30df213';
 
 /// See also [ReaderThemeNotifier].
 @ProviderFor(ReaderThemeNotifier)
