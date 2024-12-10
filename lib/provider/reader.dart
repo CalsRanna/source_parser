@@ -1,12 +1,9 @@
-import 'dart:io';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:source_parser/model/reader_state.dart';
-import 'package:source_parser/model/reader_theme.dart';
 import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -31,28 +28,24 @@ class ReaderSizeNotifier extends _$ReaderSizeNotifier {
   Future<Size> build() async {
     var mediaQueryData = ref.watch(mediaQueryDataNotifierProvider);
     var screenSize = mediaQueryData.size;
-    var provider = readerThemeNotifierProvider;
-    var pagePadding = await ref.watch(provider.selectAsync(_selectPagePadding));
-    var width = screenSize.width - pagePadding.horizontal;
-    var headerPadding =
-        await ref.watch(provider.selectAsync(_selectHeaderPadding));
-    var headerStyle = await ref.watch(provider.selectAsync(_selectHeaderStyle));
-    var headerHeight = headerStyle.fontSize! * headerStyle.height!;
-    var footerPadding =
-        await ref.watch(provider.selectAsync(_selectFooterPadding));
-    var footerStyle = await ref.watch(provider.selectAsync(_selectFooterStyle));
-    var footerHeight = footerStyle.fontSize! * footerStyle.height!;
-    var height = screenSize.height - pagePadding.vertical;
-    height -= (headerPadding.vertical + headerHeight);
-    height -= (footerPadding.vertical + footerHeight);
+    var provider = themeNotifierProvider;
+    var theme = await ref.watch(provider.future);
+    var pagePaddingHorizontal =
+        theme.contentPaddingLeft + theme.contentPaddingRight;
+    var pagePaddingVertical =
+        theme.contentPaddingTop + theme.contentPaddingBottom;
+    var width = screenSize.width - pagePaddingHorizontal;
+    var headerPaddingVertical =
+        theme.headerPaddingBottom + theme.headerPaddingTop;
+    var footerPaddingVertical =
+        theme.footerPaddingBottom + theme.footerPaddingTop;
+    var height = screenSize.height - pagePaddingVertical;
+    height -= headerPaddingVertical;
+    height -= (theme.headerFontSize * theme.headerHeight);
+    height -= footerPaddingVertical;
+    height -= (theme.footerFontSize * theme.footerHeight);
     return Size(width, height);
   }
-
-  EdgeInsets _selectHeaderPadding(ReaderTheme theme) => theme.headerPadding;
-  TextStyle _selectHeaderStyle(ReaderTheme theme) => theme.headerStyle;
-  EdgeInsets _selectPagePadding(ReaderTheme theme) => theme.pagePadding;
-  EdgeInsets _selectFooterPadding(ReaderTheme theme) => theme.footerPadding;
-  TextStyle _selectFooterStyle(ReaderTheme theme) => theme.footerStyle;
 }
 
 @riverpod
@@ -320,7 +313,7 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
     );
     if (chapter.isEmpty) return [];
     var size = await ref.read(readerSizeNotifierProvider.future);
-    var theme = await ref.read(readerThemeNotifierProvider.future);
+    var theme = await ref.read(themeNotifierProvider.future);
     return Splitter(size: size, theme: theme).split(chapter);
   }
 
@@ -336,45 +329,5 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
     isar.writeTxn(() async {
       isar.books.put(updatedBook);
     });
-  }
-}
-
-@riverpod
-class ReaderThemeNotifier extends _$ReaderThemeNotifier {
-  @override
-  Future<ReaderTheme> build() async {
-    final provider = settingNotifierProvider;
-    var setting = await ref.watch(provider.future);
-    Color backgroundColor = Color(setting.backgroundColor);
-    Color fontColor = Colors.black.withOpacity(0.75);
-    Color variantFontColor = Colors.black.withOpacity(0.5);
-    if (setting.darkMode) {
-      backgroundColor = Colors.black;
-      fontColor = Colors.white.withOpacity(0.75);
-      variantFontColor = Colors.white.withOpacity(0.5);
-    }
-    final lineSpace = setting.lineSpace;
-    final fontSize = setting.fontSize.toDouble();
-    var theme = ReaderTheme();
-    final mediaQueryData = ref.watch(mediaQueryDataNotifierProvider);
-    final padding = mediaQueryData.padding;
-    double bottom = 20;
-    if (Platform.isAndroid) bottom = max(padding.bottom + 4, 16.0);
-    final top = max(padding.top + 4, 16.0);
-    theme = theme.copyWith(
-      backgroundColor: backgroundColor,
-      chapterStyle: theme.chapterStyle.copyWith(color: fontColor),
-      footerPadding: theme.footerPadding.copyWith(bottom: bottom),
-      footerStyle: theme.footerStyle.copyWith(color: variantFontColor),
-      headerPadding: theme.headerPadding.copyWith(top: top),
-      headerStyle: theme.headerStyle.copyWith(color: variantFontColor),
-      pageStyle: theme.pageStyle.copyWith(
-        color: fontColor,
-        fontSize: fontSize,
-        height: lineSpace,
-      ),
-    );
-    print(theme.footerPadding);
-    return theme;
   }
 }

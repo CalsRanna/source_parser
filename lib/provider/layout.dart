@@ -8,10 +8,10 @@ part 'layout.g.dart';
 @riverpod
 class ReaderLayoutNotifierProvider extends _$ReaderLayoutNotifierProvider {
   @override
-  Future<ReaderLayout> build() async {
-    var layout = await isar.readerLayouts.where().findFirst();
+  Future<Layout> build() async {
+    var layout = await isar.layouts.where().findFirst();
     if (layout != null) return layout;
-    layout = ReaderLayout(
+    layout = Layout(
       appBarButtons: [ButtonPosition.cache, ButtonPosition.darkMode],
       bottomBarButtons: [
         ButtonPosition.catalogue,
@@ -20,7 +20,7 @@ class ReaderLayoutNotifierProvider extends _$ReaderLayoutNotifierProvider {
       ],
     );
     await isar.writeTxn(() async {
-      await isar.readerLayouts.put(layout!);
+      await isar.layouts.put(layout!);
     });
     return layout;
   }
@@ -30,7 +30,7 @@ class ReaderLayoutNotifierProvider extends _$ReaderLayoutNotifierProvider {
     final currentLayout = await future;
     currentLayout.appBarButtons = buttons;
     await isar.writeTxn(() async {
-      await isar.readerLayouts.put(currentLayout);
+      await isar.layouts.put(currentLayout);
     });
     ref.invalidateSelf();
   }
@@ -40,7 +40,7 @@ class ReaderLayoutNotifierProvider extends _$ReaderLayoutNotifierProvider {
     final currentLayout = await future;
     currentLayout.bottomBarButtons = buttons;
     await isar.writeTxn(() async {
-      await isar.readerLayouts.put(currentLayout);
+      await isar.layouts.put(currentLayout);
     });
     ref.invalidateSelf();
   }

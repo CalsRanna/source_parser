@@ -33,7 +33,8 @@ class _BackgroundTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final backgroundColor = setting?.backgroundColor ?? 0xFFFFFFFF;
+    // final backgroundColor = setting?.backgroundColor ?? 0xFFFFFFFF;
+    final backgroundColor = 0xFFFFFFFF;
     final whiteTile = _ColorTile(
       active: backgroundColor == Colors.white.value,
       color: Colors.white,
@@ -76,7 +77,7 @@ class _BackgroundTile extends ConsumerWidget {
 
   void handleTap(WidgetRef ref, int colorValue) async {
     final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.updateBackgroundColor(colorValue);
+    // notifier.updateBackgroundColor(colorValue);
   }
 }
 
@@ -137,7 +138,8 @@ class _FontSizeTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final fontSize = setting?.fontSize ?? 18;
+    // final fontSize = setting?.fontSize ?? 18;
+    final fontSize = 18;
     var decreaseButton = OutlinedButton(
       onPressed: () => handleTap(ref, -1),
       child: Icon(HugeIcons.strokeRoundedRemove01),
@@ -162,7 +164,7 @@ class _FontSizeTile extends ConsumerWidget {
 
   void handleTap(WidgetRef ref, int step) async {
     final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.updateFontSize(step);
+    // notifier.updateFontSize(step);
   }
 }
 
@@ -172,7 +174,8 @@ class _HeightTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final height = setting?.lineSpace ?? 1.0 + 0.618 * 2;
+    // final height = setting?.lineSpace ?? 1.0 + 0.618 * 2;
+    final height = 1.0 + 0.618 * 2;
     final largeChip = FilterChip(
       label: Text('较大'),
       onSelected: (_) => handleSelected(ref, 1.0 + 0.618 * 3),
@@ -201,7 +204,7 @@ class _HeightTile extends ConsumerWidget {
 
   void handleSelected(WidgetRef ref, double value) async {
     final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.updateLineSpace(value);
+    // notifier.updateLineSpace(value);
   }
 }
 

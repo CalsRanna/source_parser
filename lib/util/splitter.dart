@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:source_parser/model/reader_theme.dart';
+import 'package:flutter/material.dart' hide Theme;
+import 'package:source_parser/schema/theme.dart';
 
 /// A utility class that splits text content into pages for rendering in a book reader.
 ///
@@ -13,7 +13,10 @@ class Splitter {
   final Size size;
 
   /// The theme configuration for rendering text.
-  final ReaderTheme theme;
+  final Theme theme;
+
+  late final TextStyle _chapterStyle;
+  late final TextStyle _contentStyle;
 
   /// Text painter instance used for layout calculations.
   ///
@@ -25,7 +28,25 @@ class Splitter {
   /// [size] defines the available space for each page.
   /// [theme] provides the styling configuration for different text elements.
   Splitter({required this.size, required this.theme})
-      : _painter = TextPainter(textDirection: theme.textDirection);
+      : _chapterStyle = TextStyle(
+          color: Color(theme.contentColor),
+          decoration: TextDecoration.none,
+          fontSize: theme.chapterFontSize,
+          fontWeight: FontWeight.values[theme.chapterFontWeight],
+          height: theme.chapterHeight,
+          letterSpacing: theme.chapterLetterSpacing,
+          wordSpacing: theme.chapterWordSpacing,
+        ),
+        _contentStyle = TextStyle(
+          color: Color(theme.contentColor),
+          decoration: TextDecoration.none,
+          fontSize: theme.contentFontSize,
+          fontWeight: FontWeight.values[theme.contentFontWeight],
+          height: theme.contentHeight,
+          letterSpacing: theme.contentLetterSpacing,
+          wordSpacing: theme.contentWordSpacing,
+        ),
+        _painter = TextPainter(textDirection: TextDirection.ltr);
 
   /// Splits the given [content] into pages.
   ///
@@ -68,7 +89,7 @@ class Splitter {
     if (isFirstPage && paragraphs.isNotEmpty) {
       // Add spacing around title using newlines
       var paragraph = '\n${paragraphs.first}\n';
-      children.add(TextSpan(text: paragraph, style: theme.chapterStyle));
+      children.add(TextSpan(text: paragraph, style: _chapterStyle));
       paragraphs.removeAt(0);
     }
     children.addAll(paragraphs.map(_toElement));
@@ -111,7 +132,7 @@ class Splitter {
   }
 
   TextSpan _toElement(String paragraph) {
-    return TextSpan(text: '$paragraph\n', style: theme.pageStyle);
+    return TextSpan(text: '$paragraph\n', style: _contentStyle);
   }
 }
 

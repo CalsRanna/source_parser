@@ -9,25 +9,25 @@ part of 'layout.dart';
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
 
-extension GetReaderLayoutCollection on Isar {
-  IsarCollection<ReaderLayout> get readerLayouts => this.collection();
+extension GetLayoutCollection on Isar {
+  IsarCollection<Layout> get layouts => this.collection();
 }
 
-const ReaderLayoutSchema = CollectionSchema(
-  name: r'reader_layouts',
-  id: 4057732081629938849,
+const LayoutSchema = CollectionSchema(
+  name: r'layouts',
+  id: 1755418280096907717,
   properties: {
     r'app_bar_buttons': PropertySchema(
       id: 0,
       name: r'app_bar_buttons',
       type: IsarType.byteList,
-      enumMap: _ReaderLayoutappBarButtonsEnumValueMap,
+      enumMap: _LayoutappBarButtonsEnumValueMap,
     ),
     r'bottom_bar_buttons': PropertySchema(
       id: 1,
       name: r'bottom_bar_buttons',
       type: IsarType.byteList,
-      enumMap: _ReaderLayoutbottomBarButtonsEnumValueMap,
+      enumMap: _LayoutbottomBarButtonsEnumValueMap,
     ),
     r'isValid': PropertySchema(
       id: 2,
@@ -35,22 +35,22 @@ const ReaderLayoutSchema = CollectionSchema(
       type: IsarType.bool,
     )
   },
-  estimateSize: _readerLayoutEstimateSize,
-  serialize: _readerLayoutSerialize,
-  deserialize: _readerLayoutDeserialize,
-  deserializeProp: _readerLayoutDeserializeProp,
+  estimateSize: _layoutEstimateSize,
+  serialize: _layoutSerialize,
+  deserialize: _layoutDeserialize,
+  deserializeProp: _layoutDeserializeProp,
   idName: r'id',
   indexes: {},
   links: {},
   embeddedSchemas: {},
-  getId: _readerLayoutGetId,
-  getLinks: _readerLayoutGetLinks,
-  attach: _readerLayoutAttach,
+  getId: _layoutGetId,
+  getLinks: _layoutGetLinks,
+  attach: _layoutAttach,
   version: '3.1.8',
 );
 
-int _readerLayoutEstimateSize(
-  ReaderLayout object,
+int _layoutEstimateSize(
+  Layout object,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
@@ -60,8 +60,8 @@ int _readerLayoutEstimateSize(
   return bytesCount;
 }
 
-void _readerLayoutSerialize(
-  ReaderLayout object,
+void _layoutSerialize(
+  Layout object,
   IsarWriter writer,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
@@ -73,24 +73,24 @@ void _readerLayoutSerialize(
   writer.writeBool(offsets[2], object.isValid);
 }
 
-ReaderLayout _readerLayoutDeserialize(
+Layout _layoutDeserialize(
   Id id,
   IsarReader reader,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = ReaderLayout(
+  final object = Layout(
     appBarButtons: reader
             .readByteList(offsets[0])
             ?.map((e) =>
-                _ReaderLayoutappBarButtonsValueEnumMap[e] ??
+                _LayoutappBarButtonsValueEnumMap[e] ??
                 ButtonPosition.information)
             .toList() ??
         const [],
     bottomBarButtons: reader
             .readByteList(offsets[1])
             ?.map((e) =>
-                _ReaderLayoutbottomBarButtonsValueEnumMap[e] ??
+                _LayoutbottomBarButtonsValueEnumMap[e] ??
                 ButtonPosition.information)
             .toList() ??
         const [],
@@ -99,7 +99,7 @@ ReaderLayout _readerLayoutDeserialize(
   return object;
 }
 
-P _readerLayoutDeserializeProp<P>(
+P _layoutDeserializeProp<P>(
   IsarReader reader,
   int propertyId,
   int offset,
@@ -110,7 +110,7 @@ P _readerLayoutDeserializeProp<P>(
       return (reader
               .readByteList(offset)
               ?.map((e) =>
-                  _ReaderLayoutappBarButtonsValueEnumMap[e] ??
+                  _LayoutappBarButtonsValueEnumMap[e] ??
                   ButtonPosition.information)
               .toList() ??
           const []) as P;
@@ -118,7 +118,7 @@ P _readerLayoutDeserializeProp<P>(
       return (reader
               .readByteList(offset)
               ?.map((e) =>
-                  _ReaderLayoutbottomBarButtonsValueEnumMap[e] ??
+                  _LayoutbottomBarButtonsValueEnumMap[e] ??
                   ButtonPosition.information)
               .toList() ??
           const []) as P;
@@ -129,7 +129,7 @@ P _readerLayoutDeserializeProp<P>(
   }
 }
 
-const _ReaderLayoutappBarButtonsEnumValueMap = {
+const _LayoutappBarButtonsEnumValueMap = {
   'information': 0,
   'cache': 1,
   'darkMode': 2,
@@ -140,7 +140,7 @@ const _ReaderLayoutappBarButtonsEnumValueMap = {
   'previousChapter': 7,
   'nextChapter': 8,
 };
-const _ReaderLayoutappBarButtonsValueEnumMap = {
+const _LayoutappBarButtonsValueEnumMap = {
   0: ButtonPosition.information,
   1: ButtonPosition.cache,
   2: ButtonPosition.darkMode,
@@ -151,7 +151,7 @@ const _ReaderLayoutappBarButtonsValueEnumMap = {
   7: ButtonPosition.previousChapter,
   8: ButtonPosition.nextChapter,
 };
-const _ReaderLayoutbottomBarButtonsEnumValueMap = {
+const _LayoutbottomBarButtonsEnumValueMap = {
   'information': 0,
   'cache': 1,
   'darkMode': 2,
@@ -162,7 +162,7 @@ const _ReaderLayoutbottomBarButtonsEnumValueMap = {
   'previousChapter': 7,
   'nextChapter': 8,
 };
-const _ReaderLayoutbottomBarButtonsValueEnumMap = {
+const _LayoutbottomBarButtonsValueEnumMap = {
   0: ButtonPosition.information,
   1: ButtonPosition.cache,
   2: ButtonPosition.darkMode,
@@ -174,31 +174,28 @@ const _ReaderLayoutbottomBarButtonsValueEnumMap = {
   8: ButtonPosition.nextChapter,
 };
 
-Id _readerLayoutGetId(ReaderLayout object) {
+Id _layoutGetId(Layout object) {
   return object.id ?? Isar.autoIncrement;
 }
 
-List<IsarLinkBase<dynamic>> _readerLayoutGetLinks(ReaderLayout object) {
+List<IsarLinkBase<dynamic>> _layoutGetLinks(Layout object) {
   return [];
 }
 
-void _readerLayoutAttach(
-    IsarCollection<dynamic> col, Id id, ReaderLayout object) {
+void _layoutAttach(IsarCollection<dynamic> col, Id id, Layout object) {
   object.id = id;
 }
 
-extension ReaderLayoutQueryWhereSort
-    on QueryBuilder<ReaderLayout, ReaderLayout, QWhere> {
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterWhere> anyId() {
+extension LayoutQueryWhereSort on QueryBuilder<Layout, Layout, QWhere> {
+  QueryBuilder<Layout, Layout, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
     });
   }
 }
 
-extension ReaderLayoutQueryWhere
-    on QueryBuilder<ReaderLayout, ReaderLayout, QWhereClause> {
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterWhereClause> idEqualTo(Id id) {
+extension LayoutQueryWhere on QueryBuilder<Layout, Layout, QWhereClause> {
+  QueryBuilder<Layout, Layout, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
         lower: id,
@@ -207,8 +204,7 @@ extension ReaderLayoutQueryWhere
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterWhereClause> idNotEqualTo(
-      Id id) {
+  QueryBuilder<Layout, Layout, QAfterWhereClause> idNotEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -230,8 +226,7 @@ extension ReaderLayoutQueryWhere
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterWhereClause> idGreaterThan(
-      Id id,
+  QueryBuilder<Layout, Layout, QAfterWhereClause> idGreaterThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -240,7 +235,7 @@ extension ReaderLayoutQueryWhere
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterWhereClause> idLessThan(Id id,
+  QueryBuilder<Layout, Layout, QAfterWhereClause> idLessThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -249,7 +244,7 @@ extension ReaderLayoutQueryWhere
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterWhereClause> idBetween(
+  QueryBuilder<Layout, Layout, QAfterWhereClause> idBetween(
     Id lowerId,
     Id upperId, {
     bool includeLower = true,
@@ -266,9 +261,8 @@ extension ReaderLayoutQueryWhere
   }
 }
 
-extension ReaderLayoutQueryFilter
-    on QueryBuilder<ReaderLayout, ReaderLayout, QFilterCondition> {
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+extension LayoutQueryFilter on QueryBuilder<Layout, Layout, QFilterCondition> {
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       appBarButtonsElementEqualTo(ButtonPosition value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -278,7 +272,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       appBarButtonsElementGreaterThan(
     ButtonPosition value, {
     bool include = false,
@@ -292,7 +286,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       appBarButtonsElementLessThan(
     ButtonPosition value, {
     bool include = false,
@@ -306,7 +300,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       appBarButtonsElementBetween(
     ButtonPosition lower,
     ButtonPosition upper, {
@@ -324,7 +318,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       appBarButtonsLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
@@ -337,8 +331,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
-      appBarButtonsIsEmpty() {
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> appBarButtonsIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'app_bar_buttons',
@@ -350,7 +343,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       appBarButtonsIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
@@ -363,7 +356,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       appBarButtonsLengthLessThan(
     int length, {
     bool include = false,
@@ -379,7 +372,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       appBarButtonsLengthGreaterThan(
     int length, {
     bool include = false,
@@ -395,7 +388,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       appBarButtonsLengthBetween(
     int lower,
     int upper, {
@@ -413,7 +406,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       bottomBarButtonsElementEqualTo(ButtonPosition value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -423,7 +416,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       bottomBarButtonsElementGreaterThan(
     ButtonPosition value, {
     bool include = false,
@@ -437,7 +430,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       bottomBarButtonsElementLessThan(
     ButtonPosition value, {
     bool include = false,
@@ -451,7 +444,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       bottomBarButtonsElementBetween(
     ButtonPosition lower,
     ButtonPosition upper, {
@@ -469,7 +462,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       bottomBarButtonsLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
@@ -482,7 +475,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       bottomBarButtonsIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
@@ -495,7 +488,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       bottomBarButtonsIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
@@ -508,7 +501,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       bottomBarButtonsLengthLessThan(
     int length, {
     bool include = false,
@@ -524,7 +517,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       bottomBarButtonsLengthGreaterThan(
     int length, {
     bool include = false,
@@ -540,7 +533,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
+  QueryBuilder<Layout, Layout, QAfterFilterCondition>
       bottomBarButtonsLengthBetween(
     int lower,
     int upper, {
@@ -558,7 +551,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition> idIsNull() {
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> idIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'id',
@@ -566,8 +559,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
-      idIsNotNull() {
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> idIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'id',
@@ -575,8 +567,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition> idEqualTo(
-      Id? value) {
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> idEqualTo(Id? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'id',
@@ -585,7 +576,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition> idGreaterThan(
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> idGreaterThan(
     Id? value, {
     bool include = false,
   }) {
@@ -598,7 +589,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition> idLessThan(
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> idLessThan(
     Id? value, {
     bool include = false,
   }) {
@@ -611,7 +602,7 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition> idBetween(
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> idBetween(
     Id? lower,
     Id? upper, {
     bool includeLower = true,
@@ -628,8 +619,8 @@ extension ReaderLayoutQueryFilter
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterFilterCondition>
-      isValidEqualTo(bool value) {
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> isValidEqualTo(
+      bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isValid',
@@ -639,100 +630,92 @@ extension ReaderLayoutQueryFilter
   }
 }
 
-extension ReaderLayoutQueryObject
-    on QueryBuilder<ReaderLayout, ReaderLayout, QFilterCondition> {}
+extension LayoutQueryObject on QueryBuilder<Layout, Layout, QFilterCondition> {}
 
-extension ReaderLayoutQueryLinks
-    on QueryBuilder<ReaderLayout, ReaderLayout, QFilterCondition> {}
+extension LayoutQueryLinks on QueryBuilder<Layout, Layout, QFilterCondition> {}
 
-extension ReaderLayoutQuerySortBy
-    on QueryBuilder<ReaderLayout, ReaderLayout, QSortBy> {
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterSortBy> sortByIsValid() {
+extension LayoutQuerySortBy on QueryBuilder<Layout, Layout, QSortBy> {
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortByIsValid() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isValid', Sort.asc);
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterSortBy> sortByIsValidDesc() {
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortByIsValidDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isValid', Sort.desc);
     });
   }
 }
 
-extension ReaderLayoutQuerySortThenBy
-    on QueryBuilder<ReaderLayout, ReaderLayout, QSortThenBy> {
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterSortBy> thenById() {
+extension LayoutQuerySortThenBy on QueryBuilder<Layout, Layout, QSortThenBy> {
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterSortBy> thenByIdDesc() {
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterSortBy> thenByIsValid() {
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenByIsValid() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isValid', Sort.asc);
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QAfterSortBy> thenByIsValidDesc() {
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenByIsValidDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isValid', Sort.desc);
     });
   }
 }
 
-extension ReaderLayoutQueryWhereDistinct
-    on QueryBuilder<ReaderLayout, ReaderLayout, QDistinct> {
-  QueryBuilder<ReaderLayout, ReaderLayout, QDistinct>
-      distinctByAppBarButtons() {
+extension LayoutQueryWhereDistinct on QueryBuilder<Layout, Layout, QDistinct> {
+  QueryBuilder<Layout, Layout, QDistinct> distinctByAppBarButtons() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'app_bar_buttons');
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QDistinct>
-      distinctByBottomBarButtons() {
+  QueryBuilder<Layout, Layout, QDistinct> distinctByBottomBarButtons() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'bottom_bar_buttons');
     });
   }
 
-  QueryBuilder<ReaderLayout, ReaderLayout, QDistinct> distinctByIsValid() {
+  QueryBuilder<Layout, Layout, QDistinct> distinctByIsValid() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isValid');
     });
   }
 }
 
-extension ReaderLayoutQueryProperty
-    on QueryBuilder<ReaderLayout, ReaderLayout, QQueryProperty> {
-  QueryBuilder<ReaderLayout, int, QQueryOperations> idProperty() {
+extension LayoutQueryProperty on QueryBuilder<Layout, Layout, QQueryProperty> {
+  QueryBuilder<Layout, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
     });
   }
 
-  QueryBuilder<ReaderLayout, List<ButtonPosition>, QQueryOperations>
+  QueryBuilder<Layout, List<ButtonPosition>, QQueryOperations>
       appBarButtonsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'app_bar_buttons');
     });
   }
 
-  QueryBuilder<ReaderLayout, List<ButtonPosition>, QQueryOperations>
+  QueryBuilder<Layout, List<ButtonPosition>, QQueryOperations>
       bottomBarButtonsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'bottom_bar_buttons');
     });
   }
 
-  QueryBuilder<ReaderLayout, bool, QQueryOperations> isValidProperty() {
+  QueryBuilder<Layout, bool, QQueryOperations> isValidProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isValid');
     });

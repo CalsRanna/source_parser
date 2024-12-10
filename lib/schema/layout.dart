@@ -3,8 +3,8 @@ import 'package:isar/isar.dart';
 part 'layout.g.dart';
 
 @collection
-@Name('reader_layouts')
-class ReaderLayout {
+@Name('layouts')
+class Layout {
   Id? id;
 
   @enumerated
@@ -15,7 +15,7 @@ class ReaderLayout {
   @Name('bottom_bar_buttons')
   List<ButtonPosition> bottomBarButtons;
 
-  ReaderLayout({
+  Layout({
     this.appBarButtons = const [],
     this.bottomBarButtons = const [],
   });

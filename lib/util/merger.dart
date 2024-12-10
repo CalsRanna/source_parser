@@ -1,10 +1,31 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Theme;
+import 'package:source_parser/schema/theme.dart';
 
 class Merger {
-  final TextStyle chapterStyle;
-  final TextStyle contentStyle;
+  final Theme theme;
 
-  const Merger({required this.chapterStyle, required this.contentStyle});
+  final TextStyle _chapterStyle;
+  final TextStyle _contentStyle;
+
+  Merger({required this.theme})
+      : _chapterStyle = TextStyle(
+          color: Color(theme.contentColor),
+          decoration: TextDecoration.none,
+          fontSize: theme.chapterFontSize,
+          fontWeight: FontWeight.values[theme.chapterFontWeight],
+          height: theme.chapterHeight,
+          letterSpacing: theme.chapterLetterSpacing,
+          wordSpacing: theme.chapterWordSpacing,
+        ),
+        _contentStyle = TextStyle(
+          color: Color(theme.contentColor),
+          decoration: TextDecoration.none,
+          fontSize: theme.contentFontSize,
+          fontWeight: FontWeight.values[theme.contentFontWeight],
+          height: theme.contentHeight,
+          letterSpacing: theme.contentLetterSpacing,
+          wordSpacing: theme.contentWordSpacing,
+        );
 
   TextSpan merge(String pageContent) {
     bool isFirstPage = pageContent.startsWith('\n');
@@ -16,7 +37,7 @@ class Merger {
     if (isFirstPage && paragraphs.isNotEmpty) {
       // Add spacing around title using newlines
       var paragraph = '\n${paragraphs.first}\n';
-      children.add(TextSpan(text: paragraph, style: chapterStyle));
+      children.add(TextSpan(text: paragraph, style: _chapterStyle));
       paragraphs.removeAt(0);
     }
     children.addAll(paragraphs.map(_toElement));
@@ -24,6 +45,6 @@ class Merger {
   }
 
   TextSpan _toElement(String paragraph) {
-    return TextSpan(text: '$paragraph\n', style: contentStyle);
+    return TextSpan(text: '$paragraph\n', style: _contentStyle);
   }
 }

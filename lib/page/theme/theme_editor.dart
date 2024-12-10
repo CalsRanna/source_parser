@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:source_parser/model/reader_theme.dart';
 import 'package:source_parser/page/reader/component/background.dart';
 import 'package:source_parser/page/reader/component/view.dart';
 import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/schema/theme.dart' as schema;
 import 'package:source_parser/util/splitter.dart';
 
 @RoutePage()
@@ -205,7 +205,7 @@ class _SliderTileState extends State<_SliderTile> {
 class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
   var text = '';
   var contentText = '';
-  var theme = ReaderTheme();
+  var theme = schema.Theme();
   var size = Size.zero;
 
   bool _showOverlay = true;
@@ -263,14 +263,13 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
   }
 
   void showChapterSheet() => showSheet(_buildChapterStyleSheet);
-
+  void showContentPaddingSheet() => showSheet(_buildContentPaddingSheet);
   void showContentSheet() => showSheet(_buildContentStyleSheet);
-
   void showFooterPaddingSheet() => showSheet(_buildFooterPaddingSheet);
   void showFooterSheet() => showSheet(_buildFooterStyleSheet);
   void showHeaderPaddingSheet() => showSheet(_buildHeaderPaddingSheet);
   void showHeaderSheet() => showSheet(_buildHeaderStyleSheet);
-  void showPagePaddingSheet() => showSheet(_buildPagePaddingSheet);
+
   void showSheet(Widget Function() builder) {
     showModalBottomSheet(
       context: context,
@@ -280,246 +279,225 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
   }
 
   void updateChapterFontSize(double value) {
-    var style = theme.chapterStyle.copyWith(fontSize: value);
     setState(() {
-      theme = theme.copyWith(chapterStyle: style);
+      theme = theme.copyWith(chapterFontSize: value);
     });
     _initContentText();
   }
 
   void updateChapterFontWeight(double value) {
-    var weight = FontWeight.values[(value.toInt() - 1)];
-    var style = theme.chapterStyle.copyWith(fontWeight: weight);
     setState(() {
-      theme = theme.copyWith(chapterStyle: style);
+      theme = theme.copyWith(chapterFontWeight: value.toInt() - 1);
     });
     _initContentText();
   }
 
   void updateChapterHeight(double value) {
-    var style = theme.chapterStyle.copyWith(height: value);
     setState(() {
-      theme = theme.copyWith(chapterStyle: style);
+      theme = theme.copyWith(chapterHeight: value);
     });
     _initContentText();
   }
 
   void updateChapterLetterSpacing(double value) {
-    var style = theme.chapterStyle.copyWith(letterSpacing: value);
     setState(() {
-      theme = theme.copyWith(chapterStyle: style);
+      theme = theme.copyWith(chapterLetterSpacing: value);
     });
     _initContentText();
   }
 
   void updateChapterWordSpacing(double value) {
-    var style = theme.chapterStyle.copyWith(wordSpacing: value);
     setState(() {
-      theme = theme.copyWith(chapterStyle: style);
+      theme = theme.copyWith(chapterWordSpacing: value);
+    });
+    _initContentText();
+  }
+
+  void updateContentFontSize(double value) {
+    setState(() {
+      theme = theme.copyWith(contentFontSize: value);
+    });
+    _initContentText();
+  }
+
+  void updateContentFontWeight(double value) {
+    setState(() {
+      theme = theme.copyWith(contentFontWeight: value.toInt() - 1);
+    });
+    _initContentText();
+  }
+
+  void updateContentHeight(double value) {
+    setState(() {
+      theme = theme.copyWith(contentHeight: value);
+    });
+    _initContentText();
+  }
+
+  void updateContentLetterSpacing(double value) {
+    setState(() {
+      theme = theme.copyWith(contentLetterSpacing: value);
+    });
+    _initContentText();
+  }
+
+  void updateContentWordSpacing(double value) {
+    setState(() {
+      theme = theme.copyWith(contentWordSpacing: value);
     });
     _initContentText();
   }
 
   void updateFooterFontSize(double value) {
-    var style = theme.footerStyle.copyWith(fontSize: value);
     setState(() {
-      theme = theme.copyWith(footerStyle: style);
+      theme = theme.copyWith(footerFontSize: value);
     });
     _initContentText();
   }
 
   void updateFooterFontWeight(double value) {
-    var weight = FontWeight.values[(value.toInt() - 1)];
-    var style = theme.footerStyle.copyWith(fontWeight: weight);
     setState(() {
-      theme = theme.copyWith(footerStyle: style);
+      theme = theme.copyWith(footerFontWeight: value.toInt() - 1);
     });
     _initContentText();
   }
 
   void updateFooterHeight(double value) {
-    var style = theme.footerStyle.copyWith(height: value);
     setState(() {
-      theme = theme.copyWith(footerStyle: style);
+      theme = theme.copyWith(footerHeight: value);
     });
     _initContentText();
   }
 
   void updateFooterLetterSpacing(double value) {
-    var style = theme.footerStyle.copyWith(letterSpacing: value);
     setState(() {
-      theme = theme.copyWith(footerStyle: style);
+      theme = theme.copyWith(footerLetterSpacing: value);
     });
     _initContentText();
   }
 
-  void updateFooterPadding(EdgeInsets value) {
+  void updateFooterWordSpacing(double value) {
     setState(() {
-      theme = theme.copyWith(footerPadding: value);
+      theme = theme.copyWith(footerWordSpacing: value);
     });
     _initContentText();
   }
 
   void updateFooterPaddingBottom(double value) {
-    var current = theme.footerPadding;
-    updateFooterPadding(current.copyWith(bottom: value));
+    setState(() {
+      theme = theme.copyWith(footerPaddingBottom: value);
+    });
+    _initContentText();
   }
 
   void updateFooterPaddingLeft(double value) {
-    var current = theme.footerPadding;
-    updateFooterPadding(current.copyWith(left: value));
+    setState(() {
+      theme = theme.copyWith(footerPaddingLeft: value);
+    });
+    _initContentText();
   }
 
   void updateFooterPaddingRight(double value) {
-    var current = theme.footerPadding;
-    updateFooterPadding(current.copyWith(right: value));
+    setState(() {
+      theme = theme.copyWith(footerPaddingRight: value);
+    });
+    _initContentText();
   }
 
   void updateFooterPaddingTop(double value) {
-    var current = theme.footerPadding;
-    updateFooterPadding(current.copyWith(top: value));
-  }
-
-  void updateFooterWordSpacing(double value) {
-    var style = theme.footerStyle.copyWith(wordSpacing: value);
     setState(() {
-      theme = theme.copyWith(footerStyle: style);
+      theme = theme.copyWith(footerPaddingTop: value);
     });
     _initContentText();
   }
 
   void updateHeaderFontSize(double value) {
-    var style = theme.headerStyle.copyWith(fontSize: value);
     setState(() {
-      theme = theme.copyWith(headerStyle: style);
+      theme = theme.copyWith(headerFontSize: value);
     });
     _initContentText();
   }
 
   void updateHeaderFontWeight(double value) {
-    var weight = FontWeight.values[(value.toInt() - 1)];
-    var style = theme.headerStyle.copyWith(fontWeight: weight);
     setState(() {
-      theme = theme.copyWith(headerStyle: style);
+      theme = theme.copyWith(headerFontWeight: value.toInt() - 1);
     });
     _initContentText();
   }
 
   void updateHeaderHeight(double value) {
-    var style = theme.headerStyle.copyWith(height: value);
     setState(() {
-      theme = theme.copyWith(headerStyle: style);
+      theme = theme.copyWith(headerHeight: value);
     });
     _initContentText();
   }
 
   void updateHeaderLetterSpacing(double value) {
-    var style = theme.headerStyle.copyWith(letterSpacing: value);
     setState(() {
-      theme = theme.copyWith(headerStyle: style);
-    });
-    _initContentText();
-  }
-
-  void updateHeaderPadding(EdgeInsets value) {
-    setState(() {
-      theme = theme.copyWith(headerPadding: value);
+      theme = theme.copyWith(headerLetterSpacing: value);
     });
     _initContentText();
   }
 
   void updateHeaderPaddingBottom(double value) {
-    var current = theme.headerPadding;
-    updateHeaderPadding(current.copyWith(bottom: value));
+    setState(() {
+      theme = theme.copyWith(headerPaddingBottom: value);
+    });
+    _initContentText();
   }
 
   void updateHeaderPaddingLeft(double value) {
-    var current = theme.headerPadding;
-    updateHeaderPadding(current.copyWith(left: value));
+    setState(() {
+      theme = theme.copyWith(headerPaddingLeft: value);
+    });
+    _initContentText();
   }
 
   void updateHeaderPaddingRight(double value) {
-    var current = theme.headerPadding;
-    updateHeaderPadding(current.copyWith(right: value));
+    setState(() {
+      theme = theme.copyWith(headerPaddingRight: value);
+    });
+    _initContentText();
   }
 
   void updateHeaderPaddingTop(double value) {
-    var current = theme.headerPadding;
-    updateHeaderPadding(current.copyWith(top: value));
+    setState(() {
+      theme = theme.copyWith(headerPaddingTop: value);
+    });
+    _initContentText();
   }
 
   void updateHeaderWordSpacing(double value) {
-    var style = theme.headerStyle.copyWith(wordSpacing: value);
     setState(() {
-      theme = theme.copyWith(headerStyle: style);
+      theme = theme.copyWith(headerWordSpacing: value);
     });
     _initContentText();
   }
 
-  void updatePageFontSize(double value) {
-    var style = theme.pageStyle.copyWith(fontSize: value);
+  void updateContentPaddingBottom(double value) {
     setState(() {
-      theme = theme.copyWith(pageStyle: style);
+      theme = theme.copyWith(contentPaddingBottom: value);
     });
     _initContentText();
   }
 
-  void updatePageFontWeight(double value) {
-    var weight = FontWeight.values[(value.toInt() - 1)];
-    var style = theme.pageStyle.copyWith(fontWeight: weight);
+  void updateContentPaddingLeft(double value) {
     setState(() {
-      theme = theme.copyWith(pageStyle: style);
+      theme = theme.copyWith(contentPaddingLeft: value);
     });
     _initContentText();
   }
 
-  void updatePageHeight(double value) {
-    var style = theme.pageStyle.copyWith(height: value);
+  void updateContentPaddingRight(double value) {
     setState(() {
-      theme = theme.copyWith(pageStyle: style);
+      theme = theme.copyWith(contentPaddingRight: value);
     });
     _initContentText();
   }
 
-  void updatePageLetterSpacing(double value) {
-    var style = theme.pageStyle.copyWith(letterSpacing: value);
+  void updateContentPaddingTop(double value) {
     setState(() {
-      theme = theme.copyWith(pageStyle: style);
-    });
-    _initContentText();
-  }
-
-  void updatePagePadding(EdgeInsets value) {
-    setState(() {
-      theme = theme.copyWith(pagePadding: value);
-    });
-    _initContentText();
-  }
-
-  void updatePagePaddingBottom(double value) {
-    var current = theme.pagePadding;
-    updatePagePadding(current.copyWith(bottom: value));
-  }
-
-  void updatePagePaddingLeft(double value) {
-    var current = theme.pagePadding;
-    updatePagePadding(current.copyWith(left: value));
-  }
-
-  void updatePagePaddingRight(double value) {
-    var current = theme.pagePadding;
-    updatePagePadding(current.copyWith(right: value));
-  }
-
-  void updatePagePaddingTop(double value) {
-    var current = theme.pagePadding;
-    updatePagePadding(current.copyWith(top: value));
-  }
-
-  void updatePageWordSpacing(double value) {
-    var style = theme.pageStyle.copyWith(wordSpacing: value);
-    setState(() {
-      theme = theme.copyWith(pageStyle: style);
+      theme = theme.copyWith(contentPaddingTop: value);
     });
     _initContentText();
   }
@@ -530,43 +508,21 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
     // notifier.updateBackgroundColor(colorValue)
   }
 
-  Future<void> _assembleReaderTheme() async {
-    var container = ProviderScope.containerOf(context);
-    final provider = settingNotifierProvider;
-    var setting = await container.read(provider.future);
-    Color backgroundColor = Color(setting.backgroundColor);
-    Color fontColor = Colors.black.withOpacity(0.75);
-    Color variantFontColor = Colors.black.withOpacity(0.5);
-    if (setting.darkMode) {
-      backgroundColor = Colors.black;
-      fontColor = Colors.white.withOpacity(0.75);
-      variantFontColor = Colors.white.withOpacity(0.5);
-    }
-    var assembledTheme = theme.copyWith(
-      backgroundColor: backgroundColor,
-      chapterStyle: theme.chapterStyle.copyWith(color: fontColor),
-      footerStyle: theme.footerStyle.copyWith(color: variantFontColor),
-      headerStyle: theme.headerStyle.copyWith(color: variantFontColor),
-      pageStyle: theme.pageStyle.copyWith(color: fontColor),
-    );
-    setState(() {
-      theme = assembledTheme;
-    });
-  }
+  Future<void> _assembleReaderTheme() async {}
 
   Widget _buildChapterStyleSheet() {
     var children = [
       _SheetTitle('标题样式'),
       _SliderTile(
         label: '字体大小',
-        value: theme.chapterStyle.fontSize ?? 18.0,
+        value: theme.chapterFontSize,
         max: 48.0,
         min: 12.0,
         onChanged: updateChapterFontSize,
       ),
       _SliderTile(
         label: '字重',
-        value: _getWeight(theme.chapterStyle.fontWeight ?? FontWeight.w500),
+        value: theme.chapterFontWeight.toDouble(),
         max: 9.0,
         min: 1.0,
         fractionDigits: 0,
@@ -574,19 +530,19 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       ),
       _SliderTile(
         label: '行高',
-        value: theme.chapterStyle.height ?? 1.0 + 0.618 * 2,
+        value: theme.chapterHeight,
         max: 4.0,
         min: 1.0,
         onChanged: updateChapterHeight,
       ),
       _SliderTile(
         label: '字间距',
-        value: theme.chapterStyle.letterSpacing ?? 0.618,
+        value: theme.chapterLetterSpacing,
         onChanged: updateChapterLetterSpacing,
       ),
       _SliderTile(
         label: '词间距',
-        value: theme.chapterStyle.wordSpacing ?? 0.618,
+        value: theme.chapterWordSpacing,
         onChanged: updateChapterWordSpacing,
       ),
     ];
@@ -598,35 +554,35 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SheetTitle('正文样式'),
       _SliderTile(
         label: '字体大小',
-        value: theme.pageStyle.fontSize ?? 18.0,
+        value: theme.contentFontSize,
         max: 32.0,
         min: 12.0,
-        onChanged: updatePageFontSize,
+        onChanged: updateContentFontSize,
       ),
       _SliderTile(
         label: '字重',
-        value: _getWeight(theme.pageStyle.fontWeight ?? FontWeight.w400),
+        value: theme.contentFontWeight.toDouble(),
         max: 9.0,
         min: 1.0,
         fractionDigits: 0,
-        onChanged: updatePageFontWeight,
+        onChanged: updateContentFontWeight,
       ),
       _SliderTile(
         label: '行高',
-        value: theme.pageStyle.height ?? 1.0 + 0.618 * 2,
+        value: theme.contentHeight,
         max: 4.0,
         min: 1.0,
-        onChanged: updatePageHeight,
+        onChanged: updateContentHeight,
       ),
       _SliderTile(
         label: '字间距',
-        value: theme.pageStyle.letterSpacing ?? 0.618,
-        onChanged: updatePageLetterSpacing,
+        value: theme.contentLetterSpacing,
+        onChanged: updateContentLetterSpacing,
       ),
       _SliderTile(
         label: '词间距',
-        value: theme.pageStyle.wordSpacing ?? 0.618,
-        onChanged: updatePageWordSpacing,
+        value: theme.contentWordSpacing,
+        onChanged: updateContentWordSpacing,
       ),
     ];
     return ListView(children: children);
@@ -637,31 +593,31 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SheetTitle('页脚边距'),
       _SliderTile(
         label: '上边距',
-        value: theme.footerPadding.top,
+        value: theme.footerPaddingTop,
         max: 64.0,
         min: 0.0,
-        onChanged: updateFooterPaddingTop,
+        onChanged: (value) => updateFooterPaddingTop(value),
       ),
       _SliderTile(
         label: '下边距',
-        value: theme.footerPadding.bottom,
+        value: theme.footerPaddingBottom,
         max: 64.0,
         min: 0.0,
-        onChanged: updateFooterPaddingBottom,
+        onChanged: (value) => updateFooterPaddingBottom(value),
       ),
       _SliderTile(
         label: '左边距',
-        value: theme.footerPadding.left,
+        value: theme.footerPaddingLeft,
         max: 64.0,
         min: 0.0,
-        onChanged: updateFooterPaddingLeft,
+        onChanged: (value) => updateFooterPaddingLeft(value),
       ),
       _SliderTile(
         label: '右边距',
-        value: theme.footerPadding.right,
+        value: theme.footerPaddingRight,
         max: 64.0,
         min: 0.0,
-        onChanged: updateFooterPaddingRight,
+        onChanged: (value) => updateFooterPaddingRight(value),
       ),
     ];
     return ListView(children: children);
@@ -672,14 +628,14 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SheetTitle('页脚样式'),
       _SliderTile(
         label: '字体大小',
-        value: theme.footerStyle.fontSize ?? 18.0,
+        value: theme.footerFontSize,
         max: 32.0,
         min: 12.0,
         onChanged: updateFooterFontSize,
       ),
       _SliderTile(
         label: '字重',
-        value: _getWeight(theme.footerStyle.fontWeight ?? FontWeight.w400),
+        value: theme.footerFontWeight.toDouble(),
         max: 9.0,
         min: 1.0,
         fractionDigits: 0,
@@ -687,19 +643,19 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       ),
       _SliderTile(
         label: '行高',
-        value: theme.footerStyle.height ?? 1.0 + 0.618 * 2,
+        value: theme.footerHeight,
         max: 4.0,
         min: 1.0,
         onChanged: updateFooterHeight,
       ),
       _SliderTile(
         label: '字间距',
-        value: theme.footerStyle.letterSpacing ?? 0.618,
+        value: theme.footerLetterSpacing,
         onChanged: updateFooterLetterSpacing,
       ),
       _SliderTile(
         label: '词间距',
-        value: theme.footerStyle.wordSpacing ?? 0.618,
+        value: theme.footerWordSpacing,
         onChanged: updateFooterWordSpacing,
       ),
     ];
@@ -711,28 +667,28 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SheetTitle('页头边距'),
       _SliderTile(
         label: '上边距',
-        value: theme.headerPadding.top,
+        value: theme.headerPaddingTop,
         max: 64.0,
         min: 0.0,
         onChanged: updateHeaderPaddingTop,
       ),
       _SliderTile(
         label: '下边距',
-        value: theme.headerPadding.bottom,
+        value: theme.headerPaddingBottom,
         max: 64.0,
         min: 0.0,
         onChanged: updateHeaderPaddingBottom,
       ),
       _SliderTile(
         label: '左边距',
-        value: theme.headerPadding.left,
+        value: theme.headerPaddingLeft,
         max: 64.0,
         min: 0.0,
         onChanged: updateHeaderPaddingLeft,
       ),
       _SliderTile(
         label: '右边距',
-        value: theme.headerPadding.right,
+        value: theme.headerPaddingRight,
         max: 64.0,
         min: 0.0,
         onChanged: updateHeaderPaddingRight,
@@ -746,14 +702,14 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SheetTitle('页头样式'),
       _SliderTile(
         label: '字体大小',
-        value: theme.footerStyle.fontSize ?? 18.0,
+        value: theme.headerFontSize,
         max: 32.0,
         min: 12.0,
         onChanged: updateHeaderFontSize,
       ),
       _SliderTile(
         label: '字重',
-        value: _getWeight(theme.headerStyle.fontWeight ?? FontWeight.w400),
+        value: theme.headerFontWeight.toDouble(),
         max: 9.0,
         min: 1.0,
         fractionDigits: 0,
@@ -761,19 +717,19 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       ),
       _SliderTile(
         label: '行高',
-        value: theme.headerStyle.height ?? 1.0 + 0.618 * 2,
+        value: theme.headerHeight,
         max: 4.0,
         min: 1.0,
         onChanged: updateHeaderHeight,
       ),
       _SliderTile(
         label: '字间距',
-        value: theme.headerStyle.letterSpacing ?? 0.618,
+        value: theme.headerLetterSpacing,
         onChanged: updateHeaderLetterSpacing,
       ),
       _SliderTile(
         label: '词间距',
-        value: theme.headerStyle.wordSpacing ?? 0.618,
+        value: theme.headerWordSpacing,
         onChanged: updateHeaderWordSpacing,
       ),
     ];
@@ -796,36 +752,36 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
     );
   }
 
-  Widget _buildPagePaddingSheet() {
+  Widget _buildContentPaddingSheet() {
     var children = [
       _SheetTitle('正文边距'),
       _SliderTile(
         label: '上边距',
-        value: theme.pagePadding.top,
+        value: theme.contentPaddingTop,
         max: 64.0,
         min: 0.0,
-        onChanged: updatePagePaddingTop,
+        onChanged: updateContentPaddingTop,
       ),
       _SliderTile(
         label: '下边距',
-        value: theme.pagePadding.bottom,
+        value: theme.contentPaddingBottom,
         max: 64.0,
         min: 0.0,
-        onChanged: updatePagePaddingBottom,
+        onChanged: updateContentPaddingBottom,
       ),
       _SliderTile(
         label: '左边距',
-        value: theme.pagePadding.left,
+        value: theme.contentPaddingLeft,
         max: 64.0,
         min: 0.0,
-        onChanged: updatePagePaddingLeft,
+        onChanged: updateContentPaddingLeft,
       ),
       _SliderTile(
         label: '右边距',
-        value: theme.pagePadding.right,
+        value: theme.contentPaddingRight,
         max: 64.0,
         min: 0.0,
-        onChanged: updatePagePaddingRight,
+        onChanged: (value) => updateContentPaddingRight(value),
       ),
     ];
     return ListView(children: children);
@@ -840,7 +796,7 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _ListTile(onTap: showFooterSheet, title: '页脚样式'),
       _SheetLabel('边距'),
       _ListTile(onTap: showHeaderPaddingSheet, title: '页头边距'),
-      _ListTile(onTap: showPagePaddingSheet, title: '正文边距'),
+      _ListTile(onTap: showContentPaddingSheet, title: '正文边距'),
       _ListTile(onTap: showFooterPaddingSheet, title: '页脚边距'),
     ];
     return ListView(children: children);
@@ -894,12 +850,20 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
 
   Future<void> _initContentText() async {
     var mediaQueryData = MediaQuery.of(context);
-    var width = mediaQueryData.size.width - theme.pagePadding.horizontal;
-    var height = mediaQueryData.size.height - theme.pagePadding.vertical;
-    height -= (theme.headerPadding.vertical +
-        theme.headerStyle.fontSize! * theme.headerStyle.height!);
-    height -= (theme.footerPadding.vertical +
-        theme.footerStyle.fontSize! * theme.footerStyle.height!);
+    var contentPaddingHorizontal =
+        theme.contentPaddingLeft + theme.contentPaddingRight;
+    var width = mediaQueryData.size.width - contentPaddingHorizontal;
+    var contentPaddingVertical =
+        theme.contentPaddingTop + theme.contentPaddingBottom;
+    var height = mediaQueryData.size.height - contentPaddingVertical;
+    var headerPaddingVertical =
+        theme.headerPaddingTop + theme.headerPaddingBottom;
+    height -=
+        (headerPaddingVertical + theme.headerHeight * theme.headerFontSize);
+    var footerPaddingVertical =
+        theme.footerPaddingTop + theme.footerPaddingBottom;
+    height -=
+        (footerPaddingVertical + theme.footerHeight * theme.footerFontSize);
     setState(() {
       size = Size(width, height);
     });

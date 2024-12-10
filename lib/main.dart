@@ -10,6 +10,7 @@ import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/layout.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/logger.dart';
 
 void main() async {
@@ -18,9 +19,10 @@ void main() async {
   final directory = await getApplicationDocumentsDirectory();
   isar = await Isar.open([
     BookSchema,
-    ReaderLayoutSchema,
+    LayoutSchema,
     SettingSchema,
     SourceSchema,
+    ThemeSchema,
   ], directory: directory.path);
   runApp(ProviderScope(child: SourceParser()));
 }

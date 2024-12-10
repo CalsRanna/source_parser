@@ -17,73 +17,63 @@ const SettingSchema = CollectionSchema(
   name: r'settings',
   id: -5221820136678325216,
   properties: {
-    r'background_color': PropertySchema(
-      id: 0,
-      name: r'background_color',
-      type: IsarType.long,
-    ),
     r'cache_duration': PropertySchema(
-      id: 1,
+      id: 0,
       name: r'cache_duration',
       type: IsarType.double,
     ),
     r'color_seed': PropertySchema(
-      id: 2,
+      id: 1,
       name: r'color_seed',
       type: IsarType.long,
     ),
     r'dark_mode': PropertySchema(
-      id: 3,
+      id: 2,
       name: r'dark_mode',
       type: IsarType.bool,
     ),
     r'debug_mode': PropertySchema(
-      id: 4,
+      id: 3,
       name: r'debug_mode',
       type: IsarType.bool,
     ),
     r'e_ink_mode': PropertySchema(
-      id: 5,
+      id: 4,
       name: r'e_ink_mode',
       type: IsarType.bool,
     ),
     r'explore_source': PropertySchema(
-      id: 6,
+      id: 5,
       name: r'explore_source',
       type: IsarType.long,
     ),
-    r'font_size': PropertySchema(
-      id: 7,
-      name: r'font_size',
-      type: IsarType.long,
-    ),
-    r'line_space': PropertySchema(
-      id: 8,
-      name: r'line_space',
-      type: IsarType.double,
-    ),
     r'max_concurrent': PropertySchema(
-      id: 9,
+      id: 6,
       name: r'max_concurrent',
       type: IsarType.double,
     ),
     r'search_filter': PropertySchema(
-      id: 10,
+      id: 7,
       name: r'search_filter',
       type: IsarType.bool,
     ),
     r'shelf_mode': PropertySchema(
-      id: 11,
+      id: 8,
       name: r'shelf_mode',
       type: IsarType.string,
     ),
+    r'theme_id': PropertySchema(
+      id: 9,
+      name: r'theme_id',
+      type: IsarType.long,
+    ),
     r'timeout': PropertySchema(
-      id: 12,
+      id: 10,
       name: r'timeout',
       type: IsarType.long,
     ),
     r'turning_mode': PropertySchema(
-      id: 13,
+      id: 11,
       name: r'turning_mode',
       type: IsarType.long,
     )
@@ -118,20 +108,18 @@ void _settingSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.backgroundColor);
-  writer.writeDouble(offsets[1], object.cacheDuration);
-  writer.writeLong(offsets[2], object.colorSeed);
-  writer.writeBool(offsets[3], object.darkMode);
-  writer.writeBool(offsets[4], object.debugMode);
-  writer.writeBool(offsets[5], object.eInkMode);
-  writer.writeLong(offsets[6], object.exploreSource);
-  writer.writeLong(offsets[7], object.fontSize);
-  writer.writeDouble(offsets[8], object.lineSpace);
-  writer.writeDouble(offsets[9], object.maxConcurrent);
-  writer.writeBool(offsets[10], object.searchFilter);
-  writer.writeString(offsets[11], object.shelfMode);
-  writer.writeLong(offsets[12], object.timeout);
-  writer.writeLong(offsets[13], object.turningMode);
+  writer.writeDouble(offsets[0], object.cacheDuration);
+  writer.writeLong(offsets[1], object.colorSeed);
+  writer.writeBool(offsets[2], object.darkMode);
+  writer.writeBool(offsets[3], object.debugMode);
+  writer.writeBool(offsets[4], object.eInkMode);
+  writer.writeLong(offsets[5], object.exploreSource);
+  writer.writeDouble(offsets[6], object.maxConcurrent);
+  writer.writeBool(offsets[7], object.searchFilter);
+  writer.writeString(offsets[8], object.shelfMode);
+  writer.writeLong(offsets[9], object.themeId);
+  writer.writeLong(offsets[10], object.timeout);
+  writer.writeLong(offsets[11], object.turningMode);
 }
 
 Setting _settingDeserialize(
@@ -141,21 +129,19 @@ Setting _settingDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Setting();
-  object.backgroundColor = reader.readLong(offsets[0]);
-  object.cacheDuration = reader.readDouble(offsets[1]);
-  object.colorSeed = reader.readLong(offsets[2]);
-  object.darkMode = reader.readBool(offsets[3]);
-  object.debugMode = reader.readBool(offsets[4]);
-  object.eInkMode = reader.readBool(offsets[5]);
-  object.exploreSource = reader.readLong(offsets[6]);
-  object.fontSize = reader.readLong(offsets[7]);
+  object.cacheDuration = reader.readDouble(offsets[0]);
+  object.colorSeed = reader.readLong(offsets[1]);
+  object.darkMode = reader.readBool(offsets[2]);
+  object.debugMode = reader.readBool(offsets[3]);
+  object.eInkMode = reader.readBool(offsets[4]);
+  object.exploreSource = reader.readLong(offsets[5]);
   object.id = id;
-  object.lineSpace = reader.readDouble(offsets[8]);
-  object.maxConcurrent = reader.readDouble(offsets[9]);
-  object.searchFilter = reader.readBool(offsets[10]);
-  object.shelfMode = reader.readString(offsets[11]);
-  object.timeout = reader.readLong(offsets[12]);
-  object.turningMode = reader.readLong(offsets[13]);
+  object.maxConcurrent = reader.readDouble(offsets[6]);
+  object.searchFilter = reader.readBool(offsets[7]);
+  object.shelfMode = reader.readString(offsets[8]);
+  object.themeId = reader.readLong(offsets[9]);
+  object.timeout = reader.readLong(offsets[10]);
+  object.turningMode = reader.readLong(offsets[11]);
   return object;
 }
 
@@ -167,32 +153,28 @@ P _settingDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readLong(offset)) as P;
-    case 1:
       return (reader.readDouble(offset)) as P;
-    case 2:
+    case 1:
       return (reader.readLong(offset)) as P;
+    case 2:
+      return (reader.readBool(offset)) as P;
     case 3:
       return (reader.readBool(offset)) as P;
     case 4:
       return (reader.readBool(offset)) as P;
     case 5:
-      return (reader.readBool(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 6:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 7:
-      return (reader.readLong(offset)) as P;
-    case 8:
-      return (reader.readDouble(offset)) as P;
-    case 9:
-      return (reader.readDouble(offset)) as P;
-    case 10:
       return (reader.readBool(offset)) as P;
-    case 11:
+    case 8:
       return (reader.readString(offset)) as P;
-    case 12:
+    case 9:
       return (reader.readLong(offset)) as P;
-    case 13:
+    case 10:
+      return (reader.readLong(offset)) as P;
+    case 11:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -288,60 +270,6 @@ extension SettingQueryWhere on QueryBuilder<Setting, Setting, QWhereClause> {
 
 extension SettingQueryFilter
     on QueryBuilder<Setting, Setting, QFilterCondition> {
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> backgroundColorEqualTo(
-      int value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'background_color',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterFilterCondition>
-      backgroundColorGreaterThan(
-    int value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'background_color',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> backgroundColorLessThan(
-    int value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'background_color',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> backgroundColorBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'background_color',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
   QueryBuilder<Setting, Setting, QAfterFilterCondition> cacheDurationEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -542,59 +470,6 @@ extension SettingQueryFilter
     });
   }
 
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> fontSizeEqualTo(
-      int value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'font_size',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> fontSizeGreaterThan(
-    int value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'font_size',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> fontSizeLessThan(
-    int value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'font_size',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> fontSizeBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'font_size',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
   QueryBuilder<Setting, Setting, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -643,68 +518,6 @@ extension SettingQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> lineSpaceEqualTo(
-    double value, {
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'line_space',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> lineSpaceGreaterThan(
-    double value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'line_space',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> lineSpaceLessThan(
-    double value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'line_space',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterFilterCondition> lineSpaceBetween(
-    double lower,
-    double upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'line_space',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        epsilon: epsilon,
       ));
     });
   }
@@ -912,6 +725,59 @@ extension SettingQueryFilter
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> themeIdEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'theme_id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> themeIdGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'theme_id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> themeIdLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'theme_id',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> themeIdBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'theme_id',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterFilterCondition> timeoutEqualTo(
       int value) {
     return QueryBuilder.apply(this, (query) {
@@ -1026,18 +892,6 @@ extension SettingQueryLinks
     on QueryBuilder<Setting, Setting, QFilterCondition> {}
 
 extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
-  QueryBuilder<Setting, Setting, QAfterSortBy> sortByBackgroundColor() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'background_color', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterSortBy> sortByBackgroundColorDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'background_color', Sort.desc);
-    });
-  }
-
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByCacheDuration() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'cache_duration', Sort.asc);
@@ -1110,30 +964,6 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
     });
   }
 
-  QueryBuilder<Setting, Setting, QAfterSortBy> sortByFontSize() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'font_size', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterSortBy> sortByFontSizeDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'font_size', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterSortBy> sortByLineSpace() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'line_space', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterSortBy> sortByLineSpaceDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'line_space', Sort.desc);
-    });
-  }
-
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByMaxConcurrent() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'max_concurrent', Sort.asc);
@@ -1170,6 +1000,18 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByThemeId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'theme_id', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> sortByThemeIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'theme_id', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> sortByTimeout() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'timeout', Sort.asc);
@@ -1197,18 +1039,6 @@ extension SettingQuerySortBy on QueryBuilder<Setting, Setting, QSortBy> {
 
 extension SettingQuerySortThenBy
     on QueryBuilder<Setting, Setting, QSortThenBy> {
-  QueryBuilder<Setting, Setting, QAfterSortBy> thenByBackgroundColor() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'background_color', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterSortBy> thenByBackgroundColorDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'background_color', Sort.desc);
-    });
-  }
-
   QueryBuilder<Setting, Setting, QAfterSortBy> thenByCacheDuration() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'cache_duration', Sort.asc);
@@ -1281,18 +1111,6 @@ extension SettingQuerySortThenBy
     });
   }
 
-  QueryBuilder<Setting, Setting, QAfterSortBy> thenByFontSize() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'font_size', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterSortBy> thenByFontSizeDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'font_size', Sort.desc);
-    });
-  }
-
   QueryBuilder<Setting, Setting, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1302,18 +1120,6 @@ extension SettingQuerySortThenBy
   QueryBuilder<Setting, Setting, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterSortBy> thenByLineSpace() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'line_space', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QAfterSortBy> thenByLineSpaceDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'line_space', Sort.desc);
     });
   }
 
@@ -1353,6 +1159,18 @@ extension SettingQuerySortThenBy
     });
   }
 
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByThemeId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'theme_id', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterSortBy> thenByThemeIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'theme_id', Sort.desc);
+    });
+  }
+
   QueryBuilder<Setting, Setting, QAfterSortBy> thenByTimeout() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'timeout', Sort.asc);
@@ -1380,12 +1198,6 @@ extension SettingQuerySortThenBy
 
 extension SettingQueryWhereDistinct
     on QueryBuilder<Setting, Setting, QDistinct> {
-  QueryBuilder<Setting, Setting, QDistinct> distinctByBackgroundColor() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'background_color');
-    });
-  }
-
   QueryBuilder<Setting, Setting, QDistinct> distinctByCacheDuration() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'cache_duration');
@@ -1422,18 +1234,6 @@ extension SettingQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Setting, Setting, QDistinct> distinctByFontSize() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'font_size');
-    });
-  }
-
-  QueryBuilder<Setting, Setting, QDistinct> distinctByLineSpace() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'line_space');
-    });
-  }
-
   QueryBuilder<Setting, Setting, QDistinct> distinctByMaxConcurrent() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'max_concurrent');
@@ -1450,6 +1250,12 @@ extension SettingQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'shelf_mode', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QDistinct> distinctByThemeId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'theme_id');
     });
   }
 
@@ -1471,12 +1277,6 @@ extension SettingQueryProperty
   QueryBuilder<Setting, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
-    });
-  }
-
-  QueryBuilder<Setting, int, QQueryOperations> backgroundColorProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'background_color');
     });
   }
 
@@ -1516,18 +1316,6 @@ extension SettingQueryProperty
     });
   }
 
-  QueryBuilder<Setting, int, QQueryOperations> fontSizeProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'font_size');
-    });
-  }
-
-  QueryBuilder<Setting, double, QQueryOperations> lineSpaceProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'line_space');
-    });
-  }
-
   QueryBuilder<Setting, double, QQueryOperations> maxConcurrentProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'max_concurrent');
@@ -1543,6 +1331,12 @@ extension SettingQueryProperty
   QueryBuilder<Setting, String, QQueryOperations> shelfModeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'shelf_mode');
+    });
+  }
+
+  QueryBuilder<Setting, int, QQueryOperations> themeIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'theme_id');
     });
   }
 

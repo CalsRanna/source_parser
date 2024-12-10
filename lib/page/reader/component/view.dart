@@ -1,15 +1,15 @@
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/model/reader_theme.dart';
-import 'package:source_parser/provider/reader.dart';
+import 'package:source_parser/provider/theme.dart';
+import 'package:source_parser/schema/theme.dart' as schema;
 import 'package:source_parser/util/merger.dart';
 
 class ReaderView extends ConsumerWidget {
   final Widget Function()? builder;
   final String chapterText;
   final String contentText;
-  final ReaderTheme? customTheme;
+  final schema.Theme? customTheme;
   final bool eInkMode;
   final String headerText;
   final String progressText;
@@ -37,26 +37,16 @@ class ReaderView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var state = ref.watch(readerThemeNotifierProvider).valueOrNull;
-    var currentTheme = state ?? ReaderTheme();
+    var state = ref.watch(themeNotifierProvider).valueOrNull;
+    var currentTheme = state ?? schema.Theme();
     var theme = customTheme ?? currentTheme;
-    var header = _Header(
-      padding: theme.headerPadding,
-      style: theme.headerStyle,
-      text: headerText,
-    );
-    Widget content = _Content(
-      chapterStyle: theme.chapterStyle,
-      contentStyle: theme.pageStyle,
-      padding: theme.pagePadding,
-      text: contentText,
-    );
+    var header = _Header(text: headerText, theme: theme);
+    Widget content = _Content(text: contentText, theme: theme);
     if (builder != null) content = builder!.call();
     var footer = _Footer(
       chapterText: chapterText,
-      padding: theme.footerPadding,
       progressText: progressText,
-      style: theme.footerStyle,
+      theme: theme,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,40 +56,40 @@ class ReaderView extends ConsumerWidget {
 }
 
 class _Content extends StatelessWidget {
-  final TextStyle chapterStyle;
-  final TextStyle contentStyle;
-  final EdgeInsets padding;
   final String text;
-  const _Content({
-    required this.chapterStyle,
-    required this.contentStyle,
-    required this.padding,
-    required this.text,
-  });
+  final schema.Theme theme;
+  const _Content({required this.text, required this.theme});
 
   @override
   Widget build(BuildContext context) {
-    var merger = Merger(chapterStyle: chapterStyle, contentStyle: contentStyle);
+    var merger = Merger(theme: theme);
     var span = merger.merge(text);
     return Container(
-      padding: padding,
+      padding: _getContentPadding(),
       width: double.infinity,
       child: RichText(text: span),
+    );
+  }
+
+  EdgeInsets _getContentPadding() {
+    return EdgeInsets.only(
+      bottom: theme.contentPaddingBottom,
+      left: theme.contentPaddingLeft,
+      right: theme.contentPaddingRight,
+      top: theme.contentPaddingTop,
     );
   }
 }
 
 class _Footer extends StatefulWidget {
   final String chapterText;
-  final EdgeInsets padding;
   final String progressText;
-  final TextStyle style;
+  final schema.Theme theme;
 
   const _Footer({
     required this.chapterText,
-    required this.padding,
     required this.progressText,
-    required this.style,
+    required this.theme,
   });
 
   @override
@@ -119,7 +109,7 @@ class _FooterState extends State<_Footer> {
     var batteryIndicator = _buildBattery();
     var right = Row(children: [timeIndicator, spacer, batteryIndicator]);
     var row = Row(children: [left, const Spacer(), right]);
-    return Padding(padding: widget.padding, child: row);
+    return Padding(padding: _getPadding(), child: row);
   }
 
   @override
@@ -162,16 +152,16 @@ class _FooterState extends State<_Footer> {
   }
 
   Widget _buildPage() {
-    return Text(widget.chapterText, style: widget.style);
+    return Text(widget.chapterText, style: _getStyle());
   }
 
   Widget _buildProgress() {
-    return Text(widget.progressText, style: widget.style);
+    return Text(widget.progressText, style: _getStyle());
   }
 
   Widget _buildTime() {
     var time = DateTime.now().toString().substring(11, 16);
-    return Text(time, style: widget.style);
+    return Text(time, style: _getStyle());
   }
 
   Future<void> _calculateBattery() async {
@@ -180,24 +170,61 @@ class _FooterState extends State<_Footer> {
       battery = level;
     });
   }
+
+  EdgeInsets _getPadding() {
+    return EdgeInsets.only(
+      bottom: widget.theme.footerPaddingBottom,
+      left: widget.theme.footerPaddingLeft,
+      right: widget.theme.footerPaddingRight,
+      top: widget.theme.footerPaddingTop,
+    );
+  }
+
+  TextStyle _getStyle() {
+    return TextStyle(
+      color: Color(widget.theme.footerColor),
+      decoration: TextDecoration.none,
+      fontSize: widget.theme.footerFontSize,
+      fontWeight: FontWeight.values[widget.theme.footerFontWeight],
+      height: widget.theme.footerHeight,
+      letterSpacing: widget.theme.footerLetterSpacing,
+      wordSpacing: widget.theme.footerWordSpacing,
+    );
+  }
 }
 
 class _Header extends StatelessWidget {
-  final EdgeInsets padding;
-  final TextStyle style;
   final String text;
+  final schema.Theme theme;
 
-  const _Header({
-    required this.padding,
-    required this.style,
-    required this.text,
-  });
+  const _Header({required this.text, required this.theme});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: padding,
-      child: Text(text, style: style, textAlign: TextAlign.start),
+      padding: _getPadding(),
+      child: Text(text, style: _getStyle(), textAlign: TextAlign.start),
+    );
+  }
+
+  EdgeInsets _getPadding() {
+    return EdgeInsets.only(
+      bottom: theme.footerPaddingBottom,
+      left: theme.footerPaddingLeft,
+      right: theme.footerPaddingRight,
+      top: theme.footerPaddingTop,
+    );
+  }
+
+  TextStyle _getStyle() {
+    return TextStyle(
+      color: Color(theme.footerColor),
+      decoration: TextDecoration.none,
+      fontSize: theme.footerFontSize,
+      fontWeight: FontWeight.values[theme.footerFontWeight],
+      height: theme.footerHeight,
+      letterSpacing: theme.footerLetterSpacing,
+      wordSpacing: theme.footerWordSpacing,
     );
   }
 }

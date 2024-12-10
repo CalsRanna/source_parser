@@ -7,8 +7,6 @@ part 'setting.g.dart';
 @Name('settings')
 class Setting {
   Id id = Isar.autoIncrement;
-  @Name('background_color')
-  int backgroundColor = Colors.white.value;
   @Name('cache_duration')
   double cacheDuration = 8.0;
   @Name('color_seed')
@@ -21,16 +19,14 @@ class Setting {
   bool eInkMode = false;
   @Name('explore_source')
   int exploreSource = 0;
-  @Name('font_size')
-  int fontSize = 18;
-  @Name('line_space')
-  double lineSpace = 1.0 + 0.618 * 2;
   @Name('max_concurrent')
   double maxConcurrent = 16.0;
   @Name('search_filter')
   bool searchFilter = false;
   @Name('shelf_mode')
   String shelfMode = 'list';
+  @Name('theme_id')
+  int themeId = 0;
   @Name('timeout')
   int timeout = 30 * 1000;
   @Name('turning_mode')

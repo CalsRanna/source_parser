@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:source_parser/schema/isar.dart';
@@ -96,33 +95,33 @@ class SettingNotifier extends _$SettingNotifier {
     ref.invalidateSelf();
   }
 
-  void updateLineSpace(double lineSpace) async {
-    final setting = await future;
-    setting.lineSpace = lineSpace;
-    await isar.writeTxn(() async {
-      await isar.settings.put(setting);
-    });
-    ref.invalidateSelf();
-  }
+  // void updateLineSpace(double lineSpace) async {
+  //   final setting = await future;
+  //   setting.lineSpace = lineSpace;
+  //   await isar.writeTxn(() async {
+  //     await isar.settings.put(setting);
+  //   });
+  //   ref.invalidateSelf();
+  // }
 
-  void updateFontSize(int step) async {
-    final setting = await future;
-    var fontSize = setting.fontSize;
-    setting.fontSize = (fontSize + step).clamp(12, 48);
-    await isar.writeTxn(() async {
-      await isar.settings.put(setting);
-    });
-    ref.invalidateSelf();
-  }
+  // void updateFontSize(int step) async {
+  //   final setting = await future;
+  //   var fontSize = setting.fontSize;
+  //   setting.fontSize = (fontSize + step).clamp(12, 48);
+  //   await isar.writeTxn(() async {
+  //     await isar.settings.put(setting);
+  //   });
+  //   ref.invalidateSelf();
+  // }
 
-  void updateBackgroundColor(int colorValue) async {
-    final setting = await future;
-    setting.backgroundColor = colorValue;
-    await isar.writeTxn(() async {
-      await isar.settings.put(setting);
-    });
-    ref.invalidateSelf();
-  }
+  // void updateBackgroundColor(int colorValue) async {
+  //   final setting = await future;
+  //   setting.backgroundColor = colorValue;
+  //   await isar.writeTxn(() async {
+  //     await isar.settings.put(setting);
+  //   });
+  //   ref.invalidateSelf();
+  // }
 
   void updateSearchFilter(bool value) async {
     final setting = await future;
@@ -135,18 +134,18 @@ class SettingNotifier extends _$SettingNotifier {
 
   void migrate() async {
     var setting = await future;
-    if (setting.backgroundColor.isNegative) {
-      setting.backgroundColor = Colors.white.value;
-    }
+    // if (setting.backgroundColor.isNegative) {
+    //   setting.backgroundColor = Colors.white.value;
+    // }
     if (setting.cacheDuration.isNaN) {
       setting.cacheDuration = 4.0;
     }
-    if (setting.fontSize.isNegative) {
-      setting.fontSize = 18;
-    }
-    if (setting.lineSpace.isNaN) {
-      setting.lineSpace = 1.0 + 0.618 * 2;
-    }
+    // if (setting.fontSize.isNegative) {
+    //   setting.fontSize = 18;
+    // }
+    // if (setting.lineSpace.isNaN) {
+    //   setting.lineSpace = 1.0 + 0.618 * 2;
+    // }
     if (setting.maxConcurrent.isNaN) {
       setting.maxConcurrent = 16.0;
     }
