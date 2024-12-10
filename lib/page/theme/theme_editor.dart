@@ -219,7 +219,7 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       progressText: '25.5%',
     );
     var children = [
-      ReaderBackground(),
+      ReaderBackground(customTheme: theme),
       readerView,
       _buildOverlay(),
     ];
@@ -586,7 +586,7 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SliderTile(
         label: '字体大小',
         value: theme.contentFontSize,
-        max: 32.0,
+        max: 48.0,
         min: 12.0,
         onChanged: updateContentFontSize,
       ),
@@ -660,8 +660,8 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SliderTile(
         label: '字体大小',
         value: theme.footerFontSize,
-        max: 32.0,
-        min: 12.0,
+        max: 24.0,
+        min: 10.0,
         onChanged: updateFooterFontSize,
       ),
       _SliderTile(
@@ -734,8 +734,8 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SliderTile(
         label: '字体大小',
         value: theme.headerFontSize,
-        max: 32.0,
-        min: 12.0,
+        max: 24.0,
+        min: 10.0,
         onChanged: updateHeaderFontSize,
       ),
       _SliderTile(

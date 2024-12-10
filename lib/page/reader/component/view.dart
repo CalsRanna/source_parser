@@ -57,22 +57,22 @@ class ReaderView extends ConsumerWidget {
     if (customTheme != null) return customTheme!;
     var state = ref.watch(themeNotifierProvider).valueOrNull;
     var currentTheme = state ?? schema.Theme();
-    Color backgroundColor = Color(currentTheme.backgroundColor);
-    Color contentColor = Color(currentTheme.contentColor);
-    Color footerColor = Color(currentTheme.footerColor);
-    Color headerColor = Color(currentTheme.headerColor);
+    int backgroundColor = currentTheme.backgroundColor;
+    int contentColor = currentTheme.contentColor;
+    int footerColor = currentTheme.footerColor;
+    int headerColor = currentTheme.headerColor;
     var setting = ref.watch(settingNotifierProvider).valueOrNull;
     if (setting?.darkMode == true) {
-      backgroundColor = Colors.black;
-      contentColor = Colors.white.withOpacity(0.75);
-      footerColor = Colors.white.withOpacity(0.5);
-      headerColor = Colors.white.withOpacity(0.5);
+      backgroundColor = Colors.black.value;
+      contentColor = Colors.white.withOpacity(0.75).value;
+      footerColor = Colors.white.withOpacity(0.5).value;
+      headerColor = Colors.white.withOpacity(0.5).value;
     }
     return currentTheme.copyWith(
-      backgroundColor: backgroundColor.value,
-      contentColor: contentColor.value,
-      footerColor: footerColor.value,
-      headerColor: headerColor.value,
+      backgroundColor: backgroundColor,
+      contentColor: contentColor,
+      footerColor: footerColor,
+      headerColor: headerColor,
     );
   }
 }

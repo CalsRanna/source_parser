@@ -63,7 +63,7 @@ class Theme {
   int footerColor = Colors.black.withOpacity(0.5).value;
 
   @Name('footer_font_size')
-  double footerFontSize = 16;
+  double footerFontSize = 10;
 
   @Name('footer_font_weight')
   int footerFontWeight = 2;
