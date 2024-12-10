@@ -126,11 +126,20 @@ class _FooterState extends State<_Footer> {
     const spacer = SizedBox(width: 4);
     var pageIndicator = _buildPage();
     var progressIndicator = _buildProgress();
-    var left = Row(children: [pageIndicator, spacer, progressIndicator]);
+    var left = Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [pageIndicator, spacer, progressIndicator],
+    );
     var timeIndicator = _buildTime();
     var batteryIndicator = _buildBattery();
-    var right = Row(children: [timeIndicator, spacer, batteryIndicator]);
-    var row = Row(children: [left, const Spacer(), right]);
+    var right = Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [timeIndicator, spacer, batteryIndicator],
+    );
+    var row = Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [left, const Spacer(), right],
+    );
     return Padding(padding: _getPadding(), child: row);
   }
 
@@ -141,20 +150,22 @@ class _FooterState extends State<_Footer> {
   }
 
   Widget _buildBattery() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final materialTheme = Theme.of(context);
+    final colorScheme = materialTheme.colorScheme;
     final primary = colorScheme.primary;
     final onBackground = colorScheme.outline;
+    var height = widget.theme.footerFontSize * widget.theme.footerHeight;
+    var width = height * 2;
     var innerContainer = Container(
       color: primary.withOpacity(0.5),
-      height: 8,
-      width: 16 * (battery / 100),
+      height: height,
+      width: width * (battery / 100),
     );
     var outerContainer = Container(
       alignment: Alignment.centerLeft,
       color: onBackground.withOpacity(0.25),
-      height: 8,
-      width: 16,
+      height: height,
+      width: width,
       child: innerContainer,
     );
     var body = ClipRRect(
@@ -169,8 +180,15 @@ class _FooterState extends State<_Footer> {
       borderRadius: borderRadius,
       color: onBackground.withOpacity(0.25),
     );
-    var cap = Container(decoration: capDecoration, height: 4, width: 1);
-    return Row(children: [body, cap]);
+    var cap = Container(
+      decoration: capDecoration,
+      height: height / 2,
+      width: 1,
+    );
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [body, cap],
+    );
   }
 
   Widget _buildPage() {
