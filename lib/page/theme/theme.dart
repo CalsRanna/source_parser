@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart' hide Theme;
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/provider/setting.dart';
@@ -53,7 +54,7 @@ class _Dialog extends ConsumerWidget {
     ];
     return AlertDialog(
       title: Text('删除主题'),
-      content: Text('确定要删除主题 ${theme.name} 吗?'),
+      content: Text('确定要删除${theme.name}吗?'),
       actions: actions,
     );
   }
@@ -106,6 +107,7 @@ class _ThemeCard extends ConsumerWidget {
   }
 
   void handleLongPress(BuildContext context) {
+    HapticFeedback.heavyImpact();
     showDialog(context: context, builder: (_) => _Dialog(theme: theme));
   }
 

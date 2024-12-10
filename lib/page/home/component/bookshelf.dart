@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/home/widget/search_button.dart';
@@ -326,6 +327,7 @@ class _GridTile extends ConsumerWidget {
   }
 
   void _handleLongPress(BuildContext context, WidgetRef ref) async {
+    HapticFeedback.heavyImpact();
     showModalBottomSheet(
       context: context,
       builder: (_) => _BottomSheet(book: book),
@@ -473,6 +475,7 @@ class _ListTile extends ConsumerWidget {
   }
 
   void _handleLongPress(BuildContext context, WidgetRef ref) async {
+    HapticFeedback.heavyImpact();
     showModalBottomSheet(
       context: context,
       builder: (_) => _BottomSheet(book: book),
