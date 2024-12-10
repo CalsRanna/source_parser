@@ -36,7 +36,8 @@ class ThemeNotifier extends _$ThemeNotifier {
     final provider = settingNotifierProvider;
     var setting = await ref.watch(provider.future);
     var themeId = setting.themeId;
-    var theme = await isar.themes.where().idEqualTo(themeId).findFirst();
+    var themes = await ref.watch(themesNotifierProvider.future);
+    var theme = themes.where((theme) => theme.id == themeId).firstOrNull;
     return theme ?? Theme();
   }
 

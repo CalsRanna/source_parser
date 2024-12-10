@@ -22,7 +22,7 @@ final themesNotifierProvider =
 );
 
 typedef _$ThemesNotifier = AutoDisposeAsyncNotifier<List<Theme>>;
-String _$themeNotifierHash() => r'6a0668f99c8143b37c0bbcb4409322ebf7f5da0d';
+String _$themeNotifierHash() => r'a6e599e9173782c5b61c98835611863526cc867d';
 
 /// See also [ThemeNotifier].
 @ProviderFor(ThemeNotifier)
