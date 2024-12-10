@@ -1,239 +1,118 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:source_parser/page/theme/color_picker.dart';
 import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/router/router.gr.dart';
+import 'package:source_parser/schema/setting.dart';
+import 'package:source_parser/schema/theme.dart';
+import 'package:source_parser/util/message.dart';
 
 @RoutePage()
-class ReaderThemePage extends StatelessWidget {
+class ReaderThemePage extends ConsumerWidget {
   const ReaderThemePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final children = [
-      _HeightTile(),
-      _FontSizeTile(),
-      _BackgroundTile(),
-      _LayoutTile(),
-      // _ColorGeneratorTile(),
-      _CustomHeightTile(),
-    ];
-    return Scaffold(
-      appBar: AppBar(title: const Text('阅读主题')),
-      body: ListView(children: children),
+  Widget build(BuildContext context, WidgetRef ref) {
+    var provider = themesNotifierProvider;
+    var state = ref.watch(provider);
+    var child = switch (state) {
+      AsyncData(:final value) => _buildData(value),
+      _ => const SizedBox(),
+    };
+    return Scaffold(appBar: AppBar(title: const Text('主题')), body: child);
+  }
+
+  Widget _buildData(List<Theme> themes) {
+    var delegate = SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2);
+    return GridView.builder(
+      gridDelegate: delegate,
+      itemBuilder: (_, index) => _ThemeCard(theme: themes[index]),
+      itemCount: themes.length,
+      padding: EdgeInsets.all(16),
     );
   }
 }
 
-class _BackgroundTile extends ConsumerWidget {
-  const _BackgroundTile();
+class _Dialog extends ConsumerWidget {
+  final Theme theme;
+  const _Dialog({required this.theme});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    // final backgroundColor = setting?.backgroundColor ?? 0xFFFFFFFF;
-    final backgroundColor = 0xFFFFFFFF;
-    final whiteTile = _ColorTile(
-      active: backgroundColor == Colors.white.value,
-      color: Colors.white,
-      onTap: () => handleTap(ref, Colors.white.value),
-    );
-    final greenTile = _ColorTile(
-      active: backgroundColor == 0xFFF0F5E5,
-      color: const Color(0xFFF0F5E5),
-      onTap: () => handleTap(ref, 0xFFF0F5E5),
-    );
-    final greyTile = _ColorTile(
-      active: backgroundColor == 0xFFC7D2D4,
-      color: const Color(0xFFC7D2D4),
-      onTap: () => handleTap(ref, 0xFFC7D2D4),
-    );
-    final brownTile = _ColorTile(
-      active: backgroundColor == 0xFFE3BD8D,
-      color: const Color(0xFFE3BD8D),
-      onTap: () => handleTap(ref, 0xFFE3BD8D),
-    );
-    final bronzeTile = _ColorTile(
-      active: backgroundColor == 0xFFb7ae8f,
-      color: const Color(0xFFb7ae8f),
-      onTap: () => handleTap(ref, 0xFFb7ae8f),
-    );
-    final children = [
-      whiteTile,
-      const SizedBox(width: 8),
-      greenTile,
-      const SizedBox(width: 8),
-      greyTile,
-      const SizedBox(width: 8),
-      brownTile,
-      const SizedBox(width: 8),
-      bronzeTile,
+    var actions = [
+      TextButton(
+        onPressed: () => cancelDelete(context),
+        child: const Text('取消'),
+      ),
+      TextButton(
+        onPressed: () => confirmDelete(context, ref),
+        child: const Text('删除'),
+      )
     ];
-    final row = Row(mainAxisSize: MainAxisSize.min, children: children);
-    return ListTile(title: Text('背景'), trailing: row);
-  }
-
-  void handleTap(WidgetRef ref, int colorValue) async {
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    // notifier.updateBackgroundColor(colorValue);
-  }
-}
-
-class _ColorGeneratorTile extends StatelessWidget {
-  const _ColorGeneratorTile();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () => ColorPicker.pick(context),
-      title: Text('Color Generator'),
-      trailing: const Icon(HugeIcons.strokeRoundedArrowRight01),
+    return AlertDialog(
+      title: Text('删除主题'),
+      content: Text('确定要删除主题 ${theme.name} 吗?'),
+      actions: actions,
     );
   }
-}
 
-class _ColorTile extends StatelessWidget {
-  final bool active;
+  void cancelDelete(BuildContext context) {
+    Navigator.of(context).pop();
+  }
 
-  final Color color;
-  final void Function()? onTap;
-  const _ColorTile({
-    this.active = false,
-    required this.color,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final primary = colorScheme.primary;
-    final outline = colorScheme.outline;
-    final borderSide = BorderSide(
-      color: active ? primary : outline.withOpacity(0.5),
-      width: active ? 2 : 1,
-    );
-    final shapeDecoration = ShapeDecoration(
-      color: color,
-      shape: CircleBorder(side: borderSide),
-    );
-    final container = Container(
-      decoration: shapeDecoration,
-      height: 28,
-      padding: const EdgeInsets.all(1),
-      width: 28,
-      child: active
-          ? Icon(HugeIcons.strokeRoundedTick02, size: 16, color: primary)
-          : null,
-    );
-    return GestureDetector(onTap: onTap, child: container);
+  Future<void> confirmDelete(BuildContext context, WidgetRef ref) async {
+    Navigator.of(context).pop();
+    try {
+      await ref.read(themesNotifierProvider.notifier).delete(theme);
+    } catch (error) {
+      if (!context.mounted) return;
+      Message.of(context).show(error.toString());
+    }
   }
 }
 
-class _FontSizeTile extends ConsumerWidget {
-  const _FontSizeTile();
+class _ThemeCard extends ConsumerWidget {
+  final Theme theme;
+  const _ThemeCard({required this.theme});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    // final fontSize = setting?.fontSize ?? 18;
-    final fontSize = 18;
-    var decreaseButton = OutlinedButton(
-      onPressed: () => handleTap(ref, -1),
-      child: Icon(HugeIcons.strokeRoundedRemove01),
+    var positioned = Positioned(
+      bottom: 16,
+      right: 16,
+      child: Icon(HugeIcons.strokeRoundedTick01),
     );
-    final theme = Theme.of(context);
-    final style = theme.textTheme.bodyMedium;
-    final text = Container(
-      alignment: Alignment.center,
-      width: 40,
-      child: Text(fontSize.toString(), style: style),
-    );
-    final increaseButton = OutlinedButton(
-      onPressed: () => handleTap(ref, 1),
-      child: Icon(HugeIcons.strokeRoundedAdd01),
-    );
-    final row = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [decreaseButton, text, increaseButton],
-    );
-    return ListTile(title: Text('字体大小'), trailing: row);
-  }
-
-  void handleTap(WidgetRef ref, int step) async {
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    // notifier.updateFontSize(step);
-  }
-}
-
-class _HeightTile extends ConsumerWidget {
-  const _HeightTile();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    // final height = setting?.lineSpace ?? 1.0 + 0.618 * 2;
-    final height = 1.0 + 0.618 * 2;
-    final largeChip = FilterChip(
-      label: Text('较大'),
-      onSelected: (_) => handleSelected(ref, 1.0 + 0.618 * 3),
-      selected: height == 1.0 + 0.618 * 3,
-    );
-    final mediumChip = FilterChip(
-      label: Text('适中'),
-      onSelected: (_) => handleSelected(ref, 1.0 + 0.618 * 2),
-      selected: height == 1.0 + 0.618 * 2,
-    );
-    final smallChip = FilterChip(
-      label: Text('较小'),
-      onSelected: (_) => handleSelected(ref, 1.0 + 0.618 * 1),
-      selected: height == 1.0 + 0.618 * 1,
-    );
-    final children = [
-      largeChip,
-      const SizedBox(width: 8),
-      mediumChip,
-      const SizedBox(width: 8),
-      smallChip,
+    var setting = ref.watch(settingNotifierProvider).valueOrNull;
+    setting ??= Setting();
+    var selected = setting.themeId == theme.id;
+    var children = [
+      Container(color: Color(theme.backgroundColor)),
+      if (theme.backgroundImage.isNotEmpty) Image.asset(theme.backgroundImage),
+      Center(child: Text(theme.name)),
+      if (selected) positioned
     ];
-    final row = Row(mainAxisSize: MainAxisSize.min, children: children);
-    return ListTile(title: Text('行间距'), trailing: row);
-  }
-
-  void handleSelected(WidgetRef ref, double value) async {
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    // notifier.updateLineSpace(value);
-  }
-}
-
-class _CustomHeightTile extends StatelessWidget {
-  const _CustomHeightTile({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () => handleTap(context),
-      title: Text('自定义主题'),
-      trailing: const Icon(HugeIcons.strokeRoundedArrowRight01),
+    var clipRRect = ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Stack(children: children),
+    );
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPress: () => handleLongPress(context),
+      onTap: () => handleTap(context, ref),
+      child: clipRRect,
     );
   }
 
-  void handleTap(BuildContext context) {
+  void handleLongPress(BuildContext context) {
+    showDialog(context: context, builder: (_) => _Dialog(theme: theme));
+  }
+
+  void handleTap(BuildContext context, WidgetRef ref) {
+    var provider = settingNotifierProvider;
+    var notifier = ref.read(provider.notifier);
+    notifier.selectTheme(theme);
     AutoRouter.of(context).push(ThemeEditorRoute());
-  }
-}
-
-class _LayoutTile extends StatelessWidget {
-  const _LayoutTile();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () => AutoRouter.of(context).push(ReaderLayoutRoute()),
-      title: Text('布局'),
-      trailing: const Icon(HugeIcons.strokeRoundedArrowRight01),
-    );
   }
 }

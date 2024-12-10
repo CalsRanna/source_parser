@@ -1,6 +1,7 @@
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
 import 'package:source_parser/util/merger.dart';
@@ -37,9 +38,7 @@ class ReaderView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var state = ref.watch(themeNotifierProvider).valueOrNull;
-    var currentTheme = state ?? schema.Theme();
-    var theme = customTheme ?? currentTheme;
+    var theme = _assembleTheme(ref);
     var header = _Header(text: headerText, theme: theme);
     Widget content = _Content(text: contentText, theme: theme);
     if (builder != null) content = builder!.call();
@@ -51,6 +50,29 @@ class ReaderView extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [header, Expanded(child: content), footer],
+    );
+  }
+
+  schema.Theme _assembleTheme(WidgetRef ref) {
+    if (customTheme != null) return customTheme!;
+    var state = ref.watch(themeNotifierProvider).valueOrNull;
+    var currentTheme = state ?? schema.Theme();
+    Color backgroundColor = Color(currentTheme.backgroundColor);
+    Color contentColor = Color(currentTheme.contentColor);
+    Color footerColor = Color(currentTheme.footerColor);
+    Color headerColor = Color(currentTheme.headerColor);
+    var setting = ref.watch(settingNotifierProvider).valueOrNull;
+    if (setting?.darkMode == true) {
+      backgroundColor = Colors.black;
+      contentColor = Colors.white.withOpacity(0.75);
+      footerColor = Colors.white.withOpacity(0.5);
+      headerColor = Colors.white.withOpacity(0.5);
+    }
+    return currentTheme.copyWith(
+      backgroundColor: backgroundColor.value,
+      contentColor: contentColor.value,
+      footerColor: footerColor.value,
+      headerColor: headerColor.value,
     );
   }
 }
@@ -209,22 +231,22 @@ class _Header extends StatelessWidget {
 
   EdgeInsets _getPadding() {
     return EdgeInsets.only(
-      bottom: theme.footerPaddingBottom,
-      left: theme.footerPaddingLeft,
-      right: theme.footerPaddingRight,
-      top: theme.footerPaddingTop,
+      bottom: theme.headerPaddingBottom,
+      left: theme.headerPaddingLeft,
+      right: theme.headerPaddingRight,
+      top: theme.headerPaddingTop,
     );
   }
 
   TextStyle _getStyle() {
     return TextStyle(
-      color: Color(theme.footerColor),
+      color: Color(theme.headerColor),
       decoration: TextDecoration.none,
-      fontSize: theme.footerFontSize,
-      fontWeight: FontWeight.values[theme.footerFontWeight],
-      height: theme.footerHeight,
-      letterSpacing: theme.footerLetterSpacing,
-      wordSpacing: theme.footerWordSpacing,
+      fontSize: theme.headerFontSize,
+      fontWeight: FontWeight.values[theme.headerFontWeight],
+      height: theme.headerHeight,
+      letterSpacing: theme.headerLetterSpacing,
+      wordSpacing: theme.headerWordSpacing,
     );
   }
 }

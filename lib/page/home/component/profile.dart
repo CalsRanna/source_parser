@@ -23,12 +23,12 @@ class ProfileView extends StatelessWidget {
     var theme = _SettingTile(
       icon: HugeIcons.strokeRoundedTextFont,
       onTap: () => handleTap(context, const ReaderThemeRoute()),
-      title: '阅读主题',
+      title: '主题',
     );
     var layout = _SettingTile(
       icon: HugeIcons.strokeRoundedSmartPhone01,
       onTap: () => handleTap(context, const ReaderLayoutRoute()),
-      title: '布局',
+      title: '功能布局',
     );
     var setting = _SettingTile(
       icon: HugeIcons.strokeRoundedSettings01,

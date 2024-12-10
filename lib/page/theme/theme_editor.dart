@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/reader/component/background.dart';
 import 'package:source_parser/page/reader/component/view.dart';
-import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
 import 'package:source_parser/util/splitter.dart';
 
@@ -208,24 +208,22 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
   var theme = schema.Theme();
   var size = Size.zero;
 
-  bool _showOverlay = true;
-
   @override
   Widget build(BuildContext context) {
     var readerView = ReaderView(
       chapterText: '1/10',
       customTheme: theme,
       eInkMode: false,
-      headerText: '小说名称或者章节名称',
+      headerText: '小说名称',
       contentText: contentText,
       progressText: '25.5%',
     );
     var children = [
       ReaderBackground(),
       readerView,
-      if (_showOverlay) _buildOverlay(),
+      _buildOverlay(),
     ];
-    return Stack(children: children);
+    return PopScope(child: Stack(children: children));
   }
 
   @override
@@ -238,17 +236,11 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
   }
 
   Future<void> handleTap() async {
-    setState(() {
-      _showOverlay = false;
-    });
     await showModalBottomSheet(
       showDragHandle: true,
       context: context,
       builder: (_) => _buildSettingSheet(),
     );
-    setState(() {
-      _showOverlay = true;
-    });
   }
 
   @override
@@ -341,6 +333,34 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
     _initContentText();
   }
 
+  void updateContentPaddingBottom(double value) {
+    setState(() {
+      theme = theme.copyWith(contentPaddingBottom: value);
+    });
+    _initContentText();
+  }
+
+  void updateContentPaddingLeft(double value) {
+    setState(() {
+      theme = theme.copyWith(contentPaddingLeft: value);
+    });
+    _initContentText();
+  }
+
+  void updateContentPaddingRight(double value) {
+    setState(() {
+      theme = theme.copyWith(contentPaddingRight: value);
+    });
+    _initContentText();
+  }
+
+  void updateContentPaddingTop(double value) {
+    setState(() {
+      theme = theme.copyWith(contentPaddingTop: value);
+    });
+    _initContentText();
+  }
+
   void updateContentWordSpacing(double value) {
     setState(() {
       theme = theme.copyWith(contentWordSpacing: value);
@@ -376,13 +396,6 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
     _initContentText();
   }
 
-  void updateFooterWordSpacing(double value) {
-    setState(() {
-      theme = theme.copyWith(footerWordSpacing: value);
-    });
-    _initContentText();
-  }
-
   void updateFooterPaddingBottom(double value) {
     setState(() {
       theme = theme.copyWith(footerPaddingBottom: value);
@@ -407,6 +420,13 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
   void updateFooterPaddingTop(double value) {
     setState(() {
       theme = theme.copyWith(footerPaddingTop: value);
+    });
+    _initContentText();
+  }
+
+  void updateFooterWordSpacing(double value) {
+    setState(() {
+      theme = theme.copyWith(footerWordSpacing: value);
     });
     _initContentText();
   }
@@ -474,41 +494,17 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
     _initContentText();
   }
 
-  void updateContentPaddingBottom(double value) {
-    setState(() {
-      theme = theme.copyWith(contentPaddingBottom: value);
-    });
-    _initContentText();
-  }
-
-  void updateContentPaddingLeft(double value) {
-    setState(() {
-      theme = theme.copyWith(contentPaddingLeft: value);
-    });
-    _initContentText();
-  }
-
-  void updateContentPaddingRight(double value) {
-    setState(() {
-      theme = theme.copyWith(contentPaddingRight: value);
-    });
-    _initContentText();
-  }
-
-  void updateContentPaddingTop(double value) {
-    setState(() {
-      theme = theme.copyWith(contentPaddingTop: value);
-    });
-    _initContentText();
-  }
-
   void updateTheme() {
-    var provider = settingNotifierProvider;
+    var provider = themeNotifierProvider;
     var notifier = ref.read(provider.notifier);
-    // notifier.updateBackgroundColor(colorValue)
+    notifier.updateTheme(theme);
+    Navigator.of(context).pop();
   }
 
-  Future<void> _assembleReaderTheme() async {}
+  Future<void> _assembleReaderTheme() async {
+    theme = await ref.read(themeNotifierProvider.future);
+    setState(() {});
+  }
 
   Widget _buildChapterStyleSheet() {
     var children = [
@@ -544,6 +540,41 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
         label: '词间距',
         value: theme.chapterWordSpacing,
         onChanged: updateChapterWordSpacing,
+      ),
+    ];
+    return ListView(children: children);
+  }
+
+  Widget _buildContentPaddingSheet() {
+    var children = [
+      _SheetTitle('正文边距'),
+      _SliderTile(
+        label: '上边距',
+        value: theme.contentPaddingTop,
+        max: 64.0,
+        min: 0.0,
+        onChanged: updateContentPaddingTop,
+      ),
+      _SliderTile(
+        label: '下边距',
+        value: theme.contentPaddingBottom,
+        max: 64.0,
+        min: 0.0,
+        onChanged: updateContentPaddingBottom,
+      ),
+      _SliderTile(
+        label: '左边距',
+        value: theme.contentPaddingLeft,
+        max: 64.0,
+        min: 0.0,
+        onChanged: updateContentPaddingLeft,
+      ),
+      _SliderTile(
+        label: '右边距',
+        value: theme.contentPaddingRight,
+        max: 64.0,
+        min: 0.0,
+        onChanged: (value) => updateContentPaddingRight(value),
       ),
     ];
     return ListView(children: children);
@@ -737,54 +768,27 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
   }
 
   Widget _buildOverlay() {
-    var iconButton = IconButton(
-      onPressed: updateTheme,
-      icon: Icon(HugeIcons.strokeRoundedTick02),
-    );
-    var floatingActionButton = FloatingActionButton(
-      onPressed: handleTap,
-      child: const Icon(HugeIcons.strokeRoundedPaintBoard),
+    var floatingActionButton = Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FloatingActionButton(
+          heroTag: 'update theme button',
+          onPressed: updateTheme,
+          shape: CircleBorder(),
+          child: const Icon(HugeIcons.strokeRoundedTick02),
+        ),
+        SizedBox(height: 16),
+        FloatingActionButton(
+          onPressed: handleTap,
+          child: const Icon(HugeIcons.strokeRoundedPaintBoard),
+        ),
+      ],
     );
     return Scaffold(
-      appBar: AppBar(actions: [iconButton], title: Text('自定义主题')),
       backgroundColor: Colors.transparent,
       floatingActionButton: floatingActionButton,
     );
-  }
-
-  Widget _buildContentPaddingSheet() {
-    var children = [
-      _SheetTitle('正文边距'),
-      _SliderTile(
-        label: '上边距',
-        value: theme.contentPaddingTop,
-        max: 64.0,
-        min: 0.0,
-        onChanged: updateContentPaddingTop,
-      ),
-      _SliderTile(
-        label: '下边距',
-        value: theme.contentPaddingBottom,
-        max: 64.0,
-        min: 0.0,
-        onChanged: updateContentPaddingBottom,
-      ),
-      _SliderTile(
-        label: '左边距',
-        value: theme.contentPaddingLeft,
-        max: 64.0,
-        min: 0.0,
-        onChanged: updateContentPaddingLeft,
-      ),
-      _SliderTile(
-        label: '右边距',
-        value: theme.contentPaddingRight,
-        max: 64.0,
-        min: 0.0,
-        onChanged: (value) => updateContentPaddingRight(value),
-      ),
-    ];
-    return ListView(children: children);
   }
 
   Widget _buildSettingSheet() {
@@ -842,10 +846,6 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
     }
 
     return buffer.toString();
-  }
-
-  double _getWeight(FontWeight weight) {
-    return (weight.index + 1).toDouble();
   }
 
   Future<void> _initContentText() async {

@@ -201,6 +201,11 @@ const ThemeSchema = CollectionSchema(
       id: 36,
       name: r'header_word_spacing',
       type: IsarType.double,
+    ),
+    r'name': PropertySchema(
+      id: 37,
+      name: r'name',
+      type: IsarType.string,
     )
   },
   estimateSize: _themeEstimateSize,
@@ -224,6 +229,7 @@ int _themeEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.backgroundImage.length * 3;
+  bytesCount += 3 + object.name.length * 3;
   return bytesCount;
 }
 
@@ -270,6 +276,7 @@ void _themeSerialize(
   writer.writeDouble(offsets[34], object.headerPaddingRight);
   writer.writeDouble(offsets[35], object.headerPaddingTop);
   writer.writeDouble(offsets[36], object.headerWordSpacing);
+  writer.writeString(offsets[37], object.name);
 }
 
 Theme _themeDeserialize(
@@ -317,6 +324,7 @@ Theme _themeDeserialize(
   object.headerPaddingTop = reader.readDouble(offsets[35]);
   object.headerWordSpacing = reader.readDouble(offsets[36]);
   object.id = id;
+  object.name = reader.readString(offsets[37]);
   return object;
 }
 
@@ -401,6 +409,8 @@ P _themeDeserializeProp<P>(
       return (reader.readDouble(offset)) as P;
     case 36:
       return (reader.readDouble(offset)) as P;
+    case 37:
+      return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -2875,6 +2885,134 @@ extension ThemeQueryFilter on QueryBuilder<Theme, Theme, QFilterCondition> {
       ));
     });
   }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> nameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> nameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> nameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> nameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'name',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> nameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> nameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> nameContains(String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> nameMatches(String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'name',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> nameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'name',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> nameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'name',
+        value: '',
+      ));
+    });
+  }
 }
 
 extension ThemeQueryObject on QueryBuilder<Theme, Theme, QFilterCondition> {}
@@ -3323,6 +3461,18 @@ extension ThemeQuerySortBy on QueryBuilder<Theme, Theme, QSortBy> {
   QueryBuilder<Theme, Theme, QAfterSortBy> sortByHeaderWordSpacingDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'header_word_spacing', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterSortBy> sortByName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'name', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterSortBy> sortByNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'name', Sort.desc);
     });
   }
 }
@@ -3783,6 +3933,18 @@ extension ThemeQuerySortThenBy on QueryBuilder<Theme, Theme, QSortThenBy> {
       return query.addSortBy(r'id', Sort.desc);
     });
   }
+
+  QueryBuilder<Theme, Theme, QAfterSortBy> thenByName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'name', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterSortBy> thenByNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'name', Sort.desc);
+    });
+  }
 }
 
 extension ThemeQueryWhereDistinct on QueryBuilder<Theme, Theme, QDistinct> {
@@ -4007,6 +4169,13 @@ extension ThemeQueryWhereDistinct on QueryBuilder<Theme, Theme, QDistinct> {
   QueryBuilder<Theme, Theme, QDistinct> distinctByHeaderWordSpacing() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'header_word_spacing');
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QDistinct> distinctByName(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
     });
   }
 }
@@ -4237,6 +4406,12 @@ extension ThemeQueryProperty on QueryBuilder<Theme, Theme, QQueryProperty> {
   QueryBuilder<Theme, double, QQueryOperations> headerWordSpacingProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'header_word_spacing');
+    });
+  }
+
+  QueryBuilder<Theme, String, QQueryOperations> nameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'name');
     });
   }
 }

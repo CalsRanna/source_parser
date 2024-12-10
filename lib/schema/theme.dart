@@ -119,6 +119,8 @@ class Theme {
   @Name('header_padding_top')
   double headerPaddingTop = 4;
 
+  String name = '默认主题';
+
   Theme();
 
   Theme copyWith({
@@ -159,6 +161,7 @@ class Theme {
     double? headerPaddingLeft,
     double? headerPaddingRight,
     double? headerPaddingTop,
+    String? name,
   }) {
     return Theme()
       ..id = id
@@ -198,6 +201,7 @@ class Theme {
       ..headerPaddingBottom = headerPaddingBottom ?? this.headerPaddingBottom
       ..headerPaddingLeft = headerPaddingLeft ?? this.headerPaddingLeft
       ..headerPaddingRight = headerPaddingRight ?? this.headerPaddingRight
-      ..headerPaddingTop = headerPaddingTop ?? this.headerPaddingTop;
+      ..headerPaddingTop = headerPaddingTop ?? this.headerPaddingTop
+      ..name = name ?? this.name;
   }
 }

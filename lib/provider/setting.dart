@@ -2,6 +2,7 @@ import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
+import 'package:source_parser/schema/theme.dart';
 
 part 'setting.g.dart';
 
@@ -126,6 +127,16 @@ class SettingNotifier extends _$SettingNotifier {
   void updateSearchFilter(bool value) async {
     final setting = await future;
     setting.searchFilter = value;
+    await isar.writeTxn(() async {
+      await isar.settings.put(setting);
+    });
+    ref.invalidateSelf();
+  }
+
+  void selectTheme(Theme theme) async {
+    final setting = await future;
+    if (setting.themeId == theme.id) return;
+    setting.themeId = theme.id!;
     await isar.writeTxn(() async {
       await isar.settings.put(setting);
     });
