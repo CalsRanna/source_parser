@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/listener.dart';
@@ -420,6 +421,7 @@ class _Information extends StatelessWidget {
   }
 
   void handleLongPress(BuildContext context) {
+    HapticFeedback.heavyImpact();
     showModalBottomSheet(
       context: context,
       builder: (context) {
