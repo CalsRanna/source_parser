@@ -25,6 +25,11 @@ class ProfileView extends StatelessWidget {
       onTap: () => handleTap(context, const ReaderThemeRoute()),
       title: '阅读主题',
     );
+    var layout = _SettingTile(
+      icon: HugeIcons.strokeRoundedSmartPhone01,
+      onTap: () => handleTap(context, const ReaderLayoutRoute()),
+      title: '布局',
+    );
     var setting = _SettingTile(
       icon: HugeIcons.strokeRoundedSettings01,
       onTap: () => handleTap(context, const SettingRoute()),
@@ -35,7 +40,7 @@ class ProfileView extends StatelessWidget {
       onTap: () => handleTap(context, const AboutRoute()),
       title: '关于元夕',
     );
-    var listView = ListView(children: [source, theme, setting, about]);
+    var listView = ListView(children: [source, theme, layout, setting, about]);
     return Scaffold(appBar: appBar, body: listView);
   }
 
