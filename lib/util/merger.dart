@@ -40,11 +40,19 @@ class Merger {
       children.add(TextSpan(text: paragraph, style: _chapterStyle));
       paragraphs.removeAt(0);
     }
-    children.addAll(paragraphs.map(_toElement));
+    var lineBreaker = TextSpan(text: '\n', style: _contentStyle);
+    var textSpans = paragraphs.map(_toElement).toList();
+    for (var i = 0; i < textSpans.length; i++) {
+      var textSpan = textSpans[i];
+      children.add(textSpan);
+      if (i < textSpans.length - 1) {
+        children.add(lineBreaker);
+      }
+    }
     return TextSpan(children: children);
   }
 
   TextSpan _toElement(String paragraph) {
-    return TextSpan(text: '$paragraph\n', style: _contentStyle);
+    return TextSpan(text: paragraph, style: _contentStyle);
   }
 }
