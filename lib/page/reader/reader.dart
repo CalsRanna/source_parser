@@ -4,7 +4,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/model/reader_state.dart';
 import 'package:source_parser/page/reader/component/background.dart';
 import 'package:source_parser/page/reader/component/cache.dart';
 import 'package:source_parser/page/reader/component/overlay.dart';
@@ -52,12 +51,18 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     var readerOverlay = ReaderOverlay(
       book: widget.book,
       onCached: handleCached,
+      onNext: handleNextChapterChanged,
+      onPrevious: handlePreviousChapterChanged,
       onRemoved: handleRemoved,
+    );
+    var readerView = _ReaderView(
+      controller: controller,
+      onPageChanged: handlePageChanged,
+      onTap: handleTap,
     );
     var children = [
       ReaderBackground(),
-      if (controller != null)
-        _ReaderView(controller: controller!, onTap: handleTap),
+      if (controller != null) readerView,
       if (showCache) _ReaderCacheIndicator(),
       if (showOverlay) readerOverlay,
     ];
@@ -86,6 +91,28 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     setState(() {
       showCache = false;
     });
+  }
+
+  void handleNextChapterChanged() {
+    controller?.nextChapter();
+    setState(() {});
+    var provider = readerStateNotifierProvider(widget.book);
+    var notifier = ref.read(provider.notifier);
+    notifier.syncState(chapter: controller!.chapter, page: controller!.page);
+  }
+
+  void handlePageChanged(int index) {
+    var provider = readerStateNotifierProvider(widget.book);
+    var notifier = ref.read(provider.notifier);
+    notifier.syncState(chapter: controller!.chapter, page: controller!.page);
+  }
+
+  void handlePreviousChapterChanged() {
+    controller?.previousChapter(page: 0);
+    setState(() {});
+    var provider = readerStateNotifierProvider(widget.book);
+    var notifier = ref.read(provider.notifier);
+    notifier.syncState(chapter: controller!.chapter, page: controller!.page);
   }
 
   void handleRemoved() {
@@ -138,9 +165,14 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
 }
 
 class _ReaderView extends ConsumerStatefulWidget {
-  final ReaderController controller;
+  final ReaderController? controller;
+  final void Function(int)? onPageChanged;
   final void Function()? onTap;
-  const _ReaderView({required this.controller, this.onTap});
+  const _ReaderView({
+    this.controller,
+    this.onPageChanged,
+    this.onTap,
+  });
 
   @override
   ConsumerState<_ReaderView> createState() => _ReaderViewState();
@@ -152,6 +184,9 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.controller == null) {
+      return Center(child: CircularProgressIndicator());
+    }
     var child = PageView.builder(
       controller: pageController,
       itemBuilder: (_, index) => _itemBuilder(index),
@@ -172,15 +207,13 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
   }
 
   Future<void> handlePageChanged(WidgetRef ref, int index) async {
-    // var provider = readerStateNotifierProvider(widget.book);
-    // final notifier = ref.read(provider.notifier);
-    // notifier.updatePageIndex(index);
     if (index == 0) {
-      widget.controller.previousPage();
+      widget.controller?.previousPage();
     } else {
-      widget.controller.nextPage();
+      widget.controller?.nextPage();
     }
     pageController.jumpToPage(1);
+    widget.onPageChanged?.call(index);
   }
 
   Future<void> handleTapUp(TapUpDetails details) async {
@@ -225,11 +258,11 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
 
   Widget _itemBuilder(int index) {
     return ReaderView(
-      chapterText: widget.controller.getChapterText(index),
-      contentText: widget.controller.getContentText(index),
+      chapterText: widget.controller?.getChapterText(index) ?? '',
+      contentText: widget.controller?.getContentText(index) ?? '',
       eInkMode: false,
-      headerText: widget.controller.getHeaderText(index),
-      progressText: widget.controller.getProgressText(index),
+      headerText: widget.controller?.getHeaderText(index) ?? '',
+      progressText: widget.controller?.getProgressText(index) ?? '',
     );
   }
 }

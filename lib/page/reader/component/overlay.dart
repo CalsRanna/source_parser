@@ -14,11 +14,15 @@ import 'package:source_parser/util/message.dart';
 class ReaderOverlay extends ConsumerWidget {
   final Book book;
   final void Function(int)? onCached;
+  final void Function()? onNext;
+  final void Function()? onPrevious;
   final void Function()? onRemoved;
   const ReaderOverlay({
     super.key,
     required this.book,
     this.onCached,
+    this.onNext,
+    this.onPrevious,
     this.onRemoved,
   });
 
@@ -52,12 +56,13 @@ class ReaderOverlay extends ConsumerWidget {
   Widget _toElement(ButtonPosition position) {
     return switch (position) {
       ButtonPosition.audio => _FloatingButton(),
-      ButtonPosition.cache => _CacheButton(onCached: onCached),
+      ButtonPosition.cache => _CacheButton(onTap: onCached),
       ButtonPosition.catalogue => _CatalogueButton(),
       ButtonPosition.darkMode => _DarkModeButton(),
       ButtonPosition.information => _InformationButton(),
-      ButtonPosition.nextChapter => _NextChapterButton(book: book),
-      ButtonPosition.previousChapter => _PreviousChapterButton(),
+      ButtonPosition.nextChapter => _NextChapterButton(onTap: onNext),
+      ButtonPosition.previousChapter =>
+        _PreviousChapterButton(onTap: onPrevious),
       ButtonPosition.source => _SourceButton(),
       ButtonPosition.theme => _ThemeButton(),
     };
@@ -65,8 +70,8 @@ class ReaderOverlay extends ConsumerWidget {
 }
 
 class _CacheButton extends StatelessWidget {
-  final void Function(int)? onCached;
-  const _CacheButton({this.onCached});
+  final void Function(int)? onTap;
+  const _CacheButton({this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +84,7 @@ class _CacheButton extends StatelessWidget {
   void openBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => ReaderCacheSheet(onCached: onCached),
+      builder: (context) => ReaderCacheSheet(onCached: onTap),
       showDragHandle: true,
     );
   }
@@ -211,38 +216,27 @@ class _MenuButton extends ConsumerWidget {
   }
 }
 
-class _NextChapterButton extends ConsumerWidget {
-  final Book book;
-  const _NextChapterButton({required this.book});
+class _NextChapterButton extends StatelessWidget {
+  final void Function()? onTap;
+  const _NextChapterButton({this.onTap});
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return IconButton(
-      onPressed: () => goNextChapter(context, ref),
+      onPressed: onTap,
       icon: const Icon(HugeIcons.strokeRoundedNext),
     );
   }
-
-  void goNextChapter(BuildContext context, WidgetRef ref) {
-    // var provider = readerStateNotifierProvider(book);
-    // var notifier = ref.read(provider.notifier);
-    // notifier.updatePageIndex(index);
-  }
 }
 
-class _PreviousChapterButton extends ConsumerWidget {
-  const _PreviousChapterButton();
+class _PreviousChapterButton extends StatelessWidget {
+  final void Function()? onTap;
+  const _PreviousChapterButton({this.onTap});
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return IconButton(
-      onPressed: () => goPreviousChapter(context, ref),
+      onPressed: onTap,
       icon: const Icon(HugeIcons.strokeRoundedPrevious),
     );
-  }
-
-  void goPreviousChapter(BuildContext context, WidgetRef ref) {
-    var provider = bookNotifierProvider;
-    var notifier = ref.read(provider.notifier);
-    notifier.previousChapter();
   }
 }
 

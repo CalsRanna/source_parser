@@ -8,7 +8,7 @@ import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/splitter.dart';
 
-class ReaderController {
+class ReaderController extends ChangeNotifier {
   final Book book;
   final Size size;
   final Theme theme;
@@ -22,9 +22,12 @@ class ReaderController {
 
   ReaderController(this.book, {required this.size, required this.theme});
 
+  int get chapter => _chapter;
+  int get page => _page;
+
+  List<String> get previousChapterPages => _previous;
   List<String> get currentChapterPages => _current;
   List<String> get nextChapterPages => _next;
-  List<String> get previousChapterPages => _previous;
 
   String getChapterText(int index) {
     try {
@@ -111,10 +114,10 @@ class ReaderController {
     _page++;
   }
 
-  void previousChapter() {
+  void previousChapter({int? page}) {
     if (_chapter <= 0) return;
     _chapter--;
-    _page = _previous.length - 1;
+    _page = page ?? _previous.length - 1;
     _next = _current;
     _current = _previous;
     _getPreviousChapterPages(_chapter - 1);
