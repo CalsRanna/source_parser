@@ -150,10 +150,9 @@ class ReaderController extends ChangeNotifier {
   String _getCurrentProgressText() {
     var chapters = book.chapters.length;
     var chapterProgress = _chapter / chapters;
-    var pageProgress =
-        _current.isEmpty ? 0 : (_page / _current.length / chapters);
-    var progress = chapterProgress + pageProgress;
-    return progress.toStringAsFixed(2);
+    var pageProgress = _current.isEmpty ? 0 : (_page / _current.length);
+    var progress = (chapterProgress + pageProgress / chapters) * 100;
+    return '${progress.toStringAsFixed(2)}%';
   }
 
   Future<void> _getNextChapterPages(int index) async {
@@ -181,10 +180,8 @@ class ReaderController extends ChangeNotifier {
   String _getNextProgressText() {
     var chapters = book.chapters.length;
     var chapterProgress = (_chapter + 1) / chapters;
-    var pageProgress =
-        _current.isEmpty ? 0 : (_page / _current.length / chapters);
-    var progress = chapterProgress + pageProgress;
-    return progress.toStringAsFixed(2);
+    var progress = chapterProgress * 100;
+    return '${progress.toStringAsFixed(2)}%';
   }
 
   Future<List<String>> _getPages(int index) async {
@@ -227,12 +224,10 @@ class ReaderController extends ChangeNotifier {
 
   String _getPreviousProgressText() {
     var chapters = book.chapters.length;
-    var chapterProgress = (_chapter - 1) / chapters;
-    var pageProgress =
-        _current.isEmpty ? 0 : (_page / _current.length / chapters);
-    var progress = chapterProgress + pageProgress;
-    if (_page > 0) return progress.toStringAsFixed(2);
-    return chapterProgress.toStringAsFixed(2);
+    var chapterProgress = _chapter / chapters;
+    var pageProgress = _current.isEmpty ? 0 : ((_page - 1) / _current.length);
+    var progress = (chapterProgress + pageProgress / chapters) * 100;
+    return '${progress.toStringAsFixed(2)}%';
   }
 
   Future<Setting> _getSetting() async {
