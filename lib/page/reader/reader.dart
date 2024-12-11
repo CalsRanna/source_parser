@@ -175,6 +175,11 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     // var provider = readerStateNotifierProvider(widget.book);
     // final notifier = ref.read(provider.notifier);
     // notifier.updatePageIndex(index);
+    if (index == 0) {
+      widget.controller.previousPage();
+    } else {
+      widget.controller.nextPage();
+    }
     pageController.jumpToPage(1);
   }
 

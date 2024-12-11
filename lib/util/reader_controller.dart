@@ -65,34 +65,6 @@ class ReaderController {
     }
   }
 
-  List<String> getPages(int pageIndex, {int chapterIndex = 0}) {
-    List<String> pages = ['', '', ''];
-    try {
-      if (pageIndex - 1 >= 0) {
-        pages[0] = _current[pageIndex - 1];
-      } else {
-        pages[0] = _previous.last;
-      }
-    } catch (error) {
-      pages[0] = error.toString();
-    }
-    try {
-      pages[1] = _current[pageIndex];
-    } catch (error) {
-      pages[1] = error.toString();
-    }
-    try {
-      if (pageIndex + 1 < _current.length) {
-        pages[2] = _current[pageIndex + 1];
-      } else {
-        pages[2] = _next.first;
-      }
-    } catch (error) {
-      pages[2] = error.toString();
-    }
-    return pages;
-  }
-
   String getProgressText(int index) {
     try {
       return switch (index) {
@@ -120,6 +92,37 @@ class ReaderController {
       futures.add(_getNextChapterPages(nextChapter));
     }
     await Future.wait(futures);
+    if (_current.isNotEmpty && _page >= _current.length) {
+      _page = _current.length - 1;
+    }
+  }
+
+  void nextChapter() {
+    if (_chapter + 1 >= book.chapters.length) return;
+    _chapter++;
+    _page = 0;
+    _previous = _current;
+    _current = _next;
+    _getNextChapterPages(_chapter + 1);
+  }
+
+  void nextPage() {
+    if (_page >= _current.length - 1) return nextChapter();
+    _page++;
+  }
+
+  void previousChapter() {
+    if (_chapter <= 0) return;
+    _chapter--;
+    _page = _previous.length - 1;
+    _next = _current;
+    _current = _previous;
+    _getPreviousChapterPages(_chapter - 1);
+  }
+
+  void previousPage() {
+    if (_page <= 0) return previousChapter();
+    _page--;
   }
 
   Future<void> _getCurrentChapterPages(int index) async {
@@ -132,6 +135,7 @@ class ReaderController {
 
   String _getCurrentContentText() {
     if (_current.isEmpty) return '';
+    if (_page < 0 || _page >= _current.length) return '';
     return _current.elementAt(_page);
   }
 
@@ -143,7 +147,8 @@ class ReaderController {
   String _getCurrentProgressText() {
     var chapters = book.chapters.length;
     var chapterProgress = _chapter / chapters;
-    var pageProgress = _page / _current.length / chapters;
+    var pageProgress =
+        _current.isEmpty ? 0 : (_page / _current.length / chapters);
     var progress = chapterProgress + pageProgress;
     return progress.toStringAsFixed(2);
   }
@@ -159,7 +164,9 @@ class ReaderController {
 
   String _getNextContentText() {
     if (_current.isEmpty) return '';
-    if (_page + 1 > _current.length) return _next.first;
+    if (_page + 1 >= _current.length) {
+      return _next.isEmpty ? '' : _next.first;
+    }
     return _current.elementAt(_page + 1);
   }
 
@@ -171,7 +178,8 @@ class ReaderController {
   String _getNextProgressText() {
     var chapters = book.chapters.length;
     var chapterProgress = (_chapter + 1) / chapters;
-    var pageProgress = _page / _current.length / chapters;
+    var pageProgress =
+        _current.isEmpty ? 0 : (_page / _current.length / chapters);
     var progress = chapterProgress + pageProgress;
     return progress.toStringAsFixed(2);
   }
@@ -203,7 +211,9 @@ class ReaderController {
 
   String _getPreviousContentText() {
     if (_current.isEmpty) return '';
-    if (_page - 1 < 0) return _previous.last;
+    if (_page - 1 < 0) {
+      return _previous.isEmpty ? '' : _previous.last;
+    }
     return _current.elementAt(_page - 1);
   }
 
@@ -215,7 +225,8 @@ class ReaderController {
   String _getPreviousProgressText() {
     var chapters = book.chapters.length;
     var chapterProgress = (_chapter - 1) / chapters;
-    var pageProgress = _page / _current.length / chapters;
+    var pageProgress =
+        _current.isEmpty ? 0 : (_page / _current.length / chapters);
     var progress = chapterProgress + pageProgress;
     if (_page > 0) return progress.toStringAsFixed(2);
     return chapterProgress.toStringAsFixed(2);
