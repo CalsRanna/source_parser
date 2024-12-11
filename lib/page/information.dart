@@ -237,8 +237,8 @@ class _BottomBar extends StatelessWidget {
   }
 
   void startReader(BuildContext context, WidgetRef ref, int index) async {
-    final navigator = Navigator.of(context);
-    navigator.popUntil(_predicate);
+    // final navigator = Navigator.of(context);
+    // navigator.popUntil(_predicate);
     var book = ref.read(bookNotifierProvider);
     AutoRouter.of(context).push(ReaderRoute(book: book));
     final bookNotifier = ref.read(bookNotifierProvider.notifier);

@@ -8,6 +8,7 @@ import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
+import 'package:source_parser/util/reader_controller.dart';
 import 'package:source_parser/util/splitter.dart';
 
 part 'reader.g.dart';
@@ -53,68 +54,21 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
   @override
   Future<ReaderState> build(Book book) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    try {
-      var index = book.index;
-      var cursor = book.cursor;
-
-      List<String> currentChapterPages;
-      try {
-        currentChapterPages = await _getChapterPages(index);
-      } catch (e) {
-        return _createEmptyState(book, index, cursor);
-      }
-      if (currentChapterPages.isEmpty) {
-        return _createEmptyState(book, index, cursor);
-      }
-
-      List<String> nextChapterPages = [];
-      if (index + 1 < book.chapters.length) {
-        var pages = await _getChapterPages(index + 1);
-        if (pages.isNotEmpty) {
-          nextChapterPages = pages;
-        }
-      }
-
-      List<String> previousChapterPages = [];
-      if (index > 0) {
-        var pages = await _getChapterPages(index - 1);
-        if (pages.isNotEmpty) {
-          previousChapterPages = pages;
-        }
-      }
-
-      cursor = cursor.clamp(0, currentChapterPages.length - 1);
-      List<String> pages = [];
-
-      // 处理前一页的显示
-      if (cursor > 0) {
-        pages.add(currentChapterPages[cursor - 1]);
-      } else if (previousChapterPages.isNotEmpty) {
-        pages.add(previousChapterPages.last);
-      }
-
-      // 添加当前页
-      pages.add(currentChapterPages[cursor]);
-
-      // 处理后一页的显示
-      if (cursor + 1 < currentChapterPages.length) {
-        pages.add(currentChapterPages[cursor + 1]);
-      } else if (nextChapterPages.isNotEmpty) {
-        pages.add(nextChapterPages.first);
-      }
-
-      return ReaderState()
-        ..book = book
-        ..chapterIndex = index
-        ..pageIndex = cursor
-        ..currentChapterPages = currentChapterPages
-        ..nextChapterPages = nextChapterPages
-        ..previousChapterPages = previousChapterPages
-        ..pages = pages;
-    } catch (e) {
-      return _createEmptyState(book, book.index, book.cursor);
-    }
+    var size = await ref.read(readerSizeNotifierProvider.future);
+    var theme = await ref.read(themeNotifierProvider.future);
+    var pool = ReaderController(book, size: size, theme: theme);
+    await pool.init(book.index);
+    return ReaderState()
+      ..book = book
+      ..chapterIndex = book.index
+      ..pageIndex = book.cursor
+      ..currentChapterPages = pool.currentChapterPages
+      ..nextChapterPages = pool.nextChapterPages
+      ..previousChapterPages = pool.previousChapterPages
+      ..pages = pool.getPages(book.cursor, chapterIndex: book.index);
   }
+
+  Future<void> nextPage() async {}
 
   Future<void> updatePageIndex(int index) async {
     if (index == 1) return;

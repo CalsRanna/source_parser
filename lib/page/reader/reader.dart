@@ -131,7 +131,7 @@ class _ReaderView extends ConsumerStatefulWidget {
 }
 
 class _ReaderViewState extends ConsumerState<_ReaderView> {
-  final controller = PageController(initialPage: 1);
+  var controller = PageController(initialPage: 1);
   bool _isAnimating = false;
 
   @override
