@@ -41,7 +41,7 @@ final readerSizeNotifierProvider =
 
 typedef _$ReaderSizeNotifier = AutoDisposeAsyncNotifier<Size>;
 String _$readerStateNotifierHash() =>
-    r'd59b4d2445687c7feb8367bfcc551b6161528c35';
+    r'30c42b528e9fd31704da07ba04ebf6b8509b7cfa';
 
 /// Copied from Dart SDK
 class _SystemHash {

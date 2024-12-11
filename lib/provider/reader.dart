@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:source_parser/model/reader_state.dart';
+import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
@@ -59,6 +60,7 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
 
   Future<void> _syncProgress(int chapter, int page) async {
     final updatedBook = book.copyWith(index: chapter, cursor: page);
+    ref.read(bookNotifierProvider.notifier).update(updatedBook);
     isar.writeTxn(() async {
       isar.books.put(updatedBook);
     });
