@@ -411,13 +411,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_android_volume_keydown:
-    dependency: "direct main"
-    description:
-      path: "lib/vendor/flutter_android_volume_keydown"
-      relative: true
-    source: path
-    version: "1.0.0"
   flutter_cache_manager:
     dependency: transitive
     description:
