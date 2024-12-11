@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/model/reader_state.dart';
@@ -12,16 +12,18 @@ import 'package:source_parser/page/reader/component/view.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/reader.dart';
+import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/util/message.dart';
+import 'package:source_parser/util/reader_controller.dart';
 
 @RoutePage()
-class ReaderPage extends StatefulWidget {
+class ReaderPage extends ConsumerStatefulWidget {
   final Book book;
   const ReaderPage({super.key, required this.book});
 
   @override
-  State<ReaderPage> createState() => _ReaderPageState();
+  ConsumerState<ReaderPage> createState() => _ReaderPageState();
 }
 
 enum ReaderViewTurningMode { drag, tap }
@@ -40,9 +42,10 @@ class _ReaderCacheIndicator extends ConsumerWidget {
   }
 }
 
-class _ReaderPageState extends State<ReaderPage> {
+class _ReaderPageState extends ConsumerState<ReaderPage> {
   bool showOverlay = false;
   bool showCache = false;
+  ReaderController? controller;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +56,8 @@ class _ReaderPageState extends State<ReaderPage> {
     );
     var children = [
       ReaderBackground(),
-      _ReaderView(book: widget.book, onTap: handleTap),
+      if (controller != null)
+        _ReaderView(controller: controller!, onTap: handleTap),
       if (showCache) _ReaderCacheIndicator(),
       if (showOverlay) readerOverlay,
     ];
@@ -102,10 +106,22 @@ class _ReaderPageState extends State<ReaderPage> {
   void initState() {
     super.initState();
     _hideUiOverlays();
+    _initController();
   }
 
   void _hideUiOverlays() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+  }
+
+  void _initController() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      var size = await ref.watch(readerSizeNotifierProvider.future);
+      var theme = await ref.watch(themeNotifierProvider.future);
+      controller = ReaderController(widget.book, size: size, theme: theme);
+      await Future.delayed(const Duration(milliseconds: 300));
+      await controller?.init();
+      setState(() {});
+    });
   }
 
   void _refreshShelf() {
@@ -122,48 +138,44 @@ class _ReaderPageState extends State<ReaderPage> {
 }
 
 class _ReaderView extends ConsumerStatefulWidget {
-  final Book book;
+  final ReaderController controller;
   final void Function()? onTap;
-  const _ReaderView({required this.book, this.onTap});
+  const _ReaderView({required this.controller, this.onTap});
 
   @override
   ConsumerState<_ReaderView> createState() => _ReaderViewState();
 }
 
 class _ReaderViewState extends ConsumerState<_ReaderView> {
-  var controller = PageController(initialPage: 1);
+  var pageController = PageController(initialPage: 1);
   bool _isAnimating = false;
 
   @override
   Widget build(BuildContext context) {
-    var provider = readerStateNotifierProvider(widget.book);
-    var state = ref.watch(provider);
-    var page = switch (state) {
-      AsyncData(:final value) => _buildData(ref, value),
-      AsyncError(:final error, :final stackTrace) =>
-        _buildError(ref, error, stackTrace),
-      AsyncLoading() => _buildLoading(),
-      _ => const SizedBox(),
-    };
+    var child = PageView.builder(
+      controller: pageController,
+      itemBuilder: (_, index) => _itemBuilder(index),
+      itemCount: 3,
+    );
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapUp: handleTapUp,
-      child: page,
+      child: child,
     );
   }
 
   @override
   void dispose() {
-    controller.removeListener(_handleScroll);
-    controller.dispose();
+    pageController.removeListener(_handleScroll);
+    pageController.dispose();
     super.dispose();
   }
 
   Future<void> handlePageChanged(WidgetRef ref, int index) async {
-    var provider = readerStateNotifierProvider(widget.book);
-    final notifier = ref.read(provider.notifier);
-    notifier.updatePageIndex(index);
-    controller.jumpToPage(1);
+    // var provider = readerStateNotifierProvider(widget.book);
+    // final notifier = ref.read(provider.notifier);
+    // notifier.updatePageIndex(index);
+    pageController.jumpToPage(1);
   }
 
   Future<void> handleTapUp(TapUpDetails details) async {
@@ -172,60 +184,13 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     if (index == 1) return widget.onTap?.call();
     var duration = Duration(milliseconds: 300);
     var curve = Curves.easeInOut;
-    controller.animateToPage(index, curve: curve, duration: duration);
+    pageController.animateToPage(index, curve: curve, duration: duration);
   }
 
   @override
   void initState() {
     super.initState();
-    controller.addListener(_handleScroll);
-  }
-
-  Widget _buildData(WidgetRef ref, ReaderState state) {
-    if (state.pages.isEmpty) return _buildEmpty();
-    return PageView.builder(
-      controller: controller,
-      itemBuilder: (_, index) => _itemBuilder(state, index),
-      itemCount: state.pages.length,
-    );
-  }
-
-  Widget _buildEmpty() {
-    var child = Center(child: Text('空空如也'));
-    return ReaderView.builder(
-      builder: () => child,
-      chapterText: '',
-      eInkMode: false,
-      progressText: '',
-      headerText: widget.book.name,
-    );
-  }
-
-  Widget _buildError(WidgetRef ref, Object error, StackTrace stackTrace) {
-    var children = [
-      Text(error.toString()),
-      Text(stackTrace.toString()),
-    ];
-    var column = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: children,
-    );
-    var padding = Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: column,
-    );
-    return ReaderView.builder(
-      builder: () => padding,
-      chapterText: '',
-      eInkMode: false,
-      progressText: '',
-      headerText: widget.book.name,
-    );
-  }
-
-  Widget _buildLoading() {
-    return const Center(child: CircularProgressIndicator());
+    pageController.addListener(_handleScroll);
   }
 
   int _calculateIndex(TapUpDetails details) {
@@ -240,37 +205,10 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     return 1;
   }
 
-  String _getChapterText(ReaderState state, int index) {
-    var pageIndex = switch (index) {
-      0 => state.pageIndex - 1,
-      1 => state.pageIndex,
-      2 => state.pageIndex + 1,
-      _ => 0,
-    };
-    return '${pageIndex + 1}/${state.currentChapterPages.length}';
-  }
-
-  String _getHeaderText(ReaderState state) {
-    if (state.book.cursor == 0) return state.book.name;
-    return state.book.chapters[state.book.index].name;
-  }
-
-  String _getProgressText(ReaderState state) {
-    var chapterLength = state.book.chapters.length;
-    var chapterIndex = state.chapterIndex;
-    var pageLength = state.currentChapterPages.length;
-    var pageIndex = state.pageIndex;
-    var chapterProgress = chapterIndex / chapterLength;
-    var pageProgress = pageIndex / pageLength;
-    var progress = chapterProgress + pageProgress * 1 / chapterLength;
-    var text = (progress * 100).toStringAsFixed(2);
-    return '$text%';
-  }
-
   void _handleScroll() {
     if (_isAnimating) return;
 
-    final position = controller.page ?? 1;
+    final position = pageController.page ?? 1;
     if (position <= 0.0 || position >= 2.0) {
       _isAnimating = true;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -280,13 +218,13 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     }
   }
 
-  Widget _itemBuilder(ReaderState state, int index) {
+  Widget _itemBuilder(int index) {
     return ReaderView(
-      chapterText: _getChapterText(state, index),
-      contentText: state.pages[index],
+      chapterText: widget.controller.getChapterText(index),
+      contentText: widget.controller.getContentText(index),
       eInkMode: false,
-      headerText: _getHeaderText(state),
-      progressText: _getProgressText(state),
+      headerText: widget.controller.getHeaderText(index),
+      progressText: widget.controller.getProgressText(index),
     );
   }
 }

@@ -41,7 +41,7 @@ final readerSizeNotifierProvider =
 
 typedef _$ReaderSizeNotifier = AutoDisposeAsyncNotifier<Size>;
 String _$readerStateNotifierHash() =>
-    r'f361a468c5aceac088d098d911afea3018ccb618';
+    r'd59b4d2445687c7feb8367bfcc551b6161528c35';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -65,10 +65,10 @@ class _SystemHash {
 }
 
 abstract class _$ReaderStateNotifier
-    extends BuildlessAutoDisposeAsyncNotifier<ReaderState> {
+    extends BuildlessAutoDisposeNotifier<ReaderState> {
   late final Book book;
 
-  FutureOr<ReaderState> build(
+  ReaderState build(
     Book book,
   );
 }
@@ -78,7 +78,7 @@ abstract class _$ReaderStateNotifier
 const readerStateNotifierProvider = ReaderStateNotifierFamily();
 
 /// See also [ReaderStateNotifier].
-class ReaderStateNotifierFamily extends Family<AsyncValue<ReaderState>> {
+class ReaderStateNotifierFamily extends Family<ReaderState> {
   /// See also [ReaderStateNotifier].
   const ReaderStateNotifierFamily();
 
@@ -116,8 +116,8 @@ class ReaderStateNotifierFamily extends Family<AsyncValue<ReaderState>> {
 }
 
 /// See also [ReaderStateNotifier].
-class ReaderStateNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    ReaderStateNotifier, ReaderState> {
+class ReaderStateNotifierProvider
+    extends AutoDisposeNotifierProviderImpl<ReaderStateNotifier, ReaderState> {
   /// See also [ReaderStateNotifier].
   ReaderStateNotifierProvider(
     Book book,
@@ -148,7 +148,7 @@ class ReaderStateNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final Book book;
 
   @override
-  FutureOr<ReaderState> runNotifierBuild(
+  ReaderState runNotifierBuild(
     covariant ReaderStateNotifier notifier,
   ) {
     return notifier.build(
@@ -173,7 +173,7 @@ class ReaderStateNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<ReaderStateNotifier, ReaderState>
+  AutoDisposeNotifierProviderElement<ReaderStateNotifier, ReaderState>
       createElement() {
     return _ReaderStateNotifierProviderElement(this);
   }
@@ -194,15 +194,14 @@ class ReaderStateNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin ReaderStateNotifierRef
-    on AutoDisposeAsyncNotifierProviderRef<ReaderState> {
+mixin ReaderStateNotifierRef on AutoDisposeNotifierProviderRef<ReaderState> {
   /// The parameter `book` of this provider.
   Book get book;
 }
 
 class _ReaderStateNotifierProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<ReaderStateNotifier,
-        ReaderState> with ReaderStateNotifierRef {
+    extends AutoDisposeNotifierProviderElement<ReaderStateNotifier, ReaderState>
+    with ReaderStateNotifierRef {
   _ReaderStateNotifierProviderElement(super.provider);
 
   @override
