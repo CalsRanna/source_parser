@@ -78,7 +78,7 @@ class Theme {
   double footerWordSpacing = 0.618;
 
   @Name('footer_padding_bottom')
-  double footerPaddingBottom = 4;
+  double footerPaddingBottom = 16;
 
   @Name('footer_padding_left')
   double footerPaddingLeft = 16;
@@ -117,7 +117,7 @@ class Theme {
   double headerPaddingRight = 16;
 
   @Name('header_padding_top')
-  double headerPaddingTop = 4;
+  double headerPaddingTop = 16;
 
   String name = '默认主题';
 
