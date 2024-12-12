@@ -277,11 +277,11 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     var position = details.localPosition;
     var size = MediaQuery.of(context).size;
     var horizontalThreshold = size.width / 3;
-    var verticalThreshold = size.height / 4;
+    var verticalThreshold = size.height / 3;
     if (position.dx < horizontalThreshold) return 0;
     if (position.dx > horizontalThreshold * 2) return 2;
     if (position.dy < verticalThreshold) return 0;
-    if (position.dy > verticalThreshold * 3) return 2;
+    if (position.dy > verticalThreshold * 2) return 2;
     return 1;
   }
 
