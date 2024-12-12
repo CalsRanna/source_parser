@@ -222,7 +222,7 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       readerView,
       _buildOverlay(),
     ];
-    return PopScope(child: Stack(children: children));
+    return PopScope(child: Scaffold(body: Stack(children: children)));
   }
 
   @override
