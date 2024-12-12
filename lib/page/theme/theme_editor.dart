@@ -211,12 +211,12 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
   @override
   Widget build(BuildContext context) {
     var readerView = ReaderView(
-      chapterText: '1/10',
+      pageProgressText: '1/10',
       customTheme: theme,
       eInkMode: false,
       headerText: '小说名称',
       contentText: contentText,
-      progressText: '25.5%',
+      totalProgressText: '25.5%',
     );
     var children = [
       ReaderBackground(customTheme: theme),

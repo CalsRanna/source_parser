@@ -258,11 +258,11 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
 
   Widget _itemBuilder(int index) {
     return ReaderView(
-      chapterText: widget.controller?.getChapterText(index) ?? '',
       contentText: widget.controller?.getContentText(index) ?? '',
       eInkMode: false,
       headerText: widget.controller?.getHeaderText(index) ?? '',
-      progressText: widget.controller?.getProgressText(index) ?? '',
+      pageProgressText: widget.controller?.getPageProgressText(index) ?? '',
+      totalProgressText: widget.controller?.getTotalProgressText(index) ?? '',
     );
   }
 }

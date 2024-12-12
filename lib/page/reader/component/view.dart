@@ -8,32 +8,32 @@ import 'package:source_parser/util/merger.dart';
 
 class ReaderView extends ConsumerWidget {
   final Widget Function()? builder;
-  final String chapterText;
   final String contentText;
   final schema.Theme? customTheme;
   final bool eInkMode;
   final String headerText;
-  final String progressText;
+  final String pageProgressText;
+  final String totalProgressText;
 
   const ReaderView({
     super.key,
     this.builder,
-    required this.chapterText,
     required this.contentText,
     this.customTheme,
     required this.eInkMode,
     required this.headerText,
-    required this.progressText,
+    required this.pageProgressText,
+    required this.totalProgressText,
   });
 
   const ReaderView.builder({
     super.key,
     required this.builder,
-    required this.chapterText,
     this.customTheme,
     required this.eInkMode,
     required this.headerText,
-    required this.progressText,
+    required this.pageProgressText,
+    required this.totalProgressText,
   }) : contentText = '';
 
   @override
@@ -43,9 +43,9 @@ class ReaderView extends ConsumerWidget {
     Widget content = _Content(text: contentText, theme: theme);
     if (builder != null) content = builder!.call();
     var footer = _Footer(
-      chapterText: chapterText,
-      progressText: progressText,
+      pageProgressText: pageProgressText,
       theme: theme,
+      totalProgressText: totalProgressText,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,14 +104,14 @@ class _Content extends StatelessWidget {
 }
 
 class _Footer extends StatefulWidget {
-  final String chapterText;
-  final String progressText;
+  final String pageProgressText;
   final schema.Theme theme;
+  final String totalProgressText;
 
   const _Footer({
-    required this.chapterText,
-    required this.progressText,
+    required this.pageProgressText,
     required this.theme,
+    required this.totalProgressText,
   });
 
   @override
@@ -123,22 +123,18 @@ class _FooterState extends State<_Footer> {
 
   @override
   Widget build(BuildContext context) {
-    const spacer = SizedBox(width: 4);
-    var pageIndicator = _buildPage();
-    var progressIndicator = _buildProgress();
-    var left = Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [pageIndicator, spacer, progressIndicator],
-    );
-    var timeIndicator = _buildTime();
-    var batteryIndicator = _buildBattery();
-    var right = Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [timeIndicator, spacer, batteryIndicator],
-    );
+    var children = [
+      _buildPageProgress(),
+      const SizedBox(width: 4),
+      _buildTotalProgress(),
+      const Spacer(),
+      _buildTime(),
+      const SizedBox(width: 4),
+      _buildBattery(),
+    ];
     var row = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: [left, const Spacer(), right],
+      children: children,
     );
     return Padding(padding: _getPadding(), child: row);
   }
@@ -191,17 +187,17 @@ class _FooterState extends State<_Footer> {
     );
   }
 
-  Widget _buildPage() {
-    return Text(widget.chapterText, style: _getStyle());
-  }
-
-  Widget _buildProgress() {
-    return Text(widget.progressText, style: _getStyle());
+  Widget _buildPageProgress() {
+    return Text(widget.pageProgressText, style: _getStyle());
   }
 
   Widget _buildTime() {
     var time = DateTime.now().toString().substring(11, 16);
     return Text(time, style: _getStyle());
+  }
+
+  Widget _buildTotalProgress() {
+    return Text(widget.totalProgressText, style: _getStyle());
   }
 
   Future<void> _calculateBattery() async {

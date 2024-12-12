@@ -23,24 +23,11 @@ class ReaderController extends ChangeNotifier {
   ReaderController(this.book, {required this.size, required this.theme});
 
   int get chapter => _chapter;
-  int get page => _page;
-
-  List<String> get previousChapterPages => _previous;
   List<String> get currentChapterPages => _current;
-  List<String> get nextChapterPages => _next;
 
-  String getChapterText(int index) {
-    try {
-      return switch (index) {
-        0 => _getPreviousChapterText(),
-        1 => _getCurrentChapterText(),
-        2 => _getNextChapterText(),
-        _ => '',
-      };
-    } catch (error, stackTrace) {
-      return stackTrace.toString();
-    }
-  }
+  List<String> get nextChapterPages => _next;
+  int get page => _page;
+  List<String> get previousChapterPages => _previous;
 
   String getContentText(int index) {
     try {
@@ -68,12 +55,25 @@ class ReaderController extends ChangeNotifier {
     }
   }
 
-  String getProgressText(int index) {
+  String getPageProgressText(int index) {
     try {
       return switch (index) {
-        0 => _getPreviousProgressText(),
-        1 => _getCurrentProgressText(),
-        2 => _getNextProgressText(),
+        0 => _getPreviousPageProgressText(),
+        1 => _getCurrentPageProgressText(),
+        2 => _getNextPageProgressText(),
+        _ => '',
+      };
+    } catch (error, stackTrace) {
+      return stackTrace.toString();
+    }
+  }
+
+  String getTotalProgressText(int index) {
+    try {
+      return switch (index) {
+        0 => _getPreviousTotalProgressText(),
+        1 => _getCurrentTotalProgressText(),
+        2 => _getNextTotalProgressText(),
         _ => '',
       };
     } catch (error, stackTrace) {
@@ -132,10 +132,6 @@ class ReaderController extends ChangeNotifier {
     _current = await _getPages(index);
   }
 
-  String _getCurrentChapterText() {
-    return '${_page + 1}/${_current.length}';
-  }
-
   String _getCurrentContentText() {
     if (_current.isEmpty) return '';
     if (_page < 0 || _page >= _current.length) return '';
@@ -147,7 +143,11 @@ class ReaderController extends ChangeNotifier {
     return book.chapters.elementAt(_chapter).name;
   }
 
-  String _getCurrentProgressText() {
+  String _getCurrentPageProgressText() {
+    return '${_page + 1}/${_current.length}';
+  }
+
+  String _getCurrentTotalProgressText() {
     var chapters = book.chapters.length;
     var chapterProgress = _chapter / chapters;
     var pageProgress = _current.isEmpty ? 0 : (_page / _current.length);
@@ -157,11 +157,6 @@ class ReaderController extends ChangeNotifier {
 
   Future<void> _getNextChapterPages(int index) async {
     _next = await _getPages(index);
-  }
-
-  String _getNextChapterText() {
-    if (_page < _current.length - 1) return '${_page + 2}/${_current.length}';
-    return '1/${_next.length}';
   }
 
   String _getNextContentText() {
@@ -177,7 +172,12 @@ class ReaderController extends ChangeNotifier {
     return book.chapters.elementAt(_chapter).name;
   }
 
-  String _getNextProgressText() {
+  String _getNextPageProgressText() {
+    if (_page < _current.length - 1) return '${_page + 2}/${_current.length}';
+    return '1/${_next.length}';
+  }
+
+  String _getNextTotalProgressText() {
     var chapters = book.chapters.length;
     var chapterProgress = (_chapter + 1) / chapters;
     var progress = chapterProgress * 100;
@@ -204,11 +204,6 @@ class ReaderController extends ChangeNotifier {
     _previous = await _getPages(index);
   }
 
-  String _getPreviousChapterText() {
-    if (_page > 0) return '${_page - 1}/${_current.length}';
-    return '${_previous.length}/${_current.length}';
-  }
-
   String _getPreviousContentText() {
     if (_current.isEmpty) return '';
     if (_page - 1 < 0) {
@@ -222,7 +217,12 @@ class ReaderController extends ChangeNotifier {
     return book.chapters.elementAt(_chapter).name;
   }
 
-  String _getPreviousProgressText() {
+  String _getPreviousPageProgressText() {
+    if (_page > 0) return '${_page - 1}/${_current.length}';
+    return '${_previous.length}/${_current.length}';
+  }
+
+  String _getPreviousTotalProgressText() {
     var chapters = book.chapters.length;
     var chapterProgress = _chapter / chapters;
     var pageProgress = _current.isEmpty ? 0 : ((_page - 1) / _current.length);
