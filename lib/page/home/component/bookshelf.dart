@@ -34,23 +34,12 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
       centerTitle: true,
       title: Text('书架'),
     );
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final mode = setting?.shelfMode ?? 'list';
-    final books = ref.watch(booksProvider).valueOrNull ?? <Book>[];
-    Widget child = switch (mode) {
-      'list' => _ListView(books: books),
-      _ => _GridView(books: books),
-    };
     var easyRefresh = EasyRefresh(
       onRefresh: () => refresh(context, ref),
-      child: child,
+      child: _buildChild(ref),
     );
-    return ScaffoldMessenger(
-      child: Scaffold(
-        appBar: appBar,
-        body: easyRefresh,
-      ),
-    );
+    var scaffold = Scaffold(appBar: appBar, body: easyRefresh);
+    return ScaffoldMessenger(child: scaffold);
   }
 
   Future<void> refresh(BuildContext context, WidgetRef ref) async {
@@ -61,6 +50,17 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
     } catch (error) {
       message.show(error.toString());
     }
+  }
+
+  Widget _buildChild(WidgetRef ref) {
+    final setting = ref.watch(settingNotifierProvider).valueOrNull;
+    final mode = setting?.shelfMode ?? 'list';
+    final books = ref.watch(booksProvider).valueOrNull ?? <Book>[];
+    if (books.isEmpty) return const Center(child: Text('空空如也'));
+    return switch (mode) {
+      'list' => _ListView(books: books),
+      _ => _GridView(books: books),
+    };
   }
 }
 
