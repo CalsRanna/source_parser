@@ -3,6 +3,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
@@ -20,15 +21,15 @@ class CataloguePage extends ConsumerStatefulWidget {
 }
 
 class _CataloguePageState extends ConsumerState<CataloguePage> {
-  late ScrollController controller;
   bool atTop = true;
+  late ScrollController controller;
   GlobalKey globalKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     final textButton = TextButton(
       onPressed: handlePressed,
-      child: Text(atTop ? '底部' : '顶部'),
+      child: Icon(HugeIcons.strokeRoundedArrowDataTransferVertical),
     );
     final appBar = AppBar(
       key: globalKey,
