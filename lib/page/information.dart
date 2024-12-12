@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:source_parser/page/listener.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/source.dart';
@@ -250,46 +249,41 @@ class _BottomBar extends StatelessWidget {
     final notifier = ref.read(provider.notifier);
     notifier.toggleShelf();
   }
-
-  bool _predicate(Route<dynamic> route) {
-    return ModalRoute.withName('bookInformation').call(route) ||
-        ModalRoute.withName('home').call(route);
-  }
 }
 
-class _ListenBook extends StatelessWidget {
-  const _ListenBook();
+// class _ListenBook extends StatelessWidget {
+//   const _ListenBook();
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final primaryContainer = colorScheme.primaryContainer;
-    final onPrimaryContainer = colorScheme.onPrimaryContainer;
-    return Consumer(builder: (context, ref, child) {
-      return ElevatedButton(
-        style: ButtonStyle(
-          backgroundColor: WidgetStatePropertyAll(primaryContainer),
-          foregroundColor: WidgetStatePropertyAll(onPrimaryContainer),
-        ),
-        onPressed: () => navigate(context, ref),
-        child: const Text('听书'),
-      );
-    });
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     final theme = Theme.of(context);
+//     final colorScheme = theme.colorScheme;
+//     final primaryContainer = colorScheme.primaryContainer;
+//     final onPrimaryContainer = colorScheme.onPrimaryContainer;
+//     return Consumer(builder: (context, ref, child) {
+//       return ElevatedButton(
+//         style: ButtonStyle(
+//           backgroundColor: WidgetStatePropertyAll(primaryContainer),
+//           foregroundColor: WidgetStatePropertyAll(onPrimaryContainer),
+//         ),
+//         onPressed: () => navigate(context, ref),
+//         child: const Text('听书'),
+//       );
+//     });
+//   }
 
-  void navigate(BuildContext context, WidgetRef ref) async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    await notifier.refreshCatalogue();
-    final book = ref.read(bookNotifierProvider);
-    if (!context.mounted) return;
-    final navigator = Navigator.of(context);
-    final route = MaterialPageRoute(builder: (context) {
-      return ListenerPage(book: book);
-    });
-    navigator.push(route);
-  }
-}
+//   void navigate(BuildContext context, WidgetRef ref) async {
+//     final notifier = ref.read(bookNotifierProvider.notifier);
+//     await notifier.refreshCatalogue();
+//     final book = ref.read(bookNotifierProvider);
+//     if (!context.mounted) return;
+//     final navigator = Navigator.of(context);
+//     final route = MaterialPageRoute(builder: (context) {
+//       return ListenerPage(book: book);
+//     });
+//     navigator.push(route);
+//   }
+// }
 
 class _Catalogue extends StatelessWidget {
   final Book book;
