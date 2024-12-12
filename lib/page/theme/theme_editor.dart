@@ -829,7 +829,11 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       // 随机决定是否换行 (大约每15-40个字符有20%的概率换行)
       if (currentLineLength > random.nextInt(25) + 15 &&
           random.nextDouble() < 0.2) {
-        if (!hasTitle) buffer.write('。');
+        if (hasTitle) {
+          buffer.write('\n');
+        } else {
+          buffer.write('。');
+        }
         hasTitle = false;
         buffer.write('\n');
         buffer.write('　　'); // 添加两个中文全角空格
