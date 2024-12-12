@@ -262,9 +262,13 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     if (_isAnimating) return;
     var index = _calculateIndex(details);
     if (index == 1) return widget.onTap?.call();
-    var duration = Duration(milliseconds: 300);
-    var curve = Curves.easeInOut;
-    pageController.animateToPage(index, curve: curve, duration: duration);
+    if (setting.eInkMode) {
+      pageController.jumpToPage(index);
+    } else {
+      var curve = Curves.easeInOut;
+      var duration = Duration(milliseconds: 300);
+      pageController.animateToPage(index, curve: curve, duration: duration);
+    }
   }
 
   @override
