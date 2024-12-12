@@ -80,19 +80,17 @@ class _ThemeCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var positioned = Positioned(
-      bottom: 16,
-      right: 16,
-      child: Icon(HugeIcons.strokeRoundedTick01),
-    );
     var setting = ref.watch(settingNotifierProvider).valueOrNull;
     setting ??= Setting();
     var selected = setting.themeId == theme.id;
+    var color = Color(theme.contentColor);
+    var icon = Icon(HugeIcons.strokeRoundedTick01, color: color);
+    var style = TextStyle(color: color);
     var children = [
       Container(color: Color(theme.backgroundColor)),
       if (theme.backgroundImage.isNotEmpty) Image.asset(theme.backgroundImage),
-      Center(child: Text(theme.name)),
-      if (selected) positioned
+      Center(child: Text(theme.name, style: style)),
+      if (selected) Positioned(bottom: 16, right: 16, child: icon)
     ];
     var clipRRect = ClipRRect(
       borderRadius: BorderRadius.circular(16),
