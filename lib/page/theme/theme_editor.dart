@@ -11,6 +11,63 @@ import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
 import 'package:source_parser/util/splitter.dart';
 
+class LoremIpsum {
+  static const int startCode = 0x4E00; // 中文汉字的起始码位
+  static const int endCode = 0x9FFF; // 中文汉字的结束码位
+
+  static String content() {
+    final random = Random();
+    final count = random.nextInt(5) + 20;
+    final buffer = StringBuffer();
+    buffer.write(title());
+    buffer.write('\n\n');
+    for (var i = 0; i < count; i++) {
+      buffer.write('　　');
+      buffer.write(paragraph());
+      if (i < count - 1) buffer.write('\n');
+    }
+    return buffer.toString();
+  }
+
+  static String paragraph() {
+    final random = Random();
+    final count = random.nextInt(9) + 1;
+    final buffer = StringBuffer();
+    for (var i = 0; i < count; i++) {
+      buffer.write(sentence());
+    }
+    return buffer.toString();
+  }
+
+  static String sentence() {
+    final random = Random();
+    final count = random.nextInt(10) + 5;
+    final buffer = StringBuffer();
+    for (var i = 0; i < count; i++) {
+      buffer.write(_randomCharacter());
+      if (i != count - 1 && random.nextDouble() < 0.2) buffer.write('，');
+    }
+    buffer.write('。');
+    return buffer.toString();
+  }
+
+  static String title() {
+    final random = Random();
+    final count = random.nextInt(10) + 5;
+    final buffer = StringBuffer();
+    for (var i = 0; i < count; i++) {
+      buffer.write(_randomCharacter());
+    }
+    return buffer.toString();
+  }
+
+  static String _randomCharacter() {
+    final random = Random();
+    final charCode = startCode + random.nextInt(endCode - startCode);
+    return String.fromCharCode(charCode);
+  }
+}
+
 @RoutePage()
 class ThemeEditorPage extends ConsumerStatefulWidget {
   const ThemeEditorPage({super.key});
@@ -248,7 +305,7 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _assembleReaderTheme();
-      text = _fakeChapter();
+      text = LoremIpsum.content();
       _initContentText();
     });
   }
@@ -803,43 +860,6 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _ListTile(onTap: showFooterPaddingSheet, title: '页脚边距'),
     ];
     return ListView(children: children);
-  }
-
-  String _fakeChapter() {
-    final random = Random();
-    final buffer = StringBuffer();
-    int currentLineLength = 0;
-    int totalChars = 3;
-    var hasTitle = true;
-
-    // 常用汉字的 Unicode 范围
-    const int startCode = 0x4E00; // 中文汉字的起始码位
-    const int endCode = 0x9FFF; // 中文汉字的结束码位
-
-    while (totalChars < 500) {
-      // 随机决定是否换行 (大约每15-40个字符有20%的概率换行)
-      if (currentLineLength > random.nextInt(25) + 15 &&
-          random.nextDouble() < 0.2) {
-        if (hasTitle) {
-          buffer.write('\n');
-        } else {
-          buffer.write('。');
-        }
-        hasTitle = false;
-        buffer.write('\n');
-        buffer.write('　　'); // 添加两个中文全角空格
-        currentLineLength = 0;
-        continue;
-      }
-
-      // 随机生成一个中文字符
-      final charCode = startCode + random.nextInt(endCode - startCode);
-      buffer.write(String.fromCharCode(charCode));
-      currentLineLength++;
-      totalChars++;
-    }
-
-    return buffer.toString();
   }
 
   Future<void> _initContentText() async {
