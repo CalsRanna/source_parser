@@ -213,7 +213,6 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
     var readerView = ReaderView(
       pageProgressText: '1/10',
       customTheme: theme,
-      eInkMode: false,
       headerText: '小说名称',
       contentText: contentText,
       totalProgressText: '25.5%',

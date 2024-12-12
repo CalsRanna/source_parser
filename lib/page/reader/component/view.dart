@@ -10,7 +10,6 @@ class ReaderView extends ConsumerWidget {
   final Widget Function()? builder;
   final String contentText;
   final schema.Theme? customTheme;
-  final bool eInkMode;
   final String headerText;
   final String pageProgressText;
   final String totalProgressText;
@@ -20,7 +19,6 @@ class ReaderView extends ConsumerWidget {
     this.builder,
     required this.contentText,
     this.customTheme,
-    required this.eInkMode,
     required this.headerText,
     required this.pageProgressText,
     required this.totalProgressText,
@@ -30,7 +28,6 @@ class ReaderView extends ConsumerWidget {
     super.key,
     required this.builder,
     this.customTheme,
-    required this.eInkMode,
     required this.headerText,
     required this.pageProgressText,
     required this.totalProgressText,

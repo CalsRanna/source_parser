@@ -11,6 +11,7 @@ import 'package:source_parser/page/reader/component/view.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/reader.dart';
+import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/util/message.dart';
@@ -164,6 +165,25 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   }
 }
 
+class _ReaderScrollPhysics extends ScrollPhysics {
+  final List<ReaderViewTurningMode>? modes;
+
+  const _ReaderScrollPhysics({this.modes});
+
+  @override
+  ScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return _ReaderScrollPhysics(modes: modes);
+  }
+
+  @override
+  bool shouldAcceptUserOffset(ScrollMetrics position) {
+    var realModes = modes ?? ReaderViewTurningMode.values;
+    var draggable = realModes.contains(ReaderViewTurningMode.drag);
+    if (!draggable) return false;
+    return super.shouldAcceptUserOffset(position);
+  }
+}
+
 class _ReaderView extends ConsumerStatefulWidget {
   final ReaderController? controller;
   final void Function(int)? onPageChanged;
@@ -185,12 +205,20 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
   @override
   Widget build(BuildContext context) {
     if (widget.controller == null) {
-      return Center(child: CircularProgressIndicator());
+      return ReaderView.builder(
+        builder: () => const Center(child: CircularProgressIndicator()),
+        headerText: '加载中',
+        pageProgressText: '',
+        totalProgressText: '',
+      );
     }
+    var setting = ref.watch(settingNotifierProvider).valueOrNull;
+    List<ReaderViewTurningMode> modes = _getModes(setting?.turningMode ?? 0);
     var child = PageView.builder(
       controller: pageController,
       itemBuilder: (_, index) => _itemBuilder(index),
       itemCount: 3,
+      physics: _ReaderScrollPhysics(modes: modes),
     );
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -217,6 +245,10 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
   }
 
   Future<void> handleTapUp(TapUpDetails details) async {
+    var provider = settingNotifierProvider;
+    var setting = await ref.read(provider.future);
+    var modes = _getModes(setting.turningMode);
+    if (!modes.contains(ReaderViewTurningMode.tap)) return;
     if (_isAnimating) return;
     var index = _calculateIndex(details);
     if (index == 1) return widget.onTap?.call();
@@ -243,6 +275,13 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     return 1;
   }
 
+  List<ReaderViewTurningMode> _getModes(int turningMode) {
+    List<ReaderViewTurningMode> modes = [];
+    if (turningMode & 1 == 1) modes.add(ReaderViewTurningMode.drag);
+    if (turningMode & 2 == 2) modes.add(ReaderViewTurningMode.tap);
+    return modes;
+  }
+
   void _handleScroll() {
     if (_isAnimating) return;
 
@@ -259,7 +298,6 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
   Widget _itemBuilder(int index) {
     return ReaderView(
       contentText: widget.controller?.getContentText(index) ?? '',
-      eInkMode: false,
       headerText: widget.controller?.getHeaderText(index) ?? '',
       pageProgressText: widget.controller?.getPageProgressText(index) ?? '',
       totalProgressText: widget.controller?.getTotalProgressText(index) ?? '',
