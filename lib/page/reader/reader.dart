@@ -42,6 +42,20 @@ class _ReaderCacheIndicator extends ConsumerWidget {
   }
 }
 
+class _ReaderLoading extends StatelessWidget {
+  const _ReaderLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return ReaderView.builder(
+      builder: () => const Center(child: CircularProgressIndicator()),
+      headerText: '加载中',
+      pageProgressText: '',
+      totalProgressText: '',
+    );
+  }
+}
+
 class _ReaderPageState extends ConsumerState<ReaderPage> {
   bool showOverlay = false;
   bool showCache = false;
@@ -56,14 +70,10 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
       onPrevious: handlePreviousChapterChanged,
       onRemoved: handleRemoved,
     );
-    var readerView = _ReaderView(
-      controller: controller,
-      onPageChanged: handlePageChanged,
-      onTap: handleTap,
-    );
     var children = [
       ReaderBackground(),
-      if (controller != null) readerView,
+      if (controller == null) _ReaderLoading(),
+      if (controller != null) _buildReaderView(),
       if (showCache) _ReaderCacheIndicator(),
       if (showOverlay) readerOverlay,
     ];
@@ -137,16 +147,24 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     _initController();
   }
 
+  Widget _buildReaderView() {
+    return _ReaderView(
+      controller: controller!,
+      onPageChanged: handlePageChanged,
+      onTap: handleTap,
+    );
+  }
+
   void _hideUiOverlays() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   }
 
   void _initController() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 300));
       var size = await ref.watch(readerSizeNotifierProvider.future);
       var theme = await ref.watch(themeNotifierProvider.future);
       controller = ReaderController(widget.book, size: size, theme: theme);
-      await Future.delayed(const Duration(milliseconds: 300));
       await controller?.init();
       setState(() {});
     });
@@ -185,11 +203,11 @@ class _ReaderScrollPhysics extends ScrollPhysics {
 }
 
 class _ReaderView extends ConsumerStatefulWidget {
-  final ReaderController? controller;
+  final ReaderController controller;
   final void Function(int)? onPageChanged;
   final void Function()? onTap;
   const _ReaderView({
-    this.controller,
+    required this.controller,
     this.onPageChanged,
     this.onTap,
   });
@@ -204,14 +222,6 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.controller == null) {
-      return ReaderView.builder(
-        builder: () => const Center(child: CircularProgressIndicator()),
-        headerText: '加载中',
-        pageProgressText: '',
-        totalProgressText: '',
-      );
-    }
     var setting = ref.watch(settingNotifierProvider).valueOrNull;
     List<ReaderViewTurningMode> modes = _getModes(setting?.turningMode ?? 0);
     var child = PageView.builder(
@@ -236,9 +246,9 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
 
   Future<void> handlePageChanged(WidgetRef ref, int index) async {
     if (index == 0) {
-      widget.controller?.previousPage();
+      widget.controller.previousPage();
     } else {
-      widget.controller?.nextPage();
+      widget.controller.nextPage();
     }
     pageController.jumpToPage(1);
     widget.onPageChanged?.call(index);
@@ -297,10 +307,10 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
 
   Widget _itemBuilder(int index) {
     return ReaderView(
-      contentText: widget.controller?.getContentText(index) ?? '',
-      headerText: widget.controller?.getHeaderText(index) ?? '',
-      pageProgressText: widget.controller?.getPageProgressText(index) ?? '',
-      totalProgressText: widget.controller?.getTotalProgressText(index) ?? '',
+      contentText: widget.controller.getContentText(index),
+      headerText: widget.controller.getHeaderText(index),
+      pageProgressText: widget.controller.getPageProgressText(index),
+      totalProgressText: widget.controller.getTotalProgressText(index),
     );
   }
 }
