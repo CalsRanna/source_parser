@@ -27,14 +27,14 @@ class _CataloguePageState extends ConsumerState<CataloguePage> {
 
   @override
   Widget build(BuildContext context) {
-    final textButton = TextButton(
+    final iconButton = IconButton(
+      icon: Icon(HugeIcons.strokeRoundedArrowDataTransferVertical),
       onPressed: handlePressed,
-      child: Icon(HugeIcons.strokeRoundedArrowDataTransferVertical),
     );
     final appBar = AppBar(
       key: globalKey,
       title: const Text('目录'),
-      actions: [textButton],
+      actions: [iconButton],
     );
     final book = ref.watch(bookNotifierProvider);
     final listView = ListView.builder(
