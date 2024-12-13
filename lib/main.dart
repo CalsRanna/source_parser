@@ -12,6 +12,7 @@ import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/logger.dart';
+import 'package:source_parser/util/string_extension.dart';
 
 void main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
@@ -72,7 +73,7 @@ class _SourceParserState extends ConsumerState<SourceParser> {
     );
     var themeData = ThemeData(
       brightness: darkMode ? Brightness.dark : Brightness.light,
-      colorSchemeSeed: const Color(0xFF63BBD0),
+      colorSchemeSeed: setting.colorSeed.toColor(),
       pageTransitionsTheme: eInkMode ? pageTransitionsTheme : null,
       splashFactory: eInkMode ? NoSplash.splashFactory : null,
       splashColor: eInkMode ? Colors.transparent : null,

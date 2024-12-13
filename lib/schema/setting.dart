@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 
 part 'setting.g.dart';
@@ -10,7 +9,7 @@ class Setting {
   @Name('cache_duration')
   double cacheDuration = 8.0;
   @Name('color_seed')
-  int colorSeed = Colors.blue.value;
+  String colorSeed = '#FF63BBD0';
   @Name('dark_mode')
   bool darkMode = false;
   @Name('debug_mode')

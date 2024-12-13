@@ -25,7 +25,7 @@ const SettingSchema = CollectionSchema(
     r'color_seed': PropertySchema(
       id: 1,
       name: r'color_seed',
-      type: IsarType.long,
+      type: IsarType.string,
     ),
     r'dark_mode': PropertySchema(
       id: 2,
@@ -98,6 +98,7 @@ int _settingEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.colorSeed.length * 3;
   bytesCount += 3 + object.shelfMode.length * 3;
   return bytesCount;
 }
@@ -109,7 +110,7 @@ void _settingSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDouble(offsets[0], object.cacheDuration);
-  writer.writeLong(offsets[1], object.colorSeed);
+  writer.writeString(offsets[1], object.colorSeed);
   writer.writeBool(offsets[2], object.darkMode);
   writer.writeBool(offsets[3], object.debugMode);
   writer.writeBool(offsets[4], object.eInkMode);
@@ -130,7 +131,7 @@ Setting _settingDeserialize(
 ) {
   final object = Setting();
   object.cacheDuration = reader.readDouble(offsets[0]);
-  object.colorSeed = reader.readLong(offsets[1]);
+  object.colorSeed = reader.readString(offsets[1]);
   object.darkMode = reader.readBool(offsets[2]);
   object.debugMode = reader.readBool(offsets[3]);
   object.eInkMode = reader.readBool(offsets[4]);
@@ -155,7 +156,7 @@ P _settingDeserializeProp<P>(
     case 0:
       return (reader.readDouble(offset)) as P;
     case 1:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 2:
       return (reader.readBool(offset)) as P;
     case 3:
@@ -334,46 +335,54 @@ extension SettingQueryFilter
   }
 
   QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedEqualTo(
-      int value) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'color_seed',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedGreaterThan(
-    int value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'color_seed',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedLessThan(
-    int value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'color_seed',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedBetween(
-    int lower,
-    int upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
@@ -382,6 +391,75 @@ extension SettingQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'color_seed',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'color_seed',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'color_seed',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'color_seed',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'color_seed',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Setting, Setting, QAfterFilterCondition> colorSeedIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'color_seed',
+        value: '',
       ));
     });
   }
@@ -1204,9 +1282,10 @@ extension SettingQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Setting, Setting, QDistinct> distinctByColorSeed() {
+  QueryBuilder<Setting, Setting, QDistinct> distinctByColorSeed(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'color_seed');
+      return query.addDistinctBy(r'color_seed', caseSensitive: caseSensitive);
     });
   }
 
@@ -1286,7 +1365,7 @@ extension SettingQueryProperty
     });
   }
 
-  QueryBuilder<Setting, int, QQueryOperations> colorSeedProperty() {
+  QueryBuilder<Setting, String, QQueryOperations> colorSeedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'color_seed');
     });
