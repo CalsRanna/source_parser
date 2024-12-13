@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:source_parser/page/theme/color_picker.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.gr.dart';
 
@@ -40,8 +41,18 @@ class ProfileView extends StatelessWidget {
       onTap: () => handleTap(context, const AboutRoute()),
       title: '关于元夕',
     );
-    var listView = ListView(children: [source, theme, layout, setting, about]);
+    var color = _SettingTile(
+      icon: HugeIcons.strokeRoundedInformationCircle,
+      onTap: () => navigateColor(context),
+      title: 'color'.toUpperCase(),
+    );
+    var listView =
+        ListView(children: [source, theme, layout, setting, about, color]);
     return Scaffold(appBar: appBar, body: listView);
+  }
+
+  void navigateColor(BuildContext context) {
+    ColorPicker.pick(context);
   }
 
   void handleTap(BuildContext context, PageRouteInfo route) {

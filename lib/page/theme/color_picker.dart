@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:source_parser/util/color_extension.dart';
+import 'package:source_parser/util/string_extension.dart';
 
 class ColorPicker {
   static Future<Color?> pick(BuildContext context) async {
@@ -24,6 +26,7 @@ class _ColorPickerState extends State<_ColorPicker> {
   final blueController = TextEditingController();
   double saturation = 0.5;
   double value = 0.5;
+  var alpha = 1.0;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +72,16 @@ class _ColorPickerState extends State<_ColorPicker> {
     ];
     final inputs = Row(children: children);
     final child = Column(
-      children: [clipRRect, SizedBox(height: 16), inputs],
+      children: [
+        clipRRect,
+        SizedBox(height: 16),
+        _AlphaSlider(
+          alpha: alpha,
+          color: HSVColor.fromAHSV(1, hue, saturation, value).toColor(),
+        ),
+        SizedBox(height: 16),
+        inputs,
+      ],
     );
     return Scaffold(
       appBar: AppBar(title: Text('Color Picker')),
@@ -118,14 +130,92 @@ class _ColorPickerState extends State<_ColorPicker> {
   }
 
   void _calculateColor() {
-    final hsv = HSVColor.fromAHSV(1, hue, saturation, value);
+    final hsv = HSVColor.fromAHSV(alpha, hue, saturation, value);
     final color = hsv.toColor();
-    final hex = color.value.toRadixString(16);
-    final text = '#${hex.substring(2).toUpperCase()}';
-    hexController.text = text;
-    redController.text = color.red.toString();
-    greenController.text = color.green.toString();
-    blueController.text = color.blue.toString();
+    var hex = color.toHex()!;
+    var red = int.tryParse(hex.substring(3, 5), radix: 16) ?? 255;
+    var green = int.tryParse(hex.substring(5, 7), radix: 16) ?? 255;
+    var blue = int.tryParse(hex.substring(7, 9), radix: 16) ?? 255;
+    hexController.text = hex;
+    redController.text = red.toString();
+    greenController.text = green.toString();
+    blueController.text = blue.toString();
+  }
+}
+
+class _AlphaSlider extends StatelessWidget {
+  final double alpha;
+  final Color color;
+  const _AlphaSlider({required this.alpha, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final boxShadow = BoxShadow(
+      blurRadius: 8,
+      color: Colors.black.withValues(alpha: 0.4),
+    );
+    final boxDecoration = BoxDecoration(
+      // borderRadius: BorderRadius.circular(4),
+      boxShadow: [boxShadow],
+      color: Colors.white,
+      shape: BoxShape.circle,
+    );
+    final indicator = Container(
+      width: 28,
+      height: 28,
+      decoration: boxDecoration,
+    );
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(32),
+        color: color,
+        gradient: LinearGradient(
+          colors: [color.withValues(alpha: 0), color.withValues(alpha: 1)],
+        ),
+      ),
+      height: 32,
+      child: Stack(children: [
+        _buildCells(),
+        Positioned(left: 2, top: 2, child: indicator)
+      ]),
+    );
+  }
+
+  Widget _buildCells() {
+    return LayoutBuilder(
+      builder: (_, constraint) => _layoutBuilder(constraint),
+    );
+  }
+
+  Widget _layoutBuilder(BoxConstraints constraints) {
+    List<Widget> children = [];
+    for (var i = 0; i < 4; i++) {
+      children.add(_buildCellList(i.isEven));
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(32),
+      child: Column(children: children),
+    );
+  }
+
+  Widget _buildCellList(bool hideEvenCell) {
+    var cell = Container(
+      width: 8,
+      height: 8,
+      color: color.withValues(alpha: 0.5),
+    );
+    var sizedBox = SizedBox(width: 8, height: 8);
+    var listView = ListView.builder(
+      itemBuilder: (_, index) {
+        var evenCell = hideEvenCell ? sizedBox : cell;
+        var oddCell = hideEvenCell ? cell : sizedBox;
+        return index % 2 == 0 ? evenCell : oddCell;
+      },
+      itemCount: 50,
+      scrollDirection: Axis.horizontal,
+      physics: NeverScrollableScrollPhysics(),
+    );
+    return SizedBox(height: 8, child: listView);
   }
 }
 
@@ -164,7 +254,7 @@ class _HexColor extends StatelessWidget {
       decoration: boxDecoration,
       height: 36,
       padding: EdgeInsets.symmetric(horizontal: 16),
-      width: 120,
+      width: 132,
       child: textField,
     );
     final children = [container, const SizedBox(height: 8), Text('HEX')];
@@ -172,11 +262,8 @@ class _HexColor extends StatelessWidget {
   }
 
   void handleSubmitted(String value) {
-    final formatted = value.replaceAll('#', '').padLeft(6, '0');
-    final colorValue = int.tryParse('FF$formatted', radix: 16) ?? 0;
-    final color = Color(colorValue);
-    final text = color.value.toRadixString(16).padLeft(8, '0');
-    controller.text = '#${text.substring(2).toUpperCase()}';
+    final color = value.toColor()!;
+    controller.text = color.toHex()!;
     onColorChanged?.call(color);
   }
 }
@@ -283,11 +370,19 @@ class _RgbColor extends StatelessWidget {
       color: surfaceContainerHighest,
     );
     final hsv = HSVColor.fromAHSV(1, hue, saturation, value);
-    final red = _buildTile(boxDecoration, hsv.toColor().red, 'R');
-    final green = _buildTile(boxDecoration, hsv.toColor().green, 'G');
-    final blue = _buildTile(boxDecoration, hsv.toColor().blue, 'B');
+    var hex = hsv.toColor().toHex()!;
+    var red = int.tryParse(hex.substring(3, 5), radix: 16) ?? 255;
+    var green = int.tryParse(hex.substring(5, 7), radix: 16) ?? 255;
+    var blue = int.tryParse(hex.substring(7, 9), radix: 16) ?? 255;
     final spacer = const SizedBox(width: 4);
-    return Row(children: [red, spacer, green, spacer, blue]);
+    var children = [
+      _buildTile(boxDecoration, red, 'R'),
+      spacer,
+      _buildTile(boxDecoration, green, 'G'),
+      spacer,
+      _buildTile(boxDecoration, blue, 'B'),
+    ];
+    return Row(children: children);
   }
 
   void handleSubmitted(String value, String label) {
