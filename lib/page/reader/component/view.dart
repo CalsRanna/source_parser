@@ -61,9 +61,9 @@ class ReaderView extends ConsumerWidget {
     var setting = ref.watch(settingNotifierProvider).valueOrNull;
     if (setting?.darkMode == true) {
       backgroundColor = Colors.black.value;
-      contentColor = Colors.white.withOpacity(0.75).value;
-      footerColor = Colors.white.withOpacity(0.5).value;
-      headerColor = Colors.white.withOpacity(0.5).value;
+      contentColor = Colors.white.withValues(alpha: 0.75).value;
+      footerColor = Colors.white.withValues(alpha: 0.5).value;
+      headerColor = Colors.white.withValues(alpha: 0.5).value;
     }
     return currentTheme.copyWith(
       backgroundColor: backgroundColor,
@@ -88,13 +88,13 @@ class _Battery extends ConsumerWidget {
     var height = size.height;
     var width = size.width;
     var innerContainer = Container(
-      color: primary.withOpacity(0.5),
+      color: primary.withValues(alpha: 0.5),
       height: height,
       width: width * (battery / 100),
     );
     var outerContainer = Container(
       alignment: Alignment.centerLeft,
-      color: onBackground.withOpacity(0.25),
+      color: onBackground.withValues(alpha: 0.25),
       height: height,
       width: width,
       child: innerContainer,
@@ -109,7 +109,7 @@ class _Battery extends ConsumerWidget {
     );
     var capDecoration = BoxDecoration(
       borderRadius: borderRadius,
-      color: onBackground.withOpacity(0.25),
+      color: onBackground.withValues(alpha: 0.25),
     );
     var cap = Container(
       decoration: capDecoration,

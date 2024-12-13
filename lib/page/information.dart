@@ -37,7 +37,8 @@ class _Archive extends StatelessWidget {
       return GestureDetector(
         onTap: () => handleTap(context, ref),
         child: Card(
-          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
+          color:
+              Theme.of(context).colorScheme.surfaceTint.withValues(alpha: 0.05),
           elevation: 0,
           margin: EdgeInsets.zero,
           shape: const RoundedRectangleBorder(),
@@ -187,7 +188,7 @@ class _BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final padding = MediaQuery.of(context).padding;
     return Container(
-      color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
+      color: Theme.of(context).colorScheme.surfaceTint.withValues(alpha: 0.05),
       padding: EdgeInsets.fromLTRB(16, 8, 16, padding.bottom + 8),
       child: Row(
         children: [
@@ -303,7 +304,8 @@ class _Catalogue extends StatelessWidget {
       return GestureDetector(
         onTap: () => handleTap(context, ref),
         child: Card(
-          color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
+          color:
+              Theme.of(context).colorScheme.surfaceTint.withValues(alpha: 0.05),
           elevation: 0,
           margin: EdgeInsets.zero,
           shape: const RoundedRectangleBorder(),
@@ -349,7 +351,7 @@ class _ColorFilter extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final primary = colorScheme.primary;
-    return Container(color: primary.withOpacity(0.25));
+    return Container(color: primary.withValues(alpha: 0.25));
   }
 }
 
@@ -402,7 +404,7 @@ class _Information extends StatelessWidget {
                   Text(
                     _buildSpan(book),
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.85),
+                      color: Colors.white.withValues(alpha: 0.85),
                     ),
                   ),
                 ],
@@ -465,7 +467,7 @@ class _IntroductionState extends State<_Introduction> {
         .trim();
     introduction = '\u2003\u2003$introduction';
     return Card(
-      color: surfaceTint.withOpacity(0.05),
+      color: surfaceTint.withValues(alpha: 0.05),
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: const RoundedRectangleBorder(),
@@ -507,7 +509,7 @@ class _IntroductionState extends State<_Introduction> {
                 right: 0,
                 child: Container(
                   decoration: ShapeDecoration(
-                    color: surfaceTint.withOpacity(0.1),
+                    color: surfaceTint.withValues(alpha: 0.1),
                     shape: const StadiumBorder(),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -547,7 +549,8 @@ class _Source extends StatelessWidget {
     return GestureDetector(
       onTap: () => handleTap(context),
       child: Card(
-        color: Theme.of(context).colorScheme.surfaceTint.withOpacity(0.05),
+        color:
+            Theme.of(context).colorScheme.surfaceTint.withValues(alpha: 0.05),
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: const RoundedRectangleBorder(),
@@ -594,7 +597,7 @@ class _Tag extends StatelessWidget {
     final labelMedium = textTheme.labelMedium;
     return Container(
       decoration: ShapeDecoration(
-        color: surfaceTint.withOpacity(0.1),
+        color: surfaceTint.withValues(alpha: 0.1),
         shape: const StadiumBorder(),
       ),
       padding: const EdgeInsets.symmetric(

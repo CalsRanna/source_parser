@@ -28,7 +28,7 @@ class _AboutPageState extends State<AboutPage> {
       onPressed: navigateGithub,
     );
     final style = labelSmall?.copyWith(
-      color: labelSmall.color?.withOpacity(0.5),
+      color: labelSmall.color?.withValues(alpha: 0.5),
     );
     final children = [
       // Image.asset('asset/image/logo.jpg', height: 160, width: 160),

@@ -14,7 +14,7 @@ class SourceTag extends StatelessWidget {
     final onPrimary = colorScheme.onPrimary;
     final boxDecoration = BoxDecoration(
       borderRadius: BorderRadius.circular(4),
-      color: primary.withOpacity(0.5),
+      color: primary.withValues(alpha: 0.5),
     );
     return Container(
       decoration: boxDecoration,

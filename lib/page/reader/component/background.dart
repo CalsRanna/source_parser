@@ -27,9 +27,9 @@ class ReaderBackground extends ConsumerWidget {
     var setting = ref.watch(settingNotifierProvider).valueOrNull;
     if (setting?.darkMode == true) {
       backgroundColor = Colors.black.value;
-      contentColor = Colors.white.withOpacity(0.75).value;
-      footerColor = Colors.white.withOpacity(0.5).value;
-      headerColor = Colors.white.withOpacity(0.5).value;
+      contentColor = Colors.white.withValues(alpha: 0.75).value;
+      footerColor = Colors.white.withValues(alpha: 0.5).value;
+      headerColor = Colors.white.withValues(alpha: 0.5).value;
     }
     return currentTheme.copyWith(
       backgroundColor: backgroundColor,

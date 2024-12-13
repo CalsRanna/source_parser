@@ -245,7 +245,7 @@ class _Grid extends StatelessWidget {
     ];
     final boxShadow = BoxShadow(
       blurRadius: 16,
-      color: shadow.withOpacity(0.05),
+      color: shadow.withValues(alpha: 0.05),
       offset: const Offset(8, 8),
     );
     final boxDecoration = BoxDecoration(
@@ -311,7 +311,7 @@ class _GridTile extends ConsumerWidget {
       _buildSubtitle() ?? '',
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: bodySmall?.copyWith(color: onSurface.withOpacity(0.5)),
+      style: bodySmall?.copyWith(color: onSurface.withValues(alpha: 0.5)),
       strutStyle: authorStrutStyle,
     );
     final children = [
@@ -401,7 +401,7 @@ class _List extends StatelessWidget {
     ];
     final boxShadow = BoxShadow(
       blurRadius: 16,
-      color: shadow.withOpacity(0.05),
+      color: shadow.withValues(alpha: 0.05),
       offset: const Offset(8, 8),
     );
     final boxDecoration = BoxDecoration(
@@ -447,11 +447,11 @@ class _ListTile extends ConsumerWidget {
       book.introduction.replaceAll(RegExp(r'\s'), ''),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: bodyMedium?.copyWith(color: onSurface.withOpacity(0.75)),
+      style: bodyMedium?.copyWith(color: onSurface.withValues(alpha: 0.75)),
     );
     final subtitle = Text(
       _buildSubtitle() ?? '',
-      style: bodySmall?.copyWith(color: onSurface.withOpacity(0.5)),
+      style: bodySmall?.copyWith(color: onSurface.withValues(alpha: 0.5)),
     );
     final columnChildren = [
       title,

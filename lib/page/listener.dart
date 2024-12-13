@@ -258,7 +258,7 @@ class _VoiceConfigSelector extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(4),
-          color: primaryContainer.withOpacity(0.1),
+          color: primaryContainer.withValues(alpha: 0.1),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(

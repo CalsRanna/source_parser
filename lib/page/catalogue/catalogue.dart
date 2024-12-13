@@ -169,7 +169,7 @@ class _Tile extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     if (active) return colorScheme.primary;
     if (cached) return colorScheme.onSurface;
-    return colorScheme.onSurface.withOpacity(0.5);
+    return colorScheme.onSurface.withValues(alpha: 0.5);
   }
 
   FontWeight _getFontWeight() {

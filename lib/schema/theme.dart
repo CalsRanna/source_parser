@@ -30,7 +30,7 @@ class Theme {
   double chapterWordSpacing = 0.618;
 
   @Name('content_color')
-  int contentColor = Colors.black.withOpacity(0.75).value;
+  int contentColor = Colors.black.withValues(alpha: 0.75).value;
 
   @Name('content_font_size')
   double contentFontSize = 18;
@@ -60,7 +60,7 @@ class Theme {
   double contentPaddingTop = 0;
 
   @Name('footer_color')
-  int footerColor = Colors.black.withOpacity(0.5).value;
+  int footerColor = Colors.black.withValues(alpha: 0.5).value;
 
   @Name('footer_font_size')
   double footerFontSize = 10;
@@ -90,7 +90,7 @@ class Theme {
   double footerPaddingTop = 4;
 
   @Name('header_color')
-  int headerColor = Colors.black.withOpacity(0.5).value;
+  int headerColor = Colors.black.withValues(alpha: 0.5).value;
 
   @Name('header_font_size')
   double headerFontSize = 10;

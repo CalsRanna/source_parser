@@ -156,7 +156,7 @@ class _ClearButton extends ConsumerWidget {
     var onSurface = colorScheme.onSurface;
     var icon = Icon(
       HugeIcons.strokeRoundedCancelCircle,
-      color: onSurface.withOpacity(0.25),
+      color: onSurface.withValues(alpha: 0.25),
       size: 20,
     );
     var detector = GestureDetector(onTap: onTap, child: icon);

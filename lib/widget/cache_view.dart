@@ -106,9 +106,10 @@ class _CacheViewState extends State<CacheView> {
     String date = getDate(entity);
     String size = getSize(entity);
     if (isDirectory(entity)) icon = HugeIcons.strokeRoundedFolder01;
-    final style = TextStyle(color: Colors.black.withOpacity(0.4), fontSize: 12);
+    final style =
+        TextStyle(color: Colors.black.withValues(alpha: 0.4), fontSize: 12);
     final children = [
-      Icon(icon, color: Colors.black.withOpacity(0.4), size: width),
+      Icon(icon, color: Colors.black.withValues(alpha: 0.4), size: width),
       Text(name, maxLines: 2, overflow: TextOverflow.ellipsis),
       if (!isDirectory(entity)) Text(date, maxLines: 1, style: style),
       if (!isDirectory(entity)) Text(size, maxLines: 1, style: style),

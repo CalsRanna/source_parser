@@ -84,13 +84,13 @@ class _BottomSheet extends ConsumerWidget {
     var authorStyle = TextStyle(
       fontSize: 12,
       height: 1.2,
-      color: onSurface.withOpacity(0.5),
+      color: onSurface.withValues(alpha: 0.5),
     );
     var author = Text(book.author, style: authorStyle);
     var subtitleStyle = TextStyle(
       fontSize: 12,
       height: 1.2,
-      color: onSurface.withOpacity(0.5),
+      color: onSurface.withValues(alpha: 0.5),
     );
     var subtitle = Text(_buildSpan(), style: subtitleStyle);
     var children = [
@@ -276,7 +276,7 @@ class _GridTile extends ConsumerWidget {
     var subtitleStyle = TextStyle(
       fontSize: 12,
       height: 1.2,
-      color: onSurface.withOpacity(0.5),
+      color: onSurface.withValues(alpha: 0.5),
     );
     var children = [
       BookCover(url: book.cover, height: coverHeight, width: coverWidth),
@@ -399,13 +399,13 @@ class _ListTile extends ConsumerWidget {
     );
     var subtitle = Text(
       _buildSubtitle() ?? '',
-      style: bodySmall?.copyWith(color: onSurface.withOpacity(0.5)),
+      style: bodySmall?.copyWith(color: onSurface.withValues(alpha: 0.5)),
     );
     var latestChapter = Text(
       _buildLatestChapter() ?? '',
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: bodySmall?.copyWith(color: onSurface.withOpacity(0.5)),
+      style: bodySmall?.copyWith(color: onSurface.withValues(alpha: 0.5)),
     );
     var column = Column(
       crossAxisAlignment: CrossAxisAlignment.start,

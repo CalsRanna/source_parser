@@ -248,7 +248,9 @@ class _SourceListPageState extends State<SourceListPage> {
             title: const Text('导出所有书源'),
             onTap: () => exportSource(context),
           ),
-          Divider(color: surfaceContainerHighest.withOpacity(0.25), height: 1),
+          Divider(
+              color: surfaceContainerHighest.withValues(alpha: 0.25),
+              height: 1),
           Consumer(builder: (_, ref, child) {
             return ListTile(
               title: const Text('校验书源'),

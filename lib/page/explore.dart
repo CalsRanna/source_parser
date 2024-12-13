@@ -32,7 +32,7 @@ class ExploreListPage extends StatelessWidget {
               vertical: 8,
             ),
             child: Divider(
-              color: surfaceContainerHighest.withOpacity(0.25),
+              color: surfaceContainerHighest.withValues(alpha: 0.25),
               height: 1,
             ),
           );
