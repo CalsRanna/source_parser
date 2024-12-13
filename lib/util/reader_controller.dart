@@ -139,8 +139,8 @@ class ReaderController extends ChangeNotifier {
   }
 
   String _getCurrentHeaderText() {
-    if (_page == 0) return book.name;
-    return book.chapters.elementAt(_chapter).name;
+    if (_page != 0) return book.chapters.elementAt(_chapter).name;
+    return book.name;
   }
 
   String _getCurrentPageProgressText() {
@@ -168,8 +168,12 @@ class ReaderController extends ChangeNotifier {
   }
 
   String _getNextHeaderText() {
-    if (_page + 1 > _current.length) return book.name;
-    return book.chapters.elementAt(_chapter).name;
+    var chapter = book.chapters.elementAt(_chapter);
+    var isLastPage = _page + 1 >= _current.length;
+    var isLastChapter = _chapter + 1 >= book.chapters.length;
+    if (isLastPage && isLastChapter) return chapter.name;
+    if (isLastPage) return book.name;
+    return chapter.name;
   }
 
   String _getNextPageProgressText() {
@@ -213,8 +217,10 @@ class ReaderController extends ChangeNotifier {
   }
 
   String _getPreviousHeaderText() {
-    if (_page - 1 < 0) return book.name;
-    return book.chapters.elementAt(_chapter).name;
+    var chapter = book.chapters.elementAt(_chapter);
+    if (_page > 0) return chapter.name;
+    if (_chapter <= 0) return chapter.name;
+    return book.name;
   }
 
   String _getPreviousPageProgressText() {
