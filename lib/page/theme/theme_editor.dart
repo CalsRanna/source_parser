@@ -9,6 +9,7 @@ import 'package:source_parser/page/reader/component/background.dart';
 import 'package:source_parser/page/reader/component/view.dart';
 import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
+import 'package:source_parser/util/reader_controller.dart';
 import 'package:source_parser/util/splitter.dart';
 
 class LoremIpsum {
@@ -271,7 +272,7 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       pageProgressText: '1/10',
       customTheme: theme,
       headerText: '小说名称',
-      contentText: contentText,
+      content: ReaderContent(text: contentText),
       totalProgressText: '25.5%',
     );
     var children = [

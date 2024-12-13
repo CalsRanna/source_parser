@@ -5,10 +5,11 @@ import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
 import 'package:source_parser/util/merger.dart';
+import 'package:source_parser/util/reader_controller.dart';
 
 class ReaderView extends ConsumerWidget {
   final Widget Function()? builder;
-  final String contentText;
+  final ReaderContent content;
   final schema.Theme? customTheme;
   final String headerText;
   final String pageProgressText;
@@ -16,13 +17,12 @@ class ReaderView extends ConsumerWidget {
 
   const ReaderView({
     super.key,
-    this.builder,
-    required this.contentText,
+    required this.content,
     this.customTheme,
     required this.headerText,
     required this.pageProgressText,
     required this.totalProgressText,
-  });
+  }) : builder = null;
 
   const ReaderView.builder({
     super.key,
@@ -31,14 +31,14 @@ class ReaderView extends ConsumerWidget {
     required this.headerText,
     required this.pageProgressText,
     required this.totalProgressText,
-  }) : contentText = '';
+  }) : content = const ReaderContent.loading();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var theme = _assembleTheme(ref);
     var header = _Header(text: headerText, theme: theme);
-    Widget content = _Content(text: contentText, theme: theme);
-    if (builder != null) content = builder!.call();
+    Widget contentWidget = _Content(content: content, theme: theme);
+    if (builder != null) contentWidget = builder!.call();
     var footer = _Footer(
       pageProgressText: pageProgressText,
       theme: theme,
@@ -46,7 +46,7 @@ class ReaderView extends ConsumerWidget {
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [header, Expanded(child: content), footer],
+      children: [header, Expanded(child: contentWidget), footer],
     );
   }
 
@@ -124,22 +124,48 @@ class _Battery extends ConsumerWidget {
 }
 
 class _Content extends StatelessWidget {
-  final String text;
+  final ReaderContent content;
   final schema.Theme theme;
-  const _Content({required this.text, required this.theme});
+
+  const _Content({required this.content, required this.theme});
 
   @override
   Widget build(BuildContext context) {
-    var merger = Merger(theme: theme);
-    var span = merger.merge(text);
+    return switch (content.state) {
+      ReaderContentState.normal => _buildNormalContent(),
+      ReaderContentState.boundary => const SizedBox(),
+      ReaderContentState.loading => _buildLoadingContent(),
+      ReaderContentState.error => _buildErrorContent(),
+    };
+  }
+
+  Widget _buildErrorContent() {
+    var textStyle = TextStyle(
+      color: Color(theme.contentColor),
+      fontSize: theme.contentFontSize,
+    );
+    var text = Text(
+      content.text.isEmpty ? '加载失败' : content.text,
+      style: textStyle,
+    );
+    return Center(child: text);
+  }
+
+  Widget _buildLoadingContent() {
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  Widget _buildNormalContent() {
+    final merger = Merger(theme: theme);
     return Container(
-      padding: _getContentPadding(),
+      color: Color(theme.backgroundColor),
+      padding: _getPadding(),
       width: double.infinity,
-      child: RichText(text: span),
+      child: RichText(text: merger.merge(content.text)),
     );
   }
 
-  EdgeInsets _getContentPadding() {
+  EdgeInsets _getPadding() {
     return EdgeInsets.only(
       bottom: theme.contentPaddingBottom,
       left: theme.contentPaddingLeft,

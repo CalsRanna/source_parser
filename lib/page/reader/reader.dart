@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/page/reader/component/background.dart';
 import 'package:source_parser/page/reader/component/cache.dart';
 import 'package:source_parser/page/reader/component/overlay.dart';
+import 'package:source_parser/page/reader/component/physics.dart';
 import 'package:source_parser/page/reader/component/view.dart';
 import 'package:source_parser/provider/battery.dart';
 import 'package:source_parser/provider/book.dart';
@@ -184,25 +185,6 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   }
 }
 
-class _ReaderScrollPhysics extends ScrollPhysics {
-  final List<ReaderViewTurningMode>? modes;
-
-  const _ReaderScrollPhysics({this.modes});
-
-  @override
-  ScrollPhysics applyTo(ScrollPhysics? ancestor) {
-    return _ReaderScrollPhysics(modes: modes);
-  }
-
-  @override
-  bool shouldAcceptUserOffset(ScrollMetrics position) {
-    var realModes = modes ?? ReaderViewTurningMode.values;
-    var draggable = realModes.contains(ReaderViewTurningMode.drag);
-    if (!draggable) return false;
-    return super.shouldAcceptUserOffset(position);
-  }
-}
-
 class _ReaderView extends ConsumerStatefulWidget {
   final ReaderController controller;
   final void Function(int)? onPageChanged;
@@ -225,11 +207,15 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
   Widget build(BuildContext context) {
     var setting = ref.watch(settingNotifierProvider).valueOrNull;
     List<ReaderViewTurningMode> modes = _getModes(setting?.turningMode ?? 0);
+    var physics = ReaderScrollPhysics(
+      controller: widget.controller,
+      modes: modes,
+    );
     var child = PageView.builder(
       controller: pageController,
       itemBuilder: (_, index) => _itemBuilder(index),
       itemCount: 3,
-      physics: _ReaderScrollPhysics(modes: modes),
+      physics: physics,
     );
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -245,10 +231,20 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     super.dispose();
   }
 
-  Future<void> handlePageChanged(WidgetRef ref, int index) async {
+  Future<void> handlePageChanged(int index) async {
     if (index == 0) {
+      if (widget.controller.isFirstPage) {
+        pageController.jumpToPage(1);
+        Message.of(context).show('已经是第一页了');
+        return;
+      }
       widget.controller.previousPage();
-    } else {
+    } else if (index == 2) {
+      if (widget.controller.isLastPage) {
+        pageController.jumpToPage(1);
+        Message.of(context).show('已经是最后一页了');
+        return;
+      }
       widget.controller.nextPage();
     }
     pageController.jumpToPage(1);
@@ -264,6 +260,12 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
     if (_isAnimating) return;
     var index = _calculateIndex(details);
     if (index == 1) return widget.onTap?.call();
+    if (!mounted) return;
+    if ((index == 0 && widget.controller.isFirstPage) ||
+        (index == 2 && widget.controller.isLastPage)) {
+      Message.of(context).show(index == 0 ? '已经是第一页了' : '已经是最后一页了');
+      return;
+    }
     if (setting.eInkMode) {
       pageController.jumpToPage(index);
     } else {
@@ -276,7 +278,6 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
   @override
   void initState() {
     super.initState();
-    _updateBattery();
     pageController.addListener(_handleScroll);
   }
 
@@ -301,12 +302,11 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
 
   void _handleScroll() {
     if (_isAnimating) return;
-
     final position = pageController.page ?? 1;
     if (position <= 0.0 || position >= 2.0) {
       _isAnimating = true;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await handlePageChanged(ref, position <= 0.0 ? 0 : 2);
+        await handlePageChanged(position <= 0.0 ? 0 : 2);
         _isAnimating = false;
       });
     }
@@ -314,7 +314,7 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
 
   Widget _itemBuilder(int index) {
     return ReaderView(
-      contentText: widget.controller.getContentText(index),
+      content: widget.controller.getContent(index),
       headerText: widget.controller.getHeaderText(index),
       pageProgressText: widget.controller.getPageProgressText(index),
       totalProgressText: widget.controller.getTotalProgressText(index),
