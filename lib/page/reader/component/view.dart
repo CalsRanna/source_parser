@@ -1,6 +1,6 @@
-import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/provider/battery.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
@@ -74,81 +74,19 @@ class ReaderView extends ConsumerWidget {
   }
 }
 
-class _Content extends StatelessWidget {
-  final String text;
-  final schema.Theme theme;
-  const _Content({required this.text, required this.theme});
+class _Battery extends ConsumerWidget {
+  final Size size;
+  const _Battery({required this.size});
 
   @override
-  Widget build(BuildContext context) {
-    var merger = Merger(theme: theme);
-    var span = merger.merge(text);
-    return Container(
-      padding: _getContentPadding(),
-      width: double.infinity,
-      child: RichText(text: span),
-    );
-  }
-
-  EdgeInsets _getContentPadding() {
-    return EdgeInsets.only(
-      bottom: theme.contentPaddingBottom,
-      left: theme.contentPaddingLeft,
-      right: theme.contentPaddingRight,
-      top: theme.contentPaddingTop,
-    );
-  }
-}
-
-class _Footer extends StatefulWidget {
-  final String pageProgressText;
-  final schema.Theme theme;
-  final String totalProgressText;
-
-  const _Footer({
-    required this.pageProgressText,
-    required this.theme,
-    required this.totalProgressText,
-  });
-
-  @override
-  State<_Footer> createState() => _FooterState();
-}
-
-class _FooterState extends State<_Footer> {
-  int battery = 100;
-
-  @override
-  Widget build(BuildContext context) {
-    var children = [
-      _buildPageProgress(),
-      const SizedBox(width: 4),
-      _buildTotalProgress(),
-      const Spacer(),
-      _buildTime(),
-      const SizedBox(width: 4),
-      _buildBattery(),
-    ];
-    var row = Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: children,
-    );
-    return Padding(padding: _getPadding(), child: row);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _calculateBattery();
-  }
-
-  Widget _buildBattery() {
+  Widget build(BuildContext context, WidgetRef ref) {
+    var battery = ref.watch(batteryNotifierProvider);
     final materialTheme = Theme.of(context);
     final colorScheme = materialTheme.colorScheme;
     final primary = colorScheme.primary;
     final onBackground = colorScheme.outline;
-    var height = widget.theme.footerFontSize * widget.theme.footerHeight;
-    var width = height * 2;
+    var height = size.height;
+    var width = size.width;
     var innerContainer = Container(
       color: primary.withOpacity(0.5),
       height: height,
@@ -183,9 +121,67 @@ class _FooterState extends State<_Footer> {
       children: [body, cap],
     );
   }
+}
 
-  Widget _buildPageProgress() {
-    return Text(widget.pageProgressText, style: _getStyle());
+class _Content extends StatelessWidget {
+  final String text;
+  final schema.Theme theme;
+  const _Content({required this.text, required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    var merger = Merger(theme: theme);
+    var span = merger.merge(text);
+    return Container(
+      padding: _getContentPadding(),
+      width: double.infinity,
+      child: RichText(text: span),
+    );
+  }
+
+  EdgeInsets _getContentPadding() {
+    return EdgeInsets.only(
+      bottom: theme.contentPaddingBottom,
+      left: theme.contentPaddingLeft,
+      right: theme.contentPaddingRight,
+      top: theme.contentPaddingTop,
+    );
+  }
+}
+
+class _Footer extends ConsumerWidget {
+  final String pageProgressText;
+  final schema.Theme theme;
+  final String totalProgressText;
+
+  const _Footer({
+    required this.pageProgressText,
+    required this.theme,
+    required this.totalProgressText,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var children = [
+      Text(pageProgressText, style: _getStyle()),
+      const SizedBox(width: 4),
+      Text(totalProgressText, style: _getStyle()),
+      const Spacer(),
+      _buildTime(),
+      const SizedBox(width: 4),
+      _buildBattery(),
+    ];
+    var row = Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: children,
+    );
+    return Padding(padding: _getPadding(), child: row);
+  }
+
+  Widget _buildBattery() {
+    var height = theme.footerFontSize * theme.footerHeight;
+    var width = height * 2;
+    return _Battery(size: Size(width, height));
   }
 
   Widget _buildTime() {
@@ -193,35 +189,24 @@ class _FooterState extends State<_Footer> {
     return Text(time, style: _getStyle());
   }
 
-  Widget _buildTotalProgress() {
-    return Text(widget.totalProgressText, style: _getStyle());
-  }
-
-  Future<void> _calculateBattery() async {
-    var level = await Battery().batteryLevel;
-    setState(() {
-      battery = level;
-    });
-  }
-
   EdgeInsets _getPadding() {
     return EdgeInsets.only(
-      bottom: widget.theme.footerPaddingBottom,
-      left: widget.theme.footerPaddingLeft,
-      right: widget.theme.footerPaddingRight,
-      top: widget.theme.footerPaddingTop,
+      bottom: theme.footerPaddingBottom,
+      left: theme.footerPaddingLeft,
+      right: theme.footerPaddingRight,
+      top: theme.footerPaddingTop,
     );
   }
 
   TextStyle _getStyle() {
     return TextStyle(
-      color: Color(widget.theme.footerColor),
+      color: Color(theme.footerColor),
       decoration: TextDecoration.none,
-      fontSize: widget.theme.footerFontSize,
-      fontWeight: FontWeight.values[widget.theme.footerFontWeight],
-      height: widget.theme.footerHeight,
-      letterSpacing: widget.theme.footerLetterSpacing,
-      wordSpacing: widget.theme.footerWordSpacing,
+      fontSize: theme.footerFontSize,
+      fontWeight: FontWeight.values[theme.footerFontWeight],
+      height: theme.footerHeight,
+      letterSpacing: theme.footerLetterSpacing,
+      wordSpacing: theme.footerWordSpacing,
     );
   }
 }

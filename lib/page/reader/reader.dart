@@ -8,6 +8,7 @@ import 'package:source_parser/page/reader/component/background.dart';
 import 'package:source_parser/page/reader/component/cache.dart';
 import 'package:source_parser/page/reader/component/overlay.dart';
 import 'package:source_parser/page/reader/component/view.dart';
+import 'package:source_parser/provider/battery.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/reader.dart';
@@ -251,6 +252,9 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
       widget.controller.nextPage();
     }
     pageController.jumpToPage(1);
+    var provider = batteryNotifierProvider;
+    var notifier = ref.read(provider.notifier);
+    notifier.updateBattery();
     widget.onPageChanged?.call(index);
   }
 
