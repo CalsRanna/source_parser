@@ -252,9 +252,7 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
       widget.controller.nextPage();
     }
     pageController.jumpToPage(1);
-    var provider = batteryNotifierProvider;
-    var notifier = ref.read(provider.notifier);
-    notifier.updateBattery();
+    _updateBattery();
     widget.onPageChanged?.call(index);
   }
 
@@ -278,6 +276,7 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
   @override
   void initState() {
     super.initState();
+    _updateBattery();
     pageController.addListener(_handleScroll);
   }
 
@@ -320,5 +319,11 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
       pageProgressText: widget.controller.getPageProgressText(index),
       totalProgressText: widget.controller.getTotalProgressText(index),
     );
+  }
+
+  Future<void> _updateBattery() async {
+    var provider = batteryNotifierProvider;
+    var notifier = ref.read(provider.notifier);
+    notifier.updateBattery();
   }
 }
