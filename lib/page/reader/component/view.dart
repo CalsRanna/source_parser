@@ -4,8 +4,10 @@ import 'package:source_parser/provider/battery.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
+import 'package:source_parser/util/color_extension.dart';
 import 'package:source_parser/util/merger.dart';
 import 'package:source_parser/util/reader_controller.dart';
+import 'package:source_parser/util/string_extension.dart';
 
 class ReaderView extends ConsumerWidget {
   final Widget Function()? builder;
@@ -54,16 +56,16 @@ class ReaderView extends ConsumerWidget {
     if (customTheme != null) return customTheme!;
     var state = ref.watch(themeNotifierProvider).valueOrNull;
     var currentTheme = state ?? schema.Theme();
-    int backgroundColor = currentTheme.backgroundColor;
-    int contentColor = currentTheme.contentColor;
-    int footerColor = currentTheme.footerColor;
-    int headerColor = currentTheme.headerColor;
+    var backgroundColor = currentTheme.backgroundColor;
+    var contentColor = currentTheme.contentColor;
+    var footerColor = currentTheme.footerColor;
+    var headerColor = currentTheme.headerColor;
     var setting = ref.watch(settingNotifierProvider).valueOrNull;
     if (setting?.darkMode == true) {
-      backgroundColor = Colors.black.value;
-      contentColor = Colors.white.withValues(alpha: 0.75).value;
-      footerColor = Colors.white.withValues(alpha: 0.5).value;
-      headerColor = Colors.white.withValues(alpha: 0.5).value;
+      backgroundColor = Colors.black.toHex()!;
+      contentColor = Colors.white.withValues(alpha: 0.75).toHex()!;
+      footerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
+      headerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
     }
     return currentTheme.copyWith(
       backgroundColor: backgroundColor,
@@ -141,7 +143,7 @@ class _Content extends StatelessWidget {
 
   Widget _buildErrorContent() {
     var textStyle = TextStyle(
-      color: Color(theme.contentColor),
+      color: theme.contentColor.toColor(),
       fontSize: theme.contentFontSize,
     );
     var text = Text(
@@ -158,7 +160,7 @@ class _Content extends StatelessWidget {
   Widget _buildNormalContent() {
     final merger = Merger(theme: theme);
     return Container(
-      color: Color(theme.backgroundColor),
+      color: theme.backgroundColor.toColor(),
       padding: _getPadding(),
       width: double.infinity,
       child: RichText(text: merger.merge(content.text)),
@@ -226,7 +228,7 @@ class _Footer extends ConsumerWidget {
 
   TextStyle _getStyle() {
     return TextStyle(
-      color: Color(theme.footerColor),
+      color: theme.footerColor.toColor(),
       decoration: TextDecoration.none,
       fontSize: theme.footerFontSize,
       fontWeight: FontWeight.values[theme.footerFontWeight],
@@ -262,7 +264,7 @@ class _Header extends StatelessWidget {
 
   TextStyle _getStyle() {
     return TextStyle(
-      color: Color(theme.headerColor),
+      color: theme.headerColor.toColor(),
       decoration: TextDecoration.none,
       fontSize: theme.headerFontSize,
       fontWeight: FontWeight.values[theme.headerFontWeight],

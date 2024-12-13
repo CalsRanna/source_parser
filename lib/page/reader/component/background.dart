@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/theme.dart';
+import 'package:source_parser/util/color_extension.dart';
+import 'package:source_parser/util/string_extension.dart';
 
 class ReaderBackground extends ConsumerWidget {
   final Theme? customTheme;
@@ -20,16 +22,16 @@ class ReaderBackground extends ConsumerWidget {
     if (customTheme != null) return customTheme!;
     var state = ref.watch(themeNotifierProvider).valueOrNull;
     var currentTheme = state ?? Theme();
-    int backgroundColor = currentTheme.backgroundColor;
-    int contentColor = currentTheme.contentColor;
-    int footerColor = currentTheme.footerColor;
-    int headerColor = currentTheme.headerColor;
+    var backgroundColor = currentTheme.backgroundColor;
+    var contentColor = currentTheme.contentColor;
+    var footerColor = currentTheme.footerColor;
+    var headerColor = currentTheme.headerColor;
     var setting = ref.watch(settingNotifierProvider).valueOrNull;
     if (setting?.darkMode == true) {
-      backgroundColor = Colors.black.value;
-      contentColor = Colors.white.withValues(alpha: 0.75).value;
-      footerColor = Colors.white.withValues(alpha: 0.5).value;
-      headerColor = Colors.white.withValues(alpha: 0.5).value;
+      backgroundColor = Colors.black.toHex()!;
+      contentColor = Colors.white.withValues(alpha: 0.75).toHex()!;
+      footerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
+      headerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
     }
     return currentTheme.copyWith(
       backgroundColor: backgroundColor,
@@ -39,9 +41,9 @@ class ReaderBackground extends ConsumerWidget {
     );
   }
 
-  Widget _buildContainer(int backgroundColorValue) {
+  Widget _buildContainer(String backgroundColorHex) {
     return Container(
-      color: Color(backgroundColorValue),
+      color: backgroundColorHex.toColor(),
       height: double.infinity,
       width: double.infinity,
     );

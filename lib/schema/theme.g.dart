@@ -20,7 +20,7 @@ const ThemeSchema = CollectionSchema(
     r'background_color': PropertySchema(
       id: 0,
       name: r'background_color',
-      type: IsarType.long,
+      type: IsarType.string,
     ),
     r'background_image': PropertySchema(
       id: 1,
@@ -55,7 +55,7 @@ const ThemeSchema = CollectionSchema(
     r'content_color': PropertySchema(
       id: 7,
       name: r'content_color',
-      type: IsarType.long,
+      type: IsarType.string,
     ),
     r'content_font_size': PropertySchema(
       id: 8,
@@ -105,7 +105,7 @@ const ThemeSchema = CollectionSchema(
     r'footer_color': PropertySchema(
       id: 17,
       name: r'footer_color',
-      type: IsarType.long,
+      type: IsarType.string,
     ),
     r'footer_font_size': PropertySchema(
       id: 18,
@@ -155,7 +155,7 @@ const ThemeSchema = CollectionSchema(
     r'header_color': PropertySchema(
       id: 27,
       name: r'header_color',
-      type: IsarType.long,
+      type: IsarType.string,
     ),
     r'header_font_size': PropertySchema(
       id: 28,
@@ -228,7 +228,11 @@ int _themeEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.backgroundColor.length * 3;
   bytesCount += 3 + object.backgroundImage.length * 3;
+  bytesCount += 3 + object.contentColor.length * 3;
+  bytesCount += 3 + object.footerColor.length * 3;
+  bytesCount += 3 + object.headerColor.length * 3;
   bytesCount += 3 + object.name.length * 3;
   return bytesCount;
 }
@@ -239,14 +243,14 @@ void _themeSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.backgroundColor);
+  writer.writeString(offsets[0], object.backgroundColor);
   writer.writeString(offsets[1], object.backgroundImage);
   writer.writeDouble(offsets[2], object.chapterFontSize);
   writer.writeLong(offsets[3], object.chapterFontWeight);
   writer.writeDouble(offsets[4], object.chapterHeight);
   writer.writeDouble(offsets[5], object.chapterLetterSpacing);
   writer.writeDouble(offsets[6], object.chapterWordSpacing);
-  writer.writeLong(offsets[7], object.contentColor);
+  writer.writeString(offsets[7], object.contentColor);
   writer.writeDouble(offsets[8], object.contentFontSize);
   writer.writeLong(offsets[9], object.contentFontWeight);
   writer.writeDouble(offsets[10], object.contentHeight);
@@ -256,7 +260,7 @@ void _themeSerialize(
   writer.writeDouble(offsets[14], object.contentPaddingRight);
   writer.writeDouble(offsets[15], object.contentPaddingTop);
   writer.writeDouble(offsets[16], object.contentWordSpacing);
-  writer.writeLong(offsets[17], object.footerColor);
+  writer.writeString(offsets[17], object.footerColor);
   writer.writeDouble(offsets[18], object.footerFontSize);
   writer.writeLong(offsets[19], object.footerFontWeight);
   writer.writeDouble(offsets[20], object.footerHeight);
@@ -266,7 +270,7 @@ void _themeSerialize(
   writer.writeDouble(offsets[24], object.footerPaddingRight);
   writer.writeDouble(offsets[25], object.footerPaddingTop);
   writer.writeDouble(offsets[26], object.footerWordSpacing);
-  writer.writeLong(offsets[27], object.headerColor);
+  writer.writeString(offsets[27], object.headerColor);
   writer.writeDouble(offsets[28], object.headerFontSize);
   writer.writeLong(offsets[29], object.headerFontWeight);
   writer.writeDouble(offsets[30], object.headerHeight);
@@ -286,14 +290,14 @@ Theme _themeDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Theme();
-  object.backgroundColor = reader.readLong(offsets[0]);
+  object.backgroundColor = reader.readString(offsets[0]);
   object.backgroundImage = reader.readString(offsets[1]);
   object.chapterFontSize = reader.readDouble(offsets[2]);
   object.chapterFontWeight = reader.readLong(offsets[3]);
   object.chapterHeight = reader.readDouble(offsets[4]);
   object.chapterLetterSpacing = reader.readDouble(offsets[5]);
   object.chapterWordSpacing = reader.readDouble(offsets[6]);
-  object.contentColor = reader.readLong(offsets[7]);
+  object.contentColor = reader.readString(offsets[7]);
   object.contentFontSize = reader.readDouble(offsets[8]);
   object.contentFontWeight = reader.readLong(offsets[9]);
   object.contentHeight = reader.readDouble(offsets[10]);
@@ -303,7 +307,7 @@ Theme _themeDeserialize(
   object.contentPaddingRight = reader.readDouble(offsets[14]);
   object.contentPaddingTop = reader.readDouble(offsets[15]);
   object.contentWordSpacing = reader.readDouble(offsets[16]);
-  object.footerColor = reader.readLong(offsets[17]);
+  object.footerColor = reader.readString(offsets[17]);
   object.footerFontSize = reader.readDouble(offsets[18]);
   object.footerFontWeight = reader.readLong(offsets[19]);
   object.footerHeight = reader.readDouble(offsets[20]);
@@ -313,7 +317,7 @@ Theme _themeDeserialize(
   object.footerPaddingRight = reader.readDouble(offsets[24]);
   object.footerPaddingTop = reader.readDouble(offsets[25]);
   object.footerWordSpacing = reader.readDouble(offsets[26]);
-  object.headerColor = reader.readLong(offsets[27]);
+  object.headerColor = reader.readString(offsets[27]);
   object.headerFontSize = reader.readDouble(offsets[28]);
   object.headerFontWeight = reader.readLong(offsets[29]);
   object.headerHeight = reader.readDouble(offsets[30]);
@@ -336,7 +340,7 @@ P _themeDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
@@ -350,7 +354,7 @@ P _themeDeserializeProp<P>(
     case 6:
       return (reader.readDouble(offset)) as P;
     case 7:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
       return (reader.readDouble(offset)) as P;
     case 9:
@@ -370,7 +374,7 @@ P _themeDeserializeProp<P>(
     case 16:
       return (reader.readDouble(offset)) as P;
     case 17:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 18:
       return (reader.readDouble(offset)) as P;
     case 19:
@@ -390,7 +394,7 @@ P _themeDeserializeProp<P>(
     case 26:
       return (reader.readDouble(offset)) as P;
     case 27:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 28:
       return (reader.readDouble(offset)) as P;
     case 29:
@@ -505,46 +509,54 @@ extension ThemeQueryWhere on QueryBuilder<Theme, Theme, QWhereClause> {
 
 extension ThemeQueryFilter on QueryBuilder<Theme, Theme, QFilterCondition> {
   QueryBuilder<Theme, Theme, QAfterFilterCondition> backgroundColorEqualTo(
-      int value) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'background_color',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> backgroundColorGreaterThan(
-    int value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'background_color',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> backgroundColorLessThan(
-    int value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'background_color',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> backgroundColorBetween(
-    int lower,
-    int upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
@@ -553,6 +565,76 @@ extension ThemeQueryFilter on QueryBuilder<Theme, Theme, QFilterCondition> {
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> backgroundColorStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'background_color',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> backgroundColorEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'background_color',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> backgroundColorContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'background_color',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> backgroundColorMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'background_color',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> backgroundColorIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'background_color',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition>
+      backgroundColorIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'background_color',
+        value: '',
       ));
     });
   }
@@ -994,46 +1076,54 @@ extension ThemeQueryFilter on QueryBuilder<Theme, Theme, QFilterCondition> {
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> contentColorEqualTo(
-      int value) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'content_color',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> contentColorGreaterThan(
-    int value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'content_color',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> contentColorLessThan(
-    int value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'content_color',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> contentColorBetween(
-    int lower,
-    int upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
@@ -1042,6 +1132,75 @@ extension ThemeQueryFilter on QueryBuilder<Theme, Theme, QFilterCondition> {
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> contentColorStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'content_color',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> contentColorEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'content_color',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> contentColorContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'content_color',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> contentColorMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'content_color',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> contentColorIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'content_color',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> contentColorIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'content_color',
+        value: '',
       ));
     });
   }
@@ -1605,46 +1764,54 @@ extension ThemeQueryFilter on QueryBuilder<Theme, Theme, QFilterCondition> {
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> footerColorEqualTo(
-      int value) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'footer_color',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> footerColorGreaterThan(
-    int value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'footer_color',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> footerColorLessThan(
-    int value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'footer_color',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> footerColorBetween(
-    int lower,
-    int upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
@@ -1653,6 +1820,75 @@ extension ThemeQueryFilter on QueryBuilder<Theme, Theme, QFilterCondition> {
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> footerColorStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'footer_color',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> footerColorEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'footer_color',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> footerColorContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'footer_color',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> footerColorMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'footer_color',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> footerColorIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'footer_color',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> footerColorIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'footer_color',
+        value: '',
       ));
     });
   }
@@ -2212,46 +2448,54 @@ extension ThemeQueryFilter on QueryBuilder<Theme, Theme, QFilterCondition> {
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> headerColorEqualTo(
-      int value) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'header_color',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> headerColorGreaterThan(
-    int value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'header_color',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> headerColorLessThan(
-    int value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'header_color',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<Theme, Theme, QAfterFilterCondition> headerColorBetween(
-    int lower,
-    int upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
@@ -2260,6 +2504,75 @@ extension ThemeQueryFilter on QueryBuilder<Theme, Theme, QFilterCondition> {
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> headerColorStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'header_color',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> headerColorEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'header_color',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> headerColorContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'header_color',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> headerColorMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'header_color',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> headerColorIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'header_color',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Theme, Theme, QAfterFilterCondition> headerColorIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'header_color',
+        value: '',
       ));
     });
   }
@@ -3948,9 +4261,11 @@ extension ThemeQuerySortThenBy on QueryBuilder<Theme, Theme, QSortThenBy> {
 }
 
 extension ThemeQueryWhereDistinct on QueryBuilder<Theme, Theme, QDistinct> {
-  QueryBuilder<Theme, Theme, QDistinct> distinctByBackgroundColor() {
+  QueryBuilder<Theme, Theme, QDistinct> distinctByBackgroundColor(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'background_color');
+      return query.addDistinctBy(r'background_color',
+          caseSensitive: caseSensitive);
     });
   }
 
@@ -3992,9 +4307,11 @@ extension ThemeQueryWhereDistinct on QueryBuilder<Theme, Theme, QDistinct> {
     });
   }
 
-  QueryBuilder<Theme, Theme, QDistinct> distinctByContentColor() {
+  QueryBuilder<Theme, Theme, QDistinct> distinctByContentColor(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'content_color');
+      return query.addDistinctBy(r'content_color',
+          caseSensitive: caseSensitive);
     });
   }
 
@@ -4052,9 +4369,10 @@ extension ThemeQueryWhereDistinct on QueryBuilder<Theme, Theme, QDistinct> {
     });
   }
 
-  QueryBuilder<Theme, Theme, QDistinct> distinctByFooterColor() {
+  QueryBuilder<Theme, Theme, QDistinct> distinctByFooterColor(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'footer_color');
+      return query.addDistinctBy(r'footer_color', caseSensitive: caseSensitive);
     });
   }
 
@@ -4112,9 +4430,10 @@ extension ThemeQueryWhereDistinct on QueryBuilder<Theme, Theme, QDistinct> {
     });
   }
 
-  QueryBuilder<Theme, Theme, QDistinct> distinctByHeaderColor() {
+  QueryBuilder<Theme, Theme, QDistinct> distinctByHeaderColor(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'header_color');
+      return query.addDistinctBy(r'header_color', caseSensitive: caseSensitive);
     });
   }
 
@@ -4187,7 +4506,7 @@ extension ThemeQueryProperty on QueryBuilder<Theme, Theme, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Theme, int, QQueryOperations> backgroundColorProperty() {
+  QueryBuilder<Theme, String, QQueryOperations> backgroundColorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'background_color');
     });
@@ -4229,7 +4548,7 @@ extension ThemeQueryProperty on QueryBuilder<Theme, Theme, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Theme, int, QQueryOperations> contentColorProperty() {
+  QueryBuilder<Theme, String, QQueryOperations> contentColorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'content_color');
     });
@@ -4289,7 +4608,7 @@ extension ThemeQueryProperty on QueryBuilder<Theme, Theme, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Theme, int, QQueryOperations> footerColorProperty() {
+  QueryBuilder<Theme, String, QQueryOperations> footerColorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'footer_color');
     });
@@ -4349,7 +4668,7 @@ extension ThemeQueryProperty on QueryBuilder<Theme, Theme, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Theme, int, QQueryOperations> headerColorProperty() {
+  QueryBuilder<Theme, String, QQueryOperations> headerColorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'header_color');
     });

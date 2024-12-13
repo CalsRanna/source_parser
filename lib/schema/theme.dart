@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
+import 'package:source_parser/util/color_extension.dart';
 
 part 'theme.g.dart';
 
@@ -9,7 +10,7 @@ class Theme {
   Id? id;
 
   @Name('background_color')
-  int backgroundColor = Colors.white.value;
+  String backgroundColor = Colors.white.toHex()!;
 
   @Name('background_image')
   String backgroundImage = '';
@@ -30,7 +31,7 @@ class Theme {
   double chapterWordSpacing = 0.618;
 
   @Name('content_color')
-  int contentColor = Colors.black.withValues(alpha: 0.75).value;
+  String contentColor = Colors.black.withValues(alpha: 0.75).toHex()!;
 
   @Name('content_font_size')
   double contentFontSize = 18;
@@ -60,7 +61,7 @@ class Theme {
   double contentPaddingTop = 0;
 
   @Name('footer_color')
-  int footerColor = Colors.black.withValues(alpha: 0.5).value;
+  String footerColor = Colors.black.withValues(alpha: 0.5).toHex()!;
 
   @Name('footer_font_size')
   double footerFontSize = 10;
@@ -90,7 +91,7 @@ class Theme {
   double footerPaddingTop = 4;
 
   @Name('header_color')
-  int headerColor = Colors.black.withValues(alpha: 0.5).value;
+  String headerColor = Colors.black.withValues(alpha: 0.5).toHex()!;
 
   @Name('header_font_size')
   double headerFontSize = 10;
@@ -124,14 +125,14 @@ class Theme {
   Theme();
 
   Theme copyWith({
-    int? backgroundColor,
+    String? backgroundColor,
     String? backgroundImage,
     double? chapterFontSize,
     int? chapterFontWeight,
     double? chapterHeight,
     double? chapterLetterSpacing,
     double? chapterWordSpacing,
-    int? contentColor,
+    String? contentColor,
     double? contentFontSize,
     int? contentFontWeight,
     double? contentHeight,
@@ -141,7 +142,7 @@ class Theme {
     double? contentPaddingLeft,
     double? contentPaddingRight,
     double? contentPaddingTop,
-    int? footerColor,
+    String? footerColor,
     double? footerFontSize,
     int? footerFontWeight,
     double? footerHeight,
@@ -151,7 +152,7 @@ class Theme {
     double? footerPaddingLeft,
     double? footerPaddingRight,
     double? footerPaddingTop,
-    int? headerColor,
+    String? headerColor,
     double? headerFontSize,
     int? headerFontWeight,
     double? headerHeight,

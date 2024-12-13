@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Theme;
 import 'package:source_parser/schema/theme.dart';
+import 'package:source_parser/util/string_extension.dart';
 
 /// A utility class that splits text content into pages for rendering in a book reader.
 ///
@@ -29,7 +30,7 @@ class Splitter {
   /// [theme] provides the styling configuration for different text elements.
   Splitter({required this.size, required this.theme})
       : _chapterStyle = TextStyle(
-          color: Color(theme.contentColor),
+          color: theme.contentColor.toColor(),
           decoration: TextDecoration.none,
           fontSize: theme.chapterFontSize,
           fontWeight: FontWeight.values[theme.chapterFontWeight],
@@ -38,7 +39,7 @@ class Splitter {
           wordSpacing: theme.chapterWordSpacing,
         ),
         _contentStyle = TextStyle(
-          color: Color(theme.contentColor),
+          color: theme.contentColor.toColor(),
           decoration: TextDecoration.none,
           fontSize: theme.contentFontSize,
           fontWeight: FontWeight.values[theme.contentFontWeight],

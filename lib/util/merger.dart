@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Theme;
 import 'package:source_parser/schema/theme.dart';
+import 'package:source_parser/util/string_extension.dart';
 
 class Merger {
   final Theme theme;
@@ -9,7 +10,7 @@ class Merger {
 
   Merger({required this.theme})
       : _chapterStyle = TextStyle(
-          color: Color(theme.contentColor),
+          color: theme.contentColor.toColor(),
           decoration: TextDecoration.none,
           fontSize: theme.chapterFontSize,
           fontWeight: FontWeight.values[theme.chapterFontWeight],
@@ -18,7 +19,7 @@ class Merger {
           wordSpacing: theme.chapterWordSpacing,
         ),
         _contentStyle = TextStyle(
-          color: Color(theme.contentColor),
+          color: theme.contentColor.toColor(),
           decoration: TextDecoration.none,
           fontSize: theme.contentFontSize,
           fontWeight: FontWeight.values[theme.contentFontWeight],

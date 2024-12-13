@@ -9,6 +9,7 @@ import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/message.dart';
+import 'package:source_parser/util/string_extension.dart';
 
 @RoutePage()
 class ReaderThemePage extends ConsumerWidget {
@@ -83,11 +84,11 @@ class _ThemeCard extends ConsumerWidget {
     var setting = ref.watch(settingNotifierProvider).valueOrNull;
     setting ??= Setting();
     var selected = setting.themeId == theme.id;
-    var color = Color(theme.contentColor);
+    var color = theme.contentColor.toColor();
     var icon = Icon(HugeIcons.strokeRoundedTick01, color: color);
     var style = TextStyle(color: color);
     var children = [
-      Container(color: Color(theme.backgroundColor)),
+      Container(color: theme.backgroundColor.toColor()),
       if (theme.backgroundImage.isNotEmpty) Image.asset(theme.backgroundImage),
       Center(child: Text(theme.name, style: style)),
       if (selected) Positioned(bottom: 16, right: 16, child: icon)
