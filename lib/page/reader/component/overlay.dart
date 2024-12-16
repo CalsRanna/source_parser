@@ -16,6 +16,7 @@ class ReaderOverlay extends ConsumerWidget {
   final void Function(int)? onCached;
   final void Function()? onNext;
   final void Function()? onPrevious;
+  final void Function()? onRefresh;
   final void Function()? onRemoved;
   const ReaderOverlay({
     super.key,
@@ -23,6 +24,7 @@ class ReaderOverlay extends ConsumerWidget {
     this.onCached,
     this.onNext,
     this.onPrevious,
+    this.onRefresh,
     this.onRemoved,
   });
 
@@ -49,7 +51,7 @@ class ReaderOverlay extends ConsumerWidget {
 
   List<Widget> _buildBottomButtons(List<ButtonPosition> positions) {
     var buttons = positions.map(_toElement).toList();
-    buttons.insert(0, _MenuButton());
+    buttons.insert(0, _MenuButton(onRefresh: onRefresh));
     return buttons;
   }
 
@@ -59,6 +61,7 @@ class ReaderOverlay extends ConsumerWidget {
       ButtonPosition.cache => _CacheButton(onTap: onCached),
       ButtonPosition.catalogue => _CatalogueButton(),
       ButtonPosition.darkMode => _DarkModeButton(),
+      ButtonPosition.forceRefresh => _ForceRefreshButton(onTap: onRefresh),
       ButtonPosition.information => _InformationButton(),
       ButtonPosition.nextChapter => _NextChapterButton(onTap: onNext),
       ButtonPosition.previousChapter =>
@@ -66,6 +69,19 @@ class ReaderOverlay extends ConsumerWidget {
       ButtonPosition.source => _SourceButton(),
       ButtonPosition.theme => _ThemeButton(),
     };
+  }
+}
+
+class _ForceRefreshButton extends StatelessWidget {
+  final void Function()? onTap;
+  const _ForceRefreshButton({this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(HugeIcons.strokeRoundedRefresh),
+      onPressed: onTap,
+    );
   }
 }
 
@@ -163,7 +179,10 @@ class _InformationButton extends StatelessWidget {
 }
 
 class _MenuButton extends ConsumerWidget {
-  const _MenuButton();
+  final void Function()? onRefresh;
+
+  const _MenuButton({this.onRefresh});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var menuChildren = [
@@ -171,6 +190,11 @@ class _MenuButton extends ConsumerWidget {
         leadingIcon: const Icon(HugeIcons.strokeRoundedBook01),
         onPressed: () => navigateBookInformation(context),
         child: const Text('书籍信息'),
+      ),
+      MenuItemButton(
+        leadingIcon: const Icon(HugeIcons.strokeRoundedRefresh),
+        onPressed: onRefresh,
+        child: const Text('强制刷新'),
       ),
       MenuItemButton(
         leadingIcon: const Icon(HugeIcons.strokeRoundedExchange01),

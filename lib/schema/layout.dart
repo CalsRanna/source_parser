@@ -24,13 +24,14 @@ class Layout {
 }
 
 enum ButtonPosition {
-  information,
+  audio,
   cache,
-  darkMode,
   catalogue,
+  darkMode,
+  forceRefresh,
+  information,
+  nextChapter,
+  previousChapter,
   source,
   theme,
-  audio,
-  previousChapter,
-  nextChapter,
 }

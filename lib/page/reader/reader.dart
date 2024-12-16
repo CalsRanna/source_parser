@@ -70,6 +70,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
       onCached: handleCached,
       onNext: handleNextChapterChanged,
       onPrevious: handlePreviousChapterChanged,
+      onRefresh: handleRefresh,
       onRemoved: handleRemoved,
     );
     var children = [
@@ -126,6 +127,11 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     var provider = readerStateNotifierProvider(widget.book);
     var notifier = ref.read(provider.notifier);
     notifier.syncState(chapter: controller!.chapter, page: controller!.page);
+  }
+
+  void handleRefresh() {
+    controller?.refresh();
+    setState(() {});
   }
 
   void handleRemoved() {

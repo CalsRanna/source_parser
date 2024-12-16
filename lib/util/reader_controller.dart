@@ -217,6 +217,16 @@ class ReaderController extends ChangeNotifier {
     _checkBoundaries();
   }
 
+  /// 强制刷新当前章节的内容
+  Future<void> refresh() async {
+    await _getCurrentChapterPages(_chapter, reacquire: true);
+    if (_currentChapterPages.isNotEmpty &&
+        _page >= _currentChapterPages.length) {
+      _page = _currentChapterPages.length - 1;
+    }
+    notifyListeners();
+  }
+
   void _checkBoundaries() {
     if (isFirstPage) {
       onReachFirstPage?.call();
@@ -226,8 +236,11 @@ class ReaderController extends ChangeNotifier {
     }
   }
 
-  Future<void> _getCurrentChapterPages(int index) async {
-    _currentChapterPages = await _getPages(index);
+  Future<void> _getCurrentChapterPages(
+    int index, {
+    bool reacquire = false,
+  }) async {
+    _currentChapterPages = await _getPages(index, reacquire: reacquire);
   }
 
   String _getCurrentContentText() {
@@ -290,7 +303,7 @@ class ReaderController extends ChangeNotifier {
     return '${progress.toStringAsFixed(2)}%';
   }
 
-  Future<List<String>> _getPages(int index) async {
+  Future<List<String>> _getPages(int index, {bool reacquire = false}) async {
     if (index < 0 || index >= book.chapters.length) {
       return [];
     }
@@ -303,6 +316,7 @@ class ReaderController extends ChangeNotifier {
       var document = await Parser.getContent(
         name: book.name,
         url: chapter.url,
+        reacquire: reacquire,
         source: source,
         title: chapter.name,
         timeout: timeout,
