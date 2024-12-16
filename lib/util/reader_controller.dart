@@ -56,11 +56,7 @@ class ReaderController extends ChangeNotifier {
   ReaderController(this.book, {required this.size, required this.theme});
 
   int get chapter => _chapter;
-  int get page => _page;
-
-  List<String> get previousChapterPages => _previousChapterPages;
   List<String> get currentChapterPages => _currentChapterPages;
-  List<String> get nextChapterPages => _nextChapterPages;
 
   bool get isFirstPage => _chapter == 0 && _page == 0;
   bool get isLastPage {
@@ -68,6 +64,11 @@ class ReaderController extends ChangeNotifier {
     var lastPage = _page == _currentChapterPages.length - 1;
     return lastChapter && lastPage;
   }
+
+  List<String> get nextChapterPages => _nextChapterPages;
+
+  int get page => _page;
+  List<String> get previousChapterPages => _previousChapterPages;
 
   bool canGoToNextPage() => !isLastPage;
 
@@ -180,10 +181,7 @@ class ReaderController extends ChangeNotifier {
   }
 
   Future<void> nextPage() async {
-    if (!canGoToNextPage()) {
-      notifyListeners();
-      return;
-    }
+    if (!canGoToNextPage()) return notifyListeners();
     if (_page >= _currentChapterPages.length - 1) {
       await nextChapter();
       return;
@@ -193,24 +191,22 @@ class ReaderController extends ChangeNotifier {
     _checkBoundaries();
   }
 
-  void previousChapter({int? page}) {
-    if (_chapter <= 0) {
-      notifyListeners();
-      return;
-    }
+  Future<void> previousChapter({int? page}) async {
+    if (_chapter <= 0) return notifyListeners();
     _chapter--;
     _page = page ?? _previousChapterPages.length - 1;
     _nextChapterPages = _currentChapterPages;
     _currentChapterPages = _previousChapterPages;
     if (_chapter > 0) {
-      _getPreviousChapterPages(_chapter - 1);
+      await _getPreviousChapterPages(_chapter - 1);
+      notifyListeners();
     } else {
       _previousChapterPages = [];
+      notifyListeners();
     }
-    notifyListeners();
   }
 
-  void previousPage() {
+  Future<void> previousPage() async {
     if (!canGoToPreviousPage()) {
       notifyListeners();
       return;
@@ -331,9 +327,10 @@ class ReaderController extends ChangeNotifier {
 
   String _getPreviousHeaderText() {
     var chapter = book.chapters.elementAt(_chapter);
-    if (_page > 0) return chapter.name;
+    if (_page > 1) return chapter.name;
+    if (_page == 1) return book.name;
     if (_chapter <= 0) return chapter.name;
-    return book.name;
+    return book.chapters.elementAt(_chapter - 1).name;
   }
 
   String _getPreviousPageProgressText() {
