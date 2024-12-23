@@ -3,10 +3,15 @@ PODS:
     - FlutterMacOS
   - blurhash_ffi (0.0.1):
     - FlutterMacOS
+  - connectivity_plus (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - icloud_storage_sync (0.0.1):
     - FlutterMacOS
   - isar_flutter_libs (1.0.0):
+    - FlutterMacOS
+  - network_info_plus (0.0.1):
     - FlutterMacOS
   - package_info_plus (0.0.1):
     - FlutterMacOS
@@ -24,9 +29,11 @@ PODS:
 DEPENDENCIES:
   - battery_plus (from `Flutter/ephemeral/.symlinks/plugins/battery_plus/macos`)
   - blurhash_ffi (from `Flutter/ephemeral/.symlinks/plugins/blurhash_ffi/macos`)
+  - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/darwin`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - icloud_storage_sync (from `Flutter/ephemeral/.symlinks/plugins/icloud_storage_sync/macos`)
   - isar_flutter_libs (from `Flutter/ephemeral/.symlinks/plugins/isar_flutter_libs/macos`)
+  - network_info_plus (from `Flutter/ephemeral/.symlinks/plugins/network_info_plus/macos`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
   - share_plus (from `Flutter/ephemeral/.symlinks/plugins/share_plus/macos`)
@@ -38,12 +45,16 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/battery_plus/macos
   blurhash_ffi:
     :path: Flutter/ephemeral/.symlinks/plugins/blurhash_ffi/macos
+  connectivity_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/darwin
   FlutterMacOS:
     :path: Flutter/ephemeral
   icloud_storage_sync:
     :path: Flutter/ephemeral/.symlinks/plugins/icloud_storage_sync/macos
   isar_flutter_libs:
     :path: Flutter/ephemeral/.symlinks/plugins/isar_flutter_libs/macos
+  network_info_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/network_info_plus/macos
   package_info_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
   path_provider_foundation:
@@ -58,9 +69,11 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   battery_plus: 0ed4cf1e771b535a89ac7323e0855ec734cf745f
   blurhash_ffi: 08654b437e9dc2a8a4ce476a7fa4898b3a333fb6
+  connectivity_plus: 18382e7311ba19efcaee94442b23b32507b20695
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   icloud_storage_sync: d6a72778247518722747de830d73813c2e36713c
   isar_flutter_libs: 43385c99864c168fadba7c9adeddc5d38838ca6a
+  network_info_plus: 2cb02d8435635eae13b3b79279681985121cf30c
   package_info_plus: 12f1c5c2cfe8727ca46cbd0b26677728972d9a5b
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   share_plus: 1fa619de8392a4398bfaf176d441853922614e89

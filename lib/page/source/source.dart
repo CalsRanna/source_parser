@@ -226,6 +226,11 @@ class _SourceListPageState extends State<SourceListPage> {
     // router.pop();
   }
 
+  void navigateLocalServer() async {
+    Navigator.of(context).pop();
+    AutoRouter.of(context).push(SourceServerRoute());
+  }
+
   void importSource() async {
     showModalBottomSheet(
       showDragHandle: true,
@@ -256,7 +261,14 @@ class _SourceListPageState extends State<SourceListPage> {
               title: const Text('校验书源'),
               onTap: () => validateSources(context, ref),
             );
-          })
+          }),
+          Divider(
+              color: surfaceContainerHighest.withValues(alpha: 0.25),
+              height: 1),
+          ListTile(
+            title: const Text('本地服务器'),
+            onTap: navigateLocalServer,
+          ),
         ]);
       },
       context: context,

@@ -83,15 +83,13 @@ Layout _layoutDeserialize(
     appBarButtons: reader
             .readByteList(offsets[0])
             ?.map((e) =>
-                _LayoutappBarButtonsValueEnumMap[e] ??
-                ButtonPosition.information)
+                _LayoutappBarButtonsValueEnumMap[e] ?? ButtonPosition.audio)
             .toList() ??
         const [],
     bottomBarButtons: reader
             .readByteList(offsets[1])
             ?.map((e) =>
-                _LayoutbottomBarButtonsValueEnumMap[e] ??
-                ButtonPosition.information)
+                _LayoutbottomBarButtonsValueEnumMap[e] ?? ButtonPosition.audio)
             .toList() ??
         const [],
   );
@@ -110,8 +108,7 @@ P _layoutDeserializeProp<P>(
       return (reader
               .readByteList(offset)
               ?.map((e) =>
-                  _LayoutappBarButtonsValueEnumMap[e] ??
-                  ButtonPosition.information)
+                  _LayoutappBarButtonsValueEnumMap[e] ?? ButtonPosition.audio)
               .toList() ??
           const []) as P;
     case 1:
@@ -119,7 +116,7 @@ P _layoutDeserializeProp<P>(
               .readByteList(offset)
               ?.map((e) =>
                   _LayoutbottomBarButtonsValueEnumMap[e] ??
-                  ButtonPosition.information)
+                  ButtonPosition.audio)
               .toList() ??
           const []) as P;
     case 2:
@@ -130,48 +127,52 @@ P _layoutDeserializeProp<P>(
 }
 
 const _LayoutappBarButtonsEnumValueMap = {
-  'information': 0,
+  'audio': 0,
   'cache': 1,
-  'darkMode': 2,
-  'catalogue': 3,
-  'source': 4,
-  'theme': 5,
-  'audio': 6,
+  'catalogue': 2,
+  'darkMode': 3,
+  'forceRefresh': 4,
+  'information': 5,
+  'nextChapter': 6,
   'previousChapter': 7,
-  'nextChapter': 8,
+  'source': 8,
+  'theme': 9,
 };
 const _LayoutappBarButtonsValueEnumMap = {
-  0: ButtonPosition.information,
+  0: ButtonPosition.audio,
   1: ButtonPosition.cache,
-  2: ButtonPosition.darkMode,
-  3: ButtonPosition.catalogue,
-  4: ButtonPosition.source,
-  5: ButtonPosition.theme,
-  6: ButtonPosition.audio,
+  2: ButtonPosition.catalogue,
+  3: ButtonPosition.darkMode,
+  4: ButtonPosition.forceRefresh,
+  5: ButtonPosition.information,
+  6: ButtonPosition.nextChapter,
   7: ButtonPosition.previousChapter,
-  8: ButtonPosition.nextChapter,
+  8: ButtonPosition.source,
+  9: ButtonPosition.theme,
 };
 const _LayoutbottomBarButtonsEnumValueMap = {
-  'information': 0,
+  'audio': 0,
   'cache': 1,
-  'darkMode': 2,
-  'catalogue': 3,
-  'source': 4,
-  'theme': 5,
-  'audio': 6,
+  'catalogue': 2,
+  'darkMode': 3,
+  'forceRefresh': 4,
+  'information': 5,
+  'nextChapter': 6,
   'previousChapter': 7,
-  'nextChapter': 8,
+  'source': 8,
+  'theme': 9,
 };
 const _LayoutbottomBarButtonsValueEnumMap = {
-  0: ButtonPosition.information,
+  0: ButtonPosition.audio,
   1: ButtonPosition.cache,
-  2: ButtonPosition.darkMode,
-  3: ButtonPosition.catalogue,
-  4: ButtonPosition.source,
-  5: ButtonPosition.theme,
-  6: ButtonPosition.audio,
+  2: ButtonPosition.catalogue,
+  3: ButtonPosition.darkMode,
+  4: ButtonPosition.forceRefresh,
+  5: ButtonPosition.information,
+  6: ButtonPosition.nextChapter,
   7: ButtonPosition.previousChapter,
-  8: ButtonPosition.nextChapter,
+  8: ButtonPosition.source,
+  9: ButtonPosition.theme,
 };
 
 Id _layoutGetId(Layout object) {
