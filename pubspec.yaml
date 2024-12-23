@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
 
   auto_route: ^9.2.2
+  archive: ^4.0.2
   battery_plus: ^6.2.0
   blurhash_ffi: ^1.2.6
   cached_network_image: ^3.3.1
@@ -49,6 +50,7 @@ dependencies:
   share_plus: ^10.0.2
   shelf: ^1.4.2
   shelf_router: ^1.1.4
+  shelf_static: ^1.1.2
   url_launcher: ^6.1.14
   xpath_selector: ^3.0.1
   xpath_selector_html_parser: ^3.0.0
@@ -69,6 +71,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
   assets:
     - asset/image/
+    - asset/dist.zip
