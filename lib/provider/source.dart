@@ -235,3 +235,20 @@ class ExploreSourcesNotifier extends _$ExploreSourcesNotifier {
     notifier.updateExploreSource(id);
   }
 }
+
+@riverpod
+class SourceServerLogsNotifier extends _$SourceServerLogsNotifier {
+  @override
+  List<double> build() => List.generate(100, (_) => 0.1);
+
+  void add() {
+    var now = DateTime.now();
+    var index = now.millisecondsSinceEpoch % 100;
+    state[index] += 0.1;
+    state = [...state];
+  }
+
+  void clear() {
+    ref.invalidateSelf();
+  }
+}

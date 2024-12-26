@@ -3,55 +3,115 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:archive/archive.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:shelf/shelf.dart' as shelf;
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_router/shelf_router.dart' as shelf_router;
 import 'package:shelf_static/shelf_static.dart' as shelf_static;
+import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/logger.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:archive/archive.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 @RoutePage()
-class SourceServerPage extends StatefulWidget {
+class SourceServerPage extends ConsumerStatefulWidget {
   const SourceServerPage({super.key});
 
   @override
-  State<SourceServerPage> createState() => _SourceServerPageState();
+  ConsumerState<SourceServerPage> createState() => _SourceServerPageState();
 }
 
-class _SourceServerPageState extends State<SourceServerPage> {
+class _SourceServerPageState extends ConsumerState<SourceServerPage>
+    with TickerProviderStateMixin {
   bool connected = false;
   bool running = false;
   HttpServer? server;
+  late AnimationController _rotationController;
+  late AnimationController _styleController;
+  late Animation<double> _sizeAnimation;
+  late Animation<Color?> _colorAnimation;
+
   @override
   Widget build(BuildContext context) {
-    var children = [
-      Text('本地服务器${running ? '已' : '未'}开启'),
-      if (running)
-        Text('请在电脑浏览器中打开 http://${server?.address.host}:${server?.port}'),
-      Switch(value: running, onChanged: toggleServer)
-    ];
-    var column = Column(mainAxisSize: MainAxisSize.min, children: children);
-    var scaffold = Scaffold(
-      appBar: AppBar(title: const Text('本地服务器')),
-      body: Center(child: column),
+    var body = Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: LayoutBuilder(builder: (context, constraints) {
+          final size = constraints.maxWidth;
+          return Stack(
+            children: [
+              AspectRatio(
+                aspectRatio: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      shape: BoxShape.circle),
+                  width: double.infinity,
+                  margin: const EdgeInsets.all(16),
+                ),
+              ),
+              AnimatedBuilder(
+                animation: _rotationController,
+                builder: (context, child) {
+                  final value = _rotationController.value;
+                  final angle = value * 2 * pi;
+                  final radius = (size - 32) / 2;
+                  final center = size / 2;
+                  final x = center + radius * cos(angle);
+                  final y = center + radius * sin(angle);
+
+                  return AnimatedBuilder(
+                    animation: _styleController,
+                    builder: (context, child) {
+                      return Positioned(
+                        left: x - _sizeAnimation.value / 2,
+                        top: y - _sizeAnimation.value / 2,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _colorAnimation.value,
+                            shape: BoxShape.circle,
+                          ),
+                          width: _sizeAnimation.value,
+                          height: _sizeAnimation.value,
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          );
+        }),
+      ),
     );
+    var appBar = AppBar(
+      actions: [Switch(value: running, onChanged: toggleServer)],
+      title: const Text('本地服务器'),
+    );
+    var scaffold = Scaffold(appBar: appBar, body: body);
     return PopScope(
       canPop: !running,
       onPopInvokedWithResult: (_, __) => handlePop(),
       child: scaffold,
     );
+  }
+
+  @override
+  void dispose() {
+    _rotationController.dispose();
+    _styleController.dispose();
+    super.dispose();
   }
 
   void handlePop() {
@@ -63,15 +123,55 @@ class _SourceServerPageState extends State<SourceServerPage> {
   void initState() {
     super.initState();
     _initConnection();
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    );
+    _styleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _sizeAnimation = Tween<double>(
+      begin: 0,
+      end: 32,
+    ).animate(CurvedAnimation(
+      parent: _styleController,
+      curve: Curves.easeOut,
+    ));
+    _colorAnimation = ColorTween(
+      begin: Colors.white,
+      end: Colors.amber,
+    ).animate(CurvedAnimation(
+      parent: _styleController,
+      curve: Curves.easeOut,
+    ));
+  }
+
+  Future<void> startServer() async {
+    server = await _SourceService(onRequest: (log) {
+      var provider = sourceServerLogsNotifierProvider;
+      var notifier = ref.read(provider.notifier);
+      notifier.add();
+    }).serve();
+  }
+
+  Future<void> stopServer() async {
+    server?.close();
+    server = null;
+    var provider = sourceServerLogsNotifierProvider;
+    var notifier = ref.read(provider.notifier);
+    notifier.clear();
   }
 
   Future<void> toggleServer(bool value) async {
-    // if (!connected) return;
     if (value) {
-      server = await _SourceService().serve();
+      await startServer();
+      _styleController.forward();
+      _rotationController.repeat();
     } else {
-      server?.close();
-      server = null;
+      await stopServer();
+      _rotationController.stop();
+      _styleController.reverse();
     }
     setState(() {
       running = value;
@@ -90,16 +190,22 @@ class _SourceServerPageState extends State<SourceServerPage> {
 
 class _SourceService {
   static const int _port = 8080;
+  final void Function(String)? onRequest;
   final _router = shelf_router.Router();
 
-  _SourceService() {
+  // 存储vendor文件的目录路径
+  String? _vendorDir;
+
+  _SourceService({this.onRequest}) {
     _setupRoutes();
   }
 
   Future<HttpServer> serve() async {
     var address = await NetworkInfo().getWifiIP() ?? 'localhost';
     var server = await shelf_io.serve(_handler().call, address, _port);
-    logger.d('Listening on http://${server.address.host}:${server.port}');
+    var log = 'Serving at http://${server.address.host}:${server.port}';
+    onRequest?.call(log);
+    logger.d(log);
     return server;
   }
 
@@ -151,8 +257,50 @@ class _SourceService {
     return handler;
   }
 
-  // 存储vendor文件的目录路径
-  String? _vendorDir;
+  Future<shelf.Response> _handleStaticFiles(shelf.Request request) async {
+    await _prepareVendorFiles();
+
+    if (_vendorDir == null) {
+      return shelf.Response.internalServerError(
+        body: 'Failed to prepare vendor files',
+      );
+    }
+
+    final staticHandler = shelf_static.createStaticHandler(
+      _vendorDir!,
+      defaultDocument: 'index.html',
+      listDirectories: false,
+      useHeaderBytesForContentType: true,
+    );
+
+    return staticHandler(request);
+  }
+
+  Future<shelf.Response> _index(shelf.Request request) async {
+    try {
+      final sources = await isar.sources.where().findAll();
+      return shelf.Response.ok(
+        jsonEncode(sources),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return shelf.Response.internalServerError(
+        body: jsonEncode({'error': 'Failed to fetch sources: $e'}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  }
+
+  shelf.Middleware _logMiddleware() {
+    return shelf.createMiddleware(
+      requestHandler: (shelf.Request request) {
+        var message = 'Request: ${request.method} ${request.url}';
+        onRequest?.call(message);
+        logger.d(message);
+        return null;
+      },
+    );
+  }
 
   // 准备静态文件目录
   Future<void> _prepareVendorFiles() async {
@@ -274,30 +422,6 @@ class _SourceService {
     }
   }
 
-  Future<shelf.Response> _index(shelf.Request request) async {
-    try {
-      final sources = await isar.sources.where().findAll();
-      return shelf.Response.ok(
-        jsonEncode(sources),
-        headers: {'Content-Type': 'application/json'},
-      );
-    } catch (e) {
-      return shelf.Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to fetch sources: $e'}),
-        headers: {'Content-Type': 'application/json'},
-      );
-    }
-  }
-
-  shelf.Middleware _logMiddleware() {
-    return shelf.createMiddleware(
-      requestHandler: (shelf.Request request) {
-        logger.d('Request: ${request.method} ${request.url}');
-        return null;
-      },
-    );
-  }
-
   void _setupRoutes() {
     // API 路由 - 需要先定义具体路由
     _router.get('/api/source', _index);
@@ -377,24 +501,5 @@ class _SourceService {
         headers: {'Content-Type': 'application/json'},
       );
     }
-  }
-
-  Future<shelf.Response> _handleStaticFiles(shelf.Request request) async {
-    await _prepareVendorFiles();
-
-    if (_vendorDir == null) {
-      return shelf.Response.internalServerError(
-        body: 'Failed to prepare vendor files',
-      );
-    }
-
-    final staticHandler = shelf_static.createStaticHandler(
-      _vendorDir!,
-      defaultDocument: 'index.html',
-      listDirectories: false,
-      useHeaderBytesForContentType: true,
-    );
-
-    return staticHandler(request);
   }
 }
