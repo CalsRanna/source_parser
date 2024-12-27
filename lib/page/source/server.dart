@@ -98,7 +98,7 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
     super.initState();
     _listenConnection();
     _rotationController = AnimationController(
-      duration: const Duration(seconds: 5),
+      duration: const Duration(seconds: 10),
       vsync: this,
     );
     _styleController = AnimationController(
@@ -211,10 +211,14 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
   }
 
   Future<void> _listenConnection() async {
-    Connectivity().onConnectivityChanged.listen((result) {
+    var connectivity = Connectivity();
+    connectivity.onConnectivityChanged.listen((result) {
       connected = result.contains(ConnectivityResult.wifi);
       setState(() {});
     });
+    var result = await connectivity.checkConnectivity();
+    connected = result.contains(ConnectivityResult.wifi);
+    setState(() {});
   }
 
   Widget _rotationBuilder(double size) {
