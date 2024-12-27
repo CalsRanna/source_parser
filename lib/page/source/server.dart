@@ -36,32 +36,49 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
     with TickerProviderStateMixin {
   bool connected = false;
   bool running = false;
-  HttpServer? server;
   int seconds = 0;
+  HttpServer? server;
   Timer? timer;
-  late AnimationController _rotationController;
-  late AnimationController _styleController;
-  late Animation<double> _sizeAnimation;
+
   late Animation<Color?> _colorAnimation;
+  late AnimationController _rotationController;
+  late Animation<double> _sizeAnimation;
+  late AnimationController _styleController;
 
   @override
   Widget build(BuildContext context) {
-    var layoutBuilder = LayoutBuilder(builder: _layoutBuilder);
-    var padding = Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: layoutBuilder,
-    );
-    var body = Center(child: padding);
     var appBar = AppBar(
       actions: [Switch(value: running, onChanged: toggleServer)],
       title: const Text('本地服务器'),
     );
-    var scaffold = Scaffold(appBar: appBar, body: body);
+    var padding = Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: LayoutBuilder(builder: _layoutBuilder),
+    );
+    var scaffold = Scaffold(appBar: appBar, body: Center(child: padding));
     return PopScope(
       canPop: !running,
       onPopInvokedWithResult: (_, __) => handlePop(),
       child: scaffold,
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    var colorScheme = Theme.of(context).colorScheme;
+    var sizeTween = Tween<double>(begin: 0, end: 32);
+    var sizeAnimation = CurvedAnimation(
+      curve: Curves.easeOut,
+      parent: _styleController,
+    );
+    _sizeAnimation = sizeTween.animate(sizeAnimation);
+    var colorTween = ColorTween(begin: Colors.white, end: colorScheme.primary);
+    var colorAnimation = CurvedAnimation(
+      curve: Curves.easeOut,
+      parent: _styleController,
+    );
+    _colorAnimation = colorTween.animate(colorAnimation);
+    super.didChangeDependencies();
   }
 
   @override
@@ -81,34 +98,20 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
     super.initState();
     _listenConnection();
     _rotationController = AnimationController(
-      vsync: this,
       duration: const Duration(seconds: 5),
+      vsync: this,
     );
     _styleController = AnimationController(
-      vsync: this,
       duration: const Duration(milliseconds: 300),
+      vsync: this,
     );
-    _sizeAnimation = Tween<double>(
-      begin: 0,
-      end: 32,
-    ).animate(CurvedAnimation(
-      parent: _styleController,
-      curve: Curves.easeOut,
-    ));
-    _colorAnimation = ColorTween(
-      begin: Colors.white,
-      end: Colors.amber,
-    ).animate(CurvedAnimation(
-      parent: _styleController,
-      curve: Curves.easeOut,
-    ));
   }
 
   Future<void> startServer() async {
     server = await _SourceService().serve();
     setState(() {});
     if (timer != null) return;
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() {
         seconds++;
       });
@@ -209,9 +212,8 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
 
   Future<void> _listenConnection() async {
     Connectivity().onConnectivityChanged.listen((result) {
-      setState(() {
-        connected = result.contains(ConnectivityResult.wifi);
-      });
+      connected = result.contains(ConnectivityResult.wifi);
+      setState(() {});
     });
   }
 
@@ -248,13 +250,12 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
 
 class _SourceService {
   static const int _port = 8080;
-  final void Function(String)? onRequest;
   final _router = shelf_router.Router();
 
   // 存储vendor文件的目录路径
   String? _vendorDir;
 
-  _SourceService({this.onRequest}) {
+  _SourceService() {
     _setupRoutes();
   }
 
@@ -262,7 +263,6 @@ class _SourceService {
     var address = await NetworkInfo().getWifiIP() ?? 'localhost';
     var server = await shelf_io.serve(_handler().call, address, _port);
     var log = 'Serving at http://${server.address.host}:${server.port}';
-    onRequest?.call(log);
     logger.d(log);
     return server;
   }
@@ -353,7 +353,6 @@ class _SourceService {
     return shelf.createMiddleware(
       requestHandler: (shelf.Request request) {
         var message = 'Request: ${request.method} ${request.url}';
-        onRequest?.call(message);
         logger.d(message);
         return null;
       },
