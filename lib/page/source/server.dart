@@ -37,6 +37,8 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
   bool connected = false;
   bool running = false;
   HttpServer? server;
+  int seconds = 0;
+  Timer? timer;
   late AnimationController _rotationController;
   late AnimationController _styleController;
   late Animation<double> _sizeAnimation;
@@ -44,57 +46,12 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
 
   @override
   Widget build(BuildContext context) {
-    var body = Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: LayoutBuilder(builder: (context, constraints) {
-          final size = constraints.maxWidth;
-          return Stack(
-            children: [
-              AspectRatio(
-                aspectRatio: 1,
-                child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      shape: BoxShape.circle),
-                  width: double.infinity,
-                  margin: const EdgeInsets.all(16),
-                ),
-              ),
-              AnimatedBuilder(
-                animation: _rotationController,
-                builder: (context, child) {
-                  final value = _rotationController.value;
-                  final angle = value * 2 * pi;
-                  final radius = (size - 32) / 2;
-                  final center = size / 2;
-                  final x = center + radius * cos(angle);
-                  final y = center + radius * sin(angle);
-
-                  return AnimatedBuilder(
-                    animation: _styleController,
-                    builder: (context, child) {
-                      return Positioned(
-                        left: x - _sizeAnimation.value / 2,
-                        top: y - _sizeAnimation.value / 2,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: _colorAnimation.value,
-                            shape: BoxShape.circle,
-                          ),
-                          width: _sizeAnimation.value,
-                          height: _sizeAnimation.value,
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          );
-        }),
-      ),
+    var layoutBuilder = LayoutBuilder(builder: _layoutBuilder);
+    var padding = Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: layoutBuilder,
     );
+    var body = Center(child: padding);
     var appBar = AppBar(
       actions: [Switch(value: running, onChanged: toggleServer)],
       title: const Text('本地服务器'),
@@ -129,7 +86,7 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
     );
     _styleController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 300),
     );
     _sizeAnimation = Tween<double>(
       begin: 0,
@@ -148,11 +105,14 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
   }
 
   Future<void> startServer() async {
-    server = await _SourceService(onRequest: (log) {
-      var provider = sourceServerLogsNotifierProvider;
-      var notifier = ref.read(provider.notifier);
-      notifier.add();
-    }).serve();
+    server = await _SourceService().serve();
+    setState(() {});
+    if (timer != null) return;
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        seconds++;
+      });
+    });
   }
 
   Future<void> stopServer() async {
@@ -161,21 +121,72 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
     var provider = sourceServerLogsNotifierProvider;
     var notifier = ref.read(provider.notifier);
     notifier.clear();
+    setState(() {});
+    timer?.cancel();
+    timer = null;
+    seconds = 0;
+    setState(() {});
   }
 
   Future<void> toggleServer(bool value) async {
+    if (!connected) return;
+    setState(() {
+      running = value;
+    });
     if (value) {
       await startServer();
       _styleController.forward();
       _rotationController.repeat();
     } else {
       await stopServer();
+      await _styleController.reverse();
       _rotationController.stop();
-      _styleController.reverse();
     }
-    setState(() {
-      running = value;
-    });
+  }
+
+  Widget _buildAnimatedBuilder(double size) {
+    return AnimatedBuilder(
+      animation: _rotationController,
+      builder: (_, __) => _rotationBuilder(size),
+    );
+  }
+
+  Widget _buildServingStatus() {
+    var theme = Theme.of(context);
+    var colorScheme = theme.colorScheme;
+    var textTheme = theme.textTheme;
+    var addressStyle = textTheme.headlineMedium?.copyWith(
+      fontWeight: FontWeight.w500,
+      color: colorScheme.primary,
+    );
+    var durationStyle = textTheme.headlineSmall?.copyWith(
+      color: colorScheme.onSurface.withValues(alpha: 0.2),
+    );
+    var address = Text(
+      '${server?.address.address}:${server?.port}',
+      style: addressStyle,
+    );
+    var duration = Text(
+      Duration(seconds: seconds).toString().split('.').first.padLeft(8, '0'),
+      style: durationStyle,
+    );
+    var available = Text(
+      '未连接到WiFi网络',
+      style: durationStyle,
+      textAlign: TextAlign.center,
+    );
+    var placeholder = Text(
+      '打开本地服务器后\n即可通过局域网电脑访问',
+      style: durationStyle,
+      textAlign: TextAlign.center,
+    );
+    Widget child = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [address, const SizedBox(height: 8), duration],
+    );
+    if (!running) child = placeholder;
+    if (!connected) child = available;
+    return Center(child: child);
   }
 
   Future<void> _initConnection() async {
@@ -185,6 +196,58 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
         connected = true;
       });
     }
+  }
+
+  Widget _layoutBuilder(BuildContext context, BoxConstraints constraints) {
+    var theme = Theme.of(context);
+    var colorScheme = theme.colorScheme;
+    var boxDecoration = BoxDecoration(
+      border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.1)),
+      shape: BoxShape.circle,
+    );
+    var servingStatus = _buildServingStatus();
+    var circle = Container(
+      decoration: boxDecoration,
+      width: double.infinity,
+      margin: const EdgeInsets.all(16),
+      child: servingStatus,
+    );
+    final size = constraints.maxWidth;
+    var children = [
+      AspectRatio(aspectRatio: 1, child: circle),
+      _buildAnimatedBuilder(size),
+    ];
+    return Stack(children: children);
+  }
+
+  Widget _rotationBuilder(double size) {
+    final value = _rotationController.value;
+    final angle = value * 2 * pi;
+    final radius = (size - 32) / 2;
+    final center = size / 2;
+    final x = center + radius * cos(angle);
+    final y = center + radius * sin(angle);
+    return AnimatedBuilder(
+      animation: _styleController,
+      builder: (_, __) => _styleBuilder(x, y),
+    );
+  }
+
+  Widget _styleBuilder(double x, double y) {
+    var boxDecoration = BoxDecoration(
+      color: _colorAnimation.value,
+      shape: BoxShape.circle,
+    );
+    var container = Container(
+      decoration: boxDecoration,
+      width: _sizeAnimation.value,
+      height: _sizeAnimation.value,
+    );
+    return Positioned(
+      left: x - _sizeAnimation.value / 2,
+      top: y - _sizeAnimation.value / 2,
+      child: container,
+    );
   }
 }
 
