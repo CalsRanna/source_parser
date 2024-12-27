@@ -155,29 +155,25 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
     var theme = Theme.of(context);
     var colorScheme = theme.colorScheme;
     var textTheme = theme.textTheme;
-    var addressStyle = textTheme.headlineMedium?.copyWith(
-      fontWeight: FontWeight.w500,
-      color: colorScheme.primary,
-    );
-    var durationStyle = textTheme.headlineSmall?.copyWith(
+    var style = textTheme.headlineSmall?.copyWith(
       color: colorScheme.onSurface.withValues(alpha: 0.2),
     );
     var address = Text(
       '${server?.address.address}:${server?.port}',
-      style: addressStyle,
+      style: style,
     );
     var duration = Text(
       Duration(seconds: seconds).toString().split('.').first.padLeft(8, '0'),
-      style: durationStyle,
+      style: style?.copyWith(fontSize: textTheme.titleSmall?.fontSize),
     );
     var available = Text(
       '未连接到WiFi网络',
-      style: durationStyle,
+      style: style,
       textAlign: TextAlign.center,
     );
     var placeholder = Text(
       '打开本地服务器后\n即可通过局域网电脑访问',
-      style: durationStyle,
+      style: style,
       textAlign: TextAlign.center,
     );
     Widget child = Column(
