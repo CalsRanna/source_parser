@@ -79,7 +79,7 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
   @override
   void initState() {
     super.initState();
-    _initConnection();
+    _listenConnection();
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 5),
@@ -189,15 +189,6 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
     return Center(child: child);
   }
 
-  Future<void> _initConnection() async {
-    var result = await Connectivity().checkConnectivity();
-    if (result.contains(ConnectivityResult.wifi)) {
-      setState(() {
-        connected = true;
-      });
-    }
-  }
-
   Widget _layoutBuilder(BuildContext context, BoxConstraints constraints) {
     var theme = Theme.of(context);
     var colorScheme = theme.colorScheme;
@@ -218,6 +209,14 @@ class _SourceServerPageState extends ConsumerState<SourceServerPage>
       _buildAnimatedBuilder(size),
     ];
     return Stack(children: children);
+  }
+
+  Future<void> _listenConnection() async {
+    Connectivity().onConnectivityChanged.listen((result) {
+      setState(() {
+        connected = result.contains(ConnectivityResult.wifi);
+      });
+    });
   }
 
   Widget _rotationBuilder(double size) {
