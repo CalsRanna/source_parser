@@ -28,7 +28,7 @@ import 'package:source_parser/page/source/debugger.dart' as _i16;
 import 'package:source_parser/page/source/form.dart' as _i17;
 import 'package:source_parser/page/source/information.dart' as _i18;
 import 'package:source_parser/page/source/search.dart' as _i20;
-import 'package:source_parser/page/source/server.dart' as _i21;
+import 'package:source_parser/page/source_manager/server.dart' as _i21;
 import 'package:source_parser/page/source/source.dart' as _i19;
 import 'package:source_parser/page/theme/theme.dart' as _i10;
 import 'package:source_parser/page/theme/theme_editor.dart' as _i22;
