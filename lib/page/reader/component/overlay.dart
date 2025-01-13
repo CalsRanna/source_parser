@@ -125,6 +125,24 @@ abstract class _OverlayBaseSlot extends StatelessWidget {
     onTap?.call(count: count);
   }
 
+  String _getButtonLabel() {
+    var values = LayoutSlot.values;
+    var layoutSlot = values.firstWhere((value) => value.name == slot);
+    return switch (layoutSlot) {
+      LayoutSlot.audio => '朗读',
+      LayoutSlot.cache => '缓存',
+      LayoutSlot.catalogue => '目录',
+      LayoutSlot.darkMode => '夜间模式',
+      LayoutSlot.forceRefresh => '强制刷新',
+      LayoutSlot.information => '书籍信息',
+      LayoutSlot.more => '更多',
+      LayoutSlot.nextChapter => '下一章',
+      LayoutSlot.previousChapter => '上一章',
+      LayoutSlot.source => '切换书源',
+      LayoutSlot.theme => '主题',
+    };
+  }
+
   IconData _getIconData() {
     var values = LayoutSlot.values;
     var layoutSlot = values.firstWhere((value) => value.name == slot);
@@ -223,8 +241,9 @@ class _OverlayMoreSlot extends ConsumerWidget {
   List<Widget> _buildMenuChildren(Layout? layout) {
     if (layout == null) return [];
     // Ignore `more` itself
-    var values = LayoutSlot.values.where((value) => value != LayoutSlot.more);
-    var usedSlots = [
+    var slots = LayoutSlot.values.where((value) => value != LayoutSlot.more);
+    var values = slots.map((value) => value.name);
+    var usedValues = {
       layout.slot0,
       layout.slot1,
       layout.slot2,
@@ -232,14 +251,15 @@ class _OverlayMoreSlot extends ConsumerWidget {
       layout.slot4,
       layout.slot5,
       layout.slot6,
-    ];
-    var remainingSlots = values.toSet().difference(usedSlots.toSet());
-    return remainingSlots.map((value) {
-      return _OverlayMoreSlotItem(book: book, onTap: onTap, slot: value.name);
+    };
+    var remainingValues = values.toSet().difference(usedValues);
+    return remainingValues.map((value) {
+      return _OverlayMoreSlotItem(book: book, onTap: onTap, slot: value);
     }).toList();
   }
 
   void _toggleMenu(MenuController controller) {
+    print('123');
     if (controller.isOpen) return controller.close();
     controller.open();
   }
@@ -259,24 +279,6 @@ class _OverlayMoreSlotItem extends _OverlayBaseSlot {
       onPressed: () => handleTap(context),
       child: Text(_getButtonLabel()),
     );
-  }
-
-  String _getButtonLabel() {
-    var values = LayoutSlot.values;
-    var layoutSlot = values.firstWhere((value) => value.name == slot);
-    return switch (layoutSlot) {
-      LayoutSlot.audio => '朗读',
-      LayoutSlot.cache => '缓存',
-      LayoutSlot.catalogue => '目录',
-      LayoutSlot.darkMode => '夜间模式',
-      LayoutSlot.forceRefresh => '强制刷新',
-      LayoutSlot.information => '书籍信息',
-      LayoutSlot.more => '更多',
-      LayoutSlot.nextChapter => '下一章',
-      LayoutSlot.previousChapter => '上一章',
-      LayoutSlot.source => '切换书源',
-      LayoutSlot.theme => '主题',
-    };
   }
 }
 
