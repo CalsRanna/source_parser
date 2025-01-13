@@ -12,12 +12,12 @@ import 'package:source_parser/util/local_server/middleware/cors_middleware.dart'
 import 'package:source_parser/util/local_server/middleware/log_middleware.dart';
 import 'package:source_parser/util/logger.dart';
 
-class LocalSourceService {
+class LocalSource {
   static const int _port = 8080;
   final _router = Router();
   String site = '';
 
-  LocalSourceService() {
+  LocalSource() {
     _setupRoutes();
   }
 
@@ -31,8 +31,8 @@ class LocalSourceService {
 
   FutureOr<Response> Function(Request) _handler() {
     final handler = Pipeline()
-        .addMiddleware(LogMiddleware.instance.middleware)
-        .addMiddleware(CorsMiddleware.instance.middleware)
+        .addMiddleware(LocalServerLogMiddleware.instance.middleware)
+        .addMiddleware(LocalServerCorsMiddleware.instance.middleware)
         .addHandler(_router.call);
     return handler;
   }

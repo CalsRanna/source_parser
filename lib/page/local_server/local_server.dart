@@ -93,7 +93,7 @@ class _SourceServerPageState extends ConsumerState<LocalServerPage>
   }
 
   Future<void> startServer() async {
-    server = await LocalSourceService().serving();
+    server = await LocalSource().serving();
     setState(() {});
     if (timer != null) return;
     timer = Timer.periodic(const Duration(seconds: 1), (_) {

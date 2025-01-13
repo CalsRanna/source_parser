@@ -1,12 +1,13 @@
 import 'package:shelf/shelf.dart';
 import 'package:source_parser/util/logger.dart';
 
-class LogMiddleware {
-  LogMiddleware._();
+class LocalServerLogMiddleware {
+  LocalServerLogMiddleware._();
 
-  static LogMiddleware? _instance;
+  static LocalServerLogMiddleware? _instance;
 
-  static LogMiddleware get instance => _instance ??= LogMiddleware._();
+  static LocalServerLogMiddleware get instance =>
+      _instance ??= LocalServerLogMiddleware._();
   Middleware get middleware => _createMiddleware();
 
   Middleware _createMiddleware() {
