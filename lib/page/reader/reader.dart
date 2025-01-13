@@ -43,20 +43,6 @@ class _ReaderCacheIndicator extends ConsumerWidget {
   }
 }
 
-class _ReaderLoading extends StatelessWidget {
-  const _ReaderLoading();
-
-  @override
-  Widget build(BuildContext context) {
-    return ReaderView.builder(
-      builder: () => const Center(child: CircularProgressIndicator()),
-      headerText: '加载中',
-      pageProgressText: '',
-      totalProgressText: '',
-    );
-  }
-}
-
 class _ReaderPageState extends ConsumerState<ReaderPage> {
   bool showOverlay = false;
   bool showCache = false;
@@ -74,7 +60,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     );
     var children = [
       ReaderBackground(),
-      if (controller == null) _ReaderLoading(),
+      if (controller == null) ReaderView.loading(),
       if (controller != null) _buildReaderView(),
       if (showCache) _ReaderCacheIndicator(),
       if (showOverlay) readerOverlay,
@@ -239,11 +225,7 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
         isFirstPage: widget.controller.isFirstPage,
         isLastPage: widget.controller.isLastPage,
       );
-
-      // 准备下一页内容
-      if (_nextPage == null) {
-        _nextPage = _itemBuilder(_pageAnimation.isForward ? 2 : 0);
-      }
+      _nextPage ??= _itemBuilder(_pageAnimation.isForward ? 2 : 0);
     });
   }
 
@@ -255,7 +237,6 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
 
     if (shouldTurnPage) {
       bool isForward = _pageAnimation.dragDistance < 0;
-
       if (isForward && !widget.controller.isLastPage) {
         _animateToNext();
       } else if (!isForward && !widget.controller.isFirstPage) {
@@ -272,11 +253,9 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
     if (_nextPage == null) {
       _prepareNextPage(true);
     }
-
     setState(() {
       _pageAnimation.animateToNext(MediaQuery.of(context).size.width);
     });
-
     _animationController.forward().then((_) {
       widget.controller.nextPage();
       widget.onPageChanged?.call(1);
@@ -291,11 +270,9 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
     if (_nextPage == null) {
       _prepareNextPage(false);
     }
-
     setState(() {
       _pageAnimation.animateToPrevious(MediaQuery.of(context).size.width);
     });
-
     _animationController.forward().then((_) {
       widget.controller.previousPage();
       widget.onPageChanged?.call(1);
@@ -310,7 +287,6 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
     setState(() {
       _pageAnimation.resetPosition(MediaQuery.of(context).size.width);
     });
-
     _animationController.forward().then((_) {
       setState(() {
         _nextPage = null;
@@ -321,11 +297,9 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
 
   void handleTapUp(TapUpDetails details) {
     if (_pageAnimation.isAnimating) return;
-
     final screenWidth = MediaQuery.of(context).size.width;
     final tapPosition = details.globalPosition.dx;
     final tapArea = tapPosition / screenWidth;
-
     if (tapArea < 0.3 && !widget.controller.isFirstPage) {
       _prepareNextPage(false);
       _animateToPrevious();

@@ -1226,6 +1226,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  turn_page_transition:
+    dependency: "direct main"
+    description:
+      name: turn_page_transition
+      sha256: "9f2bb2ce2878d051b8cb41237e451838a3a5e3eb0b7c6caec9d4665d6e65051a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
   typed_data:
     dependency: transitive
     description:

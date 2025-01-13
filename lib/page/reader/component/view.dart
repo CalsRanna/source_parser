@@ -35,6 +35,15 @@ class ReaderView extends ConsumerWidget {
     required this.totalProgressText,
   }) : content = const ReaderContent.loading();
 
+  const ReaderView.loading({
+    super.key,
+    this.customTheme,
+  })  : builder = null,
+        content = const ReaderContent.loading(),
+        headerText = '加载中',
+        pageProgressText = '',
+        totalProgressText = '';
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var theme = _assembleTheme(ref);
