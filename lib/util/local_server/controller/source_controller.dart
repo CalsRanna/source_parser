@@ -48,7 +48,7 @@ class LocalServerSourceController with LocalServerController {
     if (source == null) return response(null);
     final body = await request.readAsString();
     final data = jsonDecode(body) as Map<String, dynamic>;
-    var newSource = source.copyWithMap(data);
+    var newSource = source.updateWithJson(data);
     await isar.writeTxn(() async {
       await isar.sources.put(newSource);
     });
