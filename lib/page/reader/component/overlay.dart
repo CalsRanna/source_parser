@@ -45,13 +45,22 @@ class ReaderOverlay extends ConsumerWidget {
     );
   }
 
+  void handleTap(String slot, {int? count}) {
+    if (slot == LayoutSlot.cache.name && count != null) {
+      return onCached?.call(count);
+    }
+    if (slot == LayoutSlot.forceRefresh.name) return onRefresh?.call();
+    if (slot == LayoutSlot.nextChapter.name) return onNext?.call();
+    if (slot == LayoutSlot.previousChapter.name) return onPrevious?.call();
+  }
+
   AppBar _buildAppBar(Layout layout) {
-    var slot0 = _OverlaySlot(
+    var slot0 = _OverlayRegularSlot(
       book: book,
       onTap: ({int? count}) => handleTap(layout.slot0, count: count),
       slot: layout.slot0,
     );
-    var slot1 = _OverlaySlot(
+    var slot1 = _OverlayRegularSlot(
       book: book,
       onTap: ({int? count}) => handleTap(layout.slot1, count: count),
       slot: layout.slot1,
@@ -60,22 +69,22 @@ class ReaderOverlay extends ConsumerWidget {
   }
 
   Widget _buildBottomBar(Layout layout) {
-    var slot2 = _OverlaySlot(
+    var slot2 = _OverlayRegularSlot(
       book: book,
       onTap: ({int? count}) => handleTap(layout.slot2, count: count),
       slot: layout.slot2,
     );
-    var slot3 = _OverlaySlot(
+    var slot3 = _OverlayRegularSlot(
       book: book,
       onTap: ({int? count}) => handleTap(layout.slot3, count: count),
       slot: layout.slot3,
     );
-    var slot4 = _OverlaySlot(
+    var slot4 = _OverlayRegularSlot(
       book: book,
       onTap: ({int? count}) => handleTap(layout.slot4, count: count),
       slot: layout.slot4,
     );
-    var slot5 = _OverlaySlot(
+    var slot5 = _OverlayRegularSlot(
       book: book,
       onTap: ({int? count}) => handleTap(layout.slot5, count: count),
       slot: layout.slot5,
@@ -90,34 +99,14 @@ class ReaderOverlay extends ConsumerWidget {
       slot: layout.slot6,
     );
   }
-
-  void handleTap(String slot, {int? count}) {
-    if (slot == LayoutSlot.cache.name && count != null) {
-      return onCached?.call(count);
-    }
-    if (slot == LayoutSlot.forceRefresh.name) return onRefresh?.call();
-    if (slot == LayoutSlot.nextChapter.name) return onNext?.call();
-    if (slot == LayoutSlot.previousChapter.name) return onPrevious?.call();
-  }
 }
 
-class _OverlayFloatingSlot extends StatelessWidget {
+abstract class _OverlayBaseSlot extends StatelessWidget {
   final Book book;
   final void Function({int? count})? onTap;
   final String slot;
-  const _OverlayFloatingSlot({
-    required this.book,
-    this.onTap,
-    required this.slot,
-  });
 
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => handleTap(context),
-      child: Icon(_getIconData()),
-    );
-  }
+  const _OverlayBaseSlot({required this.book, this.onTap, required this.slot});
 
   void handleTap(BuildContext context) {
     if (slot == LayoutSlot.audio.name) _showMessage(context);
@@ -130,6 +119,10 @@ class _OverlayFloatingSlot extends StatelessWidget {
     if (slot == LayoutSlot.previousChapter.name) onTap?.call();
     if (slot == LayoutSlot.source.name) _navigateAvailableSource(context);
     if (slot == LayoutSlot.theme.name) _navigateReaderTheme(context);
+  }
+
+  void _downloadChapter(int count) {
+    onTap?.call(count: count);
   }
 
   IconData _getIconData() {
@@ -174,10 +167,6 @@ class _OverlayFloatingSlot extends StatelessWidget {
     );
   }
 
-  void _downloadChapter(int count) {
-    onTap?.call(count: count);
-  }
-
   void _showMessage(BuildContext context) {
     Message.of(context).show('开发中，但很有可能会移除该功能');
   }
@@ -187,6 +176,22 @@ class _OverlayFloatingSlot extends StatelessWidget {
     var provider = settingNotifierProvider;
     var notifier = container.read(provider.notifier);
     notifier.toggleDarkMode();
+  }
+}
+
+class _OverlayFloatingSlot extends _OverlayBaseSlot {
+  const _OverlayFloatingSlot({
+    required super.book,
+    super.onTap,
+    required super.slot,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () => handleTap(context),
+      child: Icon(_getIconData()),
+    );
   }
 }
 
@@ -244,8 +249,11 @@ class _OverlayMoreSlotItem extends StatelessWidget {
   final Book book;
   final void Function({int? count})? onTap;
   final String slot;
-  const _OverlayMoreSlotItem(
-      {required this.book, required this.onTap, required this.slot});
+  const _OverlayMoreSlotItem({
+    required this.book,
+    required this.onTap,
+    required this.slot,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -267,6 +275,10 @@ class _OverlayMoreSlotItem extends StatelessWidget {
     if (slot == LayoutSlot.previousChapter.name) onTap?.call();
     if (slot == LayoutSlot.source.name) _navigateAvailableSource(context);
     if (slot == LayoutSlot.theme.name) _navigateReaderTheme(context);
+  }
+
+  void _downloadChapter(int count) {
+    onTap?.call(count: count);
   }
 
   String _getButtonLabel() {
@@ -330,10 +342,6 @@ class _OverlayMoreSlotItem extends StatelessWidget {
     );
   }
 
-  void _downloadChapter(int count) {
-    onTap?.call(count: count);
-  }
-
   void _showMessage(BuildContext context) {
     Message.of(context).show('开发中，但很有可能会移除该功能');
   }
@@ -346,11 +354,12 @@ class _OverlayMoreSlotItem extends StatelessWidget {
   }
 }
 
-class _OverlaySlot extends StatelessWidget {
-  final Book book;
-  final void Function({int? count})? onTap;
-  final String slot;
-  const _OverlaySlot({required this.book, this.onTap, required this.slot});
+class _OverlayRegularSlot extends _OverlayBaseSlot {
+  const _OverlayRegularSlot({
+    required super.book,
+    super.onTap,
+    required super.slot,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -362,76 +371,5 @@ class _OverlaySlot extends StatelessWidget {
       onPressed: () => handleTap(context),
       icon: Icon(_getIconData()),
     );
-  }
-
-  void handleTap(BuildContext context) {
-    if (slot == LayoutSlot.audio.name) _showMessage(context);
-    if (slot == LayoutSlot.cache.name) _showCacheSheet(context);
-    if (slot == LayoutSlot.catalogue.name) _navigateBookCatalogue(context);
-    if (slot == LayoutSlot.darkMode.name) _toggleDarkMode(context);
-    if (slot == LayoutSlot.forceRefresh.name) onTap?.call();
-    if (slot == LayoutSlot.information.name) _navigateBookInformation(context);
-    if (slot == LayoutSlot.nextChapter.name) onTap?.call();
-    if (slot == LayoutSlot.previousChapter.name) onTap?.call();
-    if (slot == LayoutSlot.source.name) _navigateAvailableSource(context);
-    if (slot == LayoutSlot.theme.name) _navigateReaderTheme(context);
-  }
-
-  IconData _getIconData() {
-    var values = LayoutSlot.values;
-    var layoutSlot = values.firstWhere((value) => value.name == slot);
-    return switch (layoutSlot) {
-      LayoutSlot.audio => HugeIcons.strokeRoundedHeadphones,
-      LayoutSlot.cache => HugeIcons.strokeRoundedDownload04,
-      LayoutSlot.catalogue => HugeIcons.strokeRoundedMenu01,
-      LayoutSlot.darkMode => HugeIcons.strokeRoundedMoon02,
-      LayoutSlot.forceRefresh => HugeIcons.strokeRoundedRefresh,
-      LayoutSlot.information => HugeIcons.strokeRoundedBook01,
-      // Will never be called cause we use `_OverlayMoreSlot` instead
-      LayoutSlot.more => HugeIcons.strokeRoundedMoreVertical,
-      LayoutSlot.nextChapter => HugeIcons.strokeRoundedNext,
-      LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
-      LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
-      LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
-    };
-  }
-
-  void _navigateAvailableSource(BuildContext context) {
-    AvailableSourceListRoute().push(context);
-  }
-
-  void _navigateBookCatalogue(BuildContext context) {
-    CatalogueRoute(index: book.index).push(context);
-  }
-
-  void _navigateBookInformation(BuildContext context) {
-    InformationRoute().push(context);
-  }
-
-  void _navigateReaderTheme(BuildContext context) {
-    ReaderThemeRoute().push(context);
-  }
-
-  void _showCacheSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => ReaderCacheSheet(onCached: _downloadChapter),
-      showDragHandle: true,
-    );
-  }
-
-  void _downloadChapter(int count) {
-    onTap?.call(count: count);
-  }
-
-  void _showMessage(BuildContext context) {
-    Message.of(context).show('开发中，但很有可能会移除该功能');
-  }
-
-  void _toggleDarkMode(BuildContext context) {
-    var container = ProviderScope.containerOf(context);
-    var provider = settingNotifierProvider;
-    var notifier = container.read(provider.notifier);
-    notifier.toggleDarkMode();
   }
 }
