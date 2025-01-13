@@ -32,15 +32,15 @@ class ProfileView extends StatelessWidget {
       onTap: () => handleTap(context, const ReaderLayoutRoute()),
       title: '功能布局',
     );
-    var setting = _SettingTile(
-      icon: HugeIcons.strokeRoundedSettings01,
-      onTap: () => handleTap(context, const SettingRoute()),
-      title: '设置',
-    );
     var server = _SettingTile(
       icon: HugeIcons.strokeRoundedCloudServer,
       onTap: () => handleTap(context, const LocalServerRoute()),
       title: '本地服务器',
+    );
+    var setting = _SettingTile(
+      icon: HugeIcons.strokeRoundedSettings01,
+      onTap: () => handleTap(context, const SettingRoute()),
+      title: '设置',
     );
     var about = _SettingTile(
       icon: HugeIcons.strokeRoundedInformationCircle,
@@ -57,8 +57,8 @@ class ProfileView extends StatelessWidget {
         source,
         theme,
         layout,
-        setting,
         server,
+        setting,
         about,
         if (kDebugMode) color,
       ],
