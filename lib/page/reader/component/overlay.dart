@@ -245,14 +245,11 @@ class _OverlayMoreSlot extends ConsumerWidget {
   }
 }
 
-class _OverlayMoreSlotItem extends StatelessWidget {
-  final Book book;
-  final void Function({int? count})? onTap;
-  final String slot;
+class _OverlayMoreSlotItem extends _OverlayBaseSlot {
   const _OverlayMoreSlotItem({
-    required this.book,
-    required this.onTap,
-    required this.slot,
+    required super.book,
+    required super.onTap,
+    required super.slot,
   });
 
   @override
@@ -262,23 +259,6 @@ class _OverlayMoreSlotItem extends StatelessWidget {
       onPressed: () => handleTap(context),
       child: Text(_getButtonLabel()),
     );
-  }
-
-  void handleTap(BuildContext context) {
-    if (slot == LayoutSlot.audio.name) _showMessage(context);
-    if (slot == LayoutSlot.cache.name) _showCacheSheet(context);
-    if (slot == LayoutSlot.catalogue.name) _navigateBookCatalogue(context);
-    if (slot == LayoutSlot.darkMode.name) _toggleDarkMode(context);
-    if (slot == LayoutSlot.forceRefresh.name) onTap?.call();
-    if (slot == LayoutSlot.information.name) _navigateBookInformation(context);
-    if (slot == LayoutSlot.nextChapter.name) onTap?.call();
-    if (slot == LayoutSlot.previousChapter.name) onTap?.call();
-    if (slot == LayoutSlot.source.name) _navigateAvailableSource(context);
-    if (slot == LayoutSlot.theme.name) _navigateReaderTheme(context);
-  }
-
-  void _downloadChapter(int count) {
-    onTap?.call(count: count);
   }
 
   String _getButtonLabel() {
@@ -297,60 +277,6 @@ class _OverlayMoreSlotItem extends StatelessWidget {
       LayoutSlot.source => '切换书源',
       LayoutSlot.theme => '主题',
     };
-  }
-
-  IconData _getIconData() {
-    var values = LayoutSlot.values;
-    var layoutSlot = values.firstWhere((value) => value.name == slot);
-    return switch (layoutSlot) {
-      LayoutSlot.audio => HugeIcons.strokeRoundedHeadphones,
-      LayoutSlot.cache => HugeIcons.strokeRoundedDownload04,
-      LayoutSlot.catalogue => HugeIcons.strokeRoundedMenu01,
-      LayoutSlot.darkMode => HugeIcons.strokeRoundedMoon02,
-      LayoutSlot.forceRefresh => HugeIcons.strokeRoundedRefresh,
-      LayoutSlot.information => HugeIcons.strokeRoundedBook01,
-      // Will never be called cause we exclude `more` in `_OverlayMoreSlot`
-      LayoutSlot.more => HugeIcons.strokeRoundedMoreVertical,
-      LayoutSlot.nextChapter => HugeIcons.strokeRoundedNext,
-      LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
-      LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
-      LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
-    };
-  }
-
-  void _navigateAvailableSource(BuildContext context) {
-    AvailableSourceListRoute().push(context);
-  }
-
-  void _navigateBookCatalogue(BuildContext context) {
-    CatalogueRoute(index: book.index).push(context);
-  }
-
-  void _navigateBookInformation(BuildContext context) {
-    InformationRoute().push(context);
-  }
-
-  void _navigateReaderTheme(BuildContext context) {
-    ReaderThemeRoute().push(context);
-  }
-
-  void _showCacheSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => ReaderCacheSheet(onCached: _downloadChapter),
-      showDragHandle: true,
-    );
-  }
-
-  void _showMessage(BuildContext context) {
-    Message.of(context).show('开发中，但很有可能会移除该功能');
-  }
-
-  void _toggleDarkMode(BuildContext context) {
-    var container = ProviderScope.containerOf(context);
-    var provider = settingNotifierProvider;
-    var notifier = container.read(provider.notifier);
-    notifier.toggleDarkMode();
   }
 }
 
