@@ -7,12 +7,21 @@ import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/local_server/controller/controller.dart';
 
 class LocalServerSourceController with LocalServerController {
-  LocalServerSourceController._();
-
   static LocalServerSourceController? _instance;
 
   static LocalServerSourceController get instance =>
       _instance ??= LocalServerSourceController._();
+
+  LocalServerSourceController._();
+
+  Future<Response> destroy(Request request, String id) async {
+    final source = await isar.sources.get(int.parse(id));
+    if (source == null) return response(null);
+    await isar.writeTxn(() async {
+      return await isar.sources.delete(int.parse(id));
+    });
+    return response(source, statusCode: 204);
+  }
 
   Future<Response> index(Request request) async {
     final sources = await isar.sources.where().findAll();
@@ -39,19 +48,10 @@ class LocalServerSourceController with LocalServerController {
     if (source == null) return response(null);
     final body = await request.readAsString();
     final data = jsonDecode(body) as Map<String, dynamic>;
-    var newSource = Source.fromJson(data);
+    var newSource = source.copyWithMap(data);
     await isar.writeTxn(() async {
       await isar.sources.put(newSource);
     });
     return response(newSource);
-  }
-
-  Future<Response> destroy(Request request, String id) async {
-    final source = await isar.sources.get(int.parse(id));
-    if (source == null) return response(null);
-    await isar.writeTxn(() async {
-      return await isar.sources.delete(int.parse(id));
-    });
-    return response(source, statusCode: 204);
   }
 }
