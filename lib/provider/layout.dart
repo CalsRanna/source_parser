@@ -11,50 +11,24 @@ class ReaderLayoutNotifierProvider extends _$ReaderLayoutNotifierProvider {
   Future<Layout> build() async {
     var layout = await isar.layouts.where().findFirst();
     if (layout != null) return layout;
-    layout = Layout(
-      appBarButtons: [ButtonPosition.cache, ButtonPosition.darkMode],
-      bottomBarButtons: [
-        ButtonPosition.catalogue,
-        ButtonPosition.previousChapter,
-        ButtonPosition.nextChapter,
-      ],
-    );
+    layout = Layout();
     await isar.writeTxn(() async {
       await isar.layouts.put(layout!);
     });
     return layout;
   }
 
-  Future<void> updateSlot(ButtonPosition position, {int index = 0}) async {
-    final currentLayout = await future;
-    var topActions = [...currentLayout.appBarButtons];
-    var bottomActions = [...currentLayout.bottomBarButtons];
-    if (index < 2) topActions[index] = position;
-    if (index >= 2) bottomActions[index - 2] = position;
-    currentLayout.appBarButtons = topActions;
-    currentLayout.bottomBarButtons = bottomActions;
+  Future<void> updateSlot(LayoutSlot slot, {int index = 0}) async {
+    final layout = await future;
+    if (index == 0) layout.slot0 = slot.name;
+    if (index == 1) layout.slot1 = slot.name;
+    if (index == 2) layout.slot2 = slot.name;
+    if (index == 3) layout.slot3 = slot.name;
+    if (index == 4) layout.slot4 = slot.name;
+    if (index == 5) layout.slot5 = slot.name;
+    if (index == 6) layout.slot6 = slot.name;
     await isar.writeTxn(() async {
-      await isar.layouts.put(currentLayout);
-    });
-    ref.invalidateSelf();
-  }
-
-  Future<void> updateAppBarButtons(List<ButtonPosition> buttons) async {
-    if (buttons.length > 2) return;
-    final currentLayout = await future;
-    currentLayout.appBarButtons = buttons;
-    await isar.writeTxn(() async {
-      await isar.layouts.put(currentLayout);
-    });
-    ref.invalidateSelf();
-  }
-
-  Future<void> updateBottomBarButtons(List<ButtonPosition> buttons) async {
-    if (buttons.length > 3) return;
-    final currentLayout = await future;
-    currentLayout.bottomBarButtons = buttons;
-    await isar.writeTxn(() async {
-      await isar.layouts.put(currentLayout);
+      await isar.layouts.put(layout);
     });
     ref.invalidateSelf();
   }

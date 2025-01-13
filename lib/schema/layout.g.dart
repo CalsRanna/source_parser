@@ -17,22 +17,40 @@ const LayoutSchema = CollectionSchema(
   name: r'layouts',
   id: 1755418280096907717,
   properties: {
-    r'app_bar_buttons': PropertySchema(
+    r'slot_0': PropertySchema(
       id: 0,
-      name: r'app_bar_buttons',
-      type: IsarType.byteList,
-      enumMap: _LayoutappBarButtonsEnumValueMap,
+      name: r'slot_0',
+      type: IsarType.string,
     ),
-    r'bottom_bar_buttons': PropertySchema(
+    r'slot_1': PropertySchema(
       id: 1,
-      name: r'bottom_bar_buttons',
-      type: IsarType.byteList,
-      enumMap: _LayoutbottomBarButtonsEnumValueMap,
+      name: r'slot_1',
+      type: IsarType.string,
     ),
-    r'isValid': PropertySchema(
+    r'slot_2': PropertySchema(
       id: 2,
-      name: r'isValid',
-      type: IsarType.bool,
+      name: r'slot_2',
+      type: IsarType.string,
+    ),
+    r'slot_3': PropertySchema(
+      id: 3,
+      name: r'slot_3',
+      type: IsarType.string,
+    ),
+    r'slot_4': PropertySchema(
+      id: 4,
+      name: r'slot_4',
+      type: IsarType.string,
+    ),
+    r'slot_5': PropertySchema(
+      id: 5,
+      name: r'slot_5',
+      type: IsarType.string,
+    ),
+    r'slot_6': PropertySchema(
+      id: 6,
+      name: r'slot_6',
+      type: IsarType.string,
     )
   },
   estimateSize: _layoutEstimateSize,
@@ -55,8 +73,13 @@ int _layoutEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  bytesCount += 3 + object.appBarButtons.length;
-  bytesCount += 3 + object.bottomBarButtons.length;
+  bytesCount += 3 + object.slot0.length * 3;
+  bytesCount += 3 + object.slot1.length * 3;
+  bytesCount += 3 + object.slot2.length * 3;
+  bytesCount += 3 + object.slot3.length * 3;
+  bytesCount += 3 + object.slot4.length * 3;
+  bytesCount += 3 + object.slot5.length * 3;
+  bytesCount += 3 + object.slot6.length * 3;
   return bytesCount;
 }
 
@@ -66,11 +89,13 @@ void _layoutSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeByteList(
-      offsets[0], object.appBarButtons.map((e) => e.index).toList());
-  writer.writeByteList(
-      offsets[1], object.bottomBarButtons.map((e) => e.index).toList());
-  writer.writeBool(offsets[2], object.isValid);
+  writer.writeString(offsets[0], object.slot0);
+  writer.writeString(offsets[1], object.slot1);
+  writer.writeString(offsets[2], object.slot2);
+  writer.writeString(offsets[3], object.slot3);
+  writer.writeString(offsets[4], object.slot4);
+  writer.writeString(offsets[5], object.slot5);
+  writer.writeString(offsets[6], object.slot6);
 }
 
 Layout _layoutDeserialize(
@@ -80,18 +105,13 @@ Layout _layoutDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Layout(
-    appBarButtons: reader
-            .readByteList(offsets[0])
-            ?.map((e) =>
-                _LayoutappBarButtonsValueEnumMap[e] ?? ButtonPosition.audio)
-            .toList() ??
-        const [],
-    bottomBarButtons: reader
-            .readByteList(offsets[1])
-            ?.map((e) =>
-                _LayoutbottomBarButtonsValueEnumMap[e] ?? ButtonPosition.audio)
-            .toList() ??
-        const [],
+    slot0: reader.readStringOrNull(offsets[0]) ?? '',
+    slot1: reader.readStringOrNull(offsets[1]) ?? '',
+    slot2: reader.readStringOrNull(offsets[2]) ?? '',
+    slot3: reader.readStringOrNull(offsets[3]) ?? '',
+    slot4: reader.readStringOrNull(offsets[4]) ?? '',
+    slot5: reader.readStringOrNull(offsets[5]) ?? '',
+    slot6: reader.readStringOrNull(offsets[6]) ?? '',
   );
   object.id = id;
   return object;
@@ -105,75 +125,23 @@ P _layoutDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader
-              .readByteList(offset)
-              ?.map((e) =>
-                  _LayoutappBarButtonsValueEnumMap[e] ?? ButtonPosition.audio)
-              .toList() ??
-          const []) as P;
+      return (reader.readStringOrNull(offset) ?? '') as P;
     case 1:
-      return (reader
-              .readByteList(offset)
-              ?.map((e) =>
-                  _LayoutbottomBarButtonsValueEnumMap[e] ??
-                  ButtonPosition.audio)
-              .toList() ??
-          const []) as P;
+      return (reader.readStringOrNull(offset) ?? '') as P;
     case 2:
-      return (reader.readBool(offset)) as P;
+      return (reader.readStringOrNull(offset) ?? '') as P;
+    case 3:
+      return (reader.readStringOrNull(offset) ?? '') as P;
+    case 4:
+      return (reader.readStringOrNull(offset) ?? '') as P;
+    case 5:
+      return (reader.readStringOrNull(offset) ?? '') as P;
+    case 6:
+      return (reader.readStringOrNull(offset) ?? '') as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
-
-const _LayoutappBarButtonsEnumValueMap = {
-  'audio': 0,
-  'cache': 1,
-  'catalogue': 2,
-  'darkMode': 3,
-  'forceRefresh': 4,
-  'information': 5,
-  'previousChapter': 6,
-  'nextChapter': 7,
-  'source': 8,
-  'theme': 9,
-};
-const _LayoutappBarButtonsValueEnumMap = {
-  0: ButtonPosition.audio,
-  1: ButtonPosition.cache,
-  2: ButtonPosition.catalogue,
-  3: ButtonPosition.darkMode,
-  4: ButtonPosition.forceRefresh,
-  5: ButtonPosition.information,
-  6: ButtonPosition.previousChapter,
-  7: ButtonPosition.nextChapter,
-  8: ButtonPosition.source,
-  9: ButtonPosition.theme,
-};
-const _LayoutbottomBarButtonsEnumValueMap = {
-  'audio': 0,
-  'cache': 1,
-  'catalogue': 2,
-  'darkMode': 3,
-  'forceRefresh': 4,
-  'information': 5,
-  'previousChapter': 6,
-  'nextChapter': 7,
-  'source': 8,
-  'theme': 9,
-};
-const _LayoutbottomBarButtonsValueEnumMap = {
-  0: ButtonPosition.audio,
-  1: ButtonPosition.cache,
-  2: ButtonPosition.catalogue,
-  3: ButtonPosition.darkMode,
-  4: ButtonPosition.forceRefresh,
-  5: ButtonPosition.information,
-  6: ButtonPosition.previousChapter,
-  7: ButtonPosition.nextChapter,
-  8: ButtonPosition.source,
-  9: ButtonPosition.theme,
-};
 
 Id _layoutGetId(Layout object) {
   return object.id ?? Isar.autoIncrement;
@@ -263,295 +231,6 @@ extension LayoutQueryWhere on QueryBuilder<Layout, Layout, QWhereClause> {
 }
 
 extension LayoutQueryFilter on QueryBuilder<Layout, Layout, QFilterCondition> {
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      appBarButtonsElementEqualTo(ButtonPosition value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'app_bar_buttons',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      appBarButtonsElementGreaterThan(
-    ButtonPosition value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'app_bar_buttons',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      appBarButtonsElementLessThan(
-    ButtonPosition value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'app_bar_buttons',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      appBarButtonsElementBetween(
-    ButtonPosition lower,
-    ButtonPosition upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'app_bar_buttons',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      appBarButtonsLengthEqualTo(int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'app_bar_buttons',
-        length,
-        true,
-        length,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition> appBarButtonsIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'app_bar_buttons',
-        0,
-        true,
-        0,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      appBarButtonsIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'app_bar_buttons',
-        0,
-        false,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      appBarButtonsLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'app_bar_buttons',
-        0,
-        true,
-        length,
-        include,
-      );
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      appBarButtonsLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'app_bar_buttons',
-        length,
-        include,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      appBarButtonsLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'app_bar_buttons',
-        lower,
-        includeLower,
-        upper,
-        includeUpper,
-      );
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      bottomBarButtonsElementEqualTo(ButtonPosition value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'bottom_bar_buttons',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      bottomBarButtonsElementGreaterThan(
-    ButtonPosition value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'bottom_bar_buttons',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      bottomBarButtonsElementLessThan(
-    ButtonPosition value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'bottom_bar_buttons',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      bottomBarButtonsElementBetween(
-    ButtonPosition lower,
-    ButtonPosition upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'bottom_bar_buttons',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      bottomBarButtonsLengthEqualTo(int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'bottom_bar_buttons',
-        length,
-        true,
-        length,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      bottomBarButtonsIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'bottom_bar_buttons',
-        0,
-        true,
-        0,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      bottomBarButtonsIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'bottom_bar_buttons',
-        0,
-        false,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      bottomBarButtonsLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'bottom_bar_buttons',
-        0,
-        true,
-        length,
-        include,
-      );
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      bottomBarButtonsLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'bottom_bar_buttons',
-        length,
-        include,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Layout, Layout, QAfterFilterCondition>
-      bottomBarButtonsLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'bottom_bar_buttons',
-        lower,
-        includeLower,
-        upper,
-        includeUpper,
-      );
-    });
-  }
-
   QueryBuilder<Layout, Layout, QAfterFilterCondition> idIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -620,12 +299,912 @@ extension LayoutQueryFilter on QueryBuilder<Layout, Layout, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Layout, Layout, QAfterFilterCondition> isValidEqualTo(
-      bool value) {
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot0EqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'isValid',
+        property: r'slot_0',
         value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot0GreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'slot_0',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot0LessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'slot_0',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot0Between(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'slot_0',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot0StartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'slot_0',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot0EndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'slot_0',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot0Contains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'slot_0',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot0Matches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'slot_0',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot0IsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_0',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot0IsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'slot_0',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot1EqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_1',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot1GreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'slot_1',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot1LessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'slot_1',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot1Between(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'slot_1',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot1StartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'slot_1',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot1EndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'slot_1',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot1Contains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'slot_1',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot1Matches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'slot_1',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot1IsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_1',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot1IsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'slot_1',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot2EqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_2',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot2GreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'slot_2',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot2LessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'slot_2',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot2Between(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'slot_2',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot2StartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'slot_2',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot2EndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'slot_2',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot2Contains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'slot_2',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot2Matches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'slot_2',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot2IsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_2',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot2IsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'slot_2',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot3EqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_3',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot3GreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'slot_3',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot3LessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'slot_3',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot3Between(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'slot_3',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot3StartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'slot_3',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot3EndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'slot_3',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot3Contains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'slot_3',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot3Matches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'slot_3',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot3IsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_3',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot3IsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'slot_3',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot4EqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_4',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot4GreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'slot_4',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot4LessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'slot_4',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot4Between(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'slot_4',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot4StartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'slot_4',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot4EndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'slot_4',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot4Contains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'slot_4',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot4Matches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'slot_4',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot4IsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_4',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot4IsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'slot_4',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot5EqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_5',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot5GreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'slot_5',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot5LessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'slot_5',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot5Between(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'slot_5',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot5StartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'slot_5',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot5EndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'slot_5',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot5Contains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'slot_5',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot5Matches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'slot_5',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot5IsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_5',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot5IsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'slot_5',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot6EqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_6',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot6GreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'slot_6',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot6LessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'slot_6',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot6Between(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'slot_6',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot6StartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'slot_6',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot6EndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'slot_6',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot6Contains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'slot_6',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot6Matches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'slot_6',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot6IsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'slot_6',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterFilterCondition> slot6IsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'slot_6',
+        value: '',
       ));
     });
   }
@@ -636,15 +1215,87 @@ extension LayoutQueryObject on QueryBuilder<Layout, Layout, QFilterCondition> {}
 extension LayoutQueryLinks on QueryBuilder<Layout, Layout, QFilterCondition> {}
 
 extension LayoutQuerySortBy on QueryBuilder<Layout, Layout, QSortBy> {
-  QueryBuilder<Layout, Layout, QAfterSortBy> sortByIsValid() {
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot0() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isValid', Sort.asc);
+      return query.addSortBy(r'slot_0', Sort.asc);
     });
   }
 
-  QueryBuilder<Layout, Layout, QAfterSortBy> sortByIsValidDesc() {
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot0Desc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isValid', Sort.desc);
+      return query.addSortBy(r'slot_0', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot1() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_1', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot1Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_1', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot2() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_2', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot2Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_2', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot3() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_3', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot3Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_3', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot4() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_4', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot4Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_4', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot5() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_5', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot5Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_5', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot6() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_6', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> sortBySlot6Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_6', Sort.desc);
     });
   }
 }
@@ -662,35 +1313,138 @@ extension LayoutQuerySortThenBy on QueryBuilder<Layout, Layout, QSortThenBy> {
     });
   }
 
-  QueryBuilder<Layout, Layout, QAfterSortBy> thenByIsValid() {
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot0() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isValid', Sort.asc);
+      return query.addSortBy(r'slot_0', Sort.asc);
     });
   }
 
-  QueryBuilder<Layout, Layout, QAfterSortBy> thenByIsValidDesc() {
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot0Desc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isValid', Sort.desc);
+      return query.addSortBy(r'slot_0', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot1() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_1', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot1Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_1', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot2() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_2', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot2Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_2', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot3() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_3', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot3Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_3', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot4() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_4', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot4Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_4', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot5() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_5', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot5Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_5', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot6() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_6', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QAfterSortBy> thenBySlot6Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'slot_6', Sort.desc);
     });
   }
 }
 
 extension LayoutQueryWhereDistinct on QueryBuilder<Layout, Layout, QDistinct> {
-  QueryBuilder<Layout, Layout, QDistinct> distinctByAppBarButtons() {
+  QueryBuilder<Layout, Layout, QDistinct> distinctBySlot0(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'app_bar_buttons');
+      return query.addDistinctBy(r'slot_0', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Layout, Layout, QDistinct> distinctByBottomBarButtons() {
+  QueryBuilder<Layout, Layout, QDistinct> distinctBySlot1(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'bottom_bar_buttons');
+      return query.addDistinctBy(r'slot_1', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Layout, Layout, QDistinct> distinctByIsValid() {
+  QueryBuilder<Layout, Layout, QDistinct> distinctBySlot2(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'isValid');
+      return query.addDistinctBy(r'slot_2', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QDistinct> distinctBySlot3(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'slot_3', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QDistinct> distinctBySlot4(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'slot_4', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QDistinct> distinctBySlot5(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'slot_5', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Layout, Layout, QDistinct> distinctBySlot6(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'slot_6', caseSensitive: caseSensitive);
     });
   }
 }
@@ -702,23 +1456,45 @@ extension LayoutQueryProperty on QueryBuilder<Layout, Layout, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Layout, List<ButtonPosition>, QQueryOperations>
-      appBarButtonsProperty() {
+  QueryBuilder<Layout, String, QQueryOperations> slot0Property() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'app_bar_buttons');
+      return query.addPropertyName(r'slot_0');
     });
   }
 
-  QueryBuilder<Layout, List<ButtonPosition>, QQueryOperations>
-      bottomBarButtonsProperty() {
+  QueryBuilder<Layout, String, QQueryOperations> slot1Property() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'bottom_bar_buttons');
+      return query.addPropertyName(r'slot_1');
     });
   }
 
-  QueryBuilder<Layout, bool, QQueryOperations> isValidProperty() {
+  QueryBuilder<Layout, String, QQueryOperations> slot2Property() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'isValid');
+      return query.addPropertyName(r'slot_2');
+    });
+  }
+
+  QueryBuilder<Layout, String, QQueryOperations> slot3Property() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'slot_3');
+    });
+  }
+
+  QueryBuilder<Layout, String, QQueryOperations> slot4Property() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'slot_4');
+    });
+  }
+
+  QueryBuilder<Layout, String, QQueryOperations> slot5Property() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'slot_5');
+    });
+  }
+
+  QueryBuilder<Layout, String, QQueryOperations> slot6Property() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'slot_6');
     });
   }
 }

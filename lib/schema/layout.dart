@@ -7,29 +7,46 @@ part 'layout.g.dart';
 class Layout {
   Id? id;
 
-  @enumerated
-  @Name('app_bar_buttons')
-  List<ButtonPosition> appBarButtons;
+  @Name('slot_0')
+  String slot0;
 
-  @enumerated
-  @Name('bottom_bar_buttons')
-  List<ButtonPosition> bottomBarButtons;
+  @Name('slot_1')
+  String slot1;
+
+  @Name('slot_2')
+  String slot2;
+
+  @Name('slot_3')
+  String slot3;
+
+  @Name('slot_4')
+  String slot4;
+
+  @Name('slot_5')
+  String slot5;
+
+  @Name('slot_6')
+  String slot6;
 
   Layout({
-    this.appBarButtons = const [],
-    this.bottomBarButtons = const [],
+    this.slot0 = '',
+    this.slot1 = '',
+    this.slot2 = '',
+    this.slot3 = '',
+    this.slot4 = '',
+    this.slot5 = '',
+    this.slot6 = '',
   });
-
-  bool get isValid => appBarButtons.length <= 2 && bottomBarButtons.length <= 3;
 }
 
-enum ButtonPosition {
+enum LayoutSlot {
   audio,
   cache,
   catalogue,
   darkMode,
   forceRefresh,
   information,
+  more,
   previousChapter,
   nextChapter,
   source,

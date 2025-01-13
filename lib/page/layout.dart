@@ -15,22 +15,19 @@ class ReaderLayoutPage extends ConsumerWidget {
     if (layout == null) return const Center(child: CircularProgressIndicator());
     return Scaffold(
       appBar: AppBar(
-        actions: _buildActions(context, layout),
+        actions: _buildTopSlots(context, layout),
         title: const Text('布局'),
       ),
       bottomNavigationBar: BottomAppBar(
-        child: Row(children: _buildBottomActions(context, layout)),
+        child: Row(children: _buildBottomSlots(context, layout)),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showActionSheet(context, -1),
-        child: const Icon(HugeIcons.strokeRoundedAdd01),
-      ),
+      floatingActionButton: _buildFloatingSlot(context, layout),
       floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
     );
   }
 
-  Future<void> showActionSheet(BuildContext context, int index) async {
-    var position = await showModalBottomSheet<ButtonPosition>(
+  Future<void> showSlotSheet(BuildContext context, int index) async {
+    var position = await showModalBottomSheet<LayoutSlot>(
       builder: (_) => _ButtonPositionBottomSheet(),
       context: context,
       showDragHandle: true,
@@ -43,40 +40,43 @@ class ReaderLayoutPage extends ConsumerWidget {
     notifier.updateSlot(position, index: index);
   }
 
-  void updateAppBarButtons(WidgetRef ref, List<ButtonPosition> positions) {
-    var provider = readerLayoutNotifierProviderProvider;
-    var notifier = ref.read(provider.notifier);
-    notifier.updateAppBarButtons(positions);
+  List<Widget> _buildBottomSlots(BuildContext context, Layout layout) {
+    var slot2 = _LayoutSlot(
+      onTap: () => showSlotSheet(context, 2),
+      slot: layout.slot2,
+    );
+    var slot3 = _LayoutSlot(
+      onTap: () => showSlotSheet(context, 3),
+      slot: layout.slot3,
+    );
+    var slot4 = _LayoutSlot(
+      onTap: () => showSlotSheet(context, 4),
+      slot: layout.slot4,
+    );
+    var slot5 = _LayoutSlot(
+      onTap: () => showSlotSheet(context, 5),
+      slot: layout.slot5,
+    );
+    return [slot2, slot3, slot4, slot5];
   }
 
-  void updateBottomBarButtons(WidgetRef ref, List<ButtonPosition> positions) {
-    var provider = readerLayoutNotifierProviderProvider;
-    var notifier = ref.read(provider.notifier);
-    notifier.updateBottomBarButtons(positions);
+  Widget _buildFloatingSlot(BuildContext context, Layout layout) {
+    return FloatingActionButton(
+      onPressed: () => showSlotSheet(context, 6),
+      child: _LayoutSlot(slot: layout.slot6),
+    );
   }
 
-  List<Widget> _buildActions(BuildContext context, Layout layout) {
-    var actions = <Widget>[];
-    for (var i = 0; i < 2; i++) {
-      var layoutIconButton = _LayoutIconButton(
-        onTap: () => showActionSheet(context, i),
-        position: layout.appBarButtons.elementAtOrNull(i),
-      );
-      actions.add(layoutIconButton);
-    }
-    return actions;
-  }
-
-  List<Widget> _buildBottomActions(BuildContext context, Layout layout) {
-    var actions = <Widget>[];
-    for (var i = 0; i < 3; i++) {
-      var layoutIconButton = _LayoutIconButton(
-        onTap: () => showActionSheet(context, i + 2),
-        position: layout.bottomBarButtons.elementAtOrNull(i),
-      );
-      actions.add(layoutIconButton);
-    }
-    return actions;
+  List<Widget> _buildTopSlots(BuildContext context, Layout layout) {
+    var slot0 = _LayoutSlot(
+      onTap: () => showSlotSheet(context, 0),
+      slot: layout.slot0,
+    );
+    var slot1 = _LayoutSlot(
+      onTap: () => showSlotSheet(context, 1),
+      slot: layout.slot1,
+    );
+    return [slot0, slot1];
   }
 }
 
@@ -85,7 +85,7 @@ class _ButtonPositionBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var children = ButtonPosition.values
+    var children = LayoutSlot.values
         .map((position) => _toElement(context, position))
         .toList();
     var wrap = Wrap(spacing: 16, runSpacing: 16, children: children);
@@ -96,41 +96,43 @@ class _ButtonPositionBottomSheet extends StatelessWidget {
     );
   }
 
-  void selectButtonPosition(BuildContext context, ButtonPosition position) {
+  void selectButtonPosition(BuildContext context, LayoutSlot position) {
     Navigator.pop(context, position);
   }
 
-  IconData _getButtonIcon(ButtonPosition position) {
+  IconData _getButtonIcon(LayoutSlot position) {
     return switch (position) {
-      ButtonPosition.audio => HugeIcons.strokeRoundedHeadphones,
-      ButtonPosition.cache => HugeIcons.strokeRoundedDownload04,
-      ButtonPosition.catalogue => HugeIcons.strokeRoundedMenu01,
-      ButtonPosition.darkMode => HugeIcons.strokeRoundedMoon02,
-      ButtonPosition.forceRefresh => HugeIcons.strokeRoundedRefresh,
-      ButtonPosition.information => HugeIcons.strokeRoundedBook01,
-      ButtonPosition.nextChapter => HugeIcons.strokeRoundedNext,
-      ButtonPosition.previousChapter => HugeIcons.strokeRoundedPrevious,
-      ButtonPosition.source => HugeIcons.strokeRoundedExchange01,
-      ButtonPosition.theme => HugeIcons.strokeRoundedTextFont,
+      LayoutSlot.audio => HugeIcons.strokeRoundedHeadphones,
+      LayoutSlot.cache => HugeIcons.strokeRoundedDownload04,
+      LayoutSlot.catalogue => HugeIcons.strokeRoundedMenu01,
+      LayoutSlot.darkMode => HugeIcons.strokeRoundedMoon02,
+      LayoutSlot.forceRefresh => HugeIcons.strokeRoundedRefresh,
+      LayoutSlot.information => HugeIcons.strokeRoundedBook01,
+      LayoutSlot.more => HugeIcons.strokeRoundedMoreVertical,
+      LayoutSlot.nextChapter => HugeIcons.strokeRoundedNext,
+      LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
+      LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
+      LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
     };
   }
 
-  String _getButtonLabel(ButtonPosition position) {
+  String _getButtonLabel(LayoutSlot position) {
     return switch (position) {
-      ButtonPosition.audio => '朗读',
-      ButtonPosition.cache => '缓存',
-      ButtonPosition.catalogue => '目录',
-      ButtonPosition.darkMode => '夜间模式',
-      ButtonPosition.forceRefresh => '强制刷新',
-      ButtonPosition.information => '书籍信息',
-      ButtonPosition.nextChapter => '下一章',
-      ButtonPosition.previousChapter => '上一章',
-      ButtonPosition.source => '切换书源',
-      ButtonPosition.theme => '主题',
+      LayoutSlot.audio => '朗读',
+      LayoutSlot.cache => '缓存',
+      LayoutSlot.catalogue => '目录',
+      LayoutSlot.darkMode => '夜间模式',
+      LayoutSlot.forceRefresh => '强制刷新',
+      LayoutSlot.information => '书籍信息',
+      LayoutSlot.more => '更多',
+      LayoutSlot.nextChapter => '下一章',
+      LayoutSlot.previousChapter => '上一章',
+      LayoutSlot.source => '切换书源',
+      LayoutSlot.theme => '主题',
     };
   }
 
-  Widget _toElement(BuildContext context, ButtonPosition position) {
+  Widget _toElement(BuildContext context, LayoutSlot position) {
     return FilterChip(
       showCheckmark: false,
       label: Text(_getButtonLabel(position)),
@@ -141,10 +143,10 @@ class _ButtonPositionBottomSheet extends StatelessWidget {
   }
 }
 
-class _LayoutIconButton extends StatelessWidget {
+class _LayoutSlot extends StatelessWidget {
   final void Function()? onTap;
-  final ButtonPosition? position;
-  const _LayoutIconButton({this.onTap, this.position});
+  final String slot;
+  const _LayoutSlot({this.onTap, required this.slot});
 
   @override
   Widget build(BuildContext context) {
@@ -152,18 +154,21 @@ class _LayoutIconButton extends StatelessWidget {
   }
 
   IconData _getIconData() {
-    return switch (position) {
-      ButtonPosition.audio => HugeIcons.strokeRoundedHeadphones,
-      ButtonPosition.cache => HugeIcons.strokeRoundedDownload04,
-      ButtonPosition.catalogue => HugeIcons.strokeRoundedMenu01,
-      ButtonPosition.darkMode => HugeIcons.strokeRoundedMoon02,
-      ButtonPosition.forceRefresh => HugeIcons.strokeRoundedRefresh,
-      ButtonPosition.information => HugeIcons.strokeRoundedBook01,
-      ButtonPosition.nextChapter => HugeIcons.strokeRoundedNext,
-      ButtonPosition.previousChapter => HugeIcons.strokeRoundedPrevious,
-      ButtonPosition.source => HugeIcons.strokeRoundedExchange01,
-      ButtonPosition.theme => HugeIcons.strokeRoundedTextFont,
-      _ => HugeIcons.strokeRoundedDashedLine02,
+    if (slot.isEmpty) return HugeIcons.strokeRoundedDashedLine02;
+    var values = LayoutSlot.values;
+    var layoutSlot = values.firstWhere((value) => value.name == slot);
+    return switch (layoutSlot) {
+      LayoutSlot.audio => HugeIcons.strokeRoundedHeadphones,
+      LayoutSlot.cache => HugeIcons.strokeRoundedDownload04,
+      LayoutSlot.catalogue => HugeIcons.strokeRoundedMenu01,
+      LayoutSlot.darkMode => HugeIcons.strokeRoundedMoon02,
+      LayoutSlot.forceRefresh => HugeIcons.strokeRoundedRefresh,
+      LayoutSlot.information => HugeIcons.strokeRoundedBook01,
+      LayoutSlot.more => HugeIcons.strokeRoundedMoreVertical,
+      LayoutSlot.nextChapter => HugeIcons.strokeRoundedNext,
+      LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
+      LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
+      LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
     };
   }
 }

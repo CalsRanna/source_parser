@@ -32,42 +32,49 @@ class ReaderOverlay extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final layout = ref.watch(readerLayoutNotifierProviderProvider).valueOrNull;
     if (layout == null) return const SizedBox();
-    final appBarButtons = layout.appBarButtons.map(_toElement).toList();
     var body = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onRemoved,
       child: SizedBox(height: double.infinity, width: double.infinity),
     );
-    final bottomBarButtons = _buildBottomButtons(layout.bottomBarButtons);
     return Scaffold(
-      appBar: AppBar(actions: appBarButtons, title: Text(book.name)),
+      appBar: _buildAppBar(layout),
       backgroundColor: Colors.transparent,
       body: body,
-      bottomNavigationBar: BottomAppBar(child: Row(children: bottomBarButtons)),
+      bottomNavigationBar: _buildBottomAppBar(layout),
       floatingActionButton: _FloatingButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
     );
   }
 
-  List<Widget> _buildBottomButtons(List<ButtonPosition> positions) {
+  AppBar _buildAppBar(Layout layout) {
+    return AppBar(title: Text(book.name));
+  }
+
+  Widget _buildBottomAppBar(Layout layout) {
+    // final children = _buildBottomButtons(layout.bottomBarButtons);
+    return BottomAppBar(child: Row(children: []));
+  }
+
+  List<Widget> _buildBottomButtons(List<LayoutSlot> positions) {
     var buttons = positions.map(_toElement).toList();
     buttons.insert(0, _MenuButton(onRefresh: onRefresh));
     return buttons;
   }
 
-  Widget _toElement(ButtonPosition position) {
+  Widget _toElement(LayoutSlot position) {
     return switch (position) {
-      ButtonPosition.audio => _FloatingButton(),
-      ButtonPosition.cache => _CacheButton(onTap: onCached),
-      ButtonPosition.catalogue => _CatalogueButton(),
-      ButtonPosition.darkMode => _DarkModeButton(),
-      ButtonPosition.forceRefresh => _ForceRefreshButton(onTap: onRefresh),
-      ButtonPosition.information => _InformationButton(),
-      ButtonPosition.nextChapter => _NextChapterButton(onTap: onNext),
-      ButtonPosition.previousChapter =>
-        _PreviousChapterButton(onTap: onPrevious),
-      ButtonPosition.source => _SourceButton(),
-      ButtonPosition.theme => _ThemeButton(),
+      LayoutSlot.audio => _FloatingButton(),
+      LayoutSlot.cache => _CacheButton(onTap: onCached),
+      LayoutSlot.catalogue => _CatalogueButton(),
+      LayoutSlot.darkMode => _DarkModeButton(),
+      LayoutSlot.forceRefresh => _ForceRefreshButton(onTap: onRefresh),
+      LayoutSlot.information => _InformationButton(),
+      LayoutSlot.more => _MenuButton(onRefresh: onRefresh),
+      LayoutSlot.nextChapter => _NextChapterButton(onTap: onNext),
+      LayoutSlot.previousChapter => _PreviousChapterButton(onTap: onPrevious),
+      LayoutSlot.source => _SourceButton(),
+      LayoutSlot.theme => _ThemeButton(),
     };
   }
 }
