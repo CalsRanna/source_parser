@@ -12,8 +12,7 @@ class LogMiddleware {
   Middleware _createMiddleware() {
     return createMiddleware(
       requestHandler: (Request request) {
-        var message = 'Request: ${request.method} ${request.url}';
-        logger.d(message);
+        logger.d('${request.method} ${request.url}');
         return null;
       },
     );
