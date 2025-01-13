@@ -46,32 +46,70 @@ class ReaderOverlay extends ConsumerWidget {
   }
 
   AppBar _buildAppBar(Layout layout) {
-    var actions = [
-      _OverlaySlot(book: book, slot: layout.slot0),
-      _OverlaySlot(book: book, slot: layout.slot1),
-    ];
-    return AppBar(actions: actions, title: Text(book.name));
+    var slot0 = _OverlaySlot(
+      book: book,
+      onTap: ({int? count}) => handleTap(layout.slot0, count: count),
+      slot: layout.slot0,
+    );
+    var slot1 = _OverlaySlot(
+      book: book,
+      onTap: ({int? count}) => handleTap(layout.slot1, count: count),
+      slot: layout.slot1,
+    );
+    return AppBar(actions: [slot0, slot1], title: Text(book.name));
   }
 
   Widget _buildBottomBar(Layout layout) {
-    var children = [
-      _OverlaySlot(book: book, slot: layout.slot2),
-      _OverlaySlot(book: book, slot: layout.slot3),
-      _OverlaySlot(book: book, slot: layout.slot4),
-      _OverlaySlot(book: book, slot: layout.slot5),
-    ];
-    return BottomAppBar(child: Row(children: children));
+    var slot2 = _OverlaySlot(
+      book: book,
+      onTap: ({int? count}) => handleTap(layout.slot2, count: count),
+      slot: layout.slot2,
+    );
+    var slot3 = _OverlaySlot(
+      book: book,
+      onTap: ({int? count}) => handleTap(layout.slot3, count: count),
+      slot: layout.slot3,
+    );
+    var slot4 = _OverlaySlot(
+      book: book,
+      onTap: ({int? count}) => handleTap(layout.slot4, count: count),
+      slot: layout.slot4,
+    );
+    var slot5 = _OverlaySlot(
+      book: book,
+      onTap: ({int? count}) => handleTap(layout.slot5, count: count),
+      slot: layout.slot5,
+    );
+    return BottomAppBar(child: Row(children: [slot2, slot3, slot4, slot5]));
   }
 
   Widget _buildFloatingButton(Layout layout) {
-    return _OverlayFloatingSlot(book: book, slot: layout.slot6);
+    return _OverlayFloatingSlot(
+      book: book,
+      onTap: ({int? count}) => handleTap(layout.slot6, count: count),
+      slot: layout.slot6,
+    );
+  }
+
+  void handleTap(String slot, {int? count}) {
+    if (slot == LayoutSlot.cache.name && count != null) {
+      return onCached?.call(count);
+    }
+    if (slot == LayoutSlot.forceRefresh.name) return onRefresh?.call();
+    if (slot == LayoutSlot.nextChapter.name) return onNext?.call();
+    if (slot == LayoutSlot.previousChapter.name) return onPrevious?.call();
   }
 }
 
 class _OverlayFloatingSlot extends StatelessWidget {
   final Book book;
+  final void Function({int? count})? onTap;
   final String slot;
-  const _OverlayFloatingSlot({required this.book, required this.slot});
+  const _OverlayFloatingSlot({
+    required this.book,
+    this.onTap,
+    required this.slot,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -86,16 +124,12 @@ class _OverlayFloatingSlot extends StatelessWidget {
     if (slot == LayoutSlot.cache.name) _showCacheSheet(context);
     if (slot == LayoutSlot.catalogue.name) _navigateBookCatalogue(context);
     if (slot == LayoutSlot.darkMode.name) _toggleDarkMode(context);
-    if (slot == LayoutSlot.forceRefresh.name) _forceRefresh(context);
+    if (slot == LayoutSlot.forceRefresh.name) onTap?.call();
     if (slot == LayoutSlot.information.name) _navigateBookInformation(context);
-    if (slot == LayoutSlot.nextChapter.name) _showMessage(context);
-    if (slot == LayoutSlot.previousChapter.name) _showMessage(context);
+    if (slot == LayoutSlot.nextChapter.name) onTap?.call();
+    if (slot == LayoutSlot.previousChapter.name) onTap?.call();
     if (slot == LayoutSlot.source.name) _navigateAvailableSource(context);
     if (slot == LayoutSlot.theme.name) _navigateReaderTheme(context);
-  }
-
-  void _forceRefresh(BuildContext context) {
-    Message.of(context).show('开发中，但很有可能会移除该功能');
   }
 
   IconData _getIconData() {
@@ -135,9 +169,13 @@ class _OverlayFloatingSlot extends StatelessWidget {
   void _showCacheSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => ReaderCacheSheet(onCached: (value) {}),
+      builder: (context) => ReaderCacheSheet(onCached: _downloadChapter),
       showDragHandle: true,
     );
+  }
+
+  void _downloadChapter(int count) {
+    onTap?.call(count: count);
   }
 
   void _showMessage(BuildContext context) {
@@ -154,8 +192,9 @@ class _OverlayFloatingSlot extends StatelessWidget {
 
 class _OverlayMoreSlot extends ConsumerWidget {
   final Book book;
+  final void Function({int? count})? onTap;
   final String slot;
-  const _OverlayMoreSlot({required this.book, required this.slot});
+  const _OverlayMoreSlot({required this.book, this.onTap, required this.slot});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -191,7 +230,7 @@ class _OverlayMoreSlot extends ConsumerWidget {
     ];
     var remainingSlots = values.toSet().difference(usedSlots.toSet());
     return remainingSlots.map((value) {
-      return _OverlayMoreSlotItem(book: book, slot: value.name);
+      return _OverlayMoreSlotItem(book: book, onTap: onTap, slot: value.name);
     }).toList();
   }
 
@@ -203,8 +242,10 @@ class _OverlayMoreSlot extends ConsumerWidget {
 
 class _OverlayMoreSlotItem extends StatelessWidget {
   final Book book;
+  final void Function({int? count})? onTap;
   final String slot;
-  const _OverlayMoreSlotItem({required this.book, required this.slot});
+  const _OverlayMoreSlotItem(
+      {required this.book, required this.onTap, required this.slot});
 
   @override
   Widget build(BuildContext context) {
@@ -220,16 +261,12 @@ class _OverlayMoreSlotItem extends StatelessWidget {
     if (slot == LayoutSlot.cache.name) _showCacheSheet(context);
     if (slot == LayoutSlot.catalogue.name) _navigateBookCatalogue(context);
     if (slot == LayoutSlot.darkMode.name) _toggleDarkMode(context);
-    if (slot == LayoutSlot.forceRefresh.name) _forceRefresh(context);
+    if (slot == LayoutSlot.forceRefresh.name) onTap?.call();
     if (slot == LayoutSlot.information.name) _navigateBookInformation(context);
-    if (slot == LayoutSlot.nextChapter.name) _showMessage(context);
-    if (slot == LayoutSlot.previousChapter.name) _showMessage(context);
+    if (slot == LayoutSlot.nextChapter.name) onTap?.call();
+    if (slot == LayoutSlot.previousChapter.name) onTap?.call();
     if (slot == LayoutSlot.source.name) _navigateAvailableSource(context);
     if (slot == LayoutSlot.theme.name) _navigateReaderTheme(context);
-  }
-
-  void _forceRefresh(BuildContext context) {
-    Message.of(context).show('开发中，但很有可能会移除该功能');
   }
 
   String _getButtonLabel() {
@@ -288,9 +325,13 @@ class _OverlayMoreSlotItem extends StatelessWidget {
   void _showCacheSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => ReaderCacheSheet(onCached: (value) {}),
+      builder: (context) => ReaderCacheSheet(onCached: _downloadChapter),
       showDragHandle: true,
     );
+  }
+
+  void _downloadChapter(int count) {
+    onTap?.call(count: count);
   }
 
   void _showMessage(BuildContext context) {
@@ -307,14 +348,15 @@ class _OverlayMoreSlotItem extends StatelessWidget {
 
 class _OverlaySlot extends StatelessWidget {
   final Book book;
+  final void Function({int? count})? onTap;
   final String slot;
-  const _OverlaySlot({required this.book, required this.slot});
+  const _OverlaySlot({required this.book, this.onTap, required this.slot});
 
   @override
   Widget build(BuildContext context) {
     if (slot.isEmpty) return const SizedBox();
     if (slot == LayoutSlot.more.name) {
-      return _OverlayMoreSlot(book: book, slot: slot);
+      return _OverlayMoreSlot(book: book, onTap: onTap, slot: slot);
     }
     return IconButton(
       onPressed: () => handleTap(context),
@@ -327,16 +369,12 @@ class _OverlaySlot extends StatelessWidget {
     if (slot == LayoutSlot.cache.name) _showCacheSheet(context);
     if (slot == LayoutSlot.catalogue.name) _navigateBookCatalogue(context);
     if (slot == LayoutSlot.darkMode.name) _toggleDarkMode(context);
-    if (slot == LayoutSlot.forceRefresh.name) _forceRefresh(context);
+    if (slot == LayoutSlot.forceRefresh.name) onTap?.call();
     if (slot == LayoutSlot.information.name) _navigateBookInformation(context);
-    if (slot == LayoutSlot.nextChapter.name) _showMessage(context);
-    if (slot == LayoutSlot.previousChapter.name) _showMessage(context);
+    if (slot == LayoutSlot.nextChapter.name) onTap?.call();
+    if (slot == LayoutSlot.previousChapter.name) onTap?.call();
     if (slot == LayoutSlot.source.name) _navigateAvailableSource(context);
     if (slot == LayoutSlot.theme.name) _navigateReaderTheme(context);
-  }
-
-  void _forceRefresh(BuildContext context) {
-    Message.of(context).show('开发中，但很有可能会移除该功能');
   }
 
   IconData _getIconData() {
@@ -377,9 +415,13 @@ class _OverlaySlot extends StatelessWidget {
   void _showCacheSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => ReaderCacheSheet(onCached: (value) {}),
+      builder: (context) => ReaderCacheSheet(onCached: _downloadChapter),
       showDragHandle: true,
     );
+  }
+
+  void _downloadChapter(int count) {
+    onTap?.call(count: count);
   }
 
   void _showMessage(BuildContext context) {
