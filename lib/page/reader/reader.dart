@@ -7,13 +7,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/page/reader/component/background.dart';
 import 'package:source_parser/page/reader/component/cache.dart';
 import 'package:source_parser/page/reader/component/overlay.dart';
-import 'package:source_parser/page/reader/component/physics.dart';
 import 'package:source_parser/page/reader/component/view.dart';
 import 'package:source_parser/provider/battery.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/reader.dart';
-import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/util/message.dart';
@@ -193,134 +191,309 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
 
 class _ReaderView extends ConsumerStatefulWidget {
   final ReaderController controller;
-  final void Function(int)? onPageChanged;
-  final void Function()? onTap;
+  final Function()? onTap;
+  final Function(int)? onPageChanged;
+
   const _ReaderView({
     required this.controller,
-    this.onPageChanged,
     this.onTap,
+    this.onPageChanged,
   });
 
   @override
   ConsumerState<_ReaderView> createState() => _ReaderViewState();
 }
 
-class _ReaderViewState extends ConsumerState<_ReaderView> {
-  var pageController = PageController(initialPage: 1);
+class _ReaderViewState extends ConsumerState<_ReaderView>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
   bool _isAnimating = false;
-
-  @override
-  Widget build(BuildContext context) {
-    var setting = ref.watch(settingNotifierProvider).valueOrNull;
-    List<ReaderViewTurningMode> modes = _getModes(setting?.turningMode ?? 0);
-    var physics = ReaderScrollPhysics(
-      controller: widget.controller,
-      modes: modes,
-    );
-    var child = PageView.builder(
-      controller: pageController,
-      itemBuilder: (_, index) => _itemBuilder(index),
-      itemCount: 3,
-      physics: physics,
-    );
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapUp: handleTapUp,
-      child: child,
-    );
-  }
-
-  @override
-  void dispose() {
-    pageController.removeListener(_handleScroll);
-    pageController.dispose();
-    super.dispose();
-  }
-
-  Future<void> handlePageChanged(int index) async {
-    if (index == 0) {
-      if (widget.controller.isFirstPage) {
-        pageController.jumpToPage(1);
-        Message.of(context).show('已经是第一页了');
-        return;
-      }
-      widget.controller.previousPage();
-    } else if (index == 2) {
-      if (widget.controller.isLastPage) {
-        pageController.jumpToPage(1);
-        Message.of(context).show('已经是最后一页了');
-        return;
-      }
-      widget.controller.nextPage();
-    }
-    pageController.jumpToPage(1);
-    _updateBattery();
-    widget.onPageChanged?.call(index);
-  }
-
-  Future<void> handleTapUp(TapUpDetails details) async {
-    var provider = settingNotifierProvider;
-    var setting = await ref.read(provider.future);
-    var modes = _getModes(setting.turningMode);
-    if (!modes.contains(ReaderViewTurningMode.tap)) return;
-    if (_isAnimating) return;
-    var index = _calculateIndex(details);
-    if (index == 1) return widget.onTap?.call();
-    if (!mounted) return;
-    if ((index == 0 && widget.controller.isFirstPage) ||
-        (index == 2 && widget.controller.isLastPage)) {
-      Message.of(context).show(index == 0 ? '已经是第一页了' : '已经是最后一页了');
-      return;
-    }
-    if (setting.eInkMode) {
-      pageController.jumpToPage(index);
-    } else {
-      var curve = Curves.easeInOut;
-      var duration = Duration(milliseconds: 300);
-      pageController.animateToPage(index, curve: curve, duration: duration);
-    }
-  }
+  Offset? _dragStartPosition;
+  double _dragDistance = 0.0;
+  Widget? _nextPage;
+  bool _isForward = false;
 
   @override
   void initState() {
     super.initState();
-    pageController.addListener(_handleScroll);
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _initAnimation();
+    _animationController.addStatusListener(_handleAnimationStatus);
+    _updateBattery();
   }
 
-  int _calculateIndex(TapUpDetails details) {
-    var position = details.localPosition;
-    var size = MediaQuery.of(context).size;
-    var horizontalThreshold = size.width / 3;
-    var verticalThreshold = size.height / 3;
-    if (position.dx < horizontalThreshold) return 0;
-    if (position.dx > horizontalThreshold * 2) return 2;
-    if (position.dy < verticalThreshold) return 0;
-    if (position.dy > verticalThreshold * 2) return 2;
-    return 1;
+  void _initAnimation() {
+    _slideAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: _isForward ? const Offset(-1.0, 0.0) : const Offset(1.0, 0.0),
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.linear,
+    ));
   }
 
-  List<ReaderViewTurningMode> _getModes(int turningMode) {
-    List<ReaderViewTurningMode> modes = [];
-    if (turningMode & 1 == 1) modes.add(ReaderViewTurningMode.drag);
-    if (turningMode & 2 == 2) modes.add(ReaderViewTurningMode.tap);
-    return modes;
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
-  void _handleScroll() {
-    if (_isAnimating) return;
-    final position = pageController.page ?? 1;
-    if (position <= 0.0 || position >= 2.0) {
-      _isAnimating = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await handlePageChanged(position <= 0.0 ? 0 : 2);
+  void _handleAnimationStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      setState(() {
         _isAnimating = false;
+        _dragDistance = 0.0;
+        _nextPage = null;
       });
+      _initAnimation();
+      _animationController.reset();
+      _updateBattery();
     }
   }
 
+  void _prepareNextPage(bool isForward) {
+    _isForward = isForward;
+    _nextPage = _itemBuilder(isForward ? 2 : 0);
+  }
+
+  void _handleDragStart(DragStartDetails details) {
+    if (_isAnimating) return;
+    _dragStartPosition = details.globalPosition;
+    _dragDistance = 0.0;
+    _nextPage = null;
+  }
+
+  void _handleDragUpdate(DragUpdateDetails details) {
+    if (_dragStartPosition == null || _isAnimating) return;
+
+    final delta = details.primaryDelta ?? 0;
+
+    // 检查是否可以继续拖动
+    if ((delta > 0 && widget.controller.isFirstPage) ||
+        (delta < 0 && widget.controller.isLastPage)) {
+      return;
+    }
+
+    setState(() {
+      _dragDistance += delta;
+      double screenWidth = MediaQuery.of(context).size.width;
+      _isForward = _dragDistance < 0;
+
+      // 准备下一页内容
+      if (_nextPage == null) {
+        _nextPage = _itemBuilder(_isForward ? 2 : 0);
+      }
+
+      double dragPercent = (_dragDistance / screenWidth).clamp(-1.0, 1.0);
+      if (_isForward) {
+        // 向左滑：当前页向左移动
+        _slideAnimation = Tween<Offset>(
+          begin: Offset.zero,
+          end: Offset(-1.0, 0.0),
+        ).animate(AlwaysStoppedAnimation(-dragPercent));
+      } else {
+        // 向右滑：前一页从左边滑入
+        _slideAnimation = Tween<Offset>(
+          begin: Offset.zero,
+          end: Offset(1.0, 0.0),
+        ).animate(AlwaysStoppedAnimation(dragPercent));
+      }
+    });
+  }
+
+  void _handleDragEnd(DragEndDetails details) {
+    if (_dragStartPosition == null) return;
+    _dragStartPosition = null;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final dragPercentage = _dragDistance.abs() / screenWidth;
+    final velocity = details.primaryVelocity ?? 0;
+    final velocityPercentage = velocity.abs() / screenWidth;
+
+    bool shouldTurnPage = dragPercentage > 0.2 || velocity.abs() > 800;
+
+    if (shouldTurnPage) {
+      bool isForward = _dragDistance < 0;
+
+      if (isForward && !widget.controller.isLastPage) {
+        _animateToNext(velocity: velocity);
+      } else if (!isForward && !widget.controller.isFirstPage) {
+        _animateToPrevious();
+      } else {
+        _resetPosition();
+      }
+    } else {
+      _resetPosition();
+    }
+  }
+
+  void handleTapUp(TapUpDetails details) {
+    if (_isAnimating) return;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final tapPosition = details.globalPosition.dx;
+    final tapArea = tapPosition / screenWidth;
+
+    if (tapArea < 0.3 && !widget.controller.isFirstPage) {
+      _prepareNextPage(false);
+      _animateToPrevious();
+    } else if (tapArea > 0.7 && !widget.controller.isLastPage) {
+      _prepareNextPage(true);
+      _animateToNext();
+    } else if (tapArea >= 0.3 && tapArea <= 0.7) {
+      widget.onTap?.call();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapUp: handleTapUp,
+      onHorizontalDragStart: _handleDragStart,
+      onHorizontalDragUpdate: _handleDragUpdate,
+      onHorizontalDragEnd: _handleDragEnd,
+      child: Stack(
+        children: [
+          // 底层始终显示下一页
+          if (_isForward && (_dragDistance != 0 || _isAnimating))
+            _nextPage ?? _itemBuilder(2),
+          // 当前页
+          if (_isForward)
+            SlideTransition(
+              position: _slideAnimation,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: _itemBuilder(1),
+              ),
+            )
+          else
+            _itemBuilder(1),
+          // 向右滑时显示上一页，覆盖在当前页上方
+          if (!_isForward && (_dragDistance != 0 || _isAnimating) && !widget.controller.isFirstPage)
+            Positioned(
+              left: -MediaQuery.of(context).size.width,
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: _nextPage ?? _itemBuilder(0),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _animateToNext({double velocity = 0}) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final currentOffset = -_dragDistance / screenWidth;
+    final remainingDistance = 1.0 - currentOffset;
+
+    if (_nextPage == null) {
+      _prepareNextPage(true);
+    }
+
+    setState(() {
+      _isAnimating = true;
+      _slideAnimation = Tween<Offset>(
+        begin: Offset.zero,
+        end: Offset(-1.0, 0.0),
+      ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.linear,
+      ));
+    });
+
+    _animationController.value = currentOffset;
+    _animationController.duration = Duration(milliseconds: (300 * remainingDistance).toInt());
+    _animationController.forward().then((_) {
+      widget.controller.nextPage();
+      widget.onPageChanged?.call(1);
+      setState(() {
+        _isAnimating = false;
+        _dragDistance = 0.0;
+        _nextPage = null;
+      });
+      _initAnimation();
+      _animationController.reset();
+    });
+  }
+
+  void _animateToPrevious() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final currentOffset = _dragDistance / screenWidth;
+    final remainingDistance = 1.0 - currentOffset;
+
+    if (_nextPage == null) {
+      _prepareNextPage(false);
+    }
+
+    setState(() {
+      _isAnimating = true;
+      _slideAnimation = Tween<Offset>(
+        begin: Offset.zero,
+        end: Offset(1.0, 0.0),
+      ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.linear,
+      ));
+    });
+
+    _animationController.value = currentOffset;
+    _animationController.duration = Duration(milliseconds: (300 * remainingDistance).toInt());
+    _animationController.forward().then((_) {
+      widget.controller.previousPage();
+      widget.onPageChanged?.call(1);
+      setState(() {
+        _isAnimating = false;
+        _dragDistance = 0.0;
+        _nextPage = null;
+      });
+      _initAnimation();
+      _animationController.reset();
+    });
+  }
+
+  void _resetPosition() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final currentOffset = _dragDistance.abs() / screenWidth;
+
+    setState(() {
+      _isAnimating = true;
+      _slideAnimation = Tween<Offset>(
+        begin: Offset.zero,
+        end: _isForward ? Offset(-1.0, 0.0) : Offset(1.0, 0.0),
+      ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.linear,
+      ));
+    });
+
+    _animationController.value = currentOffset;
+    final remainingDistance = 1.0 - currentOffset;
+    _animationController.duration = Duration(milliseconds: (300 * remainingDistance).toInt());
+    _animationController.forward().then((_) {
+      setState(() {
+        _isAnimating = false;
+        _dragDistance = 0.0;
+        _nextPage = null;
+      });
+      _initAnimation();
+      _animationController.reset();
+    });
+  }
+
   Widget _itemBuilder(int index) {
+    final content = widget.controller.getContent(index);
     return ReaderView(
-      content: widget.controller.getContent(index),
+      content: content,
       headerText: widget.controller.getHeaderText(index),
       pageProgressText: widget.controller.getPageProgressText(index),
       totalProgressText: widget.controller.getTotalProgressText(index),
@@ -328,8 +501,7 @@ class _ReaderViewState extends ConsumerState<_ReaderView> {
   }
 
   Future<void> _updateBattery() async {
-    var provider = batteryNotifierProvider;
-    var notifier = ref.read(provider.notifier);
-    notifier.updateBattery();
+    if (!mounted) return;
+    await ref.read(batteryNotifierProvider.notifier).updateBattery();
   }
 }
