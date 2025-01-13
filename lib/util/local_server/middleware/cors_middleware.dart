@@ -1,11 +1,11 @@
 import 'package:shelf/shelf.dart';
 
 class CorsMiddleware {
-  const CorsMiddleware._();
+  CorsMiddleware._();
 
-  static final CorsMiddleware _instance = CorsMiddleware._();
+  static CorsMiddleware? _instance;
 
-  static CorsMiddleware get instance => _instance;
+  static CorsMiddleware get instance => _instance ??= CorsMiddleware._();
   Middleware get middleware => _createMiddleware();
 
   Middleware _createMiddleware() {

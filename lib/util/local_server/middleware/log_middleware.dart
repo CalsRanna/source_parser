@@ -2,11 +2,11 @@ import 'package:shelf/shelf.dart';
 import 'package:source_parser/util/logger.dart';
 
 class LogMiddleware {
-  const LogMiddleware._();
+  LogMiddleware._();
 
-  static final LogMiddleware _instance = LogMiddleware._();
+  static LogMiddleware? _instance;
 
-  static LogMiddleware get instance => _instance;
+  static LogMiddleware get instance => _instance ??= LogMiddleware._();
   Middleware get middleware => _createMiddleware();
 
   Middleware _createMiddleware() {

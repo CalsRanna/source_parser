@@ -7,6 +7,13 @@ import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/local_server/controller/controller.dart';
 
 class LocalServerSourceController with LocalServerController {
+  LocalServerSourceController._();
+
+  static LocalServerSourceController? _instance;
+
+  static LocalServerSourceController get instance =>
+      _instance ??= LocalServerSourceController._();
+
   Future<Response> index(Request request) async {
     final sources = await isar.sources.where().findAll();
     return response(sources);
