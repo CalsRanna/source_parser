@@ -67,11 +67,11 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   Widget build(BuildContext context) {
     var readerOverlay = ReaderOverlay(
       book: widget.book,
+      onBarrierTap: handleBarrierTaped,
       onCached: handleCached,
       onNext: handleNextChapterChanged,
       onPrevious: handlePreviousChapterChanged,
       onRefresh: handleRefresh,
-      onRemoved: handleRemoved,
     );
     var children = [
       ReaderBackground(),
@@ -88,6 +88,13 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     _showUiOverlays();
     _refreshShelf();
     super.deactivate();
+  }
+
+  void handleBarrierTaped() {
+    _hideUiOverlays();
+    setState(() {
+      showOverlay = false;
+    });
   }
 
   void handleCached(int amount) async {
@@ -132,13 +139,6 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   void handleRefresh() {
     controller?.refresh();
     setState(() {});
-  }
-
-  void handleRemoved() {
-    _hideUiOverlays();
-    setState(() {
-      showOverlay = false;
-    });
   }
 
   void handleTap() {

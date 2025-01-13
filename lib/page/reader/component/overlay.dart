@@ -1,9 +1,7 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/reader/component/cache.dart';
-import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/layout.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.gr.dart';
@@ -13,292 +11,385 @@ import 'package:source_parser/util/message.dart';
 
 class ReaderOverlay extends ConsumerWidget {
   final Book book;
+  final void Function()? onBarrierTap;
   final void Function(int)? onCached;
   final void Function()? onNext;
   final void Function()? onPrevious;
   final void Function()? onRefresh;
-  final void Function()? onRemoved;
   const ReaderOverlay({
     super.key,
     required this.book,
+    this.onBarrierTap,
     this.onCached,
     this.onNext,
     this.onPrevious,
     this.onRefresh,
-    this.onRemoved,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final layout = ref.watch(readerLayoutNotifierProviderProvider).valueOrNull;
     if (layout == null) return const SizedBox();
-    var body = GestureDetector(
+    var barrier = GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onRemoved,
+      onTap: onBarrierTap,
       child: SizedBox(height: double.infinity, width: double.infinity),
     );
     return Scaffold(
       appBar: _buildAppBar(layout),
       backgroundColor: Colors.transparent,
-      body: body,
-      bottomNavigationBar: _buildBottomAppBar(layout),
-      floatingActionButton: _FloatingButton(),
+      body: barrier,
+      bottomNavigationBar: _buildBottomBar(layout),
+      floatingActionButton: _buildFloatingButton(layout),
       floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
     );
   }
 
   AppBar _buildAppBar(Layout layout) {
-    return AppBar(title: Text(book.name));
+    var actions = [
+      _OverlaySlot(book: book, slot: layout.slot0),
+      _OverlaySlot(book: book, slot: layout.slot1),
+    ];
+    return AppBar(actions: actions, title: Text(book.name));
   }
 
-  Widget _buildBottomAppBar(Layout layout) {
-    // final children = _buildBottomButtons(layout.bottomBarButtons);
-    return BottomAppBar(child: Row(children: []));
+  Widget _buildBottomBar(Layout layout) {
+    var children = [
+      _OverlaySlot(book: book, slot: layout.slot2),
+      _OverlaySlot(book: book, slot: layout.slot3),
+      _OverlaySlot(book: book, slot: layout.slot4),
+      _OverlaySlot(book: book, slot: layout.slot5),
+    ];
+    return BottomAppBar(child: Row(children: children));
   }
 
-  List<Widget> _buildBottomButtons(List<LayoutSlot> positions) {
-    var buttons = positions.map(_toElement).toList();
-    buttons.insert(0, _MenuButton(onRefresh: onRefresh));
-    return buttons;
+  Widget _buildFloatingButton(Layout layout) {
+    return _OverlayFloatingSlot(book: book, slot: layout.slot6);
+  }
+}
+
+class _OverlayFloatingSlot extends StatelessWidget {
+  final Book book;
+  final String slot;
+  const _OverlayFloatingSlot({required this.book, required this.slot});
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () => handleTap(context),
+      child: Icon(_getIconData()),
+    );
   }
 
-  Widget _toElement(LayoutSlot position) {
-    return switch (position) {
-      LayoutSlot.audio => _FloatingButton(),
-      LayoutSlot.cache => _CacheButton(onTap: onCached),
-      LayoutSlot.catalogue => _CatalogueButton(),
-      LayoutSlot.darkMode => _DarkModeButton(),
-      LayoutSlot.forceRefresh => _ForceRefreshButton(onTap: onRefresh),
-      LayoutSlot.information => _InformationButton(),
-      LayoutSlot.more => _MenuButton(onRefresh: onRefresh),
-      LayoutSlot.nextChapter => _NextChapterButton(onTap: onNext),
-      LayoutSlot.previousChapter => _PreviousChapterButton(onTap: onPrevious),
-      LayoutSlot.source => _SourceButton(),
-      LayoutSlot.theme => _ThemeButton(),
+  void handleTap(BuildContext context) {
+    if (slot == LayoutSlot.audio.name) _showMessage(context);
+    if (slot == LayoutSlot.cache.name) _showCacheSheet(context);
+    if (slot == LayoutSlot.catalogue.name) _navigateBookCatalogue(context);
+    if (slot == LayoutSlot.darkMode.name) _toggleDarkMode(context);
+    if (slot == LayoutSlot.forceRefresh.name) _forceRefresh(context);
+    if (slot == LayoutSlot.information.name) _navigateBookInformation(context);
+    if (slot == LayoutSlot.nextChapter.name) _showMessage(context);
+    if (slot == LayoutSlot.previousChapter.name) _showMessage(context);
+    if (slot == LayoutSlot.source.name) _navigateAvailableSource(context);
+    if (slot == LayoutSlot.theme.name) _navigateReaderTheme(context);
+  }
+
+  void _forceRefresh(BuildContext context) {
+    Message.of(context).show('开发中，但很有可能会移除该功能');
+  }
+
+  IconData _getIconData() {
+    var values = LayoutSlot.values;
+    var layoutSlot = values.firstWhere((value) => value.name == slot);
+    return switch (layoutSlot) {
+      LayoutSlot.audio => HugeIcons.strokeRoundedHeadphones,
+      LayoutSlot.cache => HugeIcons.strokeRoundedDownload04,
+      LayoutSlot.catalogue => HugeIcons.strokeRoundedMenu01,
+      LayoutSlot.darkMode => HugeIcons.strokeRoundedMoon02,
+      LayoutSlot.forceRefresh => HugeIcons.strokeRoundedRefresh,
+      LayoutSlot.information => HugeIcons.strokeRoundedBook01,
+      LayoutSlot.more => HugeIcons.strokeRoundedMoreVertical,
+      LayoutSlot.nextChapter => HugeIcons.strokeRoundedNext,
+      LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
+      LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
+      LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
     };
   }
-}
 
-class _ForceRefreshButton extends StatelessWidget {
-  final void Function()? onTap;
-  const _ForceRefreshButton({this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(HugeIcons.strokeRoundedRefresh),
-      onPressed: onTap,
-    );
-  }
-}
-
-class _CacheButton extends StatelessWidget {
-  final void Function(int)? onTap;
-  const _CacheButton({this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => openBottomSheet(context),
-      icon: const Icon(HugeIcons.strokeRoundedDownload04),
-    );
+  void _navigateAvailableSource(BuildContext context) {
+    AvailableSourceListRoute().push(context);
   }
 
-  void openBottomSheet(BuildContext context) {
+  void _navigateBookCatalogue(BuildContext context) {
+    CatalogueRoute(index: book.index).push(context);
+  }
+
+  void _navigateBookInformation(BuildContext context) {
+    InformationRoute().push(context);
+  }
+
+  void _navigateReaderTheme(BuildContext context) {
+    ReaderThemeRoute().push(context);
+  }
+
+  void _showCacheSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => ReaderCacheSheet(onCached: onTap),
+      builder: (context) => ReaderCacheSheet(onCached: (value) {}),
       showDragHandle: true,
     );
   }
-}
 
-class _CatalogueButton extends ConsumerWidget {
-  const _CatalogueButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return IconButton(
-      onPressed: () => navigateBookCatalogue(context, ref),
-      icon: const Icon(HugeIcons.strokeRoundedMenu01),
-    );
+  void _showMessage(BuildContext context) {
+    Message.of(context).show('开发中，但很有可能会移除该功能');
   }
 
-  void navigateBookCatalogue(BuildContext context, WidgetRef ref) {
-    var provider = bookNotifierProvider;
-    var book = ref.read(provider);
-    AutoRouter.of(context).push(CatalogueRoute(index: book.index));
-  }
-}
-
-class _DarkModeButton extends ConsumerWidget {
-  const _DarkModeButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void _toggleDarkMode(BuildContext context) {
+    var container = ProviderScope.containerOf(context);
     var provider = settingNotifierProvider;
-    var setting = ref.watch(provider).valueOrNull;
-    var darkMode = setting?.darkMode ?? false;
-    var icon = HugeIcons.strokeRoundedMoon02;
-    if (darkMode) icon = HugeIcons.strokeRoundedSun03;
-    return IconButton(
-      onPressed: () => toggleDarkMode(ref),
-      icon: Icon(icon),
-    );
-  }
-
-  void toggleDarkMode(WidgetRef ref) {
-    var provider = settingNotifierProvider;
-    var notifier = ref.read(provider.notifier);
+    var notifier = container.read(provider.notifier);
     notifier.toggleDarkMode();
   }
 }
 
-class _FloatingButton extends StatelessWidget {
-  const _FloatingButton();
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => navigateBookListener(context),
-      child: const Icon(HugeIcons.strokeRoundedHeadphones),
-    );
-  }
-
-  void navigateBookListener(BuildContext context) {
-    Message.of(context).show('开发中，但很有可能会移除该功能');
-  }
-}
-
-class _InformationButton extends StatelessWidget {
-  const _InformationButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => navigateBookInformation(context),
-      icon: const Icon(HugeIcons.strokeRoundedBook01),
-    );
-  }
-
-  void navigateBookInformation(BuildContext context) {
-    AutoRouter.of(context).push(InformationRoute());
-  }
-}
-
-class _MenuButton extends ConsumerWidget {
-  final void Function()? onRefresh;
-
-  const _MenuButton({this.onRefresh});
+class _OverlayMoreSlot extends ConsumerWidget {
+  final Book book;
+  final String slot;
+  const _OverlayMoreSlot({required this.book, required this.slot});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var menuChildren = [
-      MenuItemButton(
-        leadingIcon: const Icon(HugeIcons.strokeRoundedBook01),
-        onPressed: () => navigateBookInformation(context),
-        child: const Text('书籍信息'),
-      ),
-      MenuItemButton(
-        leadingIcon: const Icon(HugeIcons.strokeRoundedRefresh),
-        onPressed: onRefresh,
-        child: const Text('强制刷新'),
-      ),
-      MenuItemButton(
-        leadingIcon: const Icon(HugeIcons.strokeRoundedExchange01),
-        onPressed: () => navigateSourceSwitcher(context),
-        child: const Text('切换书源'),
-      ),
-      MenuItemButton(
-        leadingIcon: const Icon(HugeIcons.strokeRoundedTextFont),
-        onPressed: () => navigateReaderTheme(context),
-        child: const Text('阅读主题'),
-      ),
-    ];
+    var provider = readerLayoutNotifierProviderProvider;
+    var layout = ref.watch(provider).valueOrNull;
     return MenuAnchor(
       alignmentOffset: Offset(0, 28),
       builder: (_, controller, __) => _builder(controller),
-      menuChildren: menuChildren,
+      menuChildren: _buildMenuChildren(layout),
       style: MenuStyle(alignment: Alignment.topLeft),
     );
   }
 
-  void handleTap(MenuController controller) {
-    if (controller.isOpen) return controller.close();
-    controller.open();
-  }
-
-  void navigateBookInformation(BuildContext context) {
-    AutoRouter.of(context).push(InformationRoute());
-  }
-
-  void navigateReaderTheme(BuildContext context) {
-    AutoRouter.of(context).push(ReaderThemeRoute());
-  }
-
-  void navigateSourceSwitcher(BuildContext context) {
-    AutoRouter.of(context).push(AvailableSourceListRoute());
-  }
-
   Widget _builder(MenuController controller) {
     return IconButton(
-      onPressed: () => handleTap(controller),
+      onPressed: () => _toggleMenu(controller),
       icon: const Icon(HugeIcons.strokeRoundedMoreVertical),
     );
   }
-}
 
-class _NextChapterButton extends StatelessWidget {
-  final void Function()? onTap;
-  const _NextChapterButton({this.onTap});
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onTap,
-      icon: const Icon(HugeIcons.strokeRoundedNext),
-    );
+  List<Widget> _buildMenuChildren(Layout? layout) {
+    if (layout == null) return [];
+    // Ignore `more` itself
+    var values = LayoutSlot.values.where((value) => value != LayoutSlot.more);
+    var usedSlots = [
+      layout.slot0,
+      layout.slot1,
+      layout.slot2,
+      layout.slot3,
+      layout.slot4,
+      layout.slot5,
+      layout.slot6,
+    ];
+    var remainingSlots = values.toSet().difference(usedSlots.toSet());
+    return remainingSlots.map((value) {
+      return _OverlayMoreSlotItem(book: book, slot: value.name);
+    }).toList();
+  }
+
+  void _toggleMenu(MenuController controller) {
+    if (controller.isOpen) return controller.close();
+    controller.open();
   }
 }
 
-class _PreviousChapterButton extends StatelessWidget {
-  final void Function()? onTap;
-  const _PreviousChapterButton({this.onTap});
+class _OverlayMoreSlotItem extends StatelessWidget {
+  final Book book;
+  final String slot;
+  const _OverlayMoreSlotItem({required this.book, required this.slot});
+
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onTap,
-      icon: const Icon(HugeIcons.strokeRoundedPrevious),
+    return MenuItemButton(
+      leadingIcon: Icon(_getIconData()),
+      onPressed: () => handleTap(context),
+      child: Text(_getButtonLabel()),
     );
+  }
+
+  void handleTap(BuildContext context) {
+    if (slot == LayoutSlot.audio.name) _showMessage(context);
+    if (slot == LayoutSlot.cache.name) _showCacheSheet(context);
+    if (slot == LayoutSlot.catalogue.name) _navigateBookCatalogue(context);
+    if (slot == LayoutSlot.darkMode.name) _toggleDarkMode(context);
+    if (slot == LayoutSlot.forceRefresh.name) _forceRefresh(context);
+    if (slot == LayoutSlot.information.name) _navigateBookInformation(context);
+    if (slot == LayoutSlot.nextChapter.name) _showMessage(context);
+    if (slot == LayoutSlot.previousChapter.name) _showMessage(context);
+    if (slot == LayoutSlot.source.name) _navigateAvailableSource(context);
+    if (slot == LayoutSlot.theme.name) _navigateReaderTheme(context);
+  }
+
+  void _forceRefresh(BuildContext context) {
+    Message.of(context).show('开发中，但很有可能会移除该功能');
+  }
+
+  String _getButtonLabel() {
+    var values = LayoutSlot.values;
+    var layoutSlot = values.firstWhere((value) => value.name == slot);
+    return switch (layoutSlot) {
+      LayoutSlot.audio => '朗读',
+      LayoutSlot.cache => '缓存',
+      LayoutSlot.catalogue => '目录',
+      LayoutSlot.darkMode => '夜间模式',
+      LayoutSlot.forceRefresh => '强制刷新',
+      LayoutSlot.information => '书籍信息',
+      LayoutSlot.more => '更多',
+      LayoutSlot.nextChapter => '下一章',
+      LayoutSlot.previousChapter => '上一章',
+      LayoutSlot.source => '切换书源',
+      LayoutSlot.theme => '主题',
+    };
+  }
+
+  IconData _getIconData() {
+    var values = LayoutSlot.values;
+    var layoutSlot = values.firstWhere((value) => value.name == slot);
+    return switch (layoutSlot) {
+      LayoutSlot.audio => HugeIcons.strokeRoundedHeadphones,
+      LayoutSlot.cache => HugeIcons.strokeRoundedDownload04,
+      LayoutSlot.catalogue => HugeIcons.strokeRoundedMenu01,
+      LayoutSlot.darkMode => HugeIcons.strokeRoundedMoon02,
+      LayoutSlot.forceRefresh => HugeIcons.strokeRoundedRefresh,
+      LayoutSlot.information => HugeIcons.strokeRoundedBook01,
+      // Will never be called cause we exclude `more` in `_OverlayMoreSlot`
+      LayoutSlot.more => HugeIcons.strokeRoundedMoreVertical,
+      LayoutSlot.nextChapter => HugeIcons.strokeRoundedNext,
+      LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
+      LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
+      LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
+    };
+  }
+
+  void _navigateAvailableSource(BuildContext context) {
+    AvailableSourceListRoute().push(context);
+  }
+
+  void _navigateBookCatalogue(BuildContext context) {
+    CatalogueRoute(index: book.index).push(context);
+  }
+
+  void _navigateBookInformation(BuildContext context) {
+    InformationRoute().push(context);
+  }
+
+  void _navigateReaderTheme(BuildContext context) {
+    ReaderThemeRoute().push(context);
+  }
+
+  void _showCacheSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => ReaderCacheSheet(onCached: (value) {}),
+      showDragHandle: true,
+    );
+  }
+
+  void _showMessage(BuildContext context) {
+    Message.of(context).show('开发中，但很有可能会移除该功能');
+  }
+
+  void _toggleDarkMode(BuildContext context) {
+    var container = ProviderScope.containerOf(context);
+    var provider = settingNotifierProvider;
+    var notifier = container.read(provider.notifier);
+    notifier.toggleDarkMode();
   }
 }
 
-class _SourceButton extends StatelessWidget {
-  const _SourceButton();
+class _OverlaySlot extends StatelessWidget {
+  final Book book;
+  final String slot;
+  const _OverlaySlot({required this.book, required this.slot});
 
   @override
   Widget build(BuildContext context) {
+    if (slot.isEmpty) return const SizedBox();
+    if (slot == LayoutSlot.more.name) {
+      return _OverlayMoreSlot(book: book, slot: slot);
+    }
     return IconButton(
-      onPressed: () => navigateSourceSwitcher(context),
-      icon: const Icon(HugeIcons.strokeRoundedExchange01),
+      onPressed: () => handleTap(context),
+      icon: Icon(_getIconData()),
     );
   }
 
-  void navigateSourceSwitcher(BuildContext context) {
-    AutoRouter.of(context).push(AvailableSourceListRoute());
+  void handleTap(BuildContext context) {
+    if (slot == LayoutSlot.audio.name) _showMessage(context);
+    if (slot == LayoutSlot.cache.name) _showCacheSheet(context);
+    if (slot == LayoutSlot.catalogue.name) _navigateBookCatalogue(context);
+    if (slot == LayoutSlot.darkMode.name) _toggleDarkMode(context);
+    if (slot == LayoutSlot.forceRefresh.name) _forceRefresh(context);
+    if (slot == LayoutSlot.information.name) _navigateBookInformation(context);
+    if (slot == LayoutSlot.nextChapter.name) _showMessage(context);
+    if (slot == LayoutSlot.previousChapter.name) _showMessage(context);
+    if (slot == LayoutSlot.source.name) _navigateAvailableSource(context);
+    if (slot == LayoutSlot.theme.name) _navigateReaderTheme(context);
   }
-}
 
-class _ThemeButton extends StatelessWidget {
-  const _ThemeButton();
+  void _forceRefresh(BuildContext context) {
+    Message.of(context).show('开发中，但很有可能会移除该功能');
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => navigateReaderTheme(context),
-      icon: const Icon(HugeIcons.strokeRoundedTextFont),
+  IconData _getIconData() {
+    var values = LayoutSlot.values;
+    var layoutSlot = values.firstWhere((value) => value.name == slot);
+    return switch (layoutSlot) {
+      LayoutSlot.audio => HugeIcons.strokeRoundedHeadphones,
+      LayoutSlot.cache => HugeIcons.strokeRoundedDownload04,
+      LayoutSlot.catalogue => HugeIcons.strokeRoundedMenu01,
+      LayoutSlot.darkMode => HugeIcons.strokeRoundedMoon02,
+      LayoutSlot.forceRefresh => HugeIcons.strokeRoundedRefresh,
+      LayoutSlot.information => HugeIcons.strokeRoundedBook01,
+      // Will never be called cause we use `_OverlayMoreSlot` instead
+      LayoutSlot.more => HugeIcons.strokeRoundedMoreVertical,
+      LayoutSlot.nextChapter => HugeIcons.strokeRoundedNext,
+      LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
+      LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
+      LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
+    };
+  }
+
+  void _navigateAvailableSource(BuildContext context) {
+    AvailableSourceListRoute().push(context);
+  }
+
+  void _navigateBookCatalogue(BuildContext context) {
+    CatalogueRoute(index: book.index).push(context);
+  }
+
+  void _navigateBookInformation(BuildContext context) {
+    InformationRoute().push(context);
+  }
+
+  void _navigateReaderTheme(BuildContext context) {
+    ReaderThemeRoute().push(context);
+  }
+
+  void _showCacheSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => ReaderCacheSheet(onCached: (value) {}),
+      showDragHandle: true,
     );
   }
 
-  void navigateReaderTheme(BuildContext context) {
-    AutoRouter.of(context).push(ReaderThemeRoute());
+  void _showMessage(BuildContext context) {
+    Message.of(context).show('开发中，但很有可能会移除该功能');
+  }
+
+  void _toggleDarkMode(BuildContext context) {
+    var container = ProviderScope.containerOf(context);
+    var provider = settingNotifierProvider;
+    var notifier = container.read(provider.notifier);
+    notifier.toggleDarkMode();
   }
 }

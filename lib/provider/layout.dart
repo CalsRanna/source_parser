@@ -11,7 +11,15 @@ class ReaderLayoutNotifierProvider extends _$ReaderLayoutNotifierProvider {
   Future<Layout> build() async {
     var layout = await isar.layouts.where().findFirst();
     if (layout != null) return layout;
-    layout = Layout();
+    layout = Layout()
+      ..slot0 = LayoutSlot.cache.name
+      ..slot1 = LayoutSlot.darkMode.name
+      ..slot2 = LayoutSlot.more.name
+      ..slot3 = LayoutSlot.catalogue.name
+      ..slot4 = LayoutSlot.previousChapter.name
+      ..slot5 = LayoutSlot.nextChapter.name
+      ..slot6 = LayoutSlot.source.name;
+
     await isar.writeTxn(() async {
       await isar.layouts.put(layout!);
     });
