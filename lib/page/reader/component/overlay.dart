@@ -4,6 +4,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/reader/component/cache.dart';
 import 'package:source_parser/provider/layout.dart';
 import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/router/router.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/layout.dart';
@@ -259,7 +260,6 @@ class _OverlayMoreSlot extends ConsumerWidget {
   }
 
   void _toggleMenu(MenuController controller) {
-    print('123');
     if (controller.isOpen) return controller.close();
     controller.open();
   }
@@ -276,7 +276,8 @@ class _OverlayMoreSlotItem extends _OverlayBaseSlot {
   Widget build(BuildContext context) {
     return MenuItemButton(
       leadingIcon: Icon(_getIconData()),
-      onPressed: () => handleTap(context),
+      // current context will be disposed while trigger the onPressed callback
+      onPressed: () => handleTap(globalKey.currentContext!),
       child: Text(_getButtonLabel()),
     );
   }
