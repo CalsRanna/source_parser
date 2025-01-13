@@ -25,14 +25,14 @@ import 'package:source_parser/util/logger.dart';
 import 'package:source_parser/util/message.dart';
 
 @RoutePage()
-class SourceServerPage extends ConsumerStatefulWidget {
-  const SourceServerPage({super.key});
+class LocalServerPage extends ConsumerStatefulWidget {
+  const LocalServerPage({super.key});
 
   @override
-  ConsumerState<SourceServerPage> createState() => _SourceServerPageState();
+  ConsumerState<LocalServerPage> createState() => _SourceServerPageState();
 }
 
-class _SourceServerPageState extends ConsumerState<SourceServerPage>
+class _SourceServerPageState extends ConsumerState<LocalServerPage>
     with TickerProviderStateMixin {
   bool connected = false;
   bool running = false;

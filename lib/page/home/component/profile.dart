@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -36,18 +37,32 @@ class ProfileView extends StatelessWidget {
       onTap: () => handleTap(context, const SettingRoute()),
       title: '设置',
     );
+    var server = _SettingTile(
+      icon: HugeIcons.strokeRoundedCloudServer,
+      onTap: () => handleTap(context, const LocalServerRoute()),
+      title: '本地服务器',
+    );
     var about = _SettingTile(
       icon: HugeIcons.strokeRoundedInformationCircle,
       onTap: () => handleTap(context, const AboutRoute()),
       title: '关于元夕',
     );
     var color = _SettingTile(
-      icon: HugeIcons.strokeRoundedInformationCircle,
+      icon: HugeIcons.strokeRoundedColors,
       onTap: () => navigateColor(context),
       title: 'color'.toUpperCase(),
     );
-    var listView =
-        ListView(children: [source, theme, layout, setting, about, color]);
+    var listView = ListView(
+      children: [
+        source,
+        theme,
+        layout,
+        setting,
+        server,
+        about,
+        if (kDebugMode) color,
+      ],
+    );
     return Scaffold(appBar: appBar, body: listView);
   }
 

@@ -17,20 +17,20 @@ import 'package:source_parser/page/book/form.dart' as _i4;
 import 'package:source_parser/page/catalogue/catalogue.dart' as _i5;
 import 'package:source_parser/page/home/home.dart' as _i6;
 import 'package:source_parser/page/information.dart' as _i7;
-import 'package:source_parser/page/layout.dart' as _i8;
-import 'package:source_parser/page/reader/reader.dart' as _i9;
-import 'package:source_parser/page/search/search.dart' as _i11;
-import 'package:source_parser/page/setting.dart' as _i12;
-import 'package:source_parser/page/source/advanced.dart' as _i13;
-import 'package:source_parser/page/source/catalogue.dart' as _i14;
-import 'package:source_parser/page/source/content.dart' as _i15;
-import 'package:source_parser/page/source/debugger.dart' as _i16;
-import 'package:source_parser/page/source/form.dart' as _i17;
-import 'package:source_parser/page/source/information.dart' as _i18;
-import 'package:source_parser/page/source/search.dart' as _i20;
-import 'package:source_parser/page/source_manager/server.dart' as _i21;
-import 'package:source_parser/page/source/source.dart' as _i19;
-import 'package:source_parser/page/theme/theme.dart' as _i10;
+import 'package:source_parser/page/layout.dart' as _i9;
+import 'package:source_parser/page/local_server/local_server.dart' as _i8;
+import 'package:source_parser/page/reader/reader.dart' as _i10;
+import 'package:source_parser/page/search/search.dart' as _i12;
+import 'package:source_parser/page/setting.dart' as _i13;
+import 'package:source_parser/page/source/advanced.dart' as _i14;
+import 'package:source_parser/page/source/catalogue.dart' as _i15;
+import 'package:source_parser/page/source/content.dart' as _i16;
+import 'package:source_parser/page/source/debugger.dart' as _i17;
+import 'package:source_parser/page/source/form.dart' as _i18;
+import 'package:source_parser/page/source/information.dart' as _i19;
+import 'package:source_parser/page/source/search.dart' as _i21;
+import 'package:source_parser/page/source/source.dart' as _i20;
+import 'package:source_parser/page/theme/theme.dart' as _i11;
 import 'package:source_parser/page/theme/theme_editor.dart' as _i22;
 import 'package:source_parser/schema/book.dart' as _i25;
 
@@ -195,7 +195,26 @@ class InformationRoute extends _i23.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i8.ReaderLayoutPage]
+/// [_i8.LocalServerPage]
+class LocalServerRoute extends _i23.PageRouteInfo<void> {
+  const LocalServerRoute({List<_i23.PageRouteInfo>? children})
+      : super(
+          LocalServerRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'LocalServerRoute';
+
+  static _i23.PageInfo page = _i23.PageInfo(
+    name,
+    builder: (data) {
+      return const _i8.LocalServerPage();
+    },
+  );
+}
+
+/// generated route for
+/// [_i9.ReaderLayoutPage]
 class ReaderLayoutRoute extends _i23.PageRouteInfo<void> {
   const ReaderLayoutRoute({List<_i23.PageRouteInfo>? children})
       : super(
@@ -208,13 +227,13 @@ class ReaderLayoutRoute extends _i23.PageRouteInfo<void> {
   static _i23.PageInfo page = _i23.PageInfo(
     name,
     builder: (data) {
-      return const _i8.ReaderLayoutPage();
+      return const _i9.ReaderLayoutPage();
     },
   );
 }
 
 /// generated route for
-/// [_i9.ReaderPage]
+/// [_i10.ReaderPage]
 class ReaderRoute extends _i23.PageRouteInfo<ReaderRouteArgs> {
   ReaderRoute({
     _i24.Key? key,
@@ -235,7 +254,7 @@ class ReaderRoute extends _i23.PageRouteInfo<ReaderRouteArgs> {
     name,
     builder: (data) {
       final args = data.argsAs<ReaderRouteArgs>();
-      return _i9.ReaderPage(
+      return _i10.ReaderPage(
         key: args.key,
         book: args.book,
       );
@@ -260,7 +279,7 @@ class ReaderRouteArgs {
 }
 
 /// generated route for
-/// [_i10.ReaderThemePage]
+/// [_i11.ReaderThemePage]
 class ReaderThemeRoute extends _i23.PageRouteInfo<void> {
   const ReaderThemeRoute({List<_i23.PageRouteInfo>? children})
       : super(
@@ -273,13 +292,13 @@ class ReaderThemeRoute extends _i23.PageRouteInfo<void> {
   static _i23.PageInfo page = _i23.PageInfo(
     name,
     builder: (data) {
-      return const _i10.ReaderThemePage();
+      return const _i11.ReaderThemePage();
     },
   );
 }
 
 /// generated route for
-/// [_i11.SearchPage]
+/// [_i12.SearchPage]
 class SearchRoute extends _i23.PageRouteInfo<SearchRouteArgs> {
   SearchRoute({
     _i24.Key? key,
@@ -301,7 +320,7 @@ class SearchRoute extends _i23.PageRouteInfo<SearchRouteArgs> {
     builder: (data) {
       final args =
           data.argsAs<SearchRouteArgs>(orElse: () => const SearchRouteArgs());
-      return _i11.SearchPage(
+      return _i12.SearchPage(
         key: args.key,
         credential: args.credential,
       );
@@ -326,7 +345,7 @@ class SearchRouteArgs {
 }
 
 /// generated route for
-/// [_i12.SettingPage]
+/// [_i13.SettingPage]
 class SettingRoute extends _i23.PageRouteInfo<void> {
   const SettingRoute({List<_i23.PageRouteInfo>? children})
       : super(
@@ -339,13 +358,13 @@ class SettingRoute extends _i23.PageRouteInfo<void> {
   static _i23.PageInfo page = _i23.PageInfo(
     name,
     builder: (data) {
-      return const _i12.SettingPage();
+      return const _i13.SettingPage();
     },
   );
 }
 
 /// generated route for
-/// [_i13.SourceAdvancedConfigurationPage]
+/// [_i14.SourceAdvancedConfigurationPage]
 class SourceAdvancedConfigurationRoute extends _i23.PageRouteInfo<void> {
   const SourceAdvancedConfigurationRoute({List<_i23.PageRouteInfo>? children})
       : super(
@@ -358,13 +377,13 @@ class SourceAdvancedConfigurationRoute extends _i23.PageRouteInfo<void> {
   static _i23.PageInfo page = _i23.PageInfo(
     name,
     builder: (data) {
-      return const _i13.SourceAdvancedConfigurationPage();
+      return const _i14.SourceAdvancedConfigurationPage();
     },
   );
 }
 
 /// generated route for
-/// [_i14.SourceCatalogueConfigurationPage]
+/// [_i15.SourceCatalogueConfigurationPage]
 class SourceCatalogueConfigurationRoute extends _i23.PageRouteInfo<void> {
   const SourceCatalogueConfigurationRoute({List<_i23.PageRouteInfo>? children})
       : super(
@@ -377,13 +396,13 @@ class SourceCatalogueConfigurationRoute extends _i23.PageRouteInfo<void> {
   static _i23.PageInfo page = _i23.PageInfo(
     name,
     builder: (data) {
-      return const _i14.SourceCatalogueConfigurationPage();
+      return const _i15.SourceCatalogueConfigurationPage();
     },
   );
 }
 
 /// generated route for
-/// [_i15.SourceContentConfigurationPage]
+/// [_i16.SourceContentConfigurationPage]
 class SourceContentConfigurationRoute extends _i23.PageRouteInfo<void> {
   const SourceContentConfigurationRoute({List<_i23.PageRouteInfo>? children})
       : super(
@@ -396,13 +415,13 @@ class SourceContentConfigurationRoute extends _i23.PageRouteInfo<void> {
   static _i23.PageInfo page = _i23.PageInfo(
     name,
     builder: (data) {
-      return const _i15.SourceContentConfigurationPage();
+      return const _i16.SourceContentConfigurationPage();
     },
   );
 }
 
 /// generated route for
-/// [_i16.SourceDebuggerPage]
+/// [_i17.SourceDebuggerPage]
 class SourceDebuggerRoute extends _i23.PageRouteInfo<void> {
   const SourceDebuggerRoute({List<_i23.PageRouteInfo>? children})
       : super(
@@ -415,13 +434,13 @@ class SourceDebuggerRoute extends _i23.PageRouteInfo<void> {
   static _i23.PageInfo page = _i23.PageInfo(
     name,
     builder: (data) {
-      return const _i16.SourceDebuggerPage();
+      return const _i17.SourceDebuggerPage();
     },
   );
 }
 
 /// generated route for
-/// [_i17.SourceFormPage]
+/// [_i18.SourceFormPage]
 class SourceFormRoute extends _i23.PageRouteInfo<SourceFormRouteArgs> {
   SourceFormRoute({
     _i24.Key? key,
@@ -443,7 +462,7 @@ class SourceFormRoute extends _i23.PageRouteInfo<SourceFormRouteArgs> {
     builder: (data) {
       final args = data.argsAs<SourceFormRouteArgs>(
           orElse: () => const SourceFormRouteArgs());
-      return _i17.SourceFormPage(
+      return _i18.SourceFormPage(
         key: args.key,
         id: args.id,
       );
@@ -468,7 +487,7 @@ class SourceFormRouteArgs {
 }
 
 /// generated route for
-/// [_i18.SourceInformationConfigurationPage]
+/// [_i19.SourceInformationConfigurationPage]
 class SourceInformationConfigurationRoute extends _i23.PageRouteInfo<void> {
   const SourceInformationConfigurationRoute(
       {List<_i23.PageRouteInfo>? children})
@@ -482,13 +501,13 @@ class SourceInformationConfigurationRoute extends _i23.PageRouteInfo<void> {
   static _i23.PageInfo page = _i23.PageInfo(
     name,
     builder: (data) {
-      return const _i18.SourceInformationConfigurationPage();
+      return const _i19.SourceInformationConfigurationPage();
     },
   );
 }
 
 /// generated route for
-/// [_i19.SourceListPage]
+/// [_i20.SourceListPage]
 class SourceListRoute extends _i23.PageRouteInfo<void> {
   const SourceListRoute({List<_i23.PageRouteInfo>? children})
       : super(
@@ -501,13 +520,13 @@ class SourceListRoute extends _i23.PageRouteInfo<void> {
   static _i23.PageInfo page = _i23.PageInfo(
     name,
     builder: (data) {
-      return const _i19.SourceListPage();
+      return const _i20.SourceListPage();
     },
   );
 }
 
 /// generated route for
-/// [_i20.SourceSearchConfigurationPage]
+/// [_i21.SourceSearchConfigurationPage]
 class SourceSearchConfigurationRoute extends _i23.PageRouteInfo<void> {
   const SourceSearchConfigurationRoute({List<_i23.PageRouteInfo>? children})
       : super(
@@ -520,26 +539,7 @@ class SourceSearchConfigurationRoute extends _i23.PageRouteInfo<void> {
   static _i23.PageInfo page = _i23.PageInfo(
     name,
     builder: (data) {
-      return const _i20.SourceSearchConfigurationPage();
-    },
-  );
-}
-
-/// generated route for
-/// [_i21.SourceServerPage]
-class SourceServerRoute extends _i23.PageRouteInfo<void> {
-  const SourceServerRoute({List<_i23.PageRouteInfo>? children})
-      : super(
-          SourceServerRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'SourceServerRoute';
-
-  static _i23.PageInfo page = _i23.PageInfo(
-    name,
-    builder: (data) {
-      return const _i21.SourceServerPage();
+      return const _i21.SourceSearchConfigurationPage();
     },
   );
 }
