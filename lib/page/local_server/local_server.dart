@@ -6,7 +6,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/util/local_server.dart';
 import 'package:source_parser/util/message.dart';
 
@@ -107,9 +106,6 @@ class _SourceServerPageState extends ConsumerState<LocalServerPage>
   Future<void> stopServer() async {
     server?.close();
     server = null;
-    var provider = sourceServerLogsNotifierProvider;
-    var notifier = ref.read(provider.notifier);
-    notifier.clear();
     setState(() {});
     timer?.cancel();
     timer = null;

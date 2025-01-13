@@ -85,22 +85,5 @@ final exploreSourcesNotifierProvider = AutoDisposeAsyncNotifierProvider<
 );
 
 typedef _$ExploreSourcesNotifier = AutoDisposeAsyncNotifier<List<Source>>;
-String _$sourceServerLogsNotifierHash() =>
-    r'b206c6bbebad5bc1dc867992af4f2d8b160c1017';
-
-/// See also [SourceServerLogsNotifier].
-@ProviderFor(SourceServerLogsNotifier)
-final sourceServerLogsNotifierProvider = AutoDisposeNotifierProvider<
-    SourceServerLogsNotifier, List<double>>.internal(
-  SourceServerLogsNotifier.new,
-  name: r'sourceServerLogsNotifierProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$sourceServerLogsNotifierHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$SourceServerLogsNotifier = AutoDisposeNotifier<List<double>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
