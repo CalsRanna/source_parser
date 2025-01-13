@@ -7,7 +7,7 @@ part of 'layout.dart';
 // **************************************************************************
 
 String _$readerLayoutNotifierProviderHash() =>
-    r'8d2fc44a1cf49227e2785b8970fa4aa7e6a5006f';
+    r'b0ae920a878a3b631e4270d96fbc53da7960ed36';
 
 /// See also [ReaderLayoutNotifierProvider].
 @ProviderFor(ReaderLayoutNotifierProvider)

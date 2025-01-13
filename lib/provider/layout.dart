@@ -25,6 +25,20 @@ class ReaderLayoutNotifierProvider extends _$ReaderLayoutNotifierProvider {
     return layout;
   }
 
+  Future<void> updateSlot(ButtonPosition position, {int index = 0}) async {
+    final currentLayout = await future;
+    var topActions = [...currentLayout.appBarButtons];
+    var bottomActions = [...currentLayout.bottomBarButtons];
+    if (index < 2) topActions[index] = position;
+    if (index >= 2) bottomActions[index - 2] = position;
+    currentLayout.appBarButtons = topActions;
+    currentLayout.bottomBarButtons = bottomActions;
+    await isar.writeTxn(() async {
+      await isar.layouts.put(currentLayout);
+    });
+    ref.invalidateSelf();
+  }
+
   Future<void> updateAppBarButtons(List<ButtonPosition> buttons) async {
     if (buttons.length > 2) return;
     final currentLayout = await future;

@@ -13,20 +13,34 @@ class ReaderLayoutPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final layout = ref.watch(readerLayoutNotifierProviderProvider).valueOrNull;
     if (layout == null) return const Center(child: CircularProgressIndicator());
-    var appBarSection = _ButtonSection(
-      title: 'AppBar按钮 (最多2个)',
-      buttons: layout.appBarButtons,
-      onChanged: (positions) => updateAppBarButtons(ref, positions),
-    );
-    var bottomBarSection = _ButtonSection(
-      title: 'BottomBar按钮 (最多3个)',
-      buttons: layout.bottomBarButtons,
-      onChanged: (positions) => updateBottomBarButtons(ref, positions),
-    );
     return Scaffold(
-      appBar: AppBar(title: const Text('布局')),
-      body: ListView(children: [appBarSection, bottomBarSection]),
+      appBar: AppBar(
+        actions: _buildActions(context, layout),
+        title: const Text('布局'),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(children: _buildBottomActions(context, layout)),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showActionSheet(context, -1),
+        child: const Icon(HugeIcons.strokeRoundedAdd01),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
     );
+  }
+
+  Future<void> showActionSheet(BuildContext context, int index) async {
+    var position = await showModalBottomSheet<ButtonPosition>(
+      builder: (_) => _ButtonPositionBottomSheet(),
+      context: context,
+      showDragHandle: true,
+    );
+    if (position == null) return;
+    if (!context.mounted) return;
+    var container = ProviderScope.containerOf(context);
+    var provider = readerLayoutNotifierProviderProvider;
+    var notifier = container.read(provider.notifier);
+    notifier.updateSlot(position, index: index);
   }
 
   void updateAppBarButtons(WidgetRef ref, List<ButtonPosition> positions) {
@@ -40,96 +54,50 @@ class ReaderLayoutPage extends ConsumerWidget {
     var notifier = ref.read(provider.notifier);
     notifier.updateBottomBarButtons(positions);
   }
-}
 
-class _ButtonSection extends StatelessWidget {
-  final String title;
-  final List<ButtonPosition> buttons;
-  final ValueChanged<List<ButtonPosition>> onChanged;
-
-  const _ButtonSection({
-    required this.title,
-    required this.buttons,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    var switchListTile = SwitchListTile(
-      onChanged: handleChanged,
-      title: Text(title),
-      value: buttons.isNotEmpty,
-    );
-    var wrap = Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: ButtonPosition.values.map(_toElement).toList(),
-    );
-    var children = [
-      switchListTile,
-      Padding(padding: const EdgeInsets.all(16.0), child: wrap),
-    ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: children,
-    );
-  }
-
-  void handleChanged(bool value) {
-    onChanged.call(value ? ButtonPosition.values : []);
-  }
-
-  void handleSelected(ButtonPosition position) {
-    var newButtons = List<ButtonPosition>.from(buttons);
-    if (newButtons.contains(position)) {
-      newButtons.remove(position);
-    } else {
-      newButtons.add(position);
+  List<Widget> _buildActions(BuildContext context, Layout layout) {
+    var actions = <Widget>[];
+    for (var i = 0; i < 2; i++) {
+      var layoutIconButton = _LayoutIconButton(
+        onTap: () => showActionSheet(context, i),
+        position: layout.appBarButtons.elementAtOrNull(i),
+      );
+      actions.add(layoutIconButton);
     }
-    newButtons.sort(_compare);
-    onChanged(newButtons);
+    return actions;
   }
 
-  int _compare(ButtonPosition a, ButtonPosition b) {
-    var indexA = ButtonPosition.values.indexOf(a);
-    var indexB = ButtonPosition.values.indexOf(b);
-    return indexA.compareTo(indexB);
-  }
-
-  Widget _toElement(ButtonPosition position) {
-    var selected = buttons.contains(position);
-    return _Chip(
-      onSelected: () => handleSelected(position),
-      position: position,
-      selected: selected,
-    );
+  List<Widget> _buildBottomActions(BuildContext context, Layout layout) {
+    var actions = <Widget>[];
+    for (var i = 0; i < 3; i++) {
+      var layoutIconButton = _LayoutIconButton(
+        onTap: () => showActionSheet(context, i + 2),
+        position: layout.bottomBarButtons.elementAtOrNull(i),
+      );
+      actions.add(layoutIconButton);
+    }
+    return actions;
   }
 }
 
-class _Chip extends StatelessWidget {
-  final void Function()? onSelected;
-  final ButtonPosition position;
-  final bool selected;
-  const _Chip({
-    this.onSelected,
-    required this.position,
-    required this.selected,
-  });
+class _ButtonPositionBottomSheet extends StatelessWidget {
+  const _ButtonPositionBottomSheet();
 
   @override
   Widget build(BuildContext context) {
-    return FilterChip(
-      showCheckmark: false,
-      selected: selected,
-      label: Text(_getButtonLabel(position)),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      avatar: Icon(_getButtonIcon(position)),
-      onSelected: handleSelected,
+    var children = ButtonPosition.values
+        .map((position) => _toElement(context, position))
+        .toList();
+    var wrap = Wrap(spacing: 16, runSpacing: 16, children: children);
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      width: double.infinity,
+      child: wrap,
     );
   }
 
-  void handleSelected(bool value) {
-    onSelected?.call();
+  void selectButtonPosition(BuildContext context, ButtonPosition position) {
+    Navigator.pop(context, position);
   }
 
   IconData _getButtonIcon(ButtonPosition position) {
@@ -154,11 +122,48 @@ class _Chip extends StatelessWidget {
       ButtonPosition.catalogue => '目录',
       ButtonPosition.darkMode => '夜间模式',
       ButtonPosition.forceRefresh => '强制刷新',
-      ButtonPosition.information => '信息',
+      ButtonPosition.information => '书籍信息',
       ButtonPosition.nextChapter => '下一章',
       ButtonPosition.previousChapter => '上一章',
-      ButtonPosition.source => '书源',
+      ButtonPosition.source => '切换书源',
       ButtonPosition.theme => '主题',
+    };
+  }
+
+  Widget _toElement(BuildContext context, ButtonPosition position) {
+    return FilterChip(
+      showCheckmark: false,
+      label: Text(_getButtonLabel(position)),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      avatar: Icon(_getButtonIcon(position)),
+      onSelected: (_) => selectButtonPosition(context, position),
+    );
+  }
+}
+
+class _LayoutIconButton extends StatelessWidget {
+  final void Function()? onTap;
+  final ButtonPosition? position;
+  const _LayoutIconButton({this.onTap, this.position});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(onPressed: onTap, icon: Icon(_getIconData()));
+  }
+
+  IconData _getIconData() {
+    return switch (position) {
+      ButtonPosition.audio => HugeIcons.strokeRoundedHeadphones,
+      ButtonPosition.cache => HugeIcons.strokeRoundedDownload04,
+      ButtonPosition.catalogue => HugeIcons.strokeRoundedMenu01,
+      ButtonPosition.darkMode => HugeIcons.strokeRoundedMoon02,
+      ButtonPosition.forceRefresh => HugeIcons.strokeRoundedRefresh,
+      ButtonPosition.information => HugeIcons.strokeRoundedBook01,
+      ButtonPosition.nextChapter => HugeIcons.strokeRoundedNext,
+      ButtonPosition.previousChapter => HugeIcons.strokeRoundedPrevious,
+      ButtonPosition.source => HugeIcons.strokeRoundedExchange01,
+      ButtonPosition.theme => HugeIcons.strokeRoundedTextFont,
+      _ => HugeIcons.strokeRoundedDashedLine02,
     };
   }
 }

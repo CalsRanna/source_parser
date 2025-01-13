@@ -133,8 +133,8 @@ const _LayoutappBarButtonsEnumValueMap = {
   'darkMode': 3,
   'forceRefresh': 4,
   'information': 5,
-  'nextChapter': 6,
-  'previousChapter': 7,
+  'previousChapter': 6,
+  'nextChapter': 7,
   'source': 8,
   'theme': 9,
 };
@@ -145,8 +145,8 @@ const _LayoutappBarButtonsValueEnumMap = {
   3: ButtonPosition.darkMode,
   4: ButtonPosition.forceRefresh,
   5: ButtonPosition.information,
-  6: ButtonPosition.nextChapter,
-  7: ButtonPosition.previousChapter,
+  6: ButtonPosition.previousChapter,
+  7: ButtonPosition.nextChapter,
   8: ButtonPosition.source,
   9: ButtonPosition.theme,
 };
@@ -157,8 +157,8 @@ const _LayoutbottomBarButtonsEnumValueMap = {
   'darkMode': 3,
   'forceRefresh': 4,
   'information': 5,
-  'nextChapter': 6,
-  'previousChapter': 7,
+  'previousChapter': 6,
+  'nextChapter': 7,
   'source': 8,
   'theme': 9,
 };
@@ -169,8 +169,8 @@ const _LayoutbottomBarButtonsValueEnumMap = {
   3: ButtonPosition.darkMode,
   4: ButtonPosition.forceRefresh,
   5: ButtonPosition.information,
-  6: ButtonPosition.nextChapter,
-  7: ButtonPosition.previousChapter,
+  6: ButtonPosition.previousChapter,
+  7: ButtonPosition.nextChapter,
   8: ButtonPosition.source,
   9: ButtonPosition.theme,
 };

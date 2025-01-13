@@ -30,8 +30,8 @@ enum ButtonPosition {
   darkMode,
   forceRefresh,
   information,
-  nextChapter,
   previousChapter,
+  nextChapter,
   source,
   theme,
 }
