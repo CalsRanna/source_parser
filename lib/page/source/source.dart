@@ -193,13 +193,14 @@ class _SourceListPageState extends State<SourceListPage> {
   }
 
   void importLocalSource(WidgetRef ref) async {
-    Navigator.of(context).pop();
     final result = await FilePicker.platform.pickFiles();
     if (result != null) {
       final file = File(result.files.single.path!);
       final content = await file.readAsString();
       confirmImporting(ref, content, from: 'local');
     }
+    if (!mounted) return;
+    Navigator.of(context).pop();
   }
 
   void importNetworkSource() async {
