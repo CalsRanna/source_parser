@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:archive/archive.dart';
 import 'package:flutter/services.dart';
-import 'package:isar/isar.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart';
@@ -14,8 +12,9 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_static/shelf_static.dart';
-import 'package:source_parser/schema/isar.dart';
-import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/util/local_server/controller/source_controller.dart';
+import 'package:source_parser/util/local_server/middleware/cors_middleware.dart';
+import 'package:source_parser/util/local_server/middleware/log_middleware.dart';
 import 'package:source_parser/util/logger.dart';
 
 class LocalSourceService {
@@ -37,49 +36,10 @@ class LocalSourceService {
     return server;
   }
 
-  Middleware _corsMiddleware() {
-    var corsHeaders = {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Credentials': 'true',
-      'Access-Control-Max-Age': '1728000',
-    };
-    return createMiddleware(
-      responseHandler: (Response response) {
-        var headers = {...response.headers, ...corsHeaders};
-        return response.change(headers: headers);
-      },
-    );
-  }
-
-  Future<Response> _destroy(Request request, String id) async {
-    try {
-      final success = await isar.writeTxn(() async {
-        return await isar.sources.delete(int.parse(id));
-      });
-      if (!success) {
-        return Response.notFound(
-          jsonEncode({'error': 'Source not found'}),
-          headers: {'Content-Type': 'application/json'},
-        );
-      }
-      return Response(
-        204,
-        headers: {'Content-Type': 'application/json'},
-      );
-    } catch (e) {
-      return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to delete source: $e'}),
-        headers: {'Content-Type': 'application/json'},
-      );
-    }
-  }
-
   FutureOr<Response> Function(Request) _handler() {
     final handler = Pipeline()
-        .addMiddleware(_logMiddleware())
-        .addMiddleware(_corsMiddleware())
+        .addMiddleware(LogMiddleware.instance.middleware)
+        .addMiddleware(CorsMiddleware.instance.middleware)
         .addHandler(_router.call);
     return handler;
   }
@@ -101,31 +61,6 @@ class LocalSourceService {
     );
 
     return staticHandler(request);
-  }
-
-  Future<Response> _index(Request request) async {
-    try {
-      final sources = await isar.sources.where().findAll();
-      return Response.ok(
-        jsonEncode(sources),
-        headers: {'Content-Type': 'application/json'},
-      );
-    } catch (e) {
-      return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to fetch sources: $e'}),
-        headers: {'Content-Type': 'application/json'},
-      );
-    }
-  }
-
-  Middleware _logMiddleware() {
-    return createMiddleware(
-      requestHandler: (Request request) {
-        var message = 'Request: ${request.method} ${request.url}';
-        logger.d(message);
-        return null;
-      },
-    );
   }
 
   // 准备静态文件目录
@@ -250,82 +185,13 @@ class LocalSourceService {
 
   void _setupRoutes() {
     // API 路由 - 需要先定义具体路由
-    _router.get('/api/source', _index);
-    _router.get('/api/source/<id>', _show);
-    _router.post('/api/source', _store);
-    _router.put('/api/source/<id>', _update);
-    _router.delete('/api/source/<id>', _destroy);
+    _router.get('/api/source', LocalServerSourceController().index);
+    _router.get('/api/source/<id>', LocalServerSourceController().show);
+    _router.post('/api/source', LocalServerSourceController().store);
+    _router.put('/api/source/<id>', LocalServerSourceController().update);
+    _router.delete('/api/source/<id>', LocalServerSourceController().destroy);
 
     // 静态文件路由 - 放在最后作为默认匹配
     _router.get('/<ignored|.*>', _handleStaticFiles);
-  }
-
-  Future<Response> _show(Request request, String id) async {
-    try {
-      final source = await isar.sources.get(int.parse(id));
-      if (source == null) {
-        return Response.notFound(
-          jsonEncode({'error': 'Source not found'}),
-          headers: {'Content-Type': 'application/json'},
-        );
-      }
-      return Response.ok(
-        jsonEncode(source),
-        headers: {'Content-Type': 'application/json'},
-      );
-    } catch (e) {
-      return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to fetch source: $e'}),
-        headers: {'Content-Type': 'application/json'},
-      );
-    }
-  }
-
-  Future<Response> _store(Request request) async {
-    try {
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
-      final source = Source.fromJson(data);
-      await isar.writeTxn(() async {
-        await isar.sources.put(source);
-      });
-      return Response(
-        201,
-        body: jsonEncode(source),
-        headers: {'Content-Type': 'application/json'},
-      );
-    } catch (e) {
-      return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to create source: $e'}),
-        headers: {'Content-Type': 'application/json'},
-      );
-    }
-  }
-
-  Future<Response> _update(Request request, String id) async {
-    try {
-      final source = await isar.sources.get(int.parse(id));
-      if (source == null) {
-        return Response.notFound(
-          jsonEncode({'error': 'Source not found'}),
-          headers: {'Content-Type': 'application/json'},
-        );
-      }
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
-      var newSource = Source.fromJson(data);
-      await isar.writeTxn(() async {
-        await isar.sources.put(newSource);
-      });
-      return Response.ok(
-        jsonEncode(source),
-        headers: {'Content-Type': 'application/json'},
-      );
-    } catch (e) {
-      return Response.internalServerError(
-        body: jsonEncode({'error': 'Failed to update source: $e'}),
-        headers: {'Content-Type': 'application/json'},
-      );
-    }
   }
 }

@@ -6,7 +6,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/util/local_server.dart';
+import 'package:source_parser/util/local_server/local_server.dart';
 import 'package:source_parser/util/message.dart';
 
 @RoutePage()
