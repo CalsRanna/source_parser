@@ -203,6 +203,7 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
 
   @override
   Widget build(BuildContext context) {
+    var screenSize = MediaQuery.sizeOf(context);
     return GestureDetector(
       onTapUp: handleTapUp,
       onHorizontalDragStart: _handleDragStart,
@@ -219,8 +220,8 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
             SlideTransition(
               position: _pageAnimation.slideAnimation!,
               child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
+                width: screenSize.width,
+                height: screenSize.height,
                 child: _itemBuilder(1),
               ),
             )
@@ -232,12 +233,12 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
                   _pageAnimation.isAnimating) &&
               !widget.controller.isFirstPage)
             Positioned(
-              left: -MediaQuery.of(context).size.width,
+              left: -screenSize.width,
               child: SlideTransition(
                 position: _pageAnimation.slideAnimation!,
                 child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
+                  width: screenSize.width,
+                  height: screenSize.height,
                   child: _nextPage ?? _itemBuilder(0),
                 ),
               ),
