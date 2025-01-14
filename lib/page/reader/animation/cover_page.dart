@@ -63,7 +63,7 @@ class CoverPageAnimation {
     _dragStartPosition = null;
     final dragPercentage = _dragDistance.abs() / screenWidth;
     final velocity = details.primaryVelocity ?? 0;
-    bool shouldTurnPage = dragPercentage > 0.2 || velocity.abs() > 800;
+    bool shouldTurnPage = dragPercentage > 1 / 3 || velocity.abs() > 800;
     return shouldTurnPage;
   }
 

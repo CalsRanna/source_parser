@@ -374,10 +374,11 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
   }
 
   void _resetPosition() {
+    var screenSize = MediaQuery.sizeOf(context);
     setState(() {
-      _pageAnimation.resetPosition(MediaQuery.of(context).size.width);
+      _pageAnimation.resetPosition(screenSize.width);
     });
-    _animationController.forward().then((_) {
+    _animationController.reverse().then((_) {
       setState(() {
         _nextPage = null;
         _pageAnimation.cleanUp();
