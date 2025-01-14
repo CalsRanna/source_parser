@@ -102,48 +102,45 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
   Widget _buildReaderView() {
     if (_readerController == null) return ReaderView.loading();
     var screenSize = MediaQuery.sizeOf(context);
+    Widget bottom = SizedBox();
+    var conditionA = _coverAnimation.isForward;
+    var conditionB = _coverAnimation.dragDistance != 0;
+    var conditionC = _coverAnimation.isAnimating;
+    if (conditionA && (conditionB || conditionC)) {
+      bottom = _nextPage ?? _itemBuilder(2);
+    }
+    Widget current = _itemBuilder(1);
+    if (_coverAnimation.isForward) {
+      var sizedBox = SizedBox(
+        width: screenSize.width,
+        height: screenSize.height,
+        child: current,
+      );
+      current = SlideTransition(
+        position: _coverAnimation.slideAnimation!,
+        child: sizedBox,
+      );
+    }
+    Widget top = SizedBox();
+    var conditionD = !_readerController!.isFirstPage;
+    if (!conditionA && (conditionB || conditionC) && conditionD) {
+      var sizedBox = SizedBox(
+        width: screenSize.width,
+        height: screenSize.height,
+        child: _nextPage ?? _itemBuilder(0),
+      );
+      var slideTransition = SlideTransition(
+        position: _coverAnimation.slideAnimation!,
+        child: sizedBox,
+      );
+      top = Positioned(left: -screenSize.width, child: slideTransition);
+    }
     return GestureDetector(
       onTapUp: _handleTapUp,
       onHorizontalDragStart: _handleDragStart,
       onHorizontalDragUpdate: _handleDragUpdate,
       onHorizontalDragEnd: _handleDragEnd,
-      child: Stack(
-        children: [
-          // 底层始终显示下一页
-          if (_coverAnimation.isForward &&
-              (_coverAnimation.dragDistance != 0 ||
-                  _coverAnimation.isAnimating))
-            _nextPage ?? _itemBuilder(2),
-          // 当前页
-          if (_coverAnimation.isForward)
-            SlideTransition(
-              position: _coverAnimation.slideAnimation!,
-              child: SizedBox(
-                width: screenSize.width,
-                height: screenSize.height,
-                child: _itemBuilder(1),
-              ),
-            )
-          else
-            _itemBuilder(1),
-          // 向右滑时显示上一页，覆盖在当前页上方
-          if (!_coverAnimation.isForward &&
-              (_coverAnimation.dragDistance != 0 ||
-                  _coverAnimation.isAnimating) &&
-              !_readerController!.isFirstPage)
-            Positioned(
-              left: -screenSize.width,
-              child: SlideTransition(
-                position: _coverAnimation.slideAnimation!,
-                child: SizedBox(
-                  width: screenSize.width,
-                  height: screenSize.height,
-                  child: _nextPage ?? _itemBuilder(0),
-                ),
-              ),
-            ),
-        ],
-      ),
+      child: Stack(children: [bottom, current, top]),
     );
   }
 
@@ -151,7 +148,9 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
     var provider = readerStateNotifierProvider(widget.book);
     var notifier = ref.read(provider.notifier);
     notifier.syncState(
-        chapter: _readerController!.chapter, page: _readerController!.page);
+      chapter: _readerController!.chapter,
+      page: _readerController!.page,
+    );
   }
 
   void _downloadChapters(int amount) async {
@@ -265,8 +264,11 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
       await Future.delayed(const Duration(milliseconds: 300));
       var size = await ref.watch(readerSizeNotifierProvider.future);
       var theme = await ref.watch(themeNotifierProvider.future);
-      _readerController =
-          ReaderController(widget.book, size: size, theme: theme);
+      _readerController = ReaderController(
+        widget.book,
+        size: size,
+        theme: theme,
+      );
       await _readerController?.init();
       setState(() {});
     });
