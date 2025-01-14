@@ -8,7 +8,6 @@ import 'package:source_parser/page/reader/animation/cover_page.dart';
 import 'package:source_parser/page/reader/component/cache.dart';
 import 'package:source_parser/page/reader/component/overlay.dart';
 import 'package:source_parser/page/reader/component/view.dart';
-import 'package:source_parser/provider/battery.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/reader.dart';
@@ -29,10 +28,15 @@ class ReaderPage extends ConsumerStatefulWidget {
 
 enum ReaderViewTurningMode { drag, tap }
 
-class _ReaderPageState extends ConsumerState<ReaderPage> {
-  bool showOverlay = false;
-  bool showCache = false;
-  ReaderController? controller;
+class _ReaderPageState extends ConsumerState<ReaderPage>
+    with SingleTickerProviderStateMixin {
+  bool _showCacheIndicator = false;
+  bool _showOverlay = false;
+  ReaderController? _readerController;
+
+  late AnimationController _animationController;
+  late CoverPageAnimation _coverAnimation;
+  Widget? _nextPage;
 
   @override
   Widget build(BuildContext context) {
@@ -46,82 +50,34 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
 
   @override
   void deactivate() {
-    _showUiOverlays();
+    // Can not use `_showUiOverlays` cause can not call `setState` here
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
     _refreshShelf();
     super.deactivate();
   }
 
-  void handleBarrierTaped() {
-    _hideUiOverlays();
-    setState(() {
-      showOverlay = false;
-    });
-  }
-
-  void handleCached(int amount) async {
-    setState(() {
-      showCache = true;
-    });
-    var container = ProviderScope.containerOf(context);
-    final notifier = container.read(cacheProgressNotifierProvider.notifier);
-    await notifier.cacheChapters(amount: amount);
-    if (!mounted) return;
-    final message = Message.of(context);
-    final progress = container.read(cacheProgressNotifierProvider);
-    message.show('缓存完毕，${progress.succeed}章成功，${progress.failed}章失败');
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      showCache = false;
-    });
-  }
-
-  void handleNextChapterChanged() {
-    controller?.nextChapter();
-    setState(() {});
-    var provider = readerStateNotifierProvider(widget.book);
-    var notifier = ref.read(provider.notifier);
-    notifier.syncState(chapter: controller!.chapter, page: controller!.page);
-  }
-
-  void handlePageChanged(int index) {
-    var provider = readerStateNotifierProvider(widget.book);
-    var notifier = ref.read(provider.notifier);
-    notifier.syncState(chapter: controller!.chapter, page: controller!.page);
-  }
-
-  void handlePreviousChapterChanged() {
-    controller?.previousChapter(page: 0);
-    setState(() {});
-    var provider = readerStateNotifierProvider(widget.book);
-    var notifier = ref.read(provider.notifier);
-    notifier.syncState(chapter: controller!.chapter, page: controller!.page);
-  }
-
-  void handleRefresh() {
-    controller?.refresh();
-    setState(() {});
-  }
-
-  void handleTap() {
-    _showUiOverlays();
-    setState(() {
-      showOverlay = true;
-    });
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _readerController?.dispose();
+    super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
     _hideUiOverlays();
-    _initController();
-  }
-
-  void navigateCatalogue() {
-    CatalogueRoute(index: controller!.chapter).push(context);
+    _initReaderController();
+    _animationController = AnimationController(vsync: this);
+    _coverAnimation = CoverPageAnimation(controller: _animationController);
+    _coverAnimation.initAnimation();
   }
 
   Widget _buildReaderCacheIndicator() {
-    if (!showCache) return const SizedBox();
+    if (!_showCacheIndicator) return const SizedBox();
     var progress = ref.watch(cacheProgressNotifierProvider);
     var indicator = Padding(
       padding: EdgeInsets.only(right: 8.0),
@@ -131,94 +87,37 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   }
 
   Widget _buildReaderOverlay() {
-    if (!showOverlay) return const SizedBox();
+    if (!_showOverlay) return const SizedBox();
     return ReaderOverlay(
       book: widget.book,
-      onBarrierTap: handleBarrierTaped,
-      onCached: handleCached,
-      onCatalogue: navigateCatalogue,
-      onNext: handleNextChapterChanged,
-      onPrevious: handlePreviousChapterChanged,
-      onRefresh: handleRefresh,
+      onBarrierTap: _hideUiOverlays,
+      onCached: _downloadChapters,
+      onCatalogue: _navigateCatalogue,
+      onNext: _nextChapter,
+      onPrevious: _previousChapter,
+      onRefresh: _forceRefresh,
     );
   }
 
   Widget _buildReaderView() {
-    if (controller == null) return ReaderView.loading();
-    return _ReaderView(
-      controller: controller!,
-      onPageChanged: handlePageChanged,
-      onTap: handleTap,
-    );
-  }
-
-  void _hideUiOverlays() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-  }
-
-  void _initController() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(milliseconds: 300));
-      var size = await ref.watch(readerSizeNotifierProvider.future);
-      var theme = await ref.watch(themeNotifierProvider.future);
-      controller = ReaderController(widget.book, size: size, theme: theme);
-      await controller?.init();
-      setState(() {});
-    });
-  }
-
-  void _refreshShelf() {
-    var container = ProviderScope.containerOf(context);
-    container.invalidate(booksProvider);
-  }
-
-  void _showUiOverlays() {
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.manual,
-      overlays: SystemUiOverlay.values,
-    );
-  }
-}
-
-class _ReaderView extends ConsumerStatefulWidget {
-  final ReaderController controller;
-  final Function()? onTap;
-  final Function(int)? onPageChanged;
-
-  const _ReaderView({
-    required this.controller,
-    this.onTap,
-    this.onPageChanged,
-  });
-
-  @override
-  ConsumerState<_ReaderView> createState() => _ReaderViewState();
-}
-
-class _ReaderViewState extends ConsumerState<_ReaderView>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late CoverPageAnimation _pageAnimation;
-  Widget? _nextPage;
-
-  @override
-  Widget build(BuildContext context) {
+    if (_readerController == null) return ReaderView.loading();
     var screenSize = MediaQuery.sizeOf(context);
     return GestureDetector(
-      onTapUp: handleTapUp,
+      onTapUp: _handleTapUp,
       onHorizontalDragStart: _handleDragStart,
       onHorizontalDragUpdate: _handleDragUpdate,
       onHorizontalDragEnd: _handleDragEnd,
       child: Stack(
         children: [
           // 底层始终显示下一页
-          if (_pageAnimation.isForward &&
-              (_pageAnimation.dragDistance != 0 || _pageAnimation.isAnimating))
+          if (_coverAnimation.isForward &&
+              (_coverAnimation.dragDistance != 0 ||
+                  _coverAnimation.isAnimating))
             _nextPage ?? _itemBuilder(2),
           // 当前页
-          if (_pageAnimation.isForward)
+          if (_coverAnimation.isForward)
             SlideTransition(
-              position: _pageAnimation.slideAnimation!,
+              position: _coverAnimation.slideAnimation!,
               child: SizedBox(
                 width: screenSize.width,
                 height: screenSize.height,
@@ -228,14 +127,14 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
           else
             _itemBuilder(1),
           // 向右滑时显示上一页，覆盖在当前页上方
-          if (!_pageAnimation.isForward &&
-              (_pageAnimation.dragDistance != 0 ||
-                  _pageAnimation.isAnimating) &&
-              !widget.controller.isFirstPage)
+          if (!_coverAnimation.isForward &&
+              (_coverAnimation.dragDistance != 0 ||
+                  _coverAnimation.isAnimating) &&
+              !_readerController!.isFirstPage)
             Positioned(
               left: -screenSize.width,
               child: SlideTransition(
-                position: _pageAnimation.slideAnimation!,
+                position: _coverAnimation.slideAnimation!,
                 child: SizedBox(
                   width: screenSize.width,
                   height: screenSize.height,
@@ -248,146 +147,211 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
     );
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
+  void _changePage() {
+    var provider = readerStateNotifierProvider(widget.book);
+    var notifier = ref.read(provider.notifier);
+    notifier.syncState(
+        chapter: _readerController!.chapter, page: _readerController!.page);
   }
 
-  void handleTapUp(TapUpDetails details) {
-    if (_pageAnimation.isAnimating) return;
-    final screenSize = MediaQuery.sizeOf(context);
-    final horizontalTapArea = details.globalPosition.dx / screenSize.width;
-    final verticalTapArea = details.globalPosition.dy / screenSize.height;
-    if (horizontalTapArea < 1 / 3 && !widget.controller.isFirstPage) {
-      _prepareNextPage(false);
-      _animateToPrevious();
-    } else if (horizontalTapArea > 2 / 3 && !widget.controller.isLastPage) {
-      _prepareNextPage(true);
-      _animateToNext();
-    } else if (horizontalTapArea >= 1 / 3 && horizontalTapArea <= 2 / 3) {
-      if (verticalTapArea > 3 / 4 && !widget.controller.isLastPage) {
-        _prepareNextPage(true);
-        _animateToNext();
-      } else if (verticalTapArea < 1 / 4 && !widget.controller.isFirstPage) {
-        _prepareNextPage(false);
-        _animateToPrevious();
-      } else {
-        widget.onTap?.call();
-      }
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(vsync: this);
-    _pageAnimation = CoverPageAnimation(controller: _animationController);
-    _pageAnimation.initAnimation();
-    _updateBattery();
-  }
-
-  void _animateToNext() {
-    if (_nextPage == null) {
-      _prepareNextPage(true);
-    }
+  void _downloadChapters(int amount) async {
     setState(() {
-      _pageAnimation.animateToNext(MediaQuery.of(context).size.width);
+      _showCacheIndicator = true;
     });
-    _animationController.forward().then((_) {
-      widget.controller.nextPage();
-      widget.onPageChanged?.call(1);
-      setState(() {
-        _nextPage = null;
-        _pageAnimation.cleanUp();
-      });
+    var container = ProviderScope.containerOf(context);
+    final notifier = container.read(cacheProgressNotifierProvider.notifier);
+    await notifier.cacheChapters(amount: amount);
+    if (!mounted) return;
+    final message = Message.of(context);
+    final progress = container.read(cacheProgressNotifierProvider);
+    message.show('缓存完毕，${progress.succeed}章成功，${progress.failed}章失败');
+    await Future.delayed(const Duration(seconds: 1));
+    setState(() {
+      _showCacheIndicator = false;
     });
   }
 
-  void _animateToPrevious() {
-    if (_nextPage == null) {
-      _prepareNextPage(false);
-    }
+  void _forceRefresh() {
+    _readerController?.refresh();
+    setState(() {});
+  }
+
+  Future<void> _forward() async {
+    if (_nextPage == null) _prepareNextPage(true);
+    var screenSize = MediaQuery.sizeOf(context);
     setState(() {
-      _pageAnimation.animateToPrevious(MediaQuery.of(context).size.width);
+      _coverAnimation.forward(screenSize.width);
     });
-    _animationController.forward().then((_) {
-      widget.controller.previousPage();
-      widget.onPageChanged?.call(1);
-      setState(() {
-        _nextPage = null;
-        _pageAnimation.cleanUp();
-      });
+    await _animationController.forward();
+    _readerController!.nextPage();
+    _changePage();
+    setState(() {
+      _nextPage = null;
+      _coverAnimation.cleanUp();
     });
   }
 
   void _handleDragEnd(DragEndDetails details) {
-    final shouldTurnPage = _pageAnimation.handleDragEnd(
+    var screenSize = MediaQuery.sizeOf(context);
+    final shouldTurnPage = _coverAnimation.handleDragEnd(
       details,
-      MediaQuery.of(context).size.width,
+      screenSize.width,
     );
-
     if (shouldTurnPage) {
-      bool isForward = _pageAnimation.dragDistance < 0;
-      if (isForward && !widget.controller.isLastPage) {
-        _animateToNext();
-      } else if (!isForward && !widget.controller.isFirstPage) {
-        _animateToPrevious();
+      bool isForward = _coverAnimation.dragDistance < 0;
+      if (isForward && !_readerController!.isLastPage) {
+        _forward();
+      } else if (!isForward && !_readerController!.isFirstPage) {
+        _reverse();
       } else {
-        _resetPosition();
+        _reset();
       }
     } else {
-      _resetPosition();
+      _reset();
     }
   }
 
   void _handleDragStart(DragStartDetails details) {
-    _pageAnimation.handleDragStart(details);
+    _coverAnimation.handleDragStart(details);
     _nextPage = null;
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
+    var screenSize = MediaQuery.sizeOf(context);
     setState(() {
-      _pageAnimation.handleDragUpdate(
+      _coverAnimation.handleDragUpdate(
         details,
-        MediaQuery.of(context).size.width,
-        isFirstPage: widget.controller.isFirstPage,
-        isLastPage: widget.controller.isLastPage,
+        screenSize.width,
+        isFirstPage: _readerController!.isFirstPage,
+        isLastPage: _readerController!.isLastPage,
       );
-      _nextPage ??= _itemBuilder(_pageAnimation.isForward ? 2 : 0);
+      _nextPage ??= _itemBuilder(_coverAnimation.isForward ? 2 : 0);
+    });
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    if (_coverAnimation.isAnimating) return;
+    final screenSize = MediaQuery.sizeOf(context);
+    final horizontalTapArea = details.globalPosition.dx / screenSize.width;
+    final verticalTapArea = details.globalPosition.dy / screenSize.height;
+    if (horizontalTapArea < 1 / 3 && !_readerController!.isFirstPage) {
+      _prepareNextPage(false);
+      _reverse();
+    } else if (horizontalTapArea > 2 / 3 && !_readerController!.isLastPage) {
+      _prepareNextPage(true);
+      _forward();
+    } else if (horizontalTapArea >= 1 / 3 && horizontalTapArea <= 2 / 3) {
+      if (verticalTapArea > 3 / 4 && !_readerController!.isLastPage) {
+        _prepareNextPage(true);
+        _forward();
+      } else if (verticalTapArea < 1 / 4 && !_readerController!.isFirstPage) {
+        _prepareNextPage(false);
+        _reverse();
+      } else {
+        _showUiOverlays();
+      }
+    }
+  }
+
+  void _hideUiOverlays() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    setState(() {
+      _showOverlay = false;
+    });
+  }
+
+  void _initReaderController() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 300));
+      var size = await ref.watch(readerSizeNotifierProvider.future);
+      var theme = await ref.watch(themeNotifierProvider.future);
+      _readerController =
+          ReaderController(widget.book, size: size, theme: theme);
+      await _readerController?.init();
+      setState(() {});
     });
   }
 
   Widget _itemBuilder(int index) {
-    final content = widget.controller.getContent(index);
+    final content = _readerController!.getContent(index);
     return ReaderView(
       content: content,
-      headerText: widget.controller.getHeaderText(index),
-      pageProgressText: widget.controller.getPageProgressText(index),
-      totalProgressText: widget.controller.getTotalProgressText(index),
+      headerText: _readerController!.getHeaderText(index),
+      pageProgressText: _readerController!.getPageProgressText(index),
+      totalProgressText: _readerController!.getTotalProgressText(index),
     );
   }
 
+  void _navigateCatalogue() {
+    CatalogueRoute(index: _readerController!.chapter).push(context);
+  }
+
+  void _nextChapter() {
+    _readerController?.nextChapter();
+    var provider = readerStateNotifierProvider(widget.book);
+    var notifier = ref.read(provider.notifier);
+    notifier.syncState(
+      chapter: _readerController!.chapter,
+      page: _readerController!.page,
+    );
+    setState(() {});
+  }
+
   void _prepareNextPage(bool isForward) {
-    _pageAnimation.isForward = isForward;
+    _coverAnimation.isForward = isForward;
     _nextPage = _itemBuilder(isForward ? 2 : 0);
   }
 
-  void _resetPosition() {
+  void _previousChapter() {
+    _readerController?.previousChapter(page: 0);
+    var provider = readerStateNotifierProvider(widget.book);
+    var notifier = ref.read(provider.notifier);
+    notifier.syncState(
+      chapter: _readerController!.chapter,
+      page: _readerController!.page,
+    );
+    setState(() {});
+  }
+
+  void _refreshShelf() {
+    var container = ProviderScope.containerOf(context);
+    container.invalidate(booksProvider);
+  }
+
+  Future<void> _reset() async {
     var screenSize = MediaQuery.sizeOf(context);
     setState(() {
-      _pageAnimation.resetPosition(screenSize.width);
+      _coverAnimation.reset(screenSize.width);
     });
-    _animationController.reverse().then((_) {
-      setState(() {
-        _nextPage = null;
-        _pageAnimation.cleanUp();
-      });
+    await _animationController.reverse();
+    setState(() {
+      _nextPage = null;
+      _coverAnimation.cleanUp();
     });
   }
 
-  Future<void> _updateBattery() async {
-    if (!mounted) return;
-    await ref.read(batteryNotifierProvider.notifier).updateBattery();
+  Future<void> _reverse() async {
+    if (_nextPage == null) _prepareNextPage(false);
+    var screenSize = MediaQuery.sizeOf(context);
+    setState(() {
+      _coverAnimation.reverse(screenSize.width);
+    });
+    await _animationController.forward();
+    _readerController!.previousPage();
+    _changePage();
+    setState(() {
+      _nextPage = null;
+      _coverAnimation.cleanUp();
+    });
+  }
+
+  void _showUiOverlays() {
+    setState(() {
+      _showOverlay = true;
+    });
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
   }
 }

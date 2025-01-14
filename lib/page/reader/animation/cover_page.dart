@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 class CoverPageAnimation {
   final AnimationController controller;
-
   bool isForward = false;
+
   Animation<Offset>? _slideAnimation;
-
   double _dragDistance = 0.0;
-  bool _isAnimating = false;
 
+  bool _isAnimating = false;
   Offset? _dragStartPosition;
+
   CoverPageAnimation({required this.controller});
 
   double get dragDistance => _dragDistance;
@@ -17,9 +17,14 @@ class CoverPageAnimation {
 
   Animation<Offset>? get slideAnimation => _slideAnimation;
 
-  void animateToNext(double screenWidth) {
-    final currentOffset = -_dragDistance / screenWidth;
-    final remainingDistance = 1.0 - currentOffset;
+  void cleanUp() {
+    _isAnimating = false;
+    _dragDistance = 0.0;
+    controller.reset();
+    initAnimation();
+  }
+
+  void forward(double screenWidth) {
     _isAnimating = true;
     _slideAnimation = Tween<Offset>(
       begin: Offset.zero,
@@ -28,34 +33,11 @@ class CoverPageAnimation {
       parent: controller,
       curve: Curves.linear,
     ));
-    controller.value = currentOffset;
-    controller.duration =
-        Duration(milliseconds: (300 * remainingDistance).toInt());
-    controller.forward();
-  }
-
-  void animateToPrevious(double screenWidth) {
-    final currentOffset = _dragDistance / screenWidth;
+    final currentOffset = -_dragDistance / screenWidth;
     final remainingDistance = 1.0 - currentOffset;
-    _isAnimating = true;
-    _slideAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: Offset(1.0, 0.0),
-    ).animate(CurvedAnimation(
-      parent: controller,
-      curve: Curves.linear,
-    ));
+    var milliseconds = (300 * remainingDistance).toInt();
+    controller.duration = Duration(milliseconds: milliseconds);
     controller.value = currentOffset;
-    controller.duration =
-        Duration(milliseconds: (300 * remainingDistance).toInt());
-    controller.forward();
-  }
-
-  void cleanUp() {
-    _isAnimating = false;
-    _dragDistance = 0.0;
-    controller.reset();
-    initAnimation();
   }
 
   bool handleDragEnd(DragEndDetails details, double screenWidth) {
@@ -108,8 +90,7 @@ class CoverPageAnimation {
     _isAnimating = false;
   }
 
-  void resetPosition(double screenWidth) {
-    final currentOffset = _dragDistance.abs() / screenWidth;
+  void reset(double screenWidth) {
     _isAnimating = true;
     _slideAnimation = Tween<Offset>(
       begin: Offset.zero,
@@ -118,10 +99,26 @@ class CoverPageAnimation {
       parent: controller,
       curve: Curves.linear,
     ));
-    controller.value = currentOffset;
+    final currentOffset = _dragDistance.abs() / screenWidth;
     final remainingDistance = 1.0 - currentOffset;
-    controller.duration =
-        Duration(milliseconds: (300 * remainingDistance).toInt());
-    controller.forward();
+    var milliseconds = (300 * remainingDistance).toInt();
+    controller.duration = Duration(milliseconds: milliseconds);
+    controller.value = currentOffset;
+  }
+
+  void reverse(double screenWidth) {
+    _isAnimating = true;
+    _slideAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: Offset(1.0, 0.0),
+    ).animate(CurvedAnimation(
+      parent: controller,
+      curve: Curves.linear,
+    ));
+    final currentOffset = _dragDistance / screenWidth;
+    final remainingDistance = 1.0 - currentOffset;
+    var milliseconds = (300 * remainingDistance).toInt();
+    controller.duration = Duration(milliseconds: milliseconds);
+    controller.value = currentOffset;
   }
 }
