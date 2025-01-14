@@ -13,6 +13,7 @@ import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/reader.dart';
 import 'package:source_parser/provider/theme.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/reader_controller.dart';
@@ -53,6 +54,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
       book: widget.book,
       onBarrierTap: handleBarrierTaped,
       onCached: handleCached,
+      onCatalogue: navigateCatalogue,
       onNext: handleNextChapterChanged,
       onPrevious: handlePreviousChapterChanged,
       onRefresh: handleRefresh,
@@ -138,6 +140,10 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     _initController();
   }
 
+  void navigateCatalogue() {
+    CatalogueRoute(index: controller!.chapter).push(context);
+  }
+
   Widget _buildReaderView() {
     return _ReaderView(
       controller: controller!,
@@ -196,128 +202,6 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
   Widget? _nextPage;
 
   @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(vsync: this);
-    _pageAnimation = CoverPageAnimation(controller: _animationController);
-    _pageAnimation.initAnimation();
-    _updateBattery();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _handleDragStart(DragStartDetails details) {
-    _pageAnimation.handleDragStart(details);
-    _nextPage = null;
-  }
-
-  void _handleDragUpdate(DragUpdateDetails details) {
-    setState(() {
-      _pageAnimation.handleDragUpdate(
-        details,
-        MediaQuery.of(context).size.width,
-        isFirstPage: widget.controller.isFirstPage,
-        isLastPage: widget.controller.isLastPage,
-      );
-      _nextPage ??= _itemBuilder(_pageAnimation.isForward ? 2 : 0);
-    });
-  }
-
-  void _handleDragEnd(DragEndDetails details) {
-    final shouldTurnPage = _pageAnimation.handleDragEnd(
-      details,
-      MediaQuery.of(context).size.width,
-    );
-
-    if (shouldTurnPage) {
-      bool isForward = _pageAnimation.dragDistance < 0;
-      if (isForward && !widget.controller.isLastPage) {
-        _animateToNext();
-      } else if (!isForward && !widget.controller.isFirstPage) {
-        _animateToPrevious();
-      } else {
-        _resetPosition();
-      }
-    } else {
-      _resetPosition();
-    }
-  }
-
-  void _animateToNext() {
-    if (_nextPage == null) {
-      _prepareNextPage(true);
-    }
-    setState(() {
-      _pageAnimation.animateToNext(MediaQuery.of(context).size.width);
-    });
-    _animationController.forward().then((_) {
-      widget.controller.nextPage();
-      widget.onPageChanged?.call(1);
-      setState(() {
-        _nextPage = null;
-        _pageAnimation.cleanUp();
-      });
-    });
-  }
-
-  void _animateToPrevious() {
-    if (_nextPage == null) {
-      _prepareNextPage(false);
-    }
-    setState(() {
-      _pageAnimation.animateToPrevious(MediaQuery.of(context).size.width);
-    });
-    _animationController.forward().then((_) {
-      widget.controller.previousPage();
-      widget.onPageChanged?.call(1);
-      setState(() {
-        _nextPage = null;
-        _pageAnimation.cleanUp();
-      });
-    });
-  }
-
-  void _resetPosition() {
-    setState(() {
-      _pageAnimation.resetPosition(MediaQuery.of(context).size.width);
-    });
-    _animationController.forward().then((_) {
-      setState(() {
-        _nextPage = null;
-        _pageAnimation.cleanUp();
-      });
-    });
-  }
-
-  void handleTapUp(TapUpDetails details) {
-    if (_pageAnimation.isAnimating) return;
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final horizontalTapArea = details.globalPosition.dx / screenWidth;
-    final verticalTapArea = details.globalPosition.dy / screenWidth;
-    if (horizontalTapArea < 1 / 3 && !widget.controller.isFirstPage) {
-      _prepareNextPage(false);
-      _animateToPrevious();
-    } else if (horizontalTapArea > 2 / 3 && !widget.controller.isLastPage) {
-      _prepareNextPage(true);
-      _animateToNext();
-    } else if (horizontalTapArea >= 1 / 3 && horizontalTapArea <= 2 / 3) {
-      if (verticalTapArea > 3 / 4 && !widget.controller.isLastPage) {
-        _prepareNextPage(true);
-        _animateToNext();
-      } else if (verticalTapArea < 1 / 4 && !widget.controller.isFirstPage) {
-        _prepareNextPage(false);
-        _animateToPrevious();
-      } else {
-        widget.onTap?.call();
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTapUp: handleTapUp,
@@ -363,9 +247,114 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
     );
   }
 
-  void _prepareNextPage(bool isForward) {
-    _pageAnimation.isForward = isForward;
-    _nextPage = _itemBuilder(isForward ? 2 : 0);
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void handleTapUp(TapUpDetails details) {
+    if (_pageAnimation.isAnimating) return;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final horizontalTapArea = details.globalPosition.dx / screenWidth;
+    final verticalTapArea = details.globalPosition.dy / screenWidth;
+    if (horizontalTapArea < 1 / 3 && !widget.controller.isFirstPage) {
+      _prepareNextPage(false);
+      _animateToPrevious();
+    } else if (horizontalTapArea > 2 / 3 && !widget.controller.isLastPage) {
+      _prepareNextPage(true);
+      _animateToNext();
+    } else if (horizontalTapArea >= 1 / 3 && horizontalTapArea <= 2 / 3) {
+      if (verticalTapArea > 3 / 4 && !widget.controller.isLastPage) {
+        _prepareNextPage(true);
+        _animateToNext();
+      } else if (verticalTapArea < 1 / 4 && !widget.controller.isFirstPage) {
+        _prepareNextPage(false);
+        _animateToPrevious();
+      } else {
+        widget.onTap?.call();
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(vsync: this);
+    _pageAnimation = CoverPageAnimation(controller: _animationController);
+    _pageAnimation.initAnimation();
+    _updateBattery();
+  }
+
+  void _animateToNext() {
+    if (_nextPage == null) {
+      _prepareNextPage(true);
+    }
+    setState(() {
+      _pageAnimation.animateToNext(MediaQuery.of(context).size.width);
+    });
+    _animationController.forward().then((_) {
+      widget.controller.nextPage();
+      widget.onPageChanged?.call(1);
+      setState(() {
+        _nextPage = null;
+        _pageAnimation.cleanUp();
+      });
+    });
+  }
+
+  void _animateToPrevious() {
+    if (_nextPage == null) {
+      _prepareNextPage(false);
+    }
+    setState(() {
+      _pageAnimation.animateToPrevious(MediaQuery.of(context).size.width);
+    });
+    _animationController.forward().then((_) {
+      widget.controller.previousPage();
+      widget.onPageChanged?.call(1);
+      setState(() {
+        _nextPage = null;
+        _pageAnimation.cleanUp();
+      });
+    });
+  }
+
+  void _handleDragEnd(DragEndDetails details) {
+    final shouldTurnPage = _pageAnimation.handleDragEnd(
+      details,
+      MediaQuery.of(context).size.width,
+    );
+
+    if (shouldTurnPage) {
+      bool isForward = _pageAnimation.dragDistance < 0;
+      if (isForward && !widget.controller.isLastPage) {
+        _animateToNext();
+      } else if (!isForward && !widget.controller.isFirstPage) {
+        _animateToPrevious();
+      } else {
+        _resetPosition();
+      }
+    } else {
+      _resetPosition();
+    }
+  }
+
+  void _handleDragStart(DragStartDetails details) {
+    _pageAnimation.handleDragStart(details);
+    _nextPage = null;
+  }
+
+  void _handleDragUpdate(DragUpdateDetails details) {
+    setState(() {
+      _pageAnimation.handleDragUpdate(
+        details,
+        MediaQuery.of(context).size.width,
+        isFirstPage: widget.controller.isFirstPage,
+        isLastPage: widget.controller.isLastPage,
+      );
+      _nextPage ??= _itemBuilder(_pageAnimation.isForward ? 2 : 0);
+    });
   }
 
   Widget _itemBuilder(int index) {
@@ -376,6 +365,23 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
       pageProgressText: widget.controller.getPageProgressText(index),
       totalProgressText: widget.controller.getTotalProgressText(index),
     );
+  }
+
+  void _prepareNextPage(bool isForward) {
+    _pageAnimation.isForward = isForward;
+    _nextPage = _itemBuilder(isForward ? 2 : 0);
+  }
+
+  void _resetPosition() {
+    setState(() {
+      _pageAnimation.resetPosition(MediaQuery.of(context).size.width);
+    });
+    _animationController.forward().then((_) {
+      setState(() {
+        _nextPage = null;
+        _pageAnimation.cleanUp();
+      });
+    });
   }
 
   Future<void> _updateBattery() async {

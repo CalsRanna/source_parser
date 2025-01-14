@@ -14,6 +14,7 @@ class ReaderOverlay extends ConsumerWidget {
   final Book book;
   final void Function()? onBarrierTap;
   final void Function(int)? onCached;
+  final void Function()? onCatalogue;
   final void Function()? onNext;
   final void Function()? onPrevious;
   final void Function()? onRefresh;
@@ -22,6 +23,7 @@ class ReaderOverlay extends ConsumerWidget {
     required this.book,
     this.onBarrierTap,
     this.onCached,
+    this.onCatalogue,
     this.onNext,
     this.onPrevious,
     this.onRefresh,
@@ -50,6 +52,7 @@ class ReaderOverlay extends ConsumerWidget {
     if (slot == LayoutSlot.cache.name && count != null) {
       return onCached?.call(count);
     }
+    if (slot == LayoutSlot.catalogue.name) return onCatalogue?.call();
     if (slot == LayoutSlot.forceRefresh.name) return onRefresh?.call();
     if (slot == LayoutSlot.nextChapter.name) return onNext?.call();
     if (slot == LayoutSlot.previousChapter.name) return onPrevious?.call();
@@ -112,7 +115,7 @@ abstract class _OverlayBaseSlot extends StatelessWidget {
   void handleTap(BuildContext context) {
     if (slot == LayoutSlot.audio.name) _showMessage(context);
     if (slot == LayoutSlot.cache.name) _showCacheSheet(context);
-    if (slot == LayoutSlot.catalogue.name) _navigateBookCatalogue(context);
+    if (slot == LayoutSlot.catalogue.name) onTap?.call();
     if (slot == LayoutSlot.darkMode.name) _toggleDarkMode(context);
     if (slot == LayoutSlot.forceRefresh.name) onTap?.call();
     if (slot == LayoutSlot.information.name) _navigateBookInformation(context);
@@ -164,10 +167,6 @@ abstract class _OverlayBaseSlot extends StatelessWidget {
 
   void _navigateAvailableSource(BuildContext context) {
     AvailableSourceListRoute().push(context);
-  }
-
-  void _navigateBookCatalogue(BuildContext context) {
-    CatalogueRoute(index: book.index).push(context);
   }
 
   void _navigateBookInformation(BuildContext context) {
