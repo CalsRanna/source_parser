@@ -47,21 +47,11 @@ class ReaderView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var theme = _assembleTheme(ref);
-    var header = _Header(text: headerText, theme: theme);
-    Widget contentWidget = _Content(content: content, theme: theme);
-    if (builder != null) contentWidget = builder!.call();
-    var footer = _Footer(
-      pageProgressText: pageProgressText,
-      theme: theme,
-      totalProgressText: totalProgressText,
-    );
-    var column = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [header, Expanded(child: contentWidget), footer],
-    );
+    var background = _buildBackground(theme);
+    var content = _buildContent(theme);
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: column,
+      body: Stack(children: [background, content]),
     );
   }
 
@@ -85,6 +75,45 @@ class ReaderView extends ConsumerWidget {
       contentColor: contentColor,
       footerColor: footerColor,
       headerColor: headerColor,
+    );
+  }
+
+  Widget _buildBackground(schema.Theme theme) {
+    var backgroundContainer = _buildBackgroundContainer(theme.backgroundColor);
+    var backgroundImage = _buildBackgroundImage(theme.backgroundImage);
+    return Stack(children: [backgroundContainer, backgroundImage]);
+  }
+
+  Widget _buildBackgroundContainer(String backgroundColorHex) {
+    return Container(
+      color: backgroundColorHex.toColor(),
+      height: double.infinity,
+      width: double.infinity,
+    );
+  }
+
+  Widget _buildBackgroundImage(String backgroundImage) {
+    if (backgroundImage.isEmpty) return const SizedBox();
+    return Image.asset(
+      backgroundImage,
+      fit: BoxFit.cover,
+      height: double.infinity,
+      width: double.infinity,
+    );
+  }
+
+  Widget _buildContent(schema.Theme theme) {
+    var header = _Header(text: headerText, theme: theme);
+    Widget contentWidget = _Content(content: content, theme: theme);
+    if (builder != null) contentWidget = builder!.call();
+    var footer = _Footer(
+      pageProgressText: pageProgressText,
+      theme: theme,
+      totalProgressText: totalProgressText,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [header, Expanded(child: contentWidget), footer],
     );
   }
 }

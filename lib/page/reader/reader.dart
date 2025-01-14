@@ -5,7 +5,6 @@ import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/page/reader/animation/cover_page.dart';
-import 'package:source_parser/page/reader/component/background.dart';
 import 'package:source_parser/page/reader/component/cache.dart';
 import 'package:source_parser/page/reader/component/overlay.dart';
 import 'package:source_parser/page/reader/component/view.dart';
@@ -59,7 +58,6 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
       onRefresh: handleRefresh,
     );
     var children = [
-      ReaderBackground(),
       if (controller == null) ReaderView.loading(),
       if (controller != null) _buildReaderView(),
       if (showCache) _ReaderCacheIndicator(),
