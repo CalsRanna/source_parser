@@ -305,10 +305,10 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
       _prepareNextPage(true);
       _animateToNext();
     } else if (horizontalTapArea >= 1 / 3 && horizontalTapArea <= 2 / 3) {
-      if (verticalTapArea > 2 / 3 && !widget.controller.isLastPage) {
+      if (verticalTapArea > 3 / 4 && !widget.controller.isLastPage) {
         _prepareNextPage(true);
         _animateToNext();
-      } else if (verticalTapArea < 1 / 3 && !widget.controller.isFirstPage) {
+      } else if (verticalTapArea < 1 / 4 && !widget.controller.isFirstPage) {
         _prepareNextPage(false);
         _animateToPrevious();
       } else {
