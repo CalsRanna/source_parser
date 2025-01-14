@@ -295,17 +295,25 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
 
   void handleTapUp(TapUpDetails details) {
     if (_pageAnimation.isAnimating) return;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final tapPosition = details.globalPosition.dx;
-    final tapArea = tapPosition / screenWidth;
-    if (tapArea < 0.3 && !widget.controller.isFirstPage) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final horizontalTapArea = details.globalPosition.dx / screenWidth;
+    final verticalTapArea = details.globalPosition.dy / screenWidth;
+    if (horizontalTapArea < 1 / 3 && !widget.controller.isFirstPage) {
       _prepareNextPage(false);
       _animateToPrevious();
-    } else if (tapArea > 0.7 && !widget.controller.isLastPage) {
+    } else if (horizontalTapArea > 2 / 3 && !widget.controller.isLastPage) {
       _prepareNextPage(true);
       _animateToNext();
-    } else if (tapArea >= 0.3 && tapArea <= 0.7) {
-      widget.onTap?.call();
+    } else if (horizontalTapArea >= 1 / 3 && horizontalTapArea <= 2 / 3) {
+      if (verticalTapArea > 2 / 3 && !widget.controller.isLastPage) {
+        _prepareNextPage(true);
+        _animateToNext();
+      } else if (verticalTapArea < 1 / 3 && !widget.controller.isFirstPage) {
+        _prepareNextPage(false);
+        _animateToPrevious();
+      } else {
+        widget.onTap?.call();
+      }
     }
   }
 
