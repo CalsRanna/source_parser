@@ -29,20 +29,6 @@ class ReaderPage extends ConsumerStatefulWidget {
 
 enum ReaderViewTurningMode { drag, tap }
 
-class _ReaderCacheIndicator extends ConsumerWidget {
-  const _ReaderCacheIndicator();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var progress = ref.watch(cacheProgressNotifierProvider);
-    var indicator = Padding(
-      padding: EdgeInsets.only(right: 8.0),
-      child: ReaderCacheIndicator(progress: progress.progress),
-    );
-    return Align(alignment: Alignment.centerRight, child: indicator);
-  }
-}
-
 class _ReaderPageState extends ConsumerState<ReaderPage> {
   bool showOverlay = false;
   bool showCache = false;
@@ -50,20 +36,10 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
 
   @override
   Widget build(BuildContext context) {
-    var readerOverlay = ReaderOverlay(
-      book: widget.book,
-      onBarrierTap: handleBarrierTaped,
-      onCached: handleCached,
-      onCatalogue: navigateCatalogue,
-      onNext: handleNextChapterChanged,
-      onPrevious: handlePreviousChapterChanged,
-      onRefresh: handleRefresh,
-    );
     var children = [
-      if (controller == null) ReaderView.loading(),
-      if (controller != null) _buildReaderView(),
-      if (showCache) _ReaderCacheIndicator(),
-      if (showOverlay) readerOverlay,
+      _buildReaderView(),
+      _buildReaderOverlay(),
+      _buildReaderCacheIndicator(),
     ];
     return Stack(children: children);
   }
@@ -144,7 +120,31 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     CatalogueRoute(index: controller!.chapter).push(context);
   }
 
+  Widget _buildReaderCacheIndicator() {
+    if (!showCache) return const SizedBox();
+    var progress = ref.watch(cacheProgressNotifierProvider);
+    var indicator = Padding(
+      padding: EdgeInsets.only(right: 8.0),
+      child: ReaderCacheIndicator(progress: progress.progress),
+    );
+    return Align(alignment: Alignment.centerRight, child: indicator);
+  }
+
+  Widget _buildReaderOverlay() {
+    if (!showOverlay) return const SizedBox();
+    return ReaderOverlay(
+      book: widget.book,
+      onBarrierTap: handleBarrierTaped,
+      onCached: handleCached,
+      onCatalogue: navigateCatalogue,
+      onNext: handleNextChapterChanged,
+      onPrevious: handlePreviousChapterChanged,
+      onRefresh: handleRefresh,
+    );
+  }
+
   Widget _buildReaderView() {
+    if (controller == null) return ReaderView.loading();
     return _ReaderView(
       controller: controller!,
       onPageChanged: handlePageChanged,
