@@ -15,7 +15,10 @@ class ReaderBackground extends ConsumerWidget {
     var theme = _assembleTheme(ref);
     var container = _buildContainer(theme.backgroundColor);
     var image = _buildImage(theme.backgroundImage);
-    return Stack(children: [container, image]);
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Stack(children: [container, image]),
+    );
   }
 
   Theme _assembleTheme(WidgetRef ref) {

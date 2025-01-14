@@ -55,9 +55,13 @@ class ReaderView extends ConsumerWidget {
       theme: theme,
       totalProgressText: totalProgressText,
     );
-    return Column(
+    var column = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [header, Expanded(child: contentWidget), footer],
+    );
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: column,
     );
   }
 
