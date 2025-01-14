@@ -255,9 +255,9 @@ class _ReaderViewState extends ConsumerState<_ReaderView>
 
   void handleTapUp(TapUpDetails details) {
     if (_pageAnimation.isAnimating) return;
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final horizontalTapArea = details.globalPosition.dx / screenWidth;
-    final verticalTapArea = details.globalPosition.dy / screenWidth;
+    final screenSize = MediaQuery.sizeOf(context);
+    final horizontalTapArea = details.globalPosition.dx / screenSize.width;
+    final verticalTapArea = details.globalPosition.dy / screenSize.height;
     if (horizontalTapArea < 1 / 3 && !widget.controller.isFirstPage) {
       _prepareNextPage(false);
       _animateToPrevious();
