@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:source_parser/page/reader/component/background.dart';
 import 'package:source_parser/page/reader/component/view.dart';
 import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
@@ -276,7 +275,6 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       totalProgressText: '25.5%',
     );
     var children = [
-      ReaderBackground(customTheme: theme),
       readerView,
       _buildOverlay(),
     ];
