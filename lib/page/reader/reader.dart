@@ -345,7 +345,6 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
       chapter: _readerController!.chapter,
       page: _readerController!.page,
     );
-    // setState(() {});
   }
 
   void _refreshShelf() {
