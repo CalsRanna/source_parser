@@ -284,39 +284,33 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
     String content;
     String headerText;
     String pageProgressText;
-    String totalProgressText;
 
     switch (index) {
       case 0:
-        content = _readerController!.previousPageContent;
-        headerText = _readerController!.previousHeaderText;
-        pageProgressText = _readerController!.previousPageProgressText;
-        totalProgressText = _readerController!.previousTotalProgressText;
+        content = _readerController!.previousContent;
+        headerText = _readerController!.previousHeader;
+        pageProgressText = _readerController!.previousProgress;
         break;
       case 1:
-        content = _readerController!.currentPageContent;
-        headerText = _readerController!.headerText;
-        pageProgressText = _readerController!.pageProgressText;
-        totalProgressText = _readerController!.totalProgressText;
+        content = _readerController!.currentContent;
+        headerText = _readerController!.currentHeader;
+        pageProgressText = _readerController!.currentProgress;
         break;
       case 2:
-        content = _readerController!.nextPageContent;
-        headerText = _readerController!.nextHeaderText;
-        pageProgressText = _readerController!.nextPageProgressText;
-        totalProgressText = _readerController!.nextTotalProgressText;
+        content = _readerController!.nextContent;
+        headerText = _readerController!.nextHeader;
+        pageProgressText = _readerController!.nextProgress;
         break;
       default:
         content = "Invalid page index";
         headerText = "Error";
         pageProgressText = "";
-        totalProgressText = "";
     }
 
     return ReaderView(
       content: content,
       headerText: headerText,
       pageProgressText: pageProgressText,
-      totalProgressText: totalProgressText,
     );
   }
 

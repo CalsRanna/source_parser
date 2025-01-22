@@ -13,7 +13,6 @@ class ReaderView extends ConsumerWidget {
   final schema.Theme? customTheme;
   final String headerText;
   final String pageProgressText;
-  final String totalProgressText;
   final bool isLoading;
   final String? errorMessage;
 
@@ -23,7 +22,6 @@ class ReaderView extends ConsumerWidget {
     this.customTheme,
     required this.headerText,
     required this.pageProgressText,
-    required this.totalProgressText,
     this.isLoading = false,
     this.errorMessage,
   });
@@ -34,7 +32,6 @@ class ReaderView extends ConsumerWidget {
   })  : content = '',
         headerText = '加载中',
         pageProgressText = '',
-        totalProgressText = '',
         isLoading = true,
         errorMessage = null;
 
@@ -104,11 +101,7 @@ class ReaderView extends ConsumerWidget {
       isLoading: isLoading,
       errorMessage: errorMessage,
     );
-    var footer = _Footer(
-      pageProgressText: pageProgressText,
-      theme: theme,
-      totalProgressText: totalProgressText,
-    );
+    var footer = _Footer(pageProgressText: pageProgressText, theme: theme);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [header, Expanded(child: contentWidget), footer],
@@ -222,20 +215,13 @@ class _Content extends StatelessWidget {
 class _Footer extends ConsumerWidget {
   final String pageProgressText;
   final schema.Theme theme;
-  final String totalProgressText;
 
-  const _Footer({
-    required this.pageProgressText,
-    required this.theme,
-    required this.totalProgressText,
-  });
+  const _Footer({required this.pageProgressText, required this.theme});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var children = [
       Text(pageProgressText, style: _getStyle()),
-      const SizedBox(width: 4),
-      Text(totalProgressText, style: _getStyle()),
       const Spacer(),
       _buildTime(),
       const SizedBox(width: 4),
