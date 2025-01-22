@@ -281,12 +281,42 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
   }
 
   Widget _itemBuilder(int index) {
-    final content = _readerController!.getContent(index);
+    ReaderContent content;
+    String headerText;
+    String pageProgressText;
+    String totalProgressText;
+
+    switch (index) {
+      case 0:
+        content = _readerController!.previousPageContent;
+        headerText = _readerController!.previousHeaderText;
+        pageProgressText = _readerController!.previousPageProgressText;
+        totalProgressText = _readerController!.previousTotalProgressText;
+        break;
+      case 1:
+        content = _readerController!.currentPageContent;
+        headerText = _readerController!.headerText;
+        pageProgressText = _readerController!.pageProgressText;
+        totalProgressText = _readerController!.totalProgressText;
+        break;
+      case 2:
+        content = _readerController!.nextPageContent;
+        headerText = _readerController!.nextHeaderText;
+        pageProgressText = _readerController!.nextPageProgressText;
+        totalProgressText = _readerController!.nextTotalProgressText;
+        break;
+      default:
+        content = const ReaderContent.error("Invalid page index");
+        headerText = "Error";
+        pageProgressText = "";
+        totalProgressText = "";
+    }
+
     return ReaderView(
       content: content,
-      headerText: _readerController!.getHeaderText(index),
-      pageProgressText: _readerController!.getPageProgressText(index),
-      totalProgressText: _readerController!.getTotalProgressText(index),
+      headerText: headerText,
+      pageProgressText: pageProgressText,
+      totalProgressText: totalProgressText,
     );
   }
 

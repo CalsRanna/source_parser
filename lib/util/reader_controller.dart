@@ -47,12 +47,31 @@ class ReaderController extends ChangeNotifier {
   final Theme theme;
 
   int _chapter = 0;
-
   int _page = 0;
-  List<String> _previousChapterPages = [];
 
+  List<String> _previousChapterPages = [];
   List<String> _currentChapterPages = [];
   List<String> _nextChapterPages = [];
+
+  String _currentContent = '';
+  String _previousContent = '';
+  String _nextContent = '';
+
+  String _headerText = '';
+  String _previousHeaderText = '';
+  String _nextHeaderText = '';
+
+  String _pageProgressText = '';
+  String _previousPageProgressText = '';
+  String _nextPageProgressText = '';
+
+  String _totalProgressText = '';
+  String _previousTotalProgressText = '';
+  String _nextTotalProgressText = '';
+
+  ReaderContent _currentPageContent = const ReaderContent.loading();
+  ReaderContent _previousPageContent = const ReaderContent.loading();
+  ReaderContent _nextPageContent = const ReaderContent.loading();
   ReaderController(this.book, {required this.size, required this.theme});
 
   int get chapter => _chapter;
@@ -80,75 +99,60 @@ class ReaderController extends ChangeNotifier {
     return true;
   }
 
-  ReaderContent getContent(int index) {
+  void _updatePageContents() {
     try {
-      if (isFirstPage && index == 0) {
-        return const ReaderContent.boundary();
+      // Update previous page content
+      if (isFirstPage) {
+        _previousPageContent = const ReaderContent.boundary();
+        _previousContent = '';
+      } else {
+        _previousContent = _getPreviousContentText();
+        _previousPageContent = ReaderContent(text: _previousContent);
       }
-      if (isLastPage && index == 2) {
-        return const ReaderContent.boundary();
+
+      // Update current page content
+      _currentContent = _getCurrentContentText();
+      _currentPageContent = ReaderContent(text: _currentContent);
+
+      // Update next page content
+      if (isLastPage) {
+        _nextPageContent = const ReaderContent.boundary();
+        _nextContent = '';
+      } else {
+        _nextContent = _getNextContentText();
+        _nextPageContent = ReaderContent(text: _nextContent);
       }
-      final content = switch (index) {
-        0 => _getPreviousContentText(),
-        1 => _getCurrentContentText(),
-        2 => _getNextContentText(),
-        _ => '',
-      };
-      return ReaderContent(text: content);
     } catch (error) {
-      return ReaderContent.error(error.toString());
+      _previousPageContent = ReaderContent.error(error.toString());
+      _currentPageContent = ReaderContent.error(error.toString());
+      _nextPageContent = ReaderContent.error(error.toString());
     }
   }
 
-  String getContentText(int index) {
-    if (isFirstPage && index == 0) return '';
-    if (isLastPage && index == 2) return '';
-    return switch (index) {
-      0 => _getPreviousContentText(),
-      1 => _getCurrentContentText(),
-      2 => _getNextContentText(),
-      _ => '',
-    };
-  }
+  // Getters for content
+  String get currentContent => _currentContent;
+  String get previousContent => _previousContent;
+  String get nextContent => _nextContent;
 
-  String getHeaderText(int index) {
-    try {
-      return switch (index) {
-        0 => _getPreviousHeaderText(),
-        1 => _getCurrentHeaderText(),
-        2 => _getNextHeaderText(),
-        _ => '',
-      };
-    } catch (error, stackTrace) {
-      return stackTrace.toString();
-    }
-  }
+  // Getters for header text
+  String get headerText => _headerText;
+  String get previousHeaderText => _previousHeaderText;
+  String get nextHeaderText => _nextHeaderText;
 
-  String getPageProgressText(int index) {
-    try {
-      return switch (index) {
-        0 => _getPreviousPageProgressText(),
-        1 => _getCurrentPageProgressText(),
-        2 => _getNextPageProgressText(),
-        _ => '',
-      };
-    } catch (error, stackTrace) {
-      return stackTrace.toString();
-    }
-  }
+  // Getters for progress text
+  String get pageProgressText => _pageProgressText;
+  String get previousPageProgressText => _previousPageProgressText;
+  String get nextPageProgressText => _nextPageProgressText;
 
-  String getTotalProgressText(int index) {
-    try {
-      return switch (index) {
-        0 => _getPreviousTotalProgressText(),
-        1 => _getCurrentTotalProgressText(),
-        2 => _getNextTotalProgressText(),
-        _ => '',
-      };
-    } catch (error, stackTrace) {
-      return stackTrace.toString();
-    }
-  }
+  // Getters for total progress
+  String get totalProgressText => _totalProgressText;
+  String get previousTotalProgressText => _previousTotalProgressText;
+  String get nextTotalProgressText => _nextTotalProgressText;
+
+  // Getters for page content
+  ReaderContent get currentPageContent => _currentPageContent;
+  ReaderContent get previousPageContent => _previousPageContent;
+  ReaderContent get nextPageContent => _nextPageContent;
 
   Future<void> init() async {
     _chapter = book.index;
@@ -168,6 +172,10 @@ class ReaderController extends ChangeNotifier {
         _page >= _currentChapterPages.length) {
       _page = _currentChapterPages.length - 1;
     }
+    _updatePageContents();
+    _updateHeaderTexts();
+    _updateProgressTexts();
+    notifyListeners();
   }
 
   Future<void> nextChapter() async {
@@ -177,6 +185,9 @@ class ReaderController extends ChangeNotifier {
     _previousChapterPages = _currentChapterPages;
     _currentChapterPages = _nextChapterPages;
     await _getNextChapterPages(_chapter + 1);
+    _updatePageContents();
+    _updateHeaderTexts();
+    _updateProgressTexts();
     notifyListeners();
   }
 
@@ -187,6 +198,9 @@ class ReaderController extends ChangeNotifier {
       return;
     }
     _page++;
+    _updatePageContents();
+    _updateHeaderTexts();
+    _updateProgressTexts();
     notifyListeners();
     _checkBoundaries();
   }
@@ -199,9 +213,15 @@ class ReaderController extends ChangeNotifier {
     _currentChapterPages = _previousChapterPages;
     if (_chapter > 0) {
       await _getPreviousChapterPages(_chapter - 1);
+      _updatePageContents();
+      _updateHeaderTexts();
+      _updateProgressTexts();
       notifyListeners();
     } else {
       _previousChapterPages = [];
+      _updatePageContents();
+      _updateHeaderTexts();
+      _updateProgressTexts();
       notifyListeners();
     }
   }
@@ -213,6 +233,9 @@ class ReaderController extends ChangeNotifier {
     }
     if (_page <= 0) return previousChapter();
     _page--;
+    _updatePageContents();
+    _updateHeaderTexts();
+    _updateProgressTexts();
     notifyListeners();
     _checkBoundaries();
   }
@@ -224,6 +247,9 @@ class ReaderController extends ChangeNotifier {
         _page >= _currentChapterPages.length) {
       _page = _currentChapterPages.length - 1;
     }
+    _updatePageContents();
+    _updateHeaderTexts();
+    _updateProgressTexts();
     notifyListeners();
   }
 
@@ -233,6 +259,38 @@ class ReaderController extends ChangeNotifier {
     }
     if (isLastPage) {
       onReachLastPage?.call();
+    }
+  }
+
+  void _updateHeaderTexts() {
+    try {
+      _previousHeaderText = _getPreviousHeaderText();
+      _headerText = _getCurrentHeaderText();
+      _nextHeaderText = _getNextHeaderText();
+    } catch (error) {
+      _previousHeaderText = error.toString();
+      _headerText = error.toString();
+      _nextHeaderText = error.toString();
+    }
+  }
+
+  void _updateProgressTexts() {
+    try {
+      _previousPageProgressText = _getPreviousPageProgressText();
+      _pageProgressText = _getCurrentPageProgressText();
+      _nextPageProgressText = _getNextPageProgressText();
+
+      _previousTotalProgressText = _getPreviousTotalProgressText();
+      _totalProgressText = _getCurrentTotalProgressText();
+      _nextTotalProgressText = _getNextTotalProgressText();
+    } catch (error) {
+      _previousPageProgressText = '0/0';
+      _pageProgressText = '0/0';
+      _nextPageProgressText = '0/0';
+
+      _previousTotalProgressText = '0.00%';
+      _totalProgressText = '0.00%';
+      _nextTotalProgressText = '0.00%';
     }
   }
 
