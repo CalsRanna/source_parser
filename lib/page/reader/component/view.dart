@@ -6,16 +6,16 @@ import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
 import 'package:source_parser/util/color_extension.dart';
 import 'package:source_parser/util/merger.dart';
-import 'package:source_parser/util/reader_controller.dart';
 import 'package:source_parser/util/string_extension.dart';
 
 class ReaderView extends ConsumerWidget {
-  final Widget Function()? builder;
-  final ReaderContent content;
+  final String content;
   final schema.Theme? customTheme;
   final String headerText;
   final String pageProgressText;
   final String totalProgressText;
+  final bool isLoading;
+  final String? errorMessage;
 
   const ReaderView({
     super.key,
@@ -24,25 +24,19 @@ class ReaderView extends ConsumerWidget {
     required this.headerText,
     required this.pageProgressText,
     required this.totalProgressText,
-  }) : builder = null;
-
-  const ReaderView.builder({
-    super.key,
-    required this.builder,
-    this.customTheme,
-    required this.headerText,
-    required this.pageProgressText,
-    required this.totalProgressText,
-  }) : content = const ReaderContent.loading();
+    this.isLoading = false,
+    this.errorMessage,
+  });
 
   const ReaderView.loading({
     super.key,
     this.customTheme,
-  })  : builder = null,
-        content = const ReaderContent.loading(),
+  })  : content = '',
         headerText = '加载中',
         pageProgressText = '',
-        totalProgressText = '';
+        totalProgressText = '',
+        isLoading = true,
+        errorMessage = null;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -104,8 +98,12 @@ class ReaderView extends ConsumerWidget {
 
   Widget _buildContent(schema.Theme theme) {
     var header = _Header(text: headerText, theme: theme);
-    Widget contentWidget = _Content(content: content, theme: theme);
-    if (builder != null) contentWidget = builder!.call();
+    Widget contentWidget = _Content(
+      content: content,
+      theme: theme,
+      isLoading: isLoading,
+      errorMessage: errorMessage,
+    );
     var footer = _Footer(
       pageProgressText: pageProgressText,
       theme: theme,
@@ -168,44 +166,46 @@ class _Battery extends ConsumerWidget {
 }
 
 class _Content extends StatelessWidget {
-  final ReaderContent content;
+  final String content;
   final schema.Theme theme;
+  final bool isLoading;
+  final String? errorMessage;
 
-  const _Content({required this.content, required this.theme});
+  const _Content({
+    required this.content,
+    required this.theme,
+    required this.isLoading,
+    this.errorMessage,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return switch (content.state) {
-      ReaderContentState.normal => _buildNormalContent(),
-      ReaderContentState.boundary => const SizedBox(),
-      ReaderContentState.loading => _buildLoadingContent(),
-      ReaderContentState.error => _buildErrorContent(),
-    };
-  }
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-  Widget _buildErrorContent() {
-    var textStyle = TextStyle(
-      color: theme.contentColor.toColor(),
-      fontSize: theme.contentFontSize,
-    );
-    var text = Text(
-      content.text.isEmpty ? '加载失败' : content.text,
-      style: textStyle,
-    );
-    return Center(child: text);
-  }
+    if (errorMessage != null) {
+      var textStyle = TextStyle(
+        color: theme.contentColor.toColor(),
+        fontSize: theme.contentFontSize,
+      );
+      var text = Text(
+        errorMessage!.isEmpty ? '加载失败' : errorMessage!,
+        style: textStyle,
+      );
+      return Center(child: text);
+    }
 
-  Widget _buildLoadingContent() {
-    return const Center(child: CircularProgressIndicator());
-  }
+    if (content.isEmpty) {
+      return const SizedBox();
+    }
 
-  Widget _buildNormalContent() {
     final merger = Merger(theme: theme);
     return Container(
       color: theme.backgroundColor.toColor(),
       padding: _getPadding(),
       width: double.infinity,
-      child: RichText(text: merger.merge(content.text)),
+      child: RichText(text: merger.merge(content)),
     );
   }
 

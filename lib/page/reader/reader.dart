@@ -281,7 +281,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
   }
 
   Widget _itemBuilder(int index) {
-    ReaderContent content;
+    String content;
     String headerText;
     String pageProgressText;
     String totalProgressText;
@@ -306,7 +306,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
         totalProgressText = _readerController!.nextTotalProgressText;
         break;
       default:
-        content = const ReaderContent.error("Invalid page index");
+        content = "Invalid page index";
         headerText = "Error";
         pageProgressText = "";
         totalProgressText = "";

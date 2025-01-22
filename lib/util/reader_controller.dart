@@ -10,35 +10,6 @@ import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/splitter.dart';
 
-class ReaderContent {
-  final ReaderContentState state;
-  final String text;
-
-  const ReaderContent({
-    this.state = ReaderContentState.normal,
-    required this.text,
-  });
-
-  const ReaderContent.boundary()
-      : state = ReaderContentState.boundary,
-        text = '';
-
-  const ReaderContent.error([String? message])
-      : state = ReaderContentState.error,
-        text = message ?? '';
-
-  const ReaderContent.loading()
-      : state = ReaderContentState.loading,
-        text = '';
-}
-
-enum ReaderContentState {
-  boundary, // 边界页面（第一页或最后一页）
-  error, // 错误状态
-  loading, // 加载中
-  normal, // 正常内容
-}
-
 class ReaderController extends ChangeNotifier {
   final Book book;
   void Function()? onReachFirstPage;
@@ -69,9 +40,8 @@ class ReaderController extends ChangeNotifier {
   String _previousTotalProgressText = '';
   String _nextTotalProgressText = '';
 
-  ReaderContent _currentPageContent = const ReaderContent.loading();
-  ReaderContent _previousPageContent = const ReaderContent.loading();
-  ReaderContent _nextPageContent = const ReaderContent.loading();
+  bool _isLoading = true;
+  String? _errorMessage;
   ReaderController(this.book, {required this.size, required this.theme});
 
   int get chapter => _chapter;
@@ -102,30 +72,21 @@ class ReaderController extends ChangeNotifier {
   void _updatePageContents() {
     try {
       // Update previous page content
-      if (isFirstPage) {
-        _previousPageContent = const ReaderContent.boundary();
-        _previousContent = '';
-      } else {
-        _previousContent = _getPreviousContentText();
-        _previousPageContent = ReaderContent(text: _previousContent);
-      }
+      _previousContent = isFirstPage ? '' : _getPreviousContentText();
 
       // Update current page content
       _currentContent = _getCurrentContentText();
-      _currentPageContent = ReaderContent(text: _currentContent);
 
       // Update next page content
-      if (isLastPage) {
-        _nextPageContent = const ReaderContent.boundary();
-        _nextContent = '';
-      } else {
-        _nextContent = _getNextContentText();
-        _nextPageContent = ReaderContent(text: _nextContent);
-      }
+      _nextContent = isLastPage ? '' : _getNextContentText();
+
+      _isLoading = false;
+      _errorMessage = null;
     } catch (error) {
-      _previousPageContent = ReaderContent.error(error.toString());
-      _currentPageContent = ReaderContent.error(error.toString());
-      _nextPageContent = ReaderContent.error(error.toString());
+      _errorMessage = error.toString();
+      _previousContent = '';
+      _currentContent = '';
+      _nextContent = '';
     }
   }
 
@@ -150,9 +111,9 @@ class ReaderController extends ChangeNotifier {
   String get nextTotalProgressText => _nextTotalProgressText;
 
   // Getters for page content
-  ReaderContent get currentPageContent => _currentPageContent;
-  ReaderContent get previousPageContent => _previousPageContent;
-  ReaderContent get nextPageContent => _nextPageContent;
+  String get currentPageContent => _currentContent;
+  String get previousPageContent => _previousContent;
+  String get nextPageContent => _nextContent;
 
   Future<void> init() async {
     _chapter = book.index;
