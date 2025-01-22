@@ -102,46 +102,51 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
 
   Widget _buildReaderView() {
     if (_readerController == null) return ReaderView.loading();
-    var screenSize = MediaQuery.sizeOf(context);
-    Widget bottom = SizedBox();
-    var conditionA = _coverAnimation.isForward;
-    var conditionB = _coverAnimation.dragDistance != 0;
-    var conditionC = _coverAnimation.isAnimating;
-    if (conditionA && (conditionB || conditionC)) {
-      bottom = _nextPage ?? _itemBuilder(2);
-    }
-    Widget current = _itemBuilder(1);
-    if (_coverAnimation.isForward) {
-      var sizedBox = SizedBox(
-        width: screenSize.width,
-        height: screenSize.height,
-        child: current,
-      );
-      current = SlideTransition(
-        position: _coverAnimation.slideAnimation!,
-        child: sizedBox,
-      );
-    }
-    Widget top = SizedBox();
-    var conditionD = !_readerController!.isFirstPage;
-    if (!conditionA && (conditionB || conditionC) && conditionD) {
-      var sizedBox = SizedBox(
-        width: screenSize.width,
-        height: screenSize.height,
-        child: _nextPage ?? _itemBuilder(0),
-      );
-      var slideTransition = SlideTransition(
-        position: _coverAnimation.slideAnimation!,
-        child: sizedBox,
-      );
-      top = Positioned(left: -screenSize.width, child: slideTransition);
-    }
-    return GestureDetector(
-      onTapUp: _handleTapUp,
-      onHorizontalDragStart: _handleDragStart,
-      onHorizontalDragUpdate: _handleDragUpdate,
-      onHorizontalDragEnd: _handleDragEnd,
-      child: Stack(children: [bottom, current, top]),
+    return ListenableBuilder(
+      listenable: _readerController!,
+      builder: (_, __) {
+        var screenSize = MediaQuery.sizeOf(context);
+        Widget bottom = SizedBox();
+        var conditionA = _coverAnimation.isForward;
+        var conditionB = _coverAnimation.dragDistance != 0;
+        var conditionC = _coverAnimation.isAnimating;
+        if (conditionA && (conditionB || conditionC)) {
+          bottom = _nextPage ?? _itemBuilder(2);
+        }
+        Widget current = _itemBuilder(1);
+        if (_coverAnimation.isForward) {
+          var sizedBox = SizedBox(
+            width: screenSize.width,
+            height: screenSize.height,
+            child: current,
+          );
+          current = SlideTransition(
+            position: _coverAnimation.slideAnimation!,
+            child: sizedBox,
+          );
+        }
+        Widget top = SizedBox();
+        var conditionD = !_readerController!.isFirstPage;
+        if (!conditionA && (conditionB || conditionC) && conditionD) {
+          var sizedBox = SizedBox(
+            width: screenSize.width,
+            height: screenSize.height,
+            child: _nextPage ?? _itemBuilder(0),
+          );
+          var slideTransition = SlideTransition(
+            position: _coverAnimation.slideAnimation!,
+            child: sizedBox,
+          );
+          top = Positioned(left: -screenSize.width, child: slideTransition);
+        }
+        return GestureDetector(
+          onTapUp: _handleTapUp,
+          onHorizontalDragStart: _handleDragStart,
+          onHorizontalDragUpdate: _handleDragUpdate,
+          onHorizontalDragEnd: _handleDragEnd,
+          child: Stack(children: [bottom, current, top]),
+        );
+      },
     );
   }
 
@@ -275,8 +280,8 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
         size: size,
         theme: theme,
       );
-      await _readerController?.init();
       setState(() {});
+      await _readerController?.init();
     });
   }
 
@@ -306,7 +311,6 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
         headerText = "Error";
         pageProgressText = "";
     }
-
     return ReaderView(
       content: content,
       headerText: headerText,
@@ -326,7 +330,6 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
       chapter: _readerController!.chapter,
       page: _readerController!.page,
     );
-    setState(() {});
   }
 
   void _prepareNextPage(bool isForward) {
@@ -342,7 +345,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
       chapter: _readerController!.chapter,
       page: _readerController!.page,
     );
-    setState(() {});
+    // setState(() {});
   }
 
   void _refreshShelf() {

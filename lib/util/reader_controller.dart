@@ -15,8 +15,8 @@ class ReaderController extends ChangeNotifier {
   final Size size;
   final Theme theme;
 
-  int _chapter = 0;
-  int _page = 0;
+  int _chapterIndex = 0;
+  int _pageIndex = 0;
 
   List<String> _currentChapterPages = [];
   List<String> _nextChapterPages = [];
@@ -36,34 +36,34 @@ class ReaderController extends ChangeNotifier {
 
   ReaderController(this.book, {required this.size, required this.theme});
 
-  int get chapter => _chapter;
-  bool get isFirstPage => _chapter == 0 && _page == 0;
+  int get chapter => _chapterIndex;
+  bool get isFirstPage => _chapterIndex == 0 && _pageIndex == 0;
 
   bool get isLastPage {
-    var lastChapter = _chapter == book.chapters.length - 1;
-    var lastPage = _page == _currentChapterPages.length - 1;
+    var lastChapter = _chapterIndex == book.chapters.length - 1;
+    var lastPage = _pageIndex == _currentChapterPages.length - 1;
     return lastChapter && lastPage;
   }
 
-  int get page => _page;
+  int get page => _pageIndex;
 
   Future<void> init() async {
-    _chapter = book.index;
-    _page = book.cursor;
+    _chapterIndex = book.index;
+    _pageIndex = book.cursor;
     List<Future<void>> futures = [];
-    var previousChapter = _chapter - 1;
+    var previousChapter = _chapterIndex - 1;
     if (previousChapter >= 0) {
       futures.add(_getPreviousChapterPages(previousChapter));
     }
-    futures.add(_getCurrentChapterPages(_chapter));
-    var nextChapter = _chapter + 1;
+    futures.add(_getCurrentChapterPages(_chapterIndex));
+    var nextChapter = _chapterIndex + 1;
     if (nextChapter < book.chapters.length) {
       futures.add(_getNextChapterPages(nextChapter));
     }
     await Future.wait(futures);
     if (_currentChapterPages.isNotEmpty &&
-        _page >= _currentChapterPages.length) {
-      _page = _currentChapterPages.length - 1;
+        _pageIndex >= _currentChapterPages.length) {
+      _pageIndex = _currentChapterPages.length - 1;
     }
     _updateContent();
     _updateHeader();
@@ -72,12 +72,12 @@ class ReaderController extends ChangeNotifier {
   }
 
   Future<void> nextChapter() async {
-    if (_chapter + 1 >= book.chapters.length) return;
-    _chapter++;
-    _page = 0;
+    if (_chapterIndex + 1 >= book.chapters.length) return;
+    _chapterIndex++;
+    _pageIndex = 0;
     _previousChapterPages = _currentChapterPages;
     _currentChapterPages = _nextChapterPages;
-    await _getNextChapterPages(_chapter + 1);
+    await _getNextChapterPages(_chapterIndex + 1);
     _updateContent();
     _updateHeader();
     _updateProgress();
@@ -86,11 +86,10 @@ class ReaderController extends ChangeNotifier {
 
   Future<void> nextPage() async {
     if (isLastPage) return notifyListeners();
-    if (_page >= _currentChapterPages.length - 1) {
-      await nextChapter();
-      return;
+    if (_pageIndex >= _currentChapterPages.length - 1) {
+      return await nextChapter();
     }
-    _page++;
+    _pageIndex++;
     _updateContent();
     _updateHeader();
     _updateProgress();
@@ -98,13 +97,13 @@ class ReaderController extends ChangeNotifier {
   }
 
   Future<void> previousChapter({int? page}) async {
-    if (_chapter <= 0) return notifyListeners();
-    _chapter--;
-    _page = page ?? _previousChapterPages.length - 1;
+    if (_chapterIndex <= 0) return notifyListeners();
+    _chapterIndex--;
+    _pageIndex = page ?? _previousChapterPages.length - 1;
     _nextChapterPages = _currentChapterPages;
     _currentChapterPages = _previousChapterPages;
-    if (_chapter > 0) {
-      await _getPreviousChapterPages(_chapter - 1);
+    if (_chapterIndex > 0) {
+      await _getPreviousChapterPages(_chapterIndex - 1);
     } else {
       _previousChapterPages = [];
     }
@@ -116,8 +115,8 @@ class ReaderController extends ChangeNotifier {
 
   Future<void> previousPage() async {
     if (isFirstPage) return notifyListeners();
-    if (_page <= 0) return previousChapter();
-    _page--;
+    if (_pageIndex <= 0) return previousChapter();
+    _pageIndex--;
     _updateContent();
     _updateHeader();
     _updateProgress();
@@ -126,10 +125,10 @@ class ReaderController extends ChangeNotifier {
 
   /// 强制刷新当前章节的内容
   Future<void> refresh() async {
-    await _getCurrentChapterPages(_chapter, reacquire: true);
+    await _getCurrentChapterPages(_chapterIndex, reacquire: true);
     if (_currentChapterPages.isNotEmpty &&
-        _page >= _currentChapterPages.length) {
-      _page = _currentChapterPages.length - 1;
+        _pageIndex >= _currentChapterPages.length) {
+      _pageIndex = _currentChapterPages.length - 1;
     }
     _updateContent();
     _updateHeader();
@@ -146,22 +145,22 @@ class ReaderController extends ChangeNotifier {
 
   String _getCurrentContentText() {
     if (_currentChapterPages.isEmpty) return '';
-    if (_page < 0 || _page >= _currentChapterPages.length) return '';
-    return _currentChapterPages.elementAt(_page);
+    if (_pageIndex < 0 || _pageIndex >= _currentChapterPages.length) return '';
+    return _currentChapterPages.elementAt(_pageIndex);
   }
 
   String _getCurrentHeaderText() {
-    if (_page != 0) return book.chapters.elementAt(_chapter).name;
+    if (_pageIndex != 0) return book.chapters.elementAt(_chapterIndex).name;
     return book.name;
   }
 
   String _getCurrentPageProgressText() {
-    var pageProgress = '${_page + 1}/${_currentChapterPages.length}';
+    var pageProgress = '${_pageIndex + 1}/${_currentChapterPages.length}';
     var chapters = book.chapters.length;
-    var chapterPercent = _chapter / chapters;
+    var chapterPercent = _chapterIndex / chapters;
     var pagePercent = _currentChapterPages.isEmpty
         ? 0
-        : (_page / _currentChapterPages.length);
+        : (_pageIndex / _currentChapterPages.length);
     var progress = (chapterPercent + pagePercent / chapters) * 100;
     var chapterProgress = '${progress.toStringAsFixed(2)}%';
     return '$pageProgress $chapterProgress';
@@ -173,16 +172,16 @@ class ReaderController extends ChangeNotifier {
 
   String _getNextContentText() {
     if (_currentChapterPages.isEmpty) return '';
-    if (_page + 1 >= _currentChapterPages.length) {
+    if (_pageIndex + 1 >= _currentChapterPages.length) {
       return _nextChapterPages.isEmpty ? '' : _nextChapterPages.first;
     }
-    return _currentChapterPages.elementAt(_page + 1);
+    return _currentChapterPages.elementAt(_pageIndex + 1);
   }
 
   String _getNextHeaderText() {
-    var chapter = book.chapters.elementAt(_chapter);
-    var isLastPage = _page + 1 >= _currentChapterPages.length;
-    var isLastChapter = _chapter + 1 >= book.chapters.length;
+    var chapter = book.chapters.elementAt(_chapterIndex);
+    var isLastPage = _pageIndex + 1 >= _currentChapterPages.length;
+    var isLastChapter = _chapterIndex + 1 >= book.chapters.length;
     if (isLastPage && isLastChapter) return chapter.name;
     if (isLastPage) return book.name;
     return chapter.name;
@@ -190,11 +189,11 @@ class ReaderController extends ChangeNotifier {
 
   String _getNextPageProgressText() {
     var pageProgress = '1/${_nextChapterPages.length}';
-    if (_page < _currentChapterPages.length - 1) {
-      pageProgress = '${_page + 2}/${_currentChapterPages.length}';
+    if (_pageIndex < _currentChapterPages.length - 1) {
+      pageProgress = '${_pageIndex + 2}/${_currentChapterPages.length}';
     }
     var chapters = book.chapters.length;
-    var chapterPercent = (_chapter + 1) / chapters;
+    var chapterPercent = (_chapterIndex + 1) / chapters;
     var progress = chapterPercent * 100;
     var chapterProgress = '${progress.toStringAsFixed(2)}%';
     return '$pageProgress $chapterProgress';
@@ -228,40 +227,41 @@ class ReaderController extends ChangeNotifier {
 
   String _getPreviousContentText() {
     if (_currentChapterPages.isEmpty) return '';
-    if (_page - 1 < 0) {
+    if (_pageIndex - 1 < 0) {
       return _previousChapterPages.isEmpty ? '' : _previousChapterPages.last;
     }
-    return _currentChapterPages.elementAt(_page - 1);
+    return _currentChapterPages.elementAt(_pageIndex - 1);
   }
 
   String _getPreviousHeaderText() {
-    var chapter = book.chapters.elementAt(_chapter);
-    if (_page > 1) return chapter.name;
-    if (_page == 1) return book.name;
-    if (_chapter <= 0) return chapter.name;
-    return book.chapters.elementAt(_chapter - 1).name;
+    var chapter = book.chapters.elementAt(_chapterIndex);
+    if (_pageIndex > 1) return chapter.name;
+    if (_pageIndex == 1) return book.name;
+    if (_chapterIndex <= 0) return chapter.name;
+    return book.chapters.elementAt(_chapterIndex - 1).name;
   }
 
   String _getPreviousPageProgressText() {
     try {
-      if (_page <= 0) {
+      if (_pageIndex <= 0) {
         // 如果是第一页，显示上一章的最后一页
         if (_previousChapterPages.isEmpty) return '0/0';
         return '${_previousChapterPages.length}/${_previousChapterPages.length}';
       }
       // 确保页码不会出现负数
-      var pageProgress = '${max(0, _page - 1)}/${_currentChapterPages.length}';
+      var pageProgress =
+          '${max(0, _pageIndex - 1)}/${_currentChapterPages.length}';
       var chapters = book.chapters.length;
-      var chapterPercent = _chapter / chapters;
+      var chapterPercent = _chapterIndex / chapters;
       // 如果是第一页，直接返回章节进度
-      if (_page <= 0) {
+      if (_pageIndex <= 0) {
         var progress = (chapterPercent * 100);
         return '${progress.toStringAsFixed(2)}%';
       }
       // 计算页面进度时确保不会出现负数
       var pagePercent = _currentChapterPages.isEmpty
           ? 0
-          : (max(0, _page - 1) / _currentChapterPages.length);
+          : (max(0, _pageIndex - 1) / _currentChapterPages.length);
       var progress = (chapterPercent + pagePercent / chapters) * 100;
       var chapterProgress = '${progress.toStringAsFixed(2)}%';
       return '$pageProgress $chapterProgress';
