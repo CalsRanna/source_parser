@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:source_parser/model/reader_state.dart';
 import 'package:source_parser/provider/book.dart';
@@ -59,7 +60,15 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
   }
 
   Future<void> _syncProgress(int chapter, int page) async {
-    final updatedBook = book.copyWith(index: chapter, cursor: page);
+    var updatedBook = book.copyWith(index: chapter, cursor: page);
+    var existed = await isar.books
+        .filter()
+        .authorEqualTo(book.author)
+        .nameEqualTo(book.name)
+        .findFirst();
+    if (existed != null) {
+      updatedBook = existed.copyWith(index: chapter, cursor: page);
+    }
     ref.read(bookNotifierProvider.notifier).update(updatedBook);
     isar.writeTxn(() async {
       isar.books.put(updatedBook);
