@@ -60,14 +60,14 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
   }
 
   Future<void> _syncProgress(int chapter, int page) async {
-    var updatedBook = book.copyWith(index: chapter, cursor: page);
-    var existed = await isar.books
-        .filter()
-        .authorEqualTo(book.author)
-        .nameEqualTo(book.name)
-        .findFirst();
+    var queryBuilder = isar.books.filter().authorEqualTo(book.author);
+    queryBuilder = queryBuilder.nameEqualTo(book.name);
+    var existed = await queryBuilder.findFirst();
+    Book updatedBook;
     if (existed != null) {
       updatedBook = existed.copyWith(index: chapter, cursor: page);
+    } else {
+      updatedBook = book.copyWith(index: chapter, cursor: page);
     }
     ref.read(bookNotifierProvider.notifier).update(updatedBook);
     isar.writeTxn(() async {
