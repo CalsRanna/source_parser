@@ -174,9 +174,11 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
     });
   }
 
-  void _forceRefresh() {
+  Future<void> _forceRefresh() async {
     _readerController?.refresh();
+    _readerController = null;
     setState(() {});
+    _initReaderController();
   }
 
   Future<void> _forward() async {
