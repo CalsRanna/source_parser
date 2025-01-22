@@ -202,11 +202,8 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
   }
 
   void _handleDragEnd(DragEndDetails details) {
-    var screenSize = MediaQuery.sizeOf(context);
-    final shouldTurnPage = _coverAnimation.handleDragEnd(
-      details,
-      screenSize.width,
-    );
+    var screenWidth = MediaQuery.sizeOf(context).width;
+    final shouldTurnPage = _coverAnimation.handleDragEnd(details, screenWidth);
     if (shouldTurnPage) {
       bool isForward = _coverAnimation.dragDistance < 0;
       if (isForward && !_readerController!.isLastPage) {

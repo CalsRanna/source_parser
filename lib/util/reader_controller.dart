@@ -85,7 +85,7 @@ class ReaderController extends ChangeNotifier {
   }
 
   Future<void> nextPage() async {
-    if (isLastPage) return notifyListeners();
+    if (isLastPage) return;
     if (_pageIndex >= _currentChapterPages.length - 1) {
       return await nextChapter();
     }
@@ -97,7 +97,7 @@ class ReaderController extends ChangeNotifier {
   }
 
   Future<void> previousChapter({int? page}) async {
-    if (_chapterIndex <= 0) return notifyListeners();
+    if (_chapterIndex <= 0) return;
     _chapterIndex--;
     _pageIndex = page ?? _previousChapterPages.length - 1;
     _nextChapterPages = _currentChapterPages;
@@ -114,7 +114,7 @@ class ReaderController extends ChangeNotifier {
   }
 
   Future<void> previousPage() async {
-    if (isFirstPage) return notifyListeners();
+    if (isFirstPage) return;
     if (_pageIndex <= 0) return previousChapter();
     _pageIndex--;
     _updateContent();
