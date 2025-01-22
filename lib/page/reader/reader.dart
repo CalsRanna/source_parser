@@ -8,6 +8,7 @@ import 'package:source_parser/page/reader/animation/cover_page.dart';
 import 'package:source_parser/page/reader/component/cache.dart';
 import 'package:source_parser/page/reader/component/overlay.dart';
 import 'package:source_parser/page/reader/component/view.dart';
+import 'package:source_parser/provider/battery.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/reader.dart';
@@ -151,6 +152,9 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
       chapter: _readerController!.chapter,
       page: _readerController!.page,
     );
+    var batteryProvider = batteryNotifierProvider;
+    var batteryNotifier = ref.read(batteryProvider.notifier);
+    batteryNotifier.updateBattery();
   }
 
   void _downloadChapters(int amount) async {
