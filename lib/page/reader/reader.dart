@@ -193,7 +193,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
       _coverAnimation.forward(screenSize.width);
     });
     await _animationController.forward();
-    _readerController!.nextPage();
+    await _readerController!.nextPage();
     _changePage();
     setState(() {
       _nextPage = null;
@@ -368,7 +368,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
       _coverAnimation.reverse(screenSize.width);
     });
     await _animationController.forward();
-    _readerController!.previousPage();
+    await _readerController!.previousPage();
     _changePage();
     setState(() {
       _nextPage = null;
