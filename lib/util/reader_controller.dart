@@ -36,16 +36,14 @@ class ReaderController extends ChangeNotifier {
 
   ReaderController(this.book, {required this.size, required this.theme});
 
-  int get chapter => _chapterIndex;
+  int get chapterIndex => _chapterIndex;
   bool get isFirstPage => _chapterIndex == 0 && _pageIndex == 0;
-
   bool get isLastPage {
     var lastChapter = _chapterIndex == book.chapters.length - 1;
     var lastPage = _pageIndex == _currentChapterPages.length - 1;
     return lastChapter && lastPage;
   }
-
-  int get page => _pageIndex;
+  int get pageIndex => _pageIndex;
 
   Future<void> init() async {
     _chapterIndex = book.index;
@@ -65,10 +63,7 @@ class ReaderController extends ChangeNotifier {
         _pageIndex >= _currentChapterPages.length) {
       _pageIndex = _currentChapterPages.length - 1;
     }
-    _updateContent();
-    _updateHeader();
-    _updateProgress();
-    notifyListeners();
+    _updateReaderControllerData();
   }
 
   Future<void> nextChapter() async {
@@ -78,10 +73,7 @@ class ReaderController extends ChangeNotifier {
     _previousChapterPages = _currentChapterPages;
     _currentChapterPages = _nextChapterPages;
     await _getNextChapterPages(_chapterIndex + 1);
-    _updateContent();
-    _updateHeader();
-    _updateProgress();
-    notifyListeners();
+    _updateReaderControllerData();
   }
 
   Future<void> nextPage() async {
@@ -90,10 +82,7 @@ class ReaderController extends ChangeNotifier {
       return await nextChapter();
     }
     _pageIndex++;
-    _updateContent();
-    _updateHeader();
-    _updateProgress();
-    notifyListeners();
+    _updateReaderControllerData();
   }
 
   Future<void> previousChapter({int? page}) async {
@@ -107,23 +96,16 @@ class ReaderController extends ChangeNotifier {
     } else {
       _previousChapterPages = [];
     }
-    _updateContent();
-    _updateHeader();
-    _updateProgress();
-    notifyListeners();
+    _updateReaderControllerData();
   }
 
   Future<void> previousPage() async {
     if (isFirstPage) return;
     if (_pageIndex <= 0) return previousChapter();
     _pageIndex--;
-    _updateContent();
-    _updateHeader();
-    _updateProgress();
-    notifyListeners();
+    _updateReaderControllerData();
   }
 
-  /// 强制刷新当前章节的内容
   Future<void> refresh() async {
     var currentChapter = _chapterIndex;
     var currentPage = _pageIndex;
@@ -134,10 +116,7 @@ class ReaderController extends ChangeNotifier {
     }
     _chapterIndex = currentChapter;
     _pageIndex = currentPage;
-    _updateContent();
-    _updateHeader();
-    _updateProgress();
-    notifyListeners();
+    _updateReaderControllerData();
   }
 
   Future<void> _getCurrentChapterPages(
@@ -317,5 +296,12 @@ class ReaderController extends ChangeNotifier {
       nextProgress = '';
       previousProgress = '';
     }
+  }
+
+  void _updateReaderControllerData() {
+    _updateContent();
+    _updateHeader();
+    _updateProgress();
+    notifyListeners();
   }
 }

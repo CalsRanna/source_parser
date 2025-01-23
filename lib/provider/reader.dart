@@ -54,9 +54,9 @@ class ReaderStateNotifier extends _$ReaderStateNotifier {
       ..page = book.cursor;
   }
 
-  void syncState({required int chapter, required int page}) {
-    state = state.copyWith(chapter: chapter, page: page);
-    _syncProgress(chapter, page);
+  void syncState({required int chapterIndex, required int pageIndex}) {
+    state = state.copyWith(chapter: chapterIndex, page: pageIndex);
+    _syncProgress(chapterIndex, pageIndex);
   }
 
   Future<void> _syncProgress(int chapter, int page) async {

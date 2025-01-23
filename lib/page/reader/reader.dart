@@ -155,8 +155,8 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
     var provider = readerStateNotifierProvider(widget.book);
     var notifier = ref.read(provider.notifier);
     notifier.syncState(
-      chapter: _readerController!.chapter,
-      page: _readerController!.page,
+      chapterIndex: _readerController!.chapterIndex,
+      pageIndex: _readerController!.pageIndex,
     );
     var batteryProvider = batteryNotifierProvider;
     var batteryNotifier = ref.read(batteryProvider.notifier);
@@ -320,7 +320,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
   }
 
   void _navigateCatalogue() {
-    CatalogueRoute(index: _readerController!.chapter).push(context);
+    CatalogueRoute(index: _readerController!.chapterIndex).push(context);
   }
 
   void _nextChapter() {
@@ -328,8 +328,8 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
     var provider = readerStateNotifierProvider(widget.book);
     var notifier = ref.read(provider.notifier);
     notifier.syncState(
-      chapter: _readerController!.chapter,
-      page: _readerController!.page,
+      chapterIndex: _readerController!.chapterIndex,
+      pageIndex: _readerController!.pageIndex,
     );
   }
 
@@ -343,8 +343,8 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
     var provider = readerStateNotifierProvider(widget.book);
     var notifier = ref.read(provider.notifier);
     notifier.syncState(
-      chapter: _readerController!.chapter,
-      page: _readerController!.page,
+      chapterIndex: _readerController!.chapterIndex,
+      pageIndex: _readerController!.pageIndex,
     );
   }
 
