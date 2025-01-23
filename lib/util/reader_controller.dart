@@ -125,11 +125,15 @@ class ReaderController extends ChangeNotifier {
 
   /// 强制刷新当前章节的内容
   Future<void> refresh() async {
+    var currentChapter = _chapterIndex;
+    var currentPage = _pageIndex;
     await _getCurrentChapterPages(_chapterIndex, reacquire: true);
     if (_currentChapterPages.isNotEmpty &&
-        _pageIndex >= _currentChapterPages.length) {
-      _pageIndex = _currentChapterPages.length - 1;
+        currentPage >= _currentChapterPages.length) {
+      currentPage = _currentChapterPages.length - 1;
     }
+    _chapterIndex = currentChapter;
+    _pageIndex = currentPage;
     _updateContent();
     _updateHeader();
     _updateProgress();

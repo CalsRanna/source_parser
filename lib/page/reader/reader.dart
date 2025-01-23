@@ -33,6 +33,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
     with SingleTickerProviderStateMixin {
   bool _showCacheIndicator = false;
   bool _showOverlay = false;
+  bool _isRefreshing = false;
   ReaderController? _readerController;
 
   late AnimationController _animationController;
@@ -101,7 +102,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
   }
 
   Widget _buildReaderView() {
-    if (_readerController == null) return ReaderView.loading();
+    if (_readerController == null || _isRefreshing) return ReaderView.loading();
     return ListenableBuilder(
       listenable: _readerController!,
       builder: (_, __) {
@@ -180,10 +181,13 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
   }
 
   Future<void> _forceRefresh() async {
-    _readerController?.refresh();
-    _readerController = null;
-    setState(() {});
-    _initReaderController();
+    setState(() {
+      _isRefreshing = true;
+    });
+    await _readerController?.refresh();
+    setState(() {
+      _isRefreshing = false;
+    });
   }
 
   Future<void> _forward() async {
