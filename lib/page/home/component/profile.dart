@@ -52,6 +52,11 @@ class ProfileView extends StatelessWidget {
       onTap: () => navigateColor(context),
       title: 'color'.toUpperCase(),
     );
+    var fileManager = _SettingTile(
+      icon: HugeIcons.strokeRoundedFolderFileStorage,
+      onTap: () => handleTap(context, const FileManagerRoute()),
+      title: 'File Manager',
+    );
     var listView = ListView(
       children: [
         source,
@@ -61,6 +66,7 @@ class ProfileView extends StatelessWidget {
         setting,
         about,
         if (kDebugMode) color,
+        if (kDebugMode) fileManager,
       ],
     );
     return Scaffold(appBar: appBar, body: listView);

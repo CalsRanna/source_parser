@@ -6,7 +6,7 @@ part of 'cache.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$cacheSizeHash() => r'518548de6f69af78a649f4ec1ee461a7fbfe50e9';
+String _$cacheSizeHash() => r'88320d26528959a6afa40b011093fbee5980ba3c';
 
 /// See also [CacheSize].
 @ProviderFor(CacheSize)
