@@ -22,6 +22,7 @@ class CacheSize extends _$CacheSize {
   Future<bool> clear() async {
     final cleared = await CacheManager().clearCache();
     ref.invalidateSelf();
+    await future;
     return cleared;
   }
 

@@ -138,8 +138,11 @@ class CacheManager {
 
   Future<bool> clearCache() async {
     try {
-      final directory = await _generateDirectory();
-      await directory.delete(recursive: true);
+      final directory = await getApplicationCacheDirectory();
+      final files = directory.listSync();
+      for (var file in files) {
+        await file.delete(recursive: true);
+      }
       return true;
     } catch (error) {
       return false;
@@ -147,9 +150,9 @@ class CacheManager {
   }
 
   Future<int> getCacheSize() async {
-    final directory = await _generateDirectory();
+    final directory = await getApplicationCacheDirectory();
     final files = directory.listSync(recursive: true);
-    List<int> sizes = [];
+    List<int> sizes = [0];
     for (var file in files) {
       final stat = await file.stat();
       sizes.add(stat.size);
@@ -157,14 +160,14 @@ class CacheManager {
     return sizes.reduce((value, size) => value + size);
   }
 
-  Future<Directory> _generateDirectory() async {
-    temporaryDirectory ??= await getTemporaryDirectory();
-    String directoryPath;
-    if (prefix != null) {
-      directoryPath = path.join(temporaryDirectory!.path, identifier, prefix);
-    } else {
-      directoryPath = path.join(temporaryDirectory!.path, identifier);
-    }
-    return Directory(directoryPath);
-  }
+  // Future<Directory> _generateDirectory() async {
+  //   temporaryDirectory ??= await getTemporaryDirectory();
+  //   String directoryPath;
+  //   if (prefix != null) {
+  //     directoryPath = path.join(temporaryDirectory!.path, identifier, prefix);
+  //   } else {
+  //     directoryPath = path.join(temporaryDirectory!.path, identifier);
+  //   }
+  //   return Directory(directoryPath);
+  // }
 }
