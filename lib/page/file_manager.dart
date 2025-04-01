@@ -136,6 +136,8 @@ class _FileManagerPageState extends ConsumerState<FileManagerPage> {
     setState(() {
       directory = null;
     });
+    var provider = filesProvider(directory);
+    ref.invalidate(provider);
     Navigator.pop(context);
   }
 
