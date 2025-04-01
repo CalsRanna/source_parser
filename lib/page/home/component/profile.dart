@@ -37,6 +37,11 @@ class ProfileView extends StatelessWidget {
       onTap: () => handleTap(context, const LocalServerRoute()),
       title: '本地服务器',
     );
+    var fileManager = _SettingTile(
+      icon: HugeIcons.strokeRoundedFolderFileStorage,
+      onTap: () => handleTap(context, const FileManagerRoute()),
+      title: '文件管理',
+    );
     var setting = _SettingTile(
       icon: HugeIcons.strokeRoundedSettings01,
       onTap: () => handleTap(context, const SettingRoute()),
@@ -52,21 +57,16 @@ class ProfileView extends StatelessWidget {
       onTap: () => navigateColor(context),
       title: 'color'.toUpperCase(),
     );
-    var fileManager = _SettingTile(
-      icon: HugeIcons.strokeRoundedFolderFileStorage,
-      onTap: () => handleTap(context, const FileManagerRoute()),
-      title: 'File Manager',
-    );
     var listView = ListView(
       children: [
         source,
         theme,
         layout,
         server,
+        fileManager,
         setting,
         about,
         if (kDebugMode) color,
-        if (kDebugMode) fileManager,
       ],
     );
     return Scaffold(appBar: appBar, body: listView);

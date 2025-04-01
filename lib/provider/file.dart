@@ -12,7 +12,9 @@ class Files extends _$Files {
     if (directory == null) {
       var cacheDirectory = await path_provider.getApplicationCacheDirectory();
       var tmpPath = cacheDirectory.parent.parent.path;
-      return [Directory(tmpPath)];
+      var tmpDirectory = Directory(tmpPath);
+      var files = tmpDirectory.listSync();
+      return files.whereType<Directory>().toList();
     } else {
       var a = Directory(directory);
       return a.listSync();
