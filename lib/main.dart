@@ -5,6 +5,7 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.dart';
+import 'package:source_parser/schema/available_source.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/layout.dart';
@@ -19,6 +20,7 @@ void main() async {
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   final directory = await getApplicationDocumentsDirectory();
   isar = await Isar.open([
+    AvailableSourceSchema,
     BookSchema,
     LayoutSchema,
     SettingSchema,

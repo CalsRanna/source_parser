@@ -10,6 +10,7 @@ import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/router/router.gr.dart';
+import 'package:source_parser/schema/available_source.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/util/message.dart';
@@ -141,7 +142,8 @@ class _BookInformationState extends ConsumerState<InformationPage> {
                 const SizedBox(height: 8),
                 _Source(
                   currentSource: source?.name,
-                  sources: book.sources,
+                  // sources: book.sources,
+                  sources: [],
                 ),
                 const SizedBox(height: 8),
                 const _Archive(),

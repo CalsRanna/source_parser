@@ -22,12 +22,13 @@ class Book {
   @Name('source_id')
   int sourceId = 0;
   @Name('sources')
-  List<AvailableSource> sources = [];
   String status = '';
   @Name('updated_at')
   String updatedAt = '';
   String url = '';
   String words = '';
+  @Name('available_source_id')
+  int availableSourceId = 0;
 
   Book();
 
@@ -36,12 +37,6 @@ class Book {
     if (json['chapters'] is List) {
       chapters = (json['chapters'] as List).map((chapter) {
         return Chapter.fromJson(chapter);
-      }).toList();
-    }
-    List<AvailableSource> sources = [];
-    if (json['sources'] is List) {
-      sources = (json['sources'] as List).map((source) {
-        return AvailableSource.fromJson(source);
       }).toList();
     }
     return Book()
@@ -58,11 +53,11 @@ class Book {
       ..latestChapter = json['latest_chapter'] ?? ''
       ..name = json['name'] ?? ''
       ..sourceId = json['source_id'] as int
-      ..sources = sources
       ..status = json['status'] ?? ''
       ..updatedAt = json['updated_at'] ?? ''
       ..url = json['url'] ?? ''
-      ..words = json['words'] ?? '';
+      ..words = json['words'] ?? ''
+      ..availableSourceId = json['available_source_id'] ?? 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -81,11 +76,11 @@ class Book {
       'latest_chapter': latestChapter,
       'name': name,
       'source_id': sourceId,
-      'sources': sources.map((source) => source.toJson()).toList(),
       'status': status,
       'updated_at': updatedAt,
       'url': url,
       'words': words,
+      'available_source_id': availableSourceId
     };
   }
 
@@ -104,11 +99,11 @@ class Book {
     String? latestChapter,
     String? name,
     int? sourceId,
-    List<AvailableSource>? sources,
     String? status,
     String? updatedAt,
     String? url,
     String? words,
+    int? availableSourceId,
   }) {
     return Book()
       ..id = id ?? this.id
@@ -125,11 +120,11 @@ class Book {
       ..latestChapter = latestChapter ?? this.latestChapter
       ..name = name ?? this.name
       ..sourceId = sourceId ?? this.sourceId
-      ..sources = sources ?? this.sources
       ..status = status ?? this.status
       ..updatedAt = updatedAt ?? this.updatedAt
       ..url = url ?? this.url
-      ..words = words ?? this.words;
+      ..words = words ?? this.words
+      ..availableSourceId = availableSourceId ?? this.availableSourceId;
   }
 
   @override
@@ -154,53 +149,6 @@ class Chapter {
 
   Map<String, dynamic> toJson() {
     return {'name': name, 'url': url};
-  }
-
-  @override
-  String toString() {
-    return toJson().toString();
-  }
-}
-
-@embedded
-@Name('available_sources')
-class AvailableSource {
-  int id = 0;
-  @Name('latest_chapter')
-  String latestChapter = '';
-  String name = '';
-  String url = '';
-
-  AvailableSource();
-
-  factory AvailableSource.fromJson(Map<String, dynamic> json) {
-    return AvailableSource()
-      ..id = json['id'] ?? 0
-      ..latestChapter = json['latest_chapter'] ?? ''
-      ..name = json['name'] ?? ''
-      ..url = json['url'] ?? '';
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'latest_chapter': latestChapter,
-      'name': name,
-      'url': url
-    };
-  }
-
-  AvailableSource copyWith({
-    int? id,
-    String? latestChapter,
-    String? name,
-    String? url,
-  }) {
-    return AvailableSource()
-      ..id = id ?? this.id
-      ..latestChapter = latestChapter ?? this.latestChapter
-      ..name = name ?? this.name
-      ..url = url ?? this.url;
   }
 
   @override

@@ -6,7 +6,7 @@ part of 'book.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$bookCoversHash() => r'339ca83d9891d050f1d982aaf21f9991dffd70a0';
+String _$bookCoversHash() => r'f732613fe6d55229e04b2ded6e0a9ae736d7b4d5';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -173,7 +173,7 @@ class _BookCoversProviderElement
   Book get book => (origin as BookCoversProvider).book;
 }
 
-String _$bookNotifierHash() => r'cad02d1c60a33ed9dd265162d564232bc2ecc235';
+String _$bookNotifierHash() => r'ced500c143978acec7fd568fba5a556260ca0b6e';
 
 /// See also [BookNotifier].
 @ProviderFor(BookNotifier)
@@ -187,7 +187,7 @@ final bookNotifierProvider = NotifierProvider<BookNotifier, Book>.internal(
 );
 
 typedef _$BookNotifier = Notifier<Book>;
-String _$booksHash() => r'a4feafdb5c4b4c84a57e682c13c71b68d37bf132';
+String _$booksHash() => r'b603d210c5dbff47fe8d66e7eff780c7136e08e6';
 
 /// See also [Books].
 @ProviderFor(Books)
@@ -345,7 +345,7 @@ class _InShelfProviderElement
   Book get book => (origin as InShelfProvider).book;
 }
 
-String _$searchBooksHash() => r'6405775410dbd921475bef9c94d75b6859141d21';
+String _$searchBooksHash() => r'8c2a090e58962311552a7a63943d9d7a14bfd560';
 
 abstract class _$SearchBooks extends BuildlessAutoDisposeNotifier<List<Book>> {
   late final String credential;

@@ -3,23 +3,30 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:source_parser/page/available_source/component/option_bottom_sheet.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
+import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/message.dart';
+import 'package:source_parser/view_model/available_source_view_model.dart';
 import 'package:source_parser/widget/loading.dart';
 
 @RoutePage()
 class AvailableSourceListPage extends ConsumerWidget {
-  const AvailableSourceListPage({super.key});
+  final Book book;
+  const AvailableSourceListPage({super.key, required this.book});
+
+   GetIt.instance.registerSingleton<AvailableSourceViewModel>(AvailableSourceViewModel(book: book));
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var book = ref.watch(bookNotifierProvider);
     var listView = ListView.builder(
       itemBuilder: (context, index) => _itemBuilder(context, ref, book, index),
-      itemCount: book.sources.length,
+      // itemCount: book.sources.length,
+      itemCount: 0,
       itemExtent: 72,
     );
     var body = EasyRefresh(
@@ -34,6 +41,18 @@ class AvailableSourceListPage extends ConsumerWidget {
       appBar: AppBar(actions: [button], title: const Text('可用书源')),
       body: body,
     );
+  }
+
+  Future<void> handleRefresh(BuildContext context, WidgetRef ref) async {
+    try {
+      var provider = bookNotifierProvider;
+      final notifier = ref.read(provider.notifier);
+      await notifier.refreshSources();
+    } catch (error) {
+      if (!context.mounted) return;
+      final message = Message.of(context);
+      message.show(error.toString());
+    }
   }
 
   Future<void> navigateAvailableSourceForm(
@@ -62,16 +81,8 @@ class AvailableSourceListPage extends ConsumerWidget {
     }
   }
 
-  Future<void> handleRefresh(BuildContext context, WidgetRef ref) async {
-    try {
-      var provider = bookNotifierProvider;
-      final notifier = ref.read(provider.notifier);
-      await notifier.refreshSources();
-    } catch (error) {
-      if (!context.mounted) return;
-      final message = Message.of(context);
-      message.show(error.toString());
-    }
+  void openBottomSheet() {
+    DialogUtil.openBottomSheet(AvailableSourceOptionBottomSheet());
   }
 
   void switchSource(BuildContext context, WidgetRef ref, int index) async {
@@ -122,10 +133,11 @@ class AvailableSourceListPage extends ConsumerWidget {
   ) {
     final active = book.sources[index].id == book.sourceId;
     return ListTile(
+      onLongPress: openBottomSheet,
+      onTap: () => switchSource(context, ref, index),
       subtitle: _buildSubtitle(context, book, index),
       title: _buildTitle(context, book, index),
       trailing: active ? const Icon(HugeIcons.strokeRoundedTick02) : null,
-      onTap: () => switchSource(context, ref, index),
     );
   }
 }

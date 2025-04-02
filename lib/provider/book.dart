@@ -6,6 +6,7 @@ import 'package:lpinyin/lpinyin.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/schema/available_source.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -24,22 +25,22 @@ class BookCovers extends _$BookCovers {
     final duration = setting.cacheDuration;
     final timeout = setting.timeout;
     List<String> covers = [];
-    for (var availableSource in book.sources) {
-      final source =
-          await isar.sources.filter().idEqualTo(availableSource.id).findFirst();
-      if (source == null) continue;
-      final information = await Parser.getInformation(
-        book.name,
-        availableSource.url,
-        source,
-        Duration(hours: duration.floor()),
-        Duration(milliseconds: timeout),
-      );
-      final cover = information.cover;
-      if (cover.isNotEmpty) {
-        covers.add(cover);
-      }
-    }
+    // for (var availableSource in book.sources) {
+    //   final source =
+    //       await isar.sources.filter().idEqualTo(availableSource.id).findFirst();
+    //   if (source == null) continue;
+    //   final information = await Parser.getInformation(
+    //     book.name,
+    //     availableSource.url,
+    //     source,
+    //     Duration(hours: duration.floor()),
+    //     Duration(milliseconds: timeout),
+    //   );
+    //   final cover = information.cover;
+    //   if (cover.isNotEmpty) {
+    //     covers.add(cover);
+    //   }
+    // }
     final inShelf = await ref.read(inShelfProvider(book).future);
     if (inShelf) {
       var updatedBook = book.copyWith(covers: covers);
@@ -55,34 +56,34 @@ class BookCovers extends _$BookCovers {
 class BookNotifier extends _$BookNotifier {
   Future<String> addSource(String url) async {
     if (url.isEmpty) return '网址不能为空';
-    var availableSources = state.sources;
-    if (availableSources.any((source) => source.url == url)) return '网址已存在';
-    logger.d(url);
-    var host = Uri.parse(url).host;
-    logger.d(host);
-    final builder = isar.sources.filter();
-    final source = await builder.urlContains(host).findFirst();
-    if (source == null) return '未找到该网址对应的书源';
-    final setting = await ref.read(settingNotifierProvider.future);
-    final duration = setting.cacheDuration;
-    final timeout = setting.timeout;
-    var latestChapter = await Parser.getLatestChapter(
-      state.name,
-      url,
-      source,
-      Duration(hours: duration.floor()),
-      Duration(milliseconds: timeout),
-    );
-    var availableSource = AvailableSource()
-      ..id = source.id
-      ..latestChapter = latestChapter
-      ..name = source.name
-      ..url = url;
-    state = state.copyWith(sources: [...availableSources, availableSource]);
-    await isar.writeTxn(() async {
-      await isar.books.put(state);
-    });
-    ref.invalidate(booksProvider);
+    // var availableSources = state.sources;
+    // if (availableSources.any((source) => source.url == url)) return '网址已存在';
+    // logger.d(url);
+    // var host = Uri.parse(url).host;
+    // logger.d(host);
+    // final builder = isar.sources.filter();
+    // final source = await builder.urlContains(host).findFirst();
+    // if (source == null) return '未找到该网址对应的书源';
+    // final setting = await ref.read(settingNotifierProvider.future);
+    // final duration = setting.cacheDuration;
+    // final timeout = setting.timeout;
+    // var latestChapter = await Parser.getLatestChapter(
+    //   state.name,
+    //   url,
+    //   source,
+    //   Duration(hours: duration.floor()),
+    //   Duration(milliseconds: timeout),
+    // );
+    // var availableSource = AvailableSource()
+    //   ..id = source.id
+    //   ..latestChapter = latestChapter
+    //   ..name = source.name
+    //   ..url = url;
+    // state = state.copyWith(sources: [...availableSources, availableSource]);
+    // await isar.writeTxn(() async {
+    //   await isar.books.put(state);
+    // });
+    // ref.invalidate(booksProvider);
     return '添加成功';
   }
 
@@ -119,22 +120,22 @@ class BookNotifier extends _$BookNotifier {
     final duration = setting.cacheDuration;
     final timeout = setting.timeout;
     List<String> covers = [];
-    for (var availableSource in state.sources) {
-      final source =
-          await isar.sources.filter().idEqualTo(availableSource.id).findFirst();
-      if (source == null) continue;
-      final information = await Parser.getInformation(
-        state.name,
-        availableSource.url,
-        source,
-        Duration(hours: duration.floor()),
-        Duration(milliseconds: timeout),
-      );
-      final cover = information.cover;
-      if (cover.isNotEmpty) {
-        covers.add(cover);
-      }
-    }
+    // for (var availableSource in state.sources) {
+    //   final source =
+    //       await isar.sources.filter().idEqualTo(availableSource.id).findFirst();
+    //   if (source == null) continue;
+    //   final information = await Parser.getInformation(
+    //     state.name,
+    //     availableSource.url,
+    //     source,
+    //     Duration(hours: duration.floor()),
+    //     Duration(milliseconds: timeout),
+    //   );
+    //   final cover = information.cover;
+    //   if (cover.isNotEmpty) {
+    //     covers.add(cover);
+    //   }
+    // }
     return covers;
   }
 
@@ -256,132 +257,133 @@ class BookNotifier extends _$BookNotifier {
   }
 
   Future<String> refreshSource(int index) async {
-    final builder = isar.sources.filter();
-    final source = await builder.idEqualTo(state.sources[index].id).findFirst();
-    if (source == null) return '书源不存在';
-    if (source.id == state.sourceId) return '已在当前源';
-    try {
-      final name = state.name;
-      final url = state.sources[index].url;
-      final setting = await ref.read(settingNotifierProvider.future);
-      final duration = setting.cacheDuration;
-      final timeout = setting.timeout;
-      final information = await Parser.getInformation(
-        name,
-        url,
-        source,
-        Duration(hours: duration.floor()),
-        Duration(milliseconds: timeout),
-      );
-      final catalogueUrl = information.catalogueUrl;
-      var stream = await Parser.getChapters(
-        name,
-        catalogueUrl,
-        source,
-        Duration(hours: duration.floor()),
-        Duration(milliseconds: timeout),
-      );
-      stream = stream.asBroadcastStream();
-      List<Chapter> chapters = [];
-      stream.listen(
-        (chapter) {
-          chapters.add(chapter);
-        },
-      );
-      await stream.last;
-      final length = chapters.length;
-      var chapterIndex = state.index;
-      var cursor = state.cursor;
-      if (length <= chapterIndex) {
-        chapterIndex = length - 1;
-        cursor = 0;
-      }
-      state = state.copyWith(
-        catalogueUrl: catalogueUrl,
-        chapters: chapters,
-        cursor: cursor,
-        index: chapterIndex,
-        sourceId: state.sources[index].id,
-        url: url,
-      );
-      final inShelf = await ref.read(inShelfProvider(state).future);
-      if (inShelf) {
-        await isar.writeTxn(() async {
-          isar.books.put(state);
-        });
-      }
-      return '切换成功';
-    } catch (error) {
-      return '切换失败:$error';
-    }
+    return '';
+    // final builder = isar.sources.filter();
+    // final source = await builder.idEqualTo(state.sources[index].id).findFirst();
+    // if (source == null) return '书源不存在';
+    // if (source.id == state.sourceId) return '已在当前源';
+    // try {
+    //   final name = state.name;
+    //   final url = state.sources[index].url;
+    //   final setting = await ref.read(settingNotifierProvider.future);
+    //   final duration = setting.cacheDuration;
+    //   final timeout = setting.timeout;
+    //   final information = await Parser.getInformation(
+    //     name,
+    //     url,
+    //     source,
+    //     Duration(hours: duration.floor()),
+    //     Duration(milliseconds: timeout),
+    //   );
+    //   final catalogueUrl = information.catalogueUrl;
+    //   var stream = await Parser.getChapters(
+    //     name,
+    //     catalogueUrl,
+    //     source,
+    //     Duration(hours: duration.floor()),
+    //     Duration(milliseconds: timeout),
+    //   );
+    //   stream = stream.asBroadcastStream();
+    //   List<Chapter> chapters = [];
+    //   stream.listen(
+    //     (chapter) {
+    //       chapters.add(chapter);
+    //     },
+    //   );
+    //   await stream.last;
+    //   final length = chapters.length;
+    //   var chapterIndex = state.index;
+    //   var cursor = state.cursor;
+    //   if (length <= chapterIndex) {
+    //     chapterIndex = length - 1;
+    //     cursor = 0;
+    //   }
+    //   state = state.copyWith(
+    //     catalogueUrl: catalogueUrl,
+    //     chapters: chapters,
+    //     cursor: cursor,
+    //     index: chapterIndex,
+    //     sourceId: state.sources[index].id,
+    //     url: url,
+    //   );
+    //   final inShelf = await ref.read(inShelfProvider(state).future);
+    //   if (inShelf) {
+    //     await isar.writeTxn(() async {
+    //       isar.books.put(state);
+    //     });
+    //   }
+    //   return '切换成功';
+    // } catch (error) {
+    //   return '切换失败:$error';
+    // }
   }
 
   Future<void> refreshSources() async {
-    final setting = await ref.read(settingNotifierProvider.future);
-    final duration = setting.cacheDuration;
-    final maxConcurrent = setting.maxConcurrent;
-    final timeout = setting.timeout;
-    List<AvailableSource> sources = [...state.sources];
-    var stream = Parser.search(
-      state.name,
-      maxConcurrent.floor(),
-      Duration(hours: duration.floor()),
-      Duration(milliseconds: timeout),
-    );
-    stream = stream.asBroadcastStream();
-    stream.listen((book) async {
-      var builder = isar.sources.filter();
-      var source = await builder.idEqualTo(book.sourceId).findFirst();
-      if (source == null) return;
-      final sameAuthor = book.author == state.author;
-      final sameName = book.name == state.name;
-      if (sameAuthor && sameName) {
-        if (book.latestChapter.isEmpty) {
-          book.latestChapter = await Parser.getLatestChapter(
-            book.name,
-            book.url,
-            source,
-            Duration(hours: duration.floor()),
-            Duration(milliseconds: timeout),
-          );
-        }
-        final sameSource = sources.where((source) {
-          return source.id == book.sourceId;
-        }).firstOrNull;
-        if (sameSource == null) {
-          final builder = isar.sources.filter();
-          var source = await builder.idEqualTo(book.sourceId).findFirst();
-          if (source != null) {
-            var availableSource = AvailableSource();
-            availableSource.id = source.id;
-            availableSource.latestChapter = book.latestChapter;
-            availableSource.name = source.name;
-            availableSource.url = book.url;
-            sources.add(availableSource);
-          }
-        } else {
-          final builder = isar.sources.filter();
-          var source = await builder.idEqualTo(book.sourceId).findFirst();
-          sameSource.name = source?.name ?? '';
-          sameSource.latestChapter = book.latestChapter;
-        }
-      }
-    });
-    await stream.last;
-    state = state.copyWith(sources: sources);
-    final inShelf = await ref.read(inShelfProvider(state).future);
-    if (inShelf) {
-      await isar.writeTxn(() async {
-        isar.books.put(state);
-      });
-    }
+    // final setting = await ref.read(settingNotifierProvider.future);
+    // final duration = setting.cacheDuration;
+    // final maxConcurrent = setting.maxConcurrent;
+    // final timeout = setting.timeout;
+    // List<AvailableSource> sources = [...state.sources];
+    // var stream = Parser.search(
+    //   state.name,
+    //   maxConcurrent.floor(),
+    //   Duration(hours: duration.floor()),
+    //   Duration(milliseconds: timeout),
+    // );
+    // stream = stream.asBroadcastStream();
+    // stream.listen((book) async {
+    //   var builder = isar.sources.filter();
+    //   var source = await builder.idEqualTo(book.sourceId).findFirst();
+    //   if (source == null) return;
+    //   final sameAuthor = book.author == state.author;
+    //   final sameName = book.name == state.name;
+    //   if (sameAuthor && sameName) {
+    //     if (book.latestChapter.isEmpty) {
+    //       book.latestChapter = await Parser.getLatestChapter(
+    //         book.name,
+    //         book.url,
+    //         source,
+    //         Duration(hours: duration.floor()),
+    //         Duration(milliseconds: timeout),
+    //       );
+    //     }
+    //     final sameSource = sources.where((source) {
+    //       return source.id == book.sourceId;
+    //     }).firstOrNull;
+    //     if (sameSource == null) {
+    //       final builder = isar.sources.filter();
+    //       var source = await builder.idEqualTo(book.sourceId).findFirst();
+    //       if (source != null) {
+    //         var availableSource = AvailableSource();
+    //         availableSource.id = source.id;
+    //         availableSource.latestChapter = book.latestChapter;
+    //         availableSource.name = source.name;
+    //         availableSource.url = book.url;
+    //         sources.add(availableSource);
+    //       }
+    //     } else {
+    //       final builder = isar.sources.filter();
+    //       var source = await builder.idEqualTo(book.sourceId).findFirst();
+    //       sameSource.name = source?.name ?? '';
+    //       sameSource.latestChapter = book.latestChapter;
+    //     }
+    //   }
+    // });
+    // await stream.last;
+    // state = state.copyWith(sources: sources);
+    // final inShelf = await ref.read(inShelfProvider(state).future);
+    // if (inShelf) {
+    //   await isar.writeTxn(() async {
+    //     isar.books.put(state);
+    //   });
+    // }
   }
 
   Future<void> resetSources() async {
-    state = state.copyWith(sources: []);
-    await isar.writeTxn(() async {
-      isar.books.put(state);
-    });
+    // state = state.copyWith(sources: []);
+    // await isar.writeTxn(() async {
+    //   isar.books.put(state);
+    // });
   }
 
   Future<void> startReader({int? cursor, required int index}) async {
@@ -445,9 +447,9 @@ class Books extends _$Books {
   Future<bool> _exist(String url) async {
     var books = await future;
     List<AvailableSource> sources = [];
-    for (var book in books) {
-      sources.addAll(book.sources);
-    }
+    // for (var book in books) {
+    //   sources.addAll(book.sources);
+    // }
     List<String> urls = [];
     for (var source in sources) {
       urls.add(source.url);
@@ -474,27 +476,27 @@ class Books extends _$Books {
       ..url = url;
     var books = await future;
     var sameBook = books.where((item) => item.name == book.name).firstOrNull;
-    if (sameBook != null) {
-      sameBook.sources = [...sameBook.sources, availableSource];
-      await isar.writeTxn(() async {
-        await isar.books.put(sameBook);
-      });
-    } else {
-      book.sourceId = source.id;
-      book.sources = [availableSource];
-      var stream = await Parser.getChapters(
-          book.name, book.catalogueUrl, source, duration, timeout);
-      stream = stream.asBroadcastStream();
-      List<Chapter> chapters = [];
-      stream.listen((chapter) {
-        chapters.add(chapter);
-      });
-      await stream.last;
-      book.chapters = chapters;
-      await isar.writeTxn(() async {
-        await isar.books.put(book);
-      });
-    }
+    // if (sameBook != null) {
+    //   sameBook.sources = [...sameBook.sources, availableSource];
+    //   await isar.writeTxn(() async {
+    //     await isar.books.put(sameBook);
+    //   });
+    // } else {
+    //   book.sourceId = source.id;
+    //   book.sources = [availableSource];
+    //   var stream = await Parser.getChapters(
+    //       book.name, book.catalogueUrl, source, duration, timeout);
+    //   stream = stream.asBroadcastStream();
+    //   List<Chapter> chapters = [];
+    //   stream.listen((chapter) {
+    //     chapters.add(chapter);
+    //   });
+    //   await stream.last;
+    //   book.chapters = chapters;
+    //   await isar.writeTxn(() async {
+    //     await isar.books.put(book);
+    //   });
+    // }
     ref.invalidateSelf();
   }
 
@@ -632,7 +634,7 @@ class SearchBooks extends _$SearchBooks {
       state = [...state, filteredBook];
       return;
     }
-    existingBook.sources.addAll(filteredBook.sources);
+    // existingBook.sources.addAll(filteredBook.sources);
     if (filteredBook.cover.length > existingBook.cover.length) {
       existingBook.cover = filteredBook.cover;
     }
