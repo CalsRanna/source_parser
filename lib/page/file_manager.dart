@@ -146,8 +146,9 @@ class _FileManagerPageState extends ConsumerState<FileManagerPage> {
     if (file is Directory) {
       icon = HugeIcons.strokeRoundedFolder01;
     }
+    var color = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5);
     var fileIcon = LayoutBuilder(builder: (_, constraints) {
-      return Icon(icon, size: constraints.maxWidth);
+      return Icon(icon, color: color, size: constraints.maxWidth);
     });
     var nameText = Text(
       file.path.split('/').last,

@@ -19,7 +19,7 @@ class AvailableSourceListPage extends ConsumerWidget {
   final Book book;
   const AvailableSourceListPage({super.key, required this.book});
 
-   GetIt.instance.registerSingleton<AvailableSourceViewModel>(AvailableSourceViewModel(book: book));
+  //  GetIt.instance.registerSingleton<AvailableSourceViewModel>(AvailableSourceViewModel(book: book));
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -106,9 +106,11 @@ class AvailableSourceListPage extends ConsumerWidget {
     var theme = Theme.of(context);
     var colorScheme = theme.colorScheme;
     var primary = colorScheme.primary;
-    var latestChapter = book.sources[index].latestChapter;
+    // var latestChapter = book.sources[index].latestChapter;
+    var latestChapter = '';
     if (latestChapter.isEmpty) latestChapter = '未知最新章节';
-    final active = book.sources[index].id == book.sourceId;
+    // final active = book.sources[index].id == book.sourceId;
+    final active = false;
     return Text(
       latestChapter,
       style: TextStyle(color: active ? primary : null),
@@ -119,9 +121,11 @@ class AvailableSourceListPage extends ConsumerWidget {
     var theme = Theme.of(context);
     var colorScheme = theme.colorScheme;
     var primary = colorScheme.primary;
-    var name = book.sources[index].name;
+    // var name = book.sources[index].name;
+    var name = '';
     if (name.isEmpty) name = '未知书源';
-    final active = book.sources[index].id == book.sourceId;
+    // final active = book.sources[index].id == book.sourceId;
+    final active = false;
     return Text(name, style: TextStyle(color: active ? primary : null));
   }
 
@@ -131,7 +135,8 @@ class AvailableSourceListPage extends ConsumerWidget {
     Book book,
     int index,
   ) {
-    final active = book.sources[index].id == book.sourceId;
+    // final active = book.sources[index].id == book.sourceId;
+    final active = false;
     return ListTile(
       onLongPress: openBottomSheet,
       onTap: () => switchSource(context, ref, index),

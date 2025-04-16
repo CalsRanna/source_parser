@@ -581,7 +581,7 @@ class _Source extends StatelessWidget {
   }
 
   void handleTap(BuildContext context) {
-    AutoRouter.of(context).push(AvailableSourceListRoute());
+    // AutoRouter.of(context).push(AvailableSourceListRoute());
   }
 }
 

@@ -42,6 +42,11 @@ class ProfileView extends StatelessWidget {
       onTap: () => handleTap(context, const FileManagerRoute()),
       title: '文件管理',
     );
+    var cloudReader = _SettingTile(
+      icon: HugeIcons.strokeRoundedInternet,
+      onTap: () => handleTap(context, const CloudReaderRoute()),
+      title: '云阅读',
+    );
     var setting = _SettingTile(
       icon: HugeIcons.strokeRoundedSettings01,
       onTap: () => handleTap(context, const SettingRoute()),
@@ -64,6 +69,7 @@ class ProfileView extends StatelessWidget {
         layout,
         server,
         fileManager,
+        cloudReader,
         setting,
         about,
         if (kDebugMode) color,

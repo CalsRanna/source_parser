@@ -7,6 +7,7 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/model/explore.dart';
+import 'package:source_parser/schema/available_source.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -592,7 +593,7 @@ class Parser {
           book.introduction = introduction;
           book.url = url;
           book.sourceId = source.id;
-          book.sources = [availableSource];
+          // book.sources = [availableSource];
           books.add(book);
         }
         books.shuffle();
@@ -773,7 +774,7 @@ class Parser {
             book.latestChapter = latestChapter;
             book.name = name;
             book.sourceId = source.id;
-            book.sources = [availableSource];
+            // book.sources = [availableSource];
             book.url = url;
             sender.send(book);
           }
@@ -854,7 +855,7 @@ class _ParserUtil {
     book.latestChapter = latestChapter;
     book.name = name;
     book.sourceId = source.id;
-    book.sources = [availableSource];
+    // book.sources = [availableSource];
     // book.updatedAt = updatedAt;
     book.url = url;
     book.words = words;
@@ -914,7 +915,7 @@ class _ParserUtil {
       // book.status = status;
       // book.updatedAt = updatedAt;
       book.sourceId = source.id;
-      book.sources = [availableSource];
+      // book.sources = [availableSource];
       book.url = url;
       book.words = words;
       books.add(book);

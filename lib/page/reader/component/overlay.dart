@@ -166,7 +166,7 @@ abstract class _OverlayBaseSlot extends StatelessWidget {
   }
 
   void _navigateAvailableSource(BuildContext context) {
-    AvailableSourceListRoute().push(context);
+    // AvailableSourceListRoute().push(context);
   }
 
   void _navigateBookInformation(BuildContext context) {
