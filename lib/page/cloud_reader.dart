@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 @RoutePage()
@@ -14,15 +15,19 @@ class CloudReaderPage extends StatefulWidget {
 class _CloudReaderPageState extends State<CloudReaderPage> {
   final controller = WebViewController();
   var loading = true;
-  var progress = 0.0;
   final url = 'http://43.139.61.244:4396';
 
   @override
   Widget build(BuildContext context) {
-    var indicator = CircularProgressIndicator(value: progress);
+    var lottie = Lottie.asset('asset/json/loading.json');
+    var container = Container(
+      alignment: Alignment.center,
+      color: Theme.of(context).colorScheme.surface,
+      child: lottie,
+    );
     var children = [
       WebViewWidget(controller: controller),
-      if (loading) Center(child: indicator),
+      if (loading) container,
     ];
     return Scaffold(body: Stack(children: children));
   }
@@ -41,22 +46,16 @@ class _CloudReaderPageState extends State<CloudReaderPage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     var delegate = NavigationDelegate(
       onPageFinished: (_) => _finishLoading(),
-      onProgress: _updateProgress,
     );
     controller.setNavigationDelegate(delegate);
     controller.loadRequest(Uri.parse(url));
     super.initState();
   }
 
-  void _finishLoading() {
+  Future<void> _finishLoading() async {
+    await Future.delayed(const Duration(seconds: 1));
     setState(() {
       loading = false;
-    });
-  }
-
-  void _updateProgress(int progress) {
-    setState(() {
-      this.progress = progress.toDouble();
     });
   }
 }
