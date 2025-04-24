@@ -187,7 +187,7 @@ final bookNotifierProvider = NotifierProvider<BookNotifier, Book>.internal(
 );
 
 typedef _$BookNotifier = Notifier<Book>;
-String _$booksHash() => r'b603d210c5dbff47fe8d66e7eff780c7136e08e6';
+String _$booksHash() => r'e1754ac7a29ea1470e631dd8f30a582284790868';
 
 /// See also [Books].
 @ProviderFor(Books)

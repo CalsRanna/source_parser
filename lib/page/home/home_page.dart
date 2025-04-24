@@ -1,11 +1,14 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:source_parser/page/home/component/bookshelf.dart';
+import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/page/home/component/bookshelf_view.dart';
 import 'package:source_parser/page/home/component/explore.dart';
 import 'package:source_parser/page/home/component/profile_view.dart';
 import 'package:source_parser/provider/reader.dart';
+import 'package:source_parser/view_model/home_view_model.dart';
 
 @RoutePage()
 class HomePage extends StatefulWidget {
@@ -16,8 +19,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _index = 0;
-  final controller = PageController();
+  final viewModel = GetIt.instance<HomeViewModel>();
 
   @override
   void initState() {
@@ -28,43 +30,35 @@ class _HomePageState extends State<HomePage> {
       var notifier = container.read(provider.notifier);
       notifier.updateMediaQueryData(MediaQuery.of(context));
     });
+    viewModel.initSignals();
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    viewModel.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final body = PageView(
-      controller: controller,
-      onPageChanged: handlePageChanged,
-      children: [BookshelfView(), ExploreView(), ProfileView()],
+    var body = Watch(
+      (_) => PageView(
+        controller: viewModel.controller,
+        onPageChanged: viewModel.changePage,
+        children: [BookshelfView(), ExploreView(), ProfileView()],
+      ),
     );
     final destinations = _buildDestinations(context);
-    final navigationBar = NavigationBar(
-      destinations: destinations,
-      height: 64,
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-      selectedIndex: _index,
-      onDestinationSelected: handleDestinationSelected,
+    var bottomNavigationBar = Watch(
+      (_) => NavigationBar(
+        destinations: destinations,
+        height: 64,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+        selectedIndex: viewModel.index.value,
+        onDestinationSelected: viewModel.selectDestination,
+      ),
     );
-    return Scaffold(body: body, bottomNavigationBar: navigationBar);
-  }
-
-  void handleDestinationSelected(int index) {
-    controller.jumpToPage(index);
-    setState(() {
-      _index = index;
-    });
-  }
-
-  void handlePageChanged(int page) {
-    setState(() {
-      _index = page;
-    });
+    return Scaffold(body: body, bottomNavigationBar: bottomNavigationBar);
   }
 
   List<NavigationDestination> _buildDestinations(BuildContext context) {

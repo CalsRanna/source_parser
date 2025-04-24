@@ -59,6 +59,9 @@ PODS:
   - SDWebImage/Core (5.18.0)
   - share_plus (0.0.1):
     - Flutter
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
@@ -104,6 +107,7 @@ DEPENDENCIES:
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
@@ -142,6 +146,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sqflite_darwin:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
   sqlite3_flutter_libs:
@@ -167,6 +173,7 @@ SPEC CHECKSUMS:
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   SDWebImage: 182830bcddc30cde95fbc60dfe4badc3553d94ba
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
+  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   sqlite3: fc1400008a9b3525f5914ed715a5d1af0b8f4983
   sqlite3_flutter_libs: f6acaa2172e6bb3e2e70c771661905080e8ebcf2

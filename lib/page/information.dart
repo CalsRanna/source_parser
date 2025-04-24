@@ -420,12 +420,12 @@ class _Information extends StatelessWidget {
 
   void handleLongPress(BuildContext context) {
     HapticFeedback.heavyImpact();
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return BookCoverSelector(book: book);
-      },
-    );
+    // showModalBottomSheet(
+    //   context: context,
+    //   builder: (context) {
+    //     return BookCoverSelector(book: book);
+    //   },
+    // );
   }
 
   void searchSameAuthor(BuildContext context) {

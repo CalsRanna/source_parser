@@ -16,13 +16,16 @@ class DatabaseService {
   Future<void> ensureInitialized() async {
     var directory = await getApplicationSupportDirectory();
     var path = join(directory.path, 'source_parser.db');
+    var file = File(path);
     logger.i('sqlite path: $path');
-    var exists = await File(path).exists();
+    var exists = await file.exists();
     if (!exists) {
-      await File(path).create(recursive: true);
+      await file.create(recursive: true);
     }
     var config = SqliteConfig(path);
-    laconic = Laconic.sqlite(config);
+    laconic = Laconic.sqlite(config, listen: (query) {
+      logger.d(query.rawSql);
+    });
     await _migrate();
   }
 

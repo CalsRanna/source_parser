@@ -3,15 +3,17 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/page/home/component/book_bottom_sheet.dart';
 import 'package:source_parser/page/home/widget/search_button.dart';
-import 'package:source_parser/page/listener.dart';
 import 'package:source_parser/provider/book.dart';
-import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.gr.dart';
-import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/util/message.dart';
+import 'package:source_parser/view_model/home_view_model.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class BookshelfView extends ConsumerStatefulWidget {
@@ -23,6 +25,8 @@ class BookshelfView extends ConsumerStatefulWidget {
 
 class _BookshelfViewState extends ConsumerState<BookshelfView>
     with AutomaticKeepAliveClientMixin {
+  final viewModel = GetIt.instance<HomeViewModel>();
+
   @override
   bool get wantKeepAlive => true;
 
@@ -55,210 +59,32 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
   Widget _buildChild(WidgetRef ref) {
     final setting = ref.watch(settingNotifierProvider).valueOrNull;
     final mode = setting?.shelfMode ?? 'list';
-    final books = ref.watch(booksProvider).valueOrNull ?? <Book>[];
-    if (books.isEmpty) return const Center(child: Text('空空如也'));
-    return switch (mode) {
-      'list' => _ListView(books: books),
-      _ => _GridView(books: books),
-    };
-  }
-}
-
-class _BottomSheet extends ConsumerWidget {
-  final Book book;
-
-  const _BottomSheet({required this.book});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surface = colorScheme.surface;
-    final onSurface = colorScheme.onSurface;
-    var title = Text(
-      book.name,
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
-      style: const TextStyle(fontSize: 14, height: 1.2),
+    if (viewModel.books.value.isEmpty) return const Center(child: Text('空空如也'));
+    var listView = _ListView(
+      books: viewModel.books.value,
+      onDestroyed: viewModel.destroyBook,
     );
-    var authorStyle = TextStyle(
-      fontSize: 12,
-      height: 1.2,
-      color: onSurface.withValues(alpha: 0.5),
+    var gridView = _GridView(
+      books: viewModel.books.value,
+      onDestroyed: viewModel.destroyBook,
     );
-    var author = Text(book.author, style: authorStyle);
-    var subtitleStyle = TextStyle(
-      fontSize: 12,
-      height: 1.2,
-      color: onSurface.withValues(alpha: 0.5),
+    return Watch(
+      (_) => switch (mode) { 'list' => listView, _ => gridView },
     );
-    var subtitle = Text(_buildSpan(), style: subtitleStyle);
-    var children = [
-      title,
-      const SizedBox(height: 8),
-      author,
-      if (_buildSpan().isNotEmpty) SizedBox(height: 8),
-      if (_buildSpan().isNotEmpty) subtitle
-    ];
-    var column = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: children,
-    );
-    var rowChildren = [
-      BookCover(height: 80, url: book.cover, width: 60),
-      const SizedBox(width: 16),
-      Expanded(child: column),
-    ];
-    final newBook = ref.watch(bookNotifierProvider);
-    final archived = newBook.archive;
-    var icon = HugeIcons.strokeRoundedQuillWrite01;
-    if (archived) icon = HugeIcons.strokeRoundedArchive02;
-    final text = archived ? '已完结' : '连载中';
-    var informationAction = _SheetAction(
-      icon: const Icon(HugeIcons.strokeRoundedInformationCircle),
-      text: '详情',
-      onTap: () => showInformation(context, ref),
-    );
-    var coverAction = _SheetAction(
-      icon: const Icon(HugeIcons.strokeRoundedImage02),
-      text: '更改封面',
-      onTap: () => selectCover(context, ref),
-    );
-    var archiveAction = _SheetAction(
-      icon: Icon(icon),
-      text: text,
-      onTap: () => toggleArchive(context, ref),
-    );
-    var removeAction = _SheetAction(
-      icon: const Icon(HugeIcons.strokeRoundedDelete02),
-      text: '移出书架',
-      onTap: () => remove(context, ref),
-    );
-    var actionChildren = [
-      informationAction,
-      coverAction,
-      archiveAction,
-      removeAction,
-    ];
-    var cacheAction = _SheetAction(
-      icon: const Icon(HugeIcons.strokeRoundedDownload04),
-      text: '缓存',
-      onTap: () => cache(context, ref),
-    );
-    var clearAction = _SheetAction(
-      icon: const Icon(HugeIcons.strokeRoundedClean),
-      text: '清除缓存',
-      onTap: () => clearCache(context, ref),
-    );
-    var cacheChildren = [
-      cacheAction,
-      clearAction,
-      const Expanded(flex: 2, child: SizedBox())
-    ];
-    var columnChildren = [
-      Row(children: actionChildren),
-      Row(children: cacheChildren),
-    ];
-    var boxDecoration = BoxDecoration(
-      borderRadius: BorderRadius.circular(8),
-      color: surface,
-    );
-    var container = Container(
-      decoration: boxDecoration,
-      child: Column(children: columnChildren),
-    );
-    var listChildren = [
-      Row(children: rowChildren),
-      const SizedBox(height: 16),
-      container
-    ];
-    return ListView(padding: const EdgeInsets.all(16), children: listChildren);
-  }
-
-  void cache(BuildContext context, WidgetRef ref) async {
-    Navigator.pop(context);
-    Message.of(context).show('开始缓存');
-    final notifier = ref.read(cacheProgressNotifierProvider.notifier);
-    await notifier.cacheChapters(amount: 0);
-    if (!context.mounted) return;
-    final message = Message.of(context);
-    final progress = ref.read(cacheProgressNotifierProvider);
-    message.show('缓存完毕，${progress.succeed}章成功，${progress.failed}章失败');
-    await Future.delayed(const Duration(seconds: 1));
-  }
-
-  void cancel(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-
-  void clearCache(BuildContext context, WidgetRef ref) async {
-    Navigator.pop(context);
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.clearCache();
-    Message.of(context).show('缓存已清除');
-  }
-
-  void confirm(BuildContext context, WidgetRef ref) async {
-    Navigator.pop(context);
-    final notifier = ref.read(booksProvider.notifier);
-    notifier.delete(book);
-  }
-
-  void navigate(BuildContext context, WidgetRef ref) {
-    Navigator.pop(context);
-    final book = ref.read(bookNotifierProvider);
-    final navigator = Navigator.of(context);
-    var page = ListenerPage(book: book);
-    final route = MaterialPageRoute(builder: (context) => page);
-    navigator.push(route);
-  }
-
-  void remove(BuildContext context, WidgetRef ref) {
-    showDialog(
-      builder: (_) => _RemoveDialog(book: book),
-      context: context,
-    );
-  }
-
-  void selectCover(BuildContext context, WidgetRef ref) {
-    Navigator.of(context).pop();
-    showModalBottomSheet(
-      builder: (context) => BookCoverSelector(book: book),
-      context: context,
-    );
-  }
-
-  void showInformation(BuildContext context, WidgetRef ref) {
-    Navigator.of(context).pop();
-    AutoRouter.of(context).push(InformationRoute());
-  }
-
-  void toggleArchive(BuildContext context, WidgetRef ref) async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    await notifier.toggleArchive();
-  }
-
-  String _buildSpan() {
-    final spans = <String>[];
-    if (book.category.isNotEmpty) {
-      spans.add(book.category);
-    }
-    if (book.status.isNotEmpty) {
-      spans.add(book.status);
-    }
-    return spans.join(' · ');
   }
 }
 
 class _GridTile extends ConsumerWidget {
-  final Book book;
-
+  final BookEntity book;
   final double coverHeight;
   final double coverWidth;
+  final void Function()? onDestroyed;
+
   const _GridTile({
     required this.book,
     required this.coverHeight,
     required this.coverWidth,
+    this.onDestroyed,
   });
 
   @override
@@ -302,8 +128,8 @@ class _GridTile extends ConsumerWidget {
 
   void confirm(BuildContext context, WidgetRef ref) async {
     final navigator = Navigator.of(context);
-    final notifier = ref.read(booksProvider.notifier);
-    await notifier.delete(book);
+    // final notifier = ref.read(booksProvider.notifier);
+    // await notifier.delete(book);
     navigator.pop();
   }
 
@@ -321,32 +147,30 @@ class _GridTile extends ConsumerWidget {
   }
 
   int _calculateUnreadChapters() {
-    final chapters = book.chapters.length;
-    final current = book.index;
-    return chapters - current - 1;
+    // final chapters = book.chapters.length;
+    // final current = book.index;
+    // return chapters - current - 1;
+    return 0;
   }
 
   void _handleLongPress(BuildContext context, WidgetRef ref) async {
     HapticFeedback.heavyImpact();
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => _BottomSheet(book: book),
-    );
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.update(book);
+    var bottomSheet = BookBottomSheet(book: book, onDestroyed: onDestroyed);
+    showModalBottomSheet(builder: (_) => bottomSheet, context: context);
   }
 
   void _handleTap(BuildContext context, WidgetRef ref) {
-    AutoRouter.of(context).push(ReaderRoute(book: book));
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.update(book);
+    // AutoRouter.of(context).push(ReaderRoute(book: book));
+    // final notifier = ref.read(bookNotifierProvider.notifier);
+    // notifier.update(book);
   }
 }
 
 class _GridView extends StatelessWidget {
-  final List<Book> books;
+  final List<BookEntity> books;
+  final void Function(BookEntity)? onDestroyed;
 
-  const _GridView({required this.books});
+  const _GridView({required this.books, this.onDestroyed});
 
   @override
   Widget build(BuildContext context) {
@@ -376,14 +200,16 @@ class _GridView extends StatelessWidget {
       book: books[index],
       coverHeight: coverHeight,
       coverWidth: coverWidth,
+      onDestroyed: () => onDestroyed?.call(books[index]),
     );
   }
 }
 
 class _ListTile extends ConsumerWidget {
-  final Book book;
+  final BookEntity book;
+  final void Function()? onDestroyed;
 
-  const _ListTile({required this.book});
+  const _ListTile({required this.book, this.onDestroyed});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -436,8 +262,8 @@ class _ListTile extends ConsumerWidget {
 
   void confirm(BuildContext context, WidgetRef ref) async {
     final navigator = Navigator.of(context);
-    final notifier = ref.read(booksProvider.notifier);
-    await notifier.delete(book);
+    // final notifier = ref.read(booksProvider.notifier);
+    // await notifier.delete(book);
     navigator.pop();
   }
 
@@ -446,9 +272,9 @@ class _ListTile extends ConsumerWidget {
     if (book.updatedAt.isNotEmpty) {
       spans.add(book.updatedAt);
     }
-    if (book.chapters.isNotEmpty) {
-      spans.add(book.chapters.last.name);
-    }
+    // if (book.chapters.isNotEmpty) {
+    //   spans.add(book.chapters.last.name);
+    // }
     return spans.isNotEmpty ? spans.join(' · ') : null;
   }
 
@@ -469,105 +295,44 @@ class _ListTile extends ConsumerWidget {
   }
 
   int _calculateUnreadChapters() {
-    final chapters = book.chapters.length;
-    final current = book.index;
-    return chapters - current - 1;
+    // final chapters = book.chapters.length;
+    // final current = book.index;
+    // return chapters - current - 1;
+    return 0;
   }
 
   void _handleLongPress(BuildContext context, WidgetRef ref) async {
-    HapticFeedback.heavyImpact();
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => _BottomSheet(book: book),
-    );
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.update(book);
+    var bottomSheet = BookBottomSheet(book: book, onDestroyed: onDestroyed);
+    showModalBottomSheet(builder: (_) => bottomSheet, context: context);
   }
 
   void _handleTap(BuildContext context, WidgetRef ref) {
-    AutoRouter.of(context).push(ReaderRoute(book: book));
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.update(book);
+    // AutoRouter.of(context).push(ReaderRoute(book: book));
+    // final notifier = ref.read(bookNotifierProvider.notifier);
+    // notifier.update(book);
   }
 }
 
 class _ListView extends StatelessWidget {
-  final List<Book> books;
+  final List<BookEntity> books;
+  final void Function(BookEntity)? onDestroyed;
 
-  const _ListView({required this.books});
+  const _ListView({required this.books, this.onDestroyed});
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemBuilder: (_, index) => _ListTile(book: books[index]),
+      itemBuilder: _buildItem,
       itemCount: books.length,
       itemExtent: 72,
     );
   }
-}
 
-class _RemoveDialog extends StatelessWidget {
-  final Book book;
-  const _RemoveDialog({required this.book});
-
-  @override
-  Widget build(BuildContext context) {
-    var cancelButton = TextButton(
-      onPressed: () => cancel(context),
-      child: const Text('取消'),
+  Widget _buildItem(BuildContext context, int index) {
+    return _ListTile(
+      book: books[index],
+      onDestroyed: () => onDestroyed?.call(books[index]),
     );
-    var confirmButton = FilledButton(
-      onPressed: () => confirm(context),
-      child: const Text('确认'),
-    );
-    return AlertDialog(
-      actions: [cancelButton, confirmButton],
-      content: const Text('确认将本书移出书架？'),
-      title: const Text('移出书架'),
-    );
-  }
-
-  void cancel(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-
-  void confirm(BuildContext context) async {
-    Navigator.of(context).pop();
-    Navigator.of(context).pop();
-    var container = ProviderScope.containerOf(context);
-    final notifier = container.read(booksProvider.notifier);
-    notifier.delete(book);
-  }
-}
-
-class _SheetAction extends StatelessWidget {
-  final Icon icon;
-
-  final String text;
-  final void Function()? onTap;
-  const _SheetAction({required this.icon, required this.text, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    var children = [
-      icon,
-      const SizedBox(height: 8),
-      Text(text, maxLines: 1, overflow: TextOverflow.ellipsis),
-    ];
-    var column = Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: children,
-    );
-    var padding = Padding(
-      padding: const EdgeInsets.all(16),
-      child: column,
-    );
-    var gestureDetector = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: padding,
-    );
-    return Expanded(child: gestureDetector);
   }
 }
 

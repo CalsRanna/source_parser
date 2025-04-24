@@ -509,7 +509,6 @@ class Books extends _$Books {
       final second = PinyinHelper.getPinyin(b.name);
       return first.compareTo(second);
     });
-    FlutterNativeSplash.remove();
     return books;
   }
 
