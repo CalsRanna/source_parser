@@ -1,53 +1,44 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/page/search/component/indicator.dart';
-import 'package:source_parser/provider/book.dart';
-import 'package:source_parser/router/router.gr.dart';
-import 'package:source_parser/schema/book.dart';
+import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
-class SearchResult extends ConsumerStatefulWidget {
-  final String credential;
-  const SearchResult(this.credential, {super.key});
+class SearchResultView extends StatelessWidget {
+  final List<BookEntity> books;
+  final bool isSearching;
+  final void Function(BookEntity)? onTap;
+  const SearchResultView({
+    super.key,
+    required this.books,
+    this.isSearching = false,
+    this.onTap,
+  });
 
-  @override
-  ConsumerState<SearchResult> createState() => _SearchResultState();
-}
-
-class _SearchResultState extends ConsumerState<SearchResult> {
   @override
   Widget build(BuildContext context) {
-    var provider = searchBooksProvider(widget.credential);
-    final books = ref.watch(provider);
-    if (books.isEmpty) return SearchIndicator(widget.credential);
+    if (books.isEmpty && !isSearching) {
+      return const Center(child: Text('没有找到相关书籍'));
+    }
     return ListView.separated(
-      itemBuilder: (_, index) => _Tile(book: books[index]),
+      itemBuilder: _buildItem,
       itemCount: books.length,
       separatorBuilder: (_, __) => const SizedBox(height: 8),
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initProvider();
-    });
-  }
-
-  /// Must call this method cause don't wanna use stream directly
-  void _initProvider() {
-    var provider = searchBooksProvider(widget.credential);
-    var notifier = ref.read(provider.notifier);
-    notifier.search();
+  Widget _buildItem(BuildContext context, int index) {
+    return _Tile(
+      book: books[index],
+      onTap: () => onTap?.call(books[index]),
+    );
   }
 }
 
 class _Tile extends ConsumerWidget {
-  final Book book;
+  final BookEntity book;
+  final void Function()? onTap;
 
-  const _Tile({required this.book});
+  const _Tile({required this.book, this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -92,7 +83,7 @@ class _Tile extends ConsumerWidget {
     );
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => _handleTap(context, ref),
+      onTap: onTap,
       child: padding,
     );
   }
@@ -112,11 +103,5 @@ class _Tile extends ConsumerWidget {
       spans.add(book.words);
     }
     return spans.isNotEmpty ? spans.join(' · ') : null;
-  }
-
-  void _handleTap(BuildContext context, WidgetRef ref) {
-    AutoRouter.of(context).push(InformationRoute());
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.update(book);
   }
 }

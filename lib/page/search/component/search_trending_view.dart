@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/provider/search.dart';
-import 'package:source_parser/schema/book.dart';
+import 'package:source_parser/model/book_entity.dart';
 
-// ignore: unused_element
-class SearchTrending extends ConsumerWidget {
-  final void Function(String)? onPressed;
-  const SearchTrending({super.key, this.onPressed});
+class SearchTrendingView extends ConsumerWidget {
+  final List<BookEntity> books;
+  final void Function(BookEntity)? onPressed;
+  const SearchTrendingView({super.key, required this.books, this.onPressed});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var provider = topSearchBooksProvider;
-    final books = ref.watch(provider).valueOrNull;
-    if (books == null) return const SizedBox();
     if (books.isEmpty) return const SizedBox();
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
@@ -28,14 +24,10 @@ class SearchTrending extends ConsumerWidget {
     return Padding(padding: edgeInsets, child: column);
   }
 
-  void handlePressed(WidgetRef ref, String name) {
-    onPressed?.call(name);
-  }
-
-  Widget _buildChip(WidgetRef ref, Book book) {
+  Widget _buildChip(WidgetRef ref, BookEntity book) {
     return ActionChip(
       label: Text(book.name),
-      onPressed: () => handlePressed(ref, book.name),
+      onPressed: () => onPressed?.call(book),
     );
   }
 }

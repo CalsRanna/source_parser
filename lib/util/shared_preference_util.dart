@@ -26,6 +26,11 @@ class SharedPreferenceUtil {
     return instance.getDouble('max_concurrent') ?? 16.0;
   }
 
+  static Future<bool> getSearchFilter() async {
+    var instance = await SharedPreferences.getInstance();
+    return instance.getBool('search_filter') ?? false;
+  }
+
   static Future<String> getShelfMode() async {
     var instance = await SharedPreferences.getInstance();
     return instance.getString('shelf_mode') ?? 'list';
@@ -64,6 +69,11 @@ class SharedPreferenceUtil {
   static Future<void> setMaxConcurrent(double maxConcurrent) async {
     var instance = await SharedPreferences.getInstance();
     await instance.setDouble('max_concurrent', maxConcurrent);
+  }
+
+  static Future<void> setSearchFilter(bool searchFilter) async {
+    var instance = await SharedPreferences.getInstance();
+    await instance.setBool('search_filter', searchFilter);
   }
 
   static Future<void> setShelfMode(String shelfMode) async {
