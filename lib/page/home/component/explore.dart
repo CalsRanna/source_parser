@@ -55,9 +55,9 @@ class _BannerState extends State<_Banner> {
   }
 
   void handleTap(BuildContext context, WidgetRef ref, int index) {
-    AutoRouter.of(context).push(InformationRoute());
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.update(books[index]);
+    // AutoRouter.of(context).push(InformationRoute());
+    // final notifier = ref.read(bookNotifierProvider.notifier);
+    // notifier.update(books[index]);
   }
 
   @override
@@ -109,9 +109,9 @@ class _BannerTile extends ConsumerWidget {
   }
 
   void handleTap(BuildContext context, WidgetRef ref) {
-    AutoRouter.of(context).push(InformationRoute());
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.update(book);
+    // AutoRouter.of(context).push(InformationRoute());
+    // final notifier = ref.read(bookNotifierProvider.notifier);
+    // notifier.update(book);
   }
 }
 
@@ -333,9 +333,9 @@ class _GridTile extends ConsumerWidget {
   }
 
   void handleTap(BuildContext context, WidgetRef ref) {
-    AutoRouter.of(context).push(InformationRoute());
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.update(book);
+    // AutoRouter.of(context).push(InformationRoute());
+    // final notifier = ref.read(bookNotifierProvider.notifier);
+    // notifier.update(book);
   }
 
   String? _buildSubtitle() {
@@ -481,9 +481,9 @@ class _ListTile extends ConsumerWidget {
   }
 
   void handleTap(BuildContext context, WidgetRef ref) {
-    AutoRouter.of(context).push(InformationRoute());
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.update(book);
+    // AutoRouter.of(context).push(InformationRoute());
+    // final notifier = ref.read(bookNotifierProvider.notifier);
+    // notifier.update(book);
   }
 
   String? _buildSubtitle() {

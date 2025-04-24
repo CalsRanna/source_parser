@@ -173,7 +173,7 @@ class BookBottomSheet extends ConsumerWidget {
 
   void navigateInformationPage(BuildContext context) {
     Navigator.of(context).pop();
-    InformationRoute().push(context);
+    InformationRoute(book: book).push(context);
   }
 
   void toggleArchive(BuildContext context, WidgetRef ref) async {

@@ -93,9 +93,9 @@ class _ExploreTile extends StatelessWidget {
   }
 
   void handleTap(BuildContext context, WidgetRef ref) {
-    AutoRouter.of(context).push(InformationRoute());
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.update(book);
+    // AutoRouter.of(context).push(InformationRoute());
+    // final notifier = ref.read(bookNotifierProvider.notifier);
+    // notifier.update(book);
   }
 
   String? _buildSubtitle() {

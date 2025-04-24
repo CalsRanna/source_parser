@@ -34,9 +34,9 @@ class SearchViewModel {
         books.map((book) => BookEntity.fromJson(book.toJson())).toList();
   }
 
-  void navigateBookInformationPage(BuildContext context, BookEntity book) {
+  void navigateInformationPage(BuildContext context, BookEntity book) {
     removeCurrentMaterialBanner(context);
-    InformationRoute().push(context);
+    InformationRoute(book: book).push(context);
   }
 
   void removeCurrentMaterialBanner(BuildContext context) {

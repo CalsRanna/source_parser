@@ -21,7 +21,7 @@ import 'package:source_parser/page/cover_selector/cover_selector_page.dart'
     as _i7;
 import 'package:source_parser/page/file_manager.dart' as _i8;
 import 'package:source_parser/page/home/home_page.dart' as _i9;
-import 'package:source_parser/page/information.dart' as _i10;
+import 'package:source_parser/page/information/information_page.dart' as _i10;
 import 'package:source_parser/page/layout.dart' as _i12;
 import 'package:source_parser/page/local_server/local_server.dart' as _i11;
 import 'package:source_parser/page/reader/reader.dart' as _i13;
@@ -294,10 +294,17 @@ class HomeRoute extends _i26.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i10.InformationPage]
-class InformationRoute extends _i26.PageRouteInfo<void> {
-  const InformationRoute({List<_i26.PageRouteInfo>? children})
-      : super(
+class InformationRoute extends _i26.PageRouteInfo<InformationRouteArgs> {
+  InformationRoute({
+    _i27.Key? key,
+    required _i29.BookEntity book,
+    List<_i26.PageRouteInfo>? children,
+  }) : super(
           InformationRoute.name,
+          args: InformationRouteArgs(
+            key: key,
+            book: book,
+          ),
           initialChildren: children,
         );
 
@@ -306,9 +313,29 @@ class InformationRoute extends _i26.PageRouteInfo<void> {
   static _i26.PageInfo page = _i26.PageInfo(
     name,
     builder: (data) {
-      return const _i10.InformationPage();
+      final args = data.argsAs<InformationRouteArgs>();
+      return _i10.InformationPage(
+        key: args.key,
+        book: args.book,
+      );
     },
   );
+}
+
+class InformationRouteArgs {
+  const InformationRouteArgs({
+    this.key,
+    required this.book,
+  });
+
+  final _i27.Key? key;
+
+  final _i29.BookEntity book;
+
+  @override
+  String toString() {
+    return 'InformationRouteArgs{key: $key, book: $book}';
+  }
 }
 
 /// generated route for

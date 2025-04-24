@@ -176,7 +176,7 @@ class _SearchPageState extends State<SearchPage> {
     var result = SearchResultView(
       books: viewModel.searchedBooks.value,
       isSearching: viewModel.isSearching.value,
-      onTap: (book) => viewModel.navigateBookInformationPage(context, book),
+      onTap: (book) => viewModel.navigateInformationPage(context, book),
     );
     return viewModel.view.value == 'trending' ? trending : result;
   }

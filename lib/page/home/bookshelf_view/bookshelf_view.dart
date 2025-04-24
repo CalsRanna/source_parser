@@ -46,7 +46,7 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
     );
     var easyRefresh = EasyRefresh(
       onRefresh: () => refresh(context, ref),
-      child: _buildChild(ref),
+      child: Watch((_) => _buildView(ref)),
     );
     var scaffold = Scaffold(appBar: appBar, body: easyRefresh);
     return ScaffoldMessenger(child: scaffold);
@@ -62,7 +62,7 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
     }
   }
 
-  Widget _buildChild(WidgetRef ref) {
+  Widget _buildView(WidgetRef ref) {
     final setting = ref.watch(settingNotifierProvider).valueOrNull;
     final mode = setting?.shelfMode ?? 'list';
     if (viewModel.books.value.isEmpty) return const Center(child: Text('空空如也'));
@@ -74,9 +74,7 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
       books: viewModel.books.value,
       onDestroyed: viewModel.destroyBook,
     );
-    return Watch(
-      (_) => switch (mode) { 'list' => listView, _ => gridView },
-    );
+    return switch (mode) { 'list' => listView, _ => gridView };
   }
 }
 

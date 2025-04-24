@@ -4,12 +4,12 @@ class BookEntity {
   bool archive = false;
   String catalogueUrl = '';
   String category = '';
+  int chapterIndex = 0;
   String cover = '';
-  int cursor = 0;
-  int index = 0;
   String introduction = '';
   String latestChapter = '';
   String name = '';
+  int pageIndex = 0;
   int sourceId = 0;
   String status = '';
   String updatedAt = '';
@@ -26,12 +26,12 @@ class BookEntity {
       ..archive = json['archive'] == 1 ? true : false
       ..catalogueUrl = json['catalogue_url'] ?? ''
       ..category = json['category'] ?? ''
+      ..chapterIndex = json['chapter_index'] ?? 0
       ..cover = json['cover'] ?? ''
-      ..cursor = json['cursor'] ?? 0
-      ..index = json['index'] ?? 0
       ..introduction = json['introduction'] ?? ''
       ..latestChapter = json['latest_chapter'] ?? ''
       ..name = json['name'] ?? ''
+      ..pageIndex = json['page_index'] ?? 0
       ..sourceId = json['source_id'] as int? ?? 0
       ..status = json['status'] ?? ''
       ..updatedAt = json['updated_at'] ?? ''
@@ -46,12 +46,12 @@ class BookEntity {
     bool? archive,
     String? catalogueUrl,
     String? category,
+    int? chapterIndex,
     String? cover,
-    int? cursor,
-    int? index,
     String? introduction,
     String? latestChapter,
     String? name,
+    int? pageIndex,
     int? sourceId,
     String? status,
     String? updatedAt,
@@ -65,12 +65,12 @@ class BookEntity {
       ..archive = archive ?? this.archive
       ..catalogueUrl = catalogueUrl ?? this.catalogueUrl
       ..category = category ?? this.category
+      ..chapterIndex = chapterIndex ?? this.chapterIndex
       ..cover = cover ?? this.cover
-      ..cursor = cursor ?? this.cursor
-      ..index = index ?? this.index
       ..introduction = introduction ?? this.introduction
       ..latestChapter = latestChapter ?? this.latestChapter
       ..name = name ?? this.name
+      ..pageIndex = pageIndex ?? this.pageIndex
       ..sourceId = sourceId ?? this.sourceId
       ..status = status ?? this.status
       ..updatedAt = updatedAt ?? this.updatedAt
@@ -86,12 +86,12 @@ class BookEntity {
       'archive': archive ? 1 : 0,
       'catalogue_url': catalogueUrl,
       'category': category,
+      'chapter_index': chapterIndex,
       'cover': cover,
-      'cursor': cursor,
-      'index': index,
       'introduction': introduction,
       'latest_chapter': latestChapter,
       'name': name,
+      'page_index': pageIndex,
       'source_id': sourceId,
       'status': status,
       'updated_at': updatedAt,

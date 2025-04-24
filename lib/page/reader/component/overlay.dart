@@ -170,7 +170,7 @@ abstract class _OverlayBaseSlot extends StatelessWidget {
   }
 
   void _navigateBookInformation(BuildContext context) {
-    InformationRoute().push(context);
+    // InformationRoute().push(context);
   }
 
   void _navigateReaderTheme(BuildContext context) {
