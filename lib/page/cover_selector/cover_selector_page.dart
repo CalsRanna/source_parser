@@ -3,20 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/page/book/book_cover_selector_view_model.dart';
+import 'package:source_parser/page/cover_selector/cover_selector_view_model.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 @RoutePage()
-class BookCoverSelectorPage extends StatefulWidget {
+class CoverSelectorPage extends StatefulWidget {
   final BookEntity book;
-  const BookCoverSelectorPage({super.key, required this.book});
+  const CoverSelectorPage({super.key, required this.book});
 
   @override
-  State<BookCoverSelectorPage> createState() => _BookCoverSelectorPageState();
+  State<CoverSelectorPage> createState() => _CoverSelectorPageState();
 }
 
-class _BookCoverSelectorPageState extends State<BookCoverSelectorPage> {
-  late final viewModel = GetIt.instance<BookCoverSelectorViewModel>(
+class _CoverSelectorPageState extends State<CoverSelectorPage> {
+  late final viewModel = GetIt.instance<CoverSelectorViewModel>(
     param1: widget.book.id,
   );
 

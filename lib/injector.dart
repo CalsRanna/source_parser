@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
-import 'package:source_parser/page/book/book_cover_selector_view_model.dart';
-import 'package:source_parser/view_model/home_view_model.dart';
+import 'package:source_parser/page/cover_selector/cover_selector_view_model.dart';
+import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
+import 'package:source_parser/page/home/home_view_model.dart';
 import 'package:source_parser/view_model/source_parser_view_model.dart';
 
 class Injector {
@@ -11,9 +12,11 @@ class Injector {
     GetIt.instance.registerLazySingleton<HomeViewModel>(
       () => HomeViewModel(),
     );
-    GetIt.instance
-        .registerFactoryParam<BookCoverSelectorViewModel, int, Object?>(
-      (bookId, _) => BookCoverSelectorViewModel(bookId),
+    GetIt.instance.registerLazySingleton<BookshelfViewModel>(
+      () => BookshelfViewModel(),
+    );
+    GetIt.instance.registerFactoryParam<CoverSelectorViewModel, int, Object?>(
+      (bookId, _) => CoverSelectorViewModel(bookId),
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/page/home/component/book_remove_dialog.dart';
+import 'package:source_parser/page/home/bookshelf_view/book_remove_dialog.dart';
 import 'package:source_parser/page/listener.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
@@ -168,7 +168,7 @@ class BookBottomSheet extends ConsumerWidget {
 
   void selectCover(BuildContext context, WidgetRef ref) {
     Navigator.of(context).pop();
-    BookCoverSelectorRoute(book: book).push(context);
+    CoverSelectorRoute(book: book).push(context);
   }
 
   void navigateInformationPage(BuildContext context) {

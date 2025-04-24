@@ -7,13 +7,13 @@ import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/page/home/component/book_bottom_sheet.dart';
+import 'package:source_parser/page/home/bookshelf_view/book_bottom_sheet.dart';
+import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/page/home/widget/search_button.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:source_parser/view_model/home_view_model.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class BookshelfView extends ConsumerStatefulWidget {
@@ -25,10 +25,16 @@ class BookshelfView extends ConsumerStatefulWidget {
 
 class _BookshelfViewState extends ConsumerState<BookshelfView>
     with AutomaticKeepAliveClientMixin {
-  final viewModel = GetIt.instance<HomeViewModel>();
+  final viewModel = GetIt.instance<BookshelfViewModel>();
 
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    viewModel.initSignals();
+  }
 
   @override
   Widget build(BuildContext context) {

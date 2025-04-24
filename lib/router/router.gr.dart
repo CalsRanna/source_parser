@@ -14,10 +14,11 @@ import 'package:source_parser/model/book_entity.dart' as _i29;
 import 'package:source_parser/page/about.dart' as _i1;
 import 'package:source_parser/page/available_source/form.dart' as _i2;
 import 'package:source_parser/page/available_source/source.dart' as _i3;
-import 'package:source_parser/page/book/book_cover_selector_page.dart' as _i4;
-import 'package:source_parser/page/book/form.dart' as _i5;
-import 'package:source_parser/page/catalogue/catalogue.dart' as _i6;
-import 'package:source_parser/page/cloud_reader.dart' as _i7;
+import 'package:source_parser/page/book/form.dart' as _i4;
+import 'package:source_parser/page/catalogue/catalogue.dart' as _i5;
+import 'package:source_parser/page/cloud_reader.dart' as _i6;
+import 'package:source_parser/page/cover_selector/cover_selector_page.dart'
+    as _i7;
 import 'package:source_parser/page/file_manager.dart' as _i8;
 import 'package:source_parser/page/home/home_page.dart' as _i9;
 import 'package:source_parser/page/information.dart' as _i10;
@@ -124,54 +125,7 @@ class AvailableSourceListRouteArgs {
 }
 
 /// generated route for
-/// [_i4.BookCoverSelectorPage]
-class BookCoverSelectorRoute
-    extends _i26.PageRouteInfo<BookCoverSelectorRouteArgs> {
-  BookCoverSelectorRoute({
-    _i27.Key? key,
-    required _i29.BookEntity book,
-    List<_i26.PageRouteInfo>? children,
-  }) : super(
-          BookCoverSelectorRoute.name,
-          args: BookCoverSelectorRouteArgs(
-            key: key,
-            book: book,
-          ),
-          initialChildren: children,
-        );
-
-  static const String name = 'BookCoverSelectorRoute';
-
-  static _i26.PageInfo page = _i26.PageInfo(
-    name,
-    builder: (data) {
-      final args = data.argsAs<BookCoverSelectorRouteArgs>();
-      return _i4.BookCoverSelectorPage(
-        key: args.key,
-        book: args.book,
-      );
-    },
-  );
-}
-
-class BookCoverSelectorRouteArgs {
-  const BookCoverSelectorRouteArgs({
-    this.key,
-    required this.book,
-  });
-
-  final _i27.Key? key;
-
-  final _i29.BookEntity book;
-
-  @override
-  String toString() {
-    return 'BookCoverSelectorRouteArgs{key: $key, book: $book}';
-  }
-}
-
-/// generated route for
-/// [_i5.BookFormPage]
+/// [_i4.BookFormPage]
 class BookFormRoute extends _i26.PageRouteInfo<void> {
   const BookFormRoute({List<_i26.PageRouteInfo>? children})
       : super(
@@ -184,13 +138,13 @@ class BookFormRoute extends _i26.PageRouteInfo<void> {
   static _i26.PageInfo page = _i26.PageInfo(
     name,
     builder: (data) {
-      return const _i5.BookFormPage();
+      return const _i4.BookFormPage();
     },
   );
 }
 
 /// generated route for
-/// [_i6.CataloguePage]
+/// [_i5.CataloguePage]
 class CatalogueRoute extends _i26.PageRouteInfo<CatalogueRouteArgs> {
   CatalogueRoute({
     _i27.Key? key,
@@ -211,7 +165,7 @@ class CatalogueRoute extends _i26.PageRouteInfo<CatalogueRouteArgs> {
     name,
     builder: (data) {
       final args = data.argsAs<CatalogueRouteArgs>();
-      return _i6.CataloguePage(
+      return _i5.CataloguePage(
         key: args.key,
         index: args.index,
       );
@@ -236,7 +190,7 @@ class CatalogueRouteArgs {
 }
 
 /// generated route for
-/// [_i7.CloudReaderPage]
+/// [_i6.CloudReaderPage]
 class CloudReaderRoute extends _i26.PageRouteInfo<void> {
   const CloudReaderRoute({List<_i26.PageRouteInfo>? children})
       : super(
@@ -249,9 +203,55 @@ class CloudReaderRoute extends _i26.PageRouteInfo<void> {
   static _i26.PageInfo page = _i26.PageInfo(
     name,
     builder: (data) {
-      return const _i7.CloudReaderPage();
+      return const _i6.CloudReaderPage();
     },
   );
+}
+
+/// generated route for
+/// [_i7.CoverSelectorPage]
+class CoverSelectorRoute extends _i26.PageRouteInfo<CoverSelectorRouteArgs> {
+  CoverSelectorRoute({
+    _i27.Key? key,
+    required _i29.BookEntity book,
+    List<_i26.PageRouteInfo>? children,
+  }) : super(
+          CoverSelectorRoute.name,
+          args: CoverSelectorRouteArgs(
+            key: key,
+            book: book,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'CoverSelectorRoute';
+
+  static _i26.PageInfo page = _i26.PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<CoverSelectorRouteArgs>();
+      return _i7.CoverSelectorPage(
+        key: args.key,
+        book: args.book,
+      );
+    },
+  );
+}
+
+class CoverSelectorRouteArgs {
+  const CoverSelectorRouteArgs({
+    this.key,
+    required this.book,
+  });
+
+  final _i27.Key? key;
+
+  final _i29.BookEntity book;
+
+  @override
+  String toString() {
+    return 'CoverSelectorRouteArgs{key: $key, book: $book}';
+  }
 }
 
 /// generated route for

@@ -2,10 +2,10 @@ import 'package:signals/signals.dart';
 import 'package:source_parser/database/book_cover_service.dart';
 import 'package:source_parser/model/book_cover_entity.dart';
 
-class BookCoverSelectorViewModel {
+class CoverSelectorViewModel {
   final int bookId;
 
-  BookCoverSelectorViewModel(this.bookId);
+  CoverSelectorViewModel(this.bookId);
 
   final isLoading = signal(true);
   final covers = signal(<BookCoverEntity>[]);

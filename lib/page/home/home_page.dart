@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:source_parser/page/home/component/bookshelf_view.dart';
+import 'package:source_parser/page/home/bookshelf_view/bookshelf_view.dart';
 import 'package:source_parser/page/home/component/explore.dart';
 import 'package:source_parser/page/home/component/profile_view.dart';
 import 'package:source_parser/provider/reader.dart';
-import 'package:source_parser/view_model/home_view_model.dart';
+import 'package:source_parser/page/home/home_view_model.dart';
 
 @RoutePage()
 class HomePage extends StatefulWidget {
@@ -30,7 +30,6 @@ class _HomePageState extends State<HomePage> {
       var notifier = container.read(provider.notifier);
       notifier.updateMediaQueryData(MediaQuery.of(context));
     });
-    viewModel.initSignals();
   }
 
   @override
