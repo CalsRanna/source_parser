@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/home/component/bookshelf.dart';
 import 'package:source_parser/page/home/component/explore.dart';
-import 'package:source_parser/page/home/component/profile.dart';
+import 'package:source_parser/page/home/component/profile_view.dart';
 import 'package:source_parser/provider/reader.dart';
 
 @RoutePage()

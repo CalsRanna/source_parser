@@ -1,11 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/page/theme/color_picker.dart';
-import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.gr.dart';
+import 'package:source_parser/view_model/source_parser_view_model.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -62,19 +63,18 @@ class ProfileView extends StatelessWidget {
       onTap: () => navigateColor(context),
       title: 'color'.toUpperCase(),
     );
-    var listView = ListView(
-      children: [
-        source,
-        theme,
-        layout,
-        server,
-        fileManager,
-        cloudReader,
-        setting,
-        about,
-        if (kDebugMode) color,
-      ],
-    );
+    var children = [
+      source,
+      theme,
+      layout,
+      server,
+      fileManager,
+      cloudReader,
+      setting,
+      about,
+      if (kDebugMode) color,
+    ];
+    var listView = ListView(children: children);
     return Scaffold(appBar: appBar, body: listView);
   }
 
@@ -87,22 +87,19 @@ class ProfileView extends StatelessWidget {
   }
 }
 
-class _DarkModeToggler extends ConsumerWidget {
-  const _DarkModeToggler();
+class _DarkModeToggler extends StatelessWidget {
+  _DarkModeToggler();
+
+  final viewModel = GetIt.instance<SourceParserViewModel>();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final darkMode = setting?.darkMode ?? false;
-    return IconButton(
-      icon: _buildIcon(darkMode),
-      onPressed: () => toggleDarkMode(ref),
+  Widget build(BuildContext context) {
+    return Watch(
+      (_) => IconButton(
+        icon: _buildIcon(viewModel.isDarkMode.value),
+        onPressed: viewModel.toggleDarkMode,
+      ),
     );
-  }
-
-  void toggleDarkMode(WidgetRef ref) async {
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.toggleDarkMode();
   }
 
   Icon _buildIcon(bool darkMode) {

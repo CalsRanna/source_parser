@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/database/service.dart';
-import 'package:source_parser/provider/setting.dart';
+import 'package:source_parser/di.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/available_source.dart';
 import 'package:source_parser/schema/book.dart';
@@ -13,8 +15,7 @@ import 'package:source_parser/schema/layout.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/schema/theme.dart';
-import 'package:source_parser/util/logger.dart';
-import 'package:source_parser/util/string_extension.dart';
+import 'package:source_parser/view_model/source_parser_view_model.dart';
 
 void main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
@@ -28,21 +29,9 @@ void main() async {
     SourceSchema,
     ThemeSchema,
   ], directory: directory.path);
+  DI.ensureInitialized();
   await DatabaseService.instance.ensureInitialized();
   runApp(ProviderScope(child: SourceParser()));
-}
-
-class DefaultObserver extends ProviderObserver {
-  @override
-  void didUpdateProvider(
-    ProviderBase<Object?> provider,
-    Object? previousValue,
-    Object? newValue,
-    ProviderContainer container,
-  ) {
-    var name = provider.name ?? provider.runtimeType;
-    logger.d('$name changed from $previousValue to $newValue');
-  }
 }
 
 class NoAnimationPageTransitionBuilder extends PageTransitionsBuilder {
@@ -58,42 +47,30 @@ class NoAnimationPageTransitionBuilder extends PageTransitionsBuilder {
   }
 }
 
-class SourceParser extends ConsumerStatefulWidget {
+class SourceParser extends StatefulWidget {
   const SourceParser({super.key});
 
   @override
-  ConsumerState<SourceParser> createState() => _SourceParserState();
+  State<SourceParser> createState() => _SourceParserState();
 }
 
-class _SourceParserState extends ConsumerState<SourceParser> {
+class _SourceParserState extends State<SourceParser> {
+  final viewModel = GetIt.instance<SourceParserViewModel>();
+
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(settingNotifierProvider).valueOrNull;
-    final setting = state ?? Setting();
-    final darkMode = setting.darkMode;
-    final eInkMode = setting.eInkMode;
-    final pageTransitionsTheme = PageTransitionsTheme(
-      builders: {TargetPlatform.android: NoAnimationPageTransitionBuilder()},
-    );
-    var themeData = ThemeData(
-      brightness: darkMode ? Brightness.dark : Brightness.light,
-      colorSchemeSeed: setting.colorSeed.toColor(),
-      pageTransitionsTheme: eInkMode ? pageTransitionsTheme : null,
-      splashFactory: eInkMode ? NoSplash.splashFactory : null,
-      splashColor: eInkMode ? Colors.transparent : null,
-      useMaterial3: true,
-    );
-    return MaterialApp.router(
-      routerConfig: routerConfig,
-      theme: themeData,
-      title: '元夕',
+    return Watch(
+      (_) => MaterialApp.router(
+        routerConfig: routerConfig,
+        theme: viewModel.themeData.value,
+        title: '元夕',
+      ),
     );
   }
 
   @override
   void initState() {
     super.initState();
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.migrate();
+    viewModel.initSignals();
   }
 }
