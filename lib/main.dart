@@ -3,6 +3,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:source_parser/database/service.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/available_source.dart';
@@ -27,6 +28,7 @@ void main() async {
     SourceSchema,
     ThemeSchema,
   ], directory: directory.path);
+  await DatabaseService.instance.ensureInitialized();
   runApp(ProviderScope(child: SourceParser()));
 }
 

@@ -205,4 +205,47 @@ class Theme {
       ..headerPaddingTop = headerPaddingTop ?? this.headerPaddingTop
       ..name = name ?? this.name;
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'background_color': backgroundColor,
+      'background_image': backgroundImage,
+      'chapter_font_size': chapterFontSize,
+      'chapter_font_weight': chapterFontWeight,
+      'chapter_height': chapterHeight,
+      'chapter_letter_spacing': chapterLetterSpacing,
+      'chapter_word_spacing': chapterWordSpacing,
+      'content_color': contentColor,
+      'content_font_size': contentFontSize,
+      'content_font_weight': contentFontWeight,
+      'content_height': contentHeight,
+      'content_letter_spacing': contentLetterSpacing,
+      'content_word_spacing': contentWordSpacing,
+      'content_padding_bottom': contentPaddingBottom,
+      'content_padding_left': contentPaddingLeft,
+      'content_padding_right': contentPaddingRight,
+      'content_padding_top': contentPaddingTop,
+      'footer_color': footerColor,
+      'footer_font_size': footerFontSize,
+      'footer_font_weight': footerFontWeight,
+      'footer_height': footerHeight,
+      'footer_letter_spacing': footerLetterSpacing,
+      'footer_word_spacing': footerWordSpacing,
+      'footer_padding_bottom': footerPaddingBottom,
+      'footer_padding_left': footerPaddingLeft,
+      'footer_padding_right': footerPaddingRight,
+      'footer_padding_top': footerPaddingTop,
+      'header_color': headerColor,
+      'header_font_size': headerFontSize,
+      'header_font_weight': headerFontWeight,
+      'header_height': headerHeight,
+      'header_letter_spacing': headerLetterSpacing,
+      'header_word_spacing': headerWordSpacing,
+      'header_padding_bottom': headerPaddingBottom,
+      'header_padding_left': headerPaddingLeft,
+      'header_padding_right': headerPaddingRight,
+      'header_padding_top': headerPaddingTop,
+      'name': name,
+    };
+  }
 }
