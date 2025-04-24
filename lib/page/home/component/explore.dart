@@ -1,15 +1,14 @@
 import 'dart:math';
 
-import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/page/explore.dart';
 import 'package:source_parser/page/home/widget/search_button.dart';
-import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/explore.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/source.dart';
@@ -55,9 +54,8 @@ class _BannerState extends State<_Banner> {
   }
 
   void handleTap(BuildContext context, WidgetRef ref, int index) {
-    // AutoRouter.of(context).push(InformationRoute());
-    // final notifier = ref.read(bookNotifierProvider.notifier);
-    // notifier.update(books[index]);
+    var bookEntity = BookEntity.fromJson(books[index].toJson());
+    InformationRoute(book: bookEntity).push(context);
   }
 
   @override
@@ -481,9 +479,8 @@ class _ListTile extends ConsumerWidget {
   }
 
   void handleTap(BuildContext context, WidgetRef ref) {
-    // AutoRouter.of(context).push(InformationRoute());
-    // final notifier = ref.read(bookNotifierProvider.notifier);
-    // notifier.update(book);
+    var bookEntity = BookEntity.fromJson(book.toJson());
+    InformationRoute(book: bookEntity).push(context);
   }
 
   String? _buildSubtitle() {

@@ -12,6 +12,12 @@ class BookService {
     await laconic.table('books').where('id', book.id).delete();
   }
 
+  Future<BookEntity> getBook(int id) async {
+    var laconic = DatabaseService.instance.laconic;
+    var book = await laconic.table('books').where('id', id).first();
+    return BookEntity.fromJson(book.toMap());
+  }
+
   Future<List<BookEntity>> getBooks() async {
     var laconic = DatabaseService.instance.laconic;
     var books = await laconic.table('books').get();
