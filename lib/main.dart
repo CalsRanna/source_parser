@@ -6,7 +6,7 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/database/service.dart';
-import 'package:source_parser/di.dart';
+import 'package:source_parser/injector.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/schema/available_source.dart';
 import 'package:source_parser/schema/book.dart';
@@ -29,7 +29,7 @@ void main() async {
     SourceSchema,
     ThemeSchema,
   ], directory: directory.path);
-  DI.ensureInitialized();
+  Injector.ensureInitialized();
   await DatabaseService.instance.ensureInitialized();
   runApp(ProviderScope(child: SourceParser()));
 }
