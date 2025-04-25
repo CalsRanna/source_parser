@@ -1,6 +1,6 @@
 import 'package:signals/signals.dart';
-import 'package:source_parser/database/book_cover_service.dart';
-import 'package:source_parser/model/book_cover_entity.dart';
+import 'package:source_parser/database/cover_service.dart';
+import 'package:source_parser/model/cover_entity.dart';
 
 class CoverSelectorViewModel {
   final int bookId;
@@ -8,10 +8,10 @@ class CoverSelectorViewModel {
   CoverSelectorViewModel(this.bookId);
 
   final isLoading = signal(true);
-  final covers = signal(<BookCoverEntity>[]);
+  final covers = signal(<CoverEntity>[]);
 
   Future<void> initSignals() async {
-    covers.value = await BookCoverService().getBookCovers(bookId);
+    covers.value = await CoverService().getCovers(bookId);
     isLoading.value = false;
   }
 }

@@ -8,8 +8,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/page/information/information_archive_view.dart';
+import 'package:source_parser/page/information/information_available_source_view.dart';
+import 'package:source_parser/page/information/information_catalogue_view.dart';
+import 'package:source_parser/page/information/information_description_view.dart';
 import 'package:source_parser/page/information/information_view_model.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/router/router.gr.dart';
@@ -22,101 +25,7 @@ class InformationPage extends ConsumerStatefulWidget {
   const InformationPage({super.key, required this.book});
 
   @override
-  ConsumerState<InformationPage> createState() => _InformationState();
-}
-
-class _Archive extends ConsumerWidget {
-  final bool isArchive;
-  const _Archive({required this.isArchive});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var theme = Theme.of(context);
-    var colorScheme = theme.colorScheme;
-    var surfaceTint = colorScheme.surfaceTint;
-    const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
-    var switchWidget = Switch(
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      value: isArchive,
-      onChanged: (value) {},
-    );
-    var children = [
-      const Text('归档', style: boldTextStyle),
-      const Spacer(),
-      switchWidget
-    ];
-    var column = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [Row(children: children)],
-    );
-    var padding = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-      child: column,
-    );
-    var card = Card(
-      color: surfaceTint.withValues(alpha: 0.05),
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: const RoundedRectangleBorder(),
-      child: padding,
-    );
-    return GestureDetector(onTap: () => handleTap(context, ref), child: card);
-  }
-
-  void handleTap(BuildContext context, WidgetRef ref) async {
-    // final message = Message.of(context);
-    // final notifier = ref.read(bookNotifierProvider.notifier);
-    // await notifier.toggleArchive();
-    // final book = ref.read(bookNotifierProvider);
-    // if (book.archive) {
-    //   message.show('归档后，书架不再更新');
-    // }
-  }
-}
-
-class _AvailableSource extends StatelessWidget {
-  final List<AvailableSourceEntity> availableSources;
-  final AvailableSourceEntity currentSource;
-  final void Function()? onTap;
-
-  const _AvailableSource({
-    required this.availableSources,
-    required this.currentSource,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
-    var name = '';
-    if (currentSource.name.isNotEmpty) {
-      name = '${currentSource.name} · ';
-    }
-    var theme = Theme.of(context);
-    var colorScheme = theme.colorScheme;
-    var surfaceTint = colorScheme.surfaceTint;
-    var text = Text(
-      '$name可用${availableSources.length}个',
-      textAlign: TextAlign.right,
-    );
-    var children = [
-      const Text('书源', style: boldTextStyle),
-      Expanded(child: text),
-      const Icon(HugeIcons.strokeRoundedArrowRight01)
-    ];
-    var column = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [Row(children: children)],
-    );
-    var card = Card(
-      color: surfaceTint.withValues(alpha: 0.05),
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: const RoundedRectangleBorder(),
-      child: Padding(padding: const EdgeInsets.all(16.0), child: column),
-    );
-    return GestureDetector(onTap: onTap, child: card);
-  }
+  ConsumerState<InformationPage> createState() => _InformationPageState();
 }
 
 class _BackgroundImage extends StatelessWidget {
@@ -192,67 +101,6 @@ class _BottomBar extends StatelessWidget {
     AutoRouter.of(context).push(ReaderRoute(book: book));
     final bookNotifier = ref.read(bookNotifierProvider.notifier);
     bookNotifier.startReader(index: index);
-  }
-
-  void toggleShelf(WidgetRef ref) async {
-    // var provider = inShelfProvider(book);
-    // final notifier = ref.read(provider.notifier);
-    // notifier.toggleShelf();
-  }
-}
-
-class _Catalogue extends StatelessWidget {
-  final BookEntity book;
-
-  final bool loading;
-  const _Catalogue({
-    required this.book,
-    this.loading = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
-    return Consumer(builder: (context, ref, child) {
-      return GestureDetector(
-        onTap: () => handleTap(context, ref),
-        child: Card(
-          color:
-              Theme.of(context).colorScheme.surfaceTint.withValues(alpha: 0.05),
-          elevation: 0,
-          margin: EdgeInsets.zero,
-          shape: const RoundedRectangleBorder(),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                const Text('目录', style: boldTextStyle),
-                const Spacer(),
-                // if (loading && book.chapters.isEmpty)
-                //   SizedBox(
-                //     height: 24,
-                //     width: eInkMode ? null : 24,
-                //     child: const LoadingIndicator(),
-                //   ),
-                // if (!loading || book.chapters.isNotEmpty) ...[
-                //   Text(
-                //     '共${book.chapters.length}章',
-                //     textAlign: TextAlign.right,
-                //   ),
-                //   const Icon(HugeIcons.strokeRoundedArrowRight01)
-                // ]
-              ],
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
-  void handleTap(BuildContext context, WidgetRef ref) {
-    if (loading) return;
-    final book = ref.read(bookNotifierProvider);
-    AutoRouter.of(context).push(CatalogueRoute(index: book.index));
   }
 }
 
@@ -337,7 +185,7 @@ class _Information extends StatelessWidget {
   }
 }
 
-class _InformationState extends ConsumerState<InformationPage> {
+class _InformationPageState extends ConsumerState<InformationPage> {
   bool loading = false;
 
   late final viewModel = GetIt.instance<InformationViewModel>(
@@ -346,66 +194,18 @@ class _InformationState extends ConsumerState<InformationPage> {
 
   @override
   Widget build(BuildContext context) {
-    // final provider = ref.watch(settingNotifierProvider);
-    // final setting = switch (provider) {
-    //   AsyncData(:final value) => value,
-    //   _ => Setting(),
-    // };
-    // final eInkMode = setting.eInkMode;
-    // final sourceProvider = ref.watch(currentSourceProvider);
-    // final source = switch (sourceProvider) {
-    //   AsyncData(:final value) => value,
-    //   _ => null,
-    // };
-    return Scaffold(
-      body: EasyRefresh(
-        onRefresh: () => getInformation(ref),
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 200,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Stack(
-                  children: [
-                    _BackgroundImage(url: widget.book.cover),
-                    const _ColorFilter(),
-                    _Information(book: widget.book),
-                  ],
-                ),
-                collapseMode: CollapseMode.pin,
-              ),
-              pinned: true,
-              stretch: true,
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate([
-                _Introduction(book: widget.book),
-                const SizedBox(height: 8),
-                _Catalogue(book: widget.book, loading: loading),
-                const SizedBox(height: 8),
-                Watch(
-                  (_) => _AvailableSource(
-                    availableSources: [],
-                    currentSource: viewModel.currentSource.value,
-                    onTap: () => viewModel.navigateAvailableSourcePage(context),
-                    // sources: book.sources,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _Archive(isArchive: widget.book.archive),
-              ]),
-            )
-          ],
-        ),
-      ),
-      bottomNavigationBar: Watch(
-        (_) => _BottomBar(
-          book: widget.book,
-          isInShelf: viewModel.isInShelf.value,
-          onIsInShelfChanged: () => viewModel.changeIsInShelf(widget.book),
-        ),
+    var body = EasyRefresh(
+      onRefresh: () => getInformation(ref),
+      child: CustomScrollView(slivers: [_buildAppBar(), _buildList(context)]),
+    );
+    var bottomNavigationBar = Watch(
+      (_) => _BottomBar(
+        book: widget.book,
+        isInShelf: viewModel.isInShelf.value,
+        onIsInShelfChanged: () => viewModel.changeIsInShelf(widget.book),
       ),
     );
+    return Scaffold(body: body, bottomNavigationBar: bottomNavigationBar);
   }
 
   Future<void> getInformation(WidgetRef ref) async {
@@ -433,96 +233,51 @@ class _InformationState extends ConsumerState<InformationPage> {
     getInformation(ref);
     viewModel.initSignals();
   }
-}
 
-class _Introduction extends StatefulWidget {
-  final BookEntity book;
-
-  const _Introduction({required this.book});
-
-  @override
-  State<_Introduction> createState() => _IntroductionState();
-}
-
-class _IntroductionState extends State<_Introduction> {
-  bool expanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surfaceTint = colorScheme.surfaceTint;
-    var introduction = widget.book.introduction;
-    introduction = introduction
-        .replaceAll(' ', '')
-        .replaceAll(RegExp(r'\u2003'), '')
-        .replaceAll(RegExp(r'\n+'), '\n\u2003\u2003')
-        .trim();
-    introduction = '\u2003\u2003$introduction';
-    return Card(
-      color: surfaceTint.withValues(alpha: 0.05),
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: const RoundedRectangleBorder(),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  children: [
-                    if (widget.book.words.isNotEmpty)
-                      _Tag(text: widget.book.words),
-                    if (widget.book.status.isNotEmpty)
-                      _Tag(text: widget.book.status),
-                  ],
-                ),
-                if (widget.book.words.isNotEmpty ||
-                    widget.book.status.isNotEmpty)
-                  const SizedBox(height: 16),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: handleTap,
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: Text(
-                      introduction,
-                      maxLines: expanded ? null : 4,
-                      overflow: expanded ? null : TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            if (!expanded)
-              Positioned(
-                bottom: 8,
-                right: 0,
-                child: Container(
-                  decoration: ShapeDecoration(
-                    color: surfaceTint.withValues(alpha: 0.1),
-                    shape: const StadiumBorder(),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Icon(
-                    HugeIcons.strokeRoundedArrowDown01,
-                    color: surfaceTint,
-                    size: 12,
-                  ),
-                ),
-              )
-          ],
-        ),
-      ),
+  SliverAppBar _buildAppBar() {
+    var children = [
+      _BackgroundImage(url: widget.book.cover),
+      const _ColorFilter(),
+      _Information(book: widget.book),
+    ];
+    var flexibleSpaceBar = FlexibleSpaceBar(
+      background: Stack(children: children),
+      collapseMode: CollapseMode.pin,
+    );
+    return SliverAppBar(
+      expandedHeight: 200,
+      flexibleSpace: flexibleSpaceBar,
+      pinned: true,
+      stretch: true,
     );
   }
 
-  void handleTap() {
-    setState(() {
-      expanded = !expanded;
-    });
+  SliverList _buildList(BuildContext context) {
+    var catalogue = Watch(
+      (_) => InformationCatalogueView(
+        book: widget.book,
+        chapters: viewModel.chapters.value,
+        loading: loading,
+      ),
+    );
+    var availableSource = Watch(
+      (_) => InformationAvailableSourceView(
+        availableSources: [],
+        currentSource: viewModel.currentSource.value,
+        onTap: () => viewModel.navigateAvailableSourcePage(context),
+        // sources: book.sources,
+      ),
+    );
+    var children = [
+      InformationDescriptionView(book: widget.book),
+      const SizedBox(height: 8),
+      catalogue,
+      const SizedBox(height: 8),
+      availableSource,
+      const SizedBox(height: 8),
+      InformationArchiveView(isArchive: widget.book.archive),
+    ];
+    return SliverList(delegate: SliverChildListDelegate(children));
   }
 }
 
@@ -559,29 +314,3 @@ class _IntroductionState extends State<_Introduction> {
 //     navigator.push(route);
 //   }
 // }
-
-class _Tag extends StatelessWidget {
-  final String text;
-
-  const _Tag({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surfaceTint = colorScheme.surfaceTint;
-    final textTheme = theme.textTheme;
-    final labelMedium = textTheme.labelMedium;
-    return Container(
-      decoration: ShapeDecoration(
-        color: surfaceTint.withValues(alpha: 0.1),
-        shape: const StadiumBorder(),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 4,
-      ),
-      child: Text(text, style: labelMedium),
-    );
-  }
-}
