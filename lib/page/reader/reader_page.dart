@@ -4,10 +4,12 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:source_parser/page/reader/animation/cover_page.dart';
 import 'package:source_parser/page/reader/component/cache.dart';
 import 'package:source_parser/page/reader/component/overlay.dart';
 import 'package:source_parser/page/reader/component/view.dart';
+import 'package:source_parser/page/reader/reader_view_model.dart';
 import 'package:source_parser/provider/battery.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
@@ -38,6 +40,10 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
   late AnimationController _animationController;
   late CoverPageAnimation _coverAnimation;
   Widget? _nextPage;
+
+  late final viewModel = GetIt.instance<ReaderViewModel>(
+    param1: widget.book,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +76,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
   @override
   void initState() {
     super.initState();
+    viewModel.initSignals();
     _hideUiOverlays();
     _initReaderController();
     _animationController = AnimationController(vsync: this);

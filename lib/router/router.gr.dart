@@ -25,7 +25,7 @@ import 'package:source_parser/page/home/home_page.dart' as _i9;
 import 'package:source_parser/page/information/information_page.dart' as _i10;
 import 'package:source_parser/page/layout.dart' as _i12;
 import 'package:source_parser/page/local_server/local_server.dart' as _i11;
-import 'package:source_parser/page/reader/reader.dart' as _i13;
+import 'package:source_parser/page/reader/reader_page.dart' as _i13;
 import 'package:source_parser/page/search/search_page.dart' as _i15;
 import 'package:source_parser/page/setting.dart' as _i16;
 import 'package:source_parser/page/source/advanced.dart' as _i17;
