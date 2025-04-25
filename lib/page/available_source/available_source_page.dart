@@ -106,8 +106,8 @@ class _AvailableSourcePageState extends State<AvailableSourcePage> {
   }
 
   Widget _itemBuilder(int index) {
-    final active =
-        viewModel.availableSources.value[index].id == widget.book.sourceId;
+    final active = viewModel.availableSources.value[index].id ==
+        widget.book.availableSourceId;
     return ListTile(
       onLongPress: openBottomSheet,
       // onTap: () => switchSource(context, index),
