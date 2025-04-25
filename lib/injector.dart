@@ -38,8 +38,8 @@ class Injector {
     injector.registerFactoryParam<ReaderViewModel, BookEntity, Object?>(
       (book, _) => ReaderViewModel(book: book),
     );
-    injector.registerFactoryParam<CoverSelectorViewModel, int, Object?>(
-      (bookId, _) => CoverSelectorViewModel(bookId),
+    injector.registerFactoryParam<CoverSelectorViewModel, BookEntity, Object?>(
+      (book, _) => CoverSelectorViewModel(book: book),
     );
   }
 }

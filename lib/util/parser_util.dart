@@ -29,6 +29,16 @@ class ParserUtil {
     }
   }
 
+  Stream<CoverEntity> getCovers(BookEntity book) async* {
+    var stream = search(book.name);
+    var broadcastStream = stream.asBroadcastStream();
+    await for (var item in broadcastStream) {
+      if (item.book.name == book.name && item.book.author == book.author) {
+        yield item.cover;
+      }
+    }
+  }
+
   Stream<ParserSearchResultEntity> search(String credential) async* {
     var storedCacheDuration = await SharedPreferenceUtil.getCacheDuration();
     var cachedDuration = Duration(hours: storedCacheDuration.floor());
