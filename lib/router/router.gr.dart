@@ -15,7 +15,7 @@ import 'package:source_parser/page/about.dart' as _i1;
 import 'package:source_parser/page/available_source/form.dart' as _i2;
 import 'package:source_parser/page/available_source/source.dart' as _i3;
 import 'package:source_parser/page/book/form.dart' as _i4;
-import 'package:source_parser/page/catalogue/catalogue.dart' as _i5;
+import 'package:source_parser/page/catalogue/catalogue_page.dart' as _i5;
 import 'package:source_parser/page/cloud_reader.dart' as _i6;
 import 'package:source_parser/page/cover_selector/cover_selector_page.dart'
     as _i7;
@@ -148,13 +148,13 @@ class BookFormRoute extends _i26.PageRouteInfo<void> {
 class CatalogueRoute extends _i26.PageRouteInfo<CatalogueRouteArgs> {
   CatalogueRoute({
     _i27.Key? key,
-    required int index,
+    required _i29.BookEntity book,
     List<_i26.PageRouteInfo>? children,
   }) : super(
           CatalogueRoute.name,
           args: CatalogueRouteArgs(
             key: key,
-            index: index,
+            book: book,
           ),
           initialChildren: children,
         );
@@ -167,7 +167,7 @@ class CatalogueRoute extends _i26.PageRouteInfo<CatalogueRouteArgs> {
       final args = data.argsAs<CatalogueRouteArgs>();
       return _i5.CataloguePage(
         key: args.key,
-        index: args.index,
+        book: args.book,
       );
     },
   );
@@ -176,16 +176,16 @@ class CatalogueRoute extends _i26.PageRouteInfo<CatalogueRouteArgs> {
 class CatalogueRouteArgs {
   const CatalogueRouteArgs({
     this.key,
-    required this.index,
+    required this.book,
   });
 
   final _i27.Key? key;
 
-  final int index;
+  final _i29.BookEntity book;
 
   @override
   String toString() {
-    return 'CatalogueRouteArgs{key: $key, index: $index}';
+    return 'CatalogueRouteArgs{key: $key, book: $book}';
   }
 }
 

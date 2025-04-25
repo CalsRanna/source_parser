@@ -29,7 +29,7 @@ class InformationAvailableSourceView extends StatelessWidget {
       textAlign: TextAlign.right,
     );
     var children = [
-      const Text('书源', style: boldTextStyle),
+      const Text('可用书源', style: boldTextStyle),
       Expanded(child: text),
       const Icon(HugeIcons.strokeRoundedArrowRight01)
     ];

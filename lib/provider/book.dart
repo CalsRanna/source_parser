@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:isar/isar.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -21,9 +20,9 @@ class BookCovers extends _$BookCovers {
   @override
   Future<List<String>> build(Book book) async {
     if (book.covers.isNotEmpty) return book.covers;
-    final setting = await ref.read(settingNotifierProvider.future);
-    final duration = setting.cacheDuration;
-    final timeout = setting.timeout;
+    // final setting = await ref.read(settingNotifierProvider.future);
+    // final duration = setting.cacheDuration;
+    // final timeout = setting.timeout;
     List<String> covers = [];
     // for (var availableSource in book.sources) {
     //   final source =
@@ -116,9 +115,9 @@ class BookNotifier extends _$BookNotifier {
   }
 
   Future<List<String>> getCovers() async {
-    final setting = await ref.read(settingNotifierProvider.future);
-    final duration = setting.cacheDuration;
-    final timeout = setting.timeout;
+    // final setting = await ref.read(settingNotifierProvider.future);
+    // final duration = setting.cacheDuration;
+    // final timeout = setting.timeout;
     List<String> covers = [];
     // for (var availableSource in state.sources) {
     //   final source =
@@ -445,7 +444,7 @@ class BookNotifier extends _$BookNotifier {
 @riverpod
 class Books extends _$Books {
   Future<bool> _exist(String url) async {
-    var books = await future;
+    // var books = await future;
     List<AvailableSource> sources = [];
     // for (var book in books) {
     //   sources.addAll(book.sources);
@@ -463,19 +462,19 @@ class Books extends _$Books {
     final builder = isar.sources.filter();
     final source = await builder.urlContains(host).findFirst();
     if (source == null) throw Exception('未找到该网址对应的书源');
-    final setting = await ref.read(settingNotifierProvider.future);
-    final duration = Duration(hours: setting.cacheDuration.floor());
-    final timeout = Duration(milliseconds: setting.timeout);
-    var book = await Parser.getInformation('', url, source, duration, timeout);
-    var latestChapter = await Parser.getLatestChapter(
-        book.name, url, source, duration, timeout);
-    var availableSource = AvailableSource()
-      ..id = source.id
-      ..latestChapter = latestChapter
-      ..name = source.name
-      ..url = url;
-    var books = await future;
-    var sameBook = books.where((item) => item.name == book.name).firstOrNull;
+    // final setting = await ref.read(settingNotifierProvider.future);
+    // final duration = Duration(hours: setting.cacheDuration.floor());
+    // final timeout = Duration(milliseconds: setting.timeout);
+    // var book = await Parser.getInformation('', url, source, duration, timeout);
+    // var latestChapter = await Parser.getLatestChapter(
+    //     book.name, url, source, duration, timeout);
+    // var availableSource = AvailableSource()
+    //   ..id = source.id
+    //   ..latestChapter = latestChapter
+    //   ..name = source.name
+    //   ..url = url;
+    // var books = await future;
+    // var sameBook = books.where((item) => item.name == book.name).firstOrNull;
     // if (sameBook != null) {
     //   sameBook.sources = [...sameBook.sources, availableSource];
     //   await isar.writeTxn(() async {

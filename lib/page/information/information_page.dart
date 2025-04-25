@@ -28,7 +28,7 @@ class _InformationPageState extends ConsumerState<InformationPage> {
   bool loading = false;
 
   late final viewModel = GetIt.instance<InformationViewModel>(
-    param1: widget.book.id,
+    param1: widget.book,
   );
 
   @override
@@ -92,6 +92,7 @@ class _InformationPageState extends ConsumerState<InformationPage> {
         book: widget.book,
         chapters: viewModel.chapters.value,
         loading: loading,
+        onTap: () => viewModel.navigateCataloguePage(context),
       ),
     );
     var availableSource = Watch(

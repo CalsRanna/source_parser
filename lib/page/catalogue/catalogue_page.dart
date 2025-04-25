@@ -1,29 +1,35 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/model/chapter_entity.dart';
+import 'package:source_parser/page/catalogue/catalogue_view_model.dart';
 import 'package:source_parser/provider/book.dart';
-import 'package:source_parser/router/router.gr.dart';
-import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/message.dart';
 
 @RoutePage()
-class CataloguePage extends ConsumerStatefulWidget {
-  final int index;
+class CataloguePage extends StatefulWidget {
+  final BookEntity book;
 
-  const CataloguePage({super.key, required this.index});
+  const CataloguePage({super.key, required this.book});
 
   @override
-  ConsumerState<CataloguePage> createState() => _CataloguePageState();
+  State<CataloguePage> createState() => _CataloguePageState();
 }
 
-class _CataloguePageState extends ConsumerState<CataloguePage> {
+class _CataloguePageState extends State<CataloguePage> {
   bool atTop = true;
   late ScrollController controller;
   GlobalKey globalKey = GlobalKey();
+
+  late final viewModel = GetIt.instance<CatalogueViewModel>(
+    param1: widget.book,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -36,22 +42,21 @@ class _CataloguePageState extends ConsumerState<CataloguePage> {
       title: const Text('目录'),
       actions: [iconButton],
     );
-    final book = ref.watch(bookNotifierProvider);
+    return Scaffold(appBar: appBar, body: Watch(_buildBody));
+  }
+
+  Widget _buildBody(BuildContext context) {
     final listView = ListView.builder(
       controller: controller,
-      itemBuilder: (_, index) => _itemBuilder(ref, book, index),
-      itemCount: book.chapters.length,
+      itemBuilder: (_, index) => _itemBuilder(index),
+      itemCount: viewModel.chapters.value.length,
       itemExtent: 56,
     );
     final easyRefresh = EasyRefresh(
-      onRefresh: () => handleRefresh(ref),
+      onRefresh: () => viewModel.refreshChapters(),
       child: listView,
     );
-    final scrollbar = Scrollbar(
-      controller: controller,
-      child: easyRefresh,
-    );
-    return Scaffold(appBar: appBar, body: scrollbar);
+    return Scrollbar(controller: controller, child: easyRefresh);
   }
 
   void handlePressed() {
@@ -82,6 +87,7 @@ class _CataloguePageState extends ConsumerState<CataloguePage> {
   @override
   void initState() {
     super.initState();
+    viewModel.initSignals();
     controller = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final height = MediaQuery.of(context).size.height;
@@ -92,61 +98,39 @@ class _CataloguePageState extends ConsumerState<CataloguePage> {
       var listViewHeight = height - padding.vertical;
       listViewHeight = listViewHeight - appBarRenderBox.size.height;
       final halfHeight = listViewHeight / 2;
-      var offset = 56.0 * widget.index;
+      var offset = 56.0 * widget.book.chapterIndex;
       offset = (offset - halfHeight);
       offset = offset.clamp(0, maxScrollExtent);
       controller.jumpTo(offset);
     });
   }
 
-  void startReader(WidgetRef ref, int index) async {
-    final navigator = Navigator.of(context);
-    navigator.pop();
-    var book = ref.read(bookNotifierProvider);
-    AutoRouter.of(context).replace(ReaderRoute(book: book));
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-    final bookNotifier = ref.read(bookNotifierProvider.notifier);
-    bookNotifier.startReader(cursor: 0, index: index);
-  }
-
-  Widget _futureBuilder(
-    WidgetRef ref,
-    Book book,
-    int index,
-    AsyncSnapshot<bool> snapshot,
-  ) {
-    final chapter = book.chapters.elementAt(index);
-    final active = book.index == index;
-    final cached = snapshot.data ?? false;
-    return _Tile(
-      chapter,
-      active: active,
-      cached: cached,
-      onTap: () => startReader(ref, index),
-    );
-  }
-
-  Widget _itemBuilder(WidgetRef ref, Book book, int index) {
-    final network = CachedNetwork(prefix: book.name);
-    final chapter = book.chapters.elementAt(index);
-    final future = network.cached(chapter.url);
+  Widget _itemBuilder(int index) {
+    final chapter = viewModel.chapters.value.elementAt(index);
+    final isActive = widget.book.chapterIndex == index;
+    final future = CachedNetwork(prefix: widget.book.name).cached(chapter.url);
     return FutureBuilder(
-      builder: (_, snapshot) => _futureBuilder(ref, book, index, snapshot),
+      builder: (_, snapshot) => _Tile(
+        chapter,
+        isActive: isActive,
+        isCached: snapshot.data ?? false,
+        onTap: () => viewModel.navigateReaderPage(context),
+      ),
       future: future,
     );
   }
 }
 
 class _Tile extends StatelessWidget {
-  final bool active;
-  final bool cached;
-  final Chapter chapter;
+  final ChapterEntity chapter;
+  final bool isActive;
+  final bool isCached;
   final void Function()? onTap;
 
   const _Tile(
     this.chapter, {
-    this.active = false,
-    this.cached = false,
+    this.isActive = false,
+    this.isCached = false,
     this.onTap,
   });
 
@@ -167,13 +151,13 @@ class _Tile extends StatelessWidget {
   Color _getColor(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    if (active) return colorScheme.primary;
-    if (cached) return colorScheme.onSurface;
+    if (isActive) return colorScheme.primary;
+    if (isCached) return colorScheme.onSurface;
     return colorScheme.onSurface.withValues(alpha: 0.5);
   }
 
   FontWeight _getFontWeight() {
-    if (active) return FontWeight.bold;
+    if (isActive) return FontWeight.bold;
     return FontWeight.normal;
   }
 }

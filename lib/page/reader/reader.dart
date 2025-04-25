@@ -13,7 +13,6 @@ import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/reader.dart';
 import 'package:source_parser/provider/theme.dart';
-import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/reader_controller.dart';
@@ -320,7 +319,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
   }
 
   void _navigateCatalogue() {
-    CatalogueRoute(index: _readerController!.chapterIndex).push(context);
+    // CatalogueRoute(index: _readerController!.chapterIndex).push(context);
   }
 
   void _nextChapter() {

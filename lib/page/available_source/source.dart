@@ -3,7 +3,6 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/page/available_source/component/option_bottom_sheet.dart';
 import 'package:source_parser/provider/book.dart';
@@ -11,7 +10,6 @@ import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:source_parser/view_model/available_source_view_model.dart';
 import 'package:source_parser/widget/loading.dart';
 
 @RoutePage()

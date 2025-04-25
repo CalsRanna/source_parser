@@ -1,4 +1,6 @@
 import 'package:get_it/get_it.dart';
+import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/page/catalogue/catalogue_view_model.dart';
 import 'package:source_parser/page/cover_selector/cover_selector_view_model.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/page/home/home_view_model.dart';
@@ -8,22 +10,26 @@ import 'package:source_parser/view_model/source_parser_view_model.dart';
 
 class Injector {
   static void ensureInitialized() {
-    GetIt.instance.registerLazySingleton<SourceParserViewModel>(
+    var injector = GetIt.instance;
+    injector.registerLazySingleton<SourceParserViewModel>(
       () => SourceParserViewModel(),
     );
-    GetIt.instance.registerLazySingleton<HomeViewModel>(
+    injector.registerLazySingleton<HomeViewModel>(
       () => HomeViewModel(),
     );
-    GetIt.instance.registerLazySingleton<BookshelfViewModel>(
+    injector.registerLazySingleton<BookshelfViewModel>(
       () => BookshelfViewModel(),
     );
-    GetIt.instance.registerFactory(
+    injector.registerFactory(
       () => SearchViewModel(),
     );
-    GetIt.instance.registerFactoryParam<InformationViewModel, int, Object?>(
-      (bookId, _) => InformationViewModel(bookId),
+    injector.registerFactoryParam<InformationViewModel, BookEntity, Object?>(
+      (book, _) => InformationViewModel(book: book),
     );
-    GetIt.instance.registerFactoryParam<CoverSelectorViewModel, int, Object?>(
+    injector.registerFactoryParam<CatalogueViewModel, BookEntity, Object?>(
+      (book, _) => CatalogueViewModel(book: book),
+    );
+    injector.registerFactoryParam<CoverSelectorViewModel, int, Object?>(
       (bookId, _) => CoverSelectorViewModel(bookId),
     );
   }
