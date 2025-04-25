@@ -16,7 +16,7 @@ class CatalogueViewModel {
   var chapters = Signal(<ChapterEntity>[]);
 
   Future<void> initSignals() async {
-    var isInShelf = await BookService().getIsInShelf(book.id);
+    var isInShelf = await BookService().exist(book.id);
     if (isInShelf) {
       chapters.value = await ChapterService().getChapters(book.id);
     }

@@ -4,7 +4,9 @@ import 'package:source_parser/model/available_source_entity.dart';
 class AvailableSourceService {
   Future<void> addAvailableSource(AvailableSourceEntity availableSource) async {
     var laconic = DatabaseService.instance.laconic;
-    await laconic.table('available_sources').insert(availableSource.toJson());
+    var json = availableSource.toJson();
+    json.remove('id');
+    await laconic.table('available_sources').insert(json);
   }
 
   Future<bool> exist(String url) async {
@@ -17,10 +19,12 @@ class AvailableSourceService {
   Future<void> updateAvailableSource(
       AvailableSourceEntity availableSource) async {
     var laconic = DatabaseService.instance.laconic;
+    var json = availableSource.toJson();
+    json.remove('id');
     await laconic
         .table('available_sources')
         .where('id', availableSource.id)
-        .update(availableSource.toJson());
+        .update(json);
   }
 
   Future<AvailableSourceEntity> getAvailableSource(int id) async {

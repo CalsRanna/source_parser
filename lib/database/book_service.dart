@@ -12,6 +12,12 @@ class BookService {
     await laconic.table('books').where('id', book.id).delete();
   }
 
+  Future<bool> exist(int bookId) async {
+    var laconic = DatabaseService.instance.laconic;
+    var count = await laconic.table('books').where('id', bookId).count();
+    return count > 0;
+  }
+
   Future<BookEntity> getBook(int id) async {
     var laconic = DatabaseService.instance.laconic;
     var book = await laconic.table('books').where('id', id).first();
@@ -22,12 +28,6 @@ class BookService {
     var laconic = DatabaseService.instance.laconic;
     var books = await laconic.table('books').get();
     return books.map((book) => BookEntity.fromJson(book.toMap())).toList();
-  }
-
-  Future<bool> getIsInShelf(int bookId) async {
-    var laconic = DatabaseService.instance.laconic;
-    var count = await laconic.table('books').where('id', bookId).count();
-    return count > 0;
   }
 
   Future<void> removeFromBookshelf(int bookId) async {

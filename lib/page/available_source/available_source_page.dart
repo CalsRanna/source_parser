@@ -30,6 +30,12 @@ class _AvailableSourcePageState extends State<AvailableSourcePage> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    viewModel.initSignals();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var button = IconButton(
       onPressed: () => viewModel.navigateAvailableSourceFormPage(context),

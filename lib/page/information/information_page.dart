@@ -97,10 +97,9 @@ class _InformationPageState extends ConsumerState<InformationPage> {
     );
     var availableSource = Watch(
       (_) => InformationAvailableSourceView(
-        availableSources: [],
+        availableSources: viewModel.availableSources.value,
         currentSource: viewModel.currentSource.value,
         onTap: () => viewModel.navigateAvailableSourcePage(context),
-        // sources: book.sources,
       ),
     );
     var children = [

@@ -11,6 +11,7 @@ import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/model/cover_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
+import 'package:source_parser/util/logger.dart';
 // import 'package:source_parser/router/router.gr.dart';
 
 class InformationViewModel {
@@ -36,7 +37,7 @@ class InformationViewModel {
   }
 
   Future<void> initSignals() async {
-    isInShelf.value = await BookService().getIsInShelf(book.id);
+    isInShelf.value = await BookService().exist(book.id);
     if (isInShelf.value) {
       try {
         availableSources.value =
@@ -46,8 +47,7 @@ class InformationViewModel {
         currentSource.value = await AvailableSourceService()
             .getAvailableSource(book.availableSourceId);
       } catch (error) {
-        availableSources.value = [];
-        currentSource.value = AvailableSourceEntity();
+        logger.e(error.toString());
       }
     } else {}
   }
