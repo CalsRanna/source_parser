@@ -53,7 +53,7 @@ class InformationViewModel {
   }
 
   void navigateAvailableSourcePage(BuildContext context) {
-    // AvailableSourceListRoute().push(context);
+    AvailableSourceRoute(book: book).push(context);
   }
 
   void navigateCataloguePage(BuildContext context) {

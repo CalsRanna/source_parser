@@ -10,10 +10,11 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:auto_route/auto_route.dart' as _i26;
 import 'package:flutter/material.dart' as _i27;
-import 'package:source_parser/model/book_entity.dart' as _i29;
+import 'package:source_parser/model/book_entity.dart' as _i28;
 import 'package:source_parser/page/about.dart' as _i1;
+import 'package:source_parser/page/available_source/available_source_page.dart'
+    as _i3;
 import 'package:source_parser/page/available_source/form.dart' as _i2;
-import 'package:source_parser/page/available_source/source.dart' as _i3;
 import 'package:source_parser/page/book/form.dart' as _i4;
 import 'package:source_parser/page/catalogue/catalogue_page.dart' as _i5;
 import 'package:source_parser/page/cloud_reader.dart' as _i6;
@@ -37,7 +38,7 @@ import 'package:source_parser/page/source/search.dart' as _i24;
 import 'package:source_parser/page/source/source.dart' as _i23;
 import 'package:source_parser/page/theme/theme.dart' as _i14;
 import 'package:source_parser/page/theme/theme_editor.dart' as _i25;
-import 'package:source_parser/schema/book.dart' as _i28;
+import 'package:source_parser/schema/book.dart' as _i29;
 
 /// generated route for
 /// [_i1.AboutPage]
@@ -78,29 +79,29 @@ class AvailableSourceFormRoute extends _i26.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i3.AvailableSourceListPage]
-class AvailableSourceListRoute
-    extends _i26.PageRouteInfo<AvailableSourceListRouteArgs> {
-  AvailableSourceListRoute({
+/// [_i3.AvailableSourcePage]
+class AvailableSourceRoute
+    extends _i26.PageRouteInfo<AvailableSourceRouteArgs> {
+  AvailableSourceRoute({
     _i27.Key? key,
-    required _i28.Book book,
+    required _i28.BookEntity book,
     List<_i26.PageRouteInfo>? children,
   }) : super(
-          AvailableSourceListRoute.name,
-          args: AvailableSourceListRouteArgs(
+          AvailableSourceRoute.name,
+          args: AvailableSourceRouteArgs(
             key: key,
             book: book,
           ),
           initialChildren: children,
         );
 
-  static const String name = 'AvailableSourceListRoute';
+  static const String name = 'AvailableSourceRoute';
 
   static _i26.PageInfo page = _i26.PageInfo(
     name,
     builder: (data) {
-      final args = data.argsAs<AvailableSourceListRouteArgs>();
-      return _i3.AvailableSourceListPage(
+      final args = data.argsAs<AvailableSourceRouteArgs>();
+      return _i3.AvailableSourcePage(
         key: args.key,
         book: args.book,
       );
@@ -108,19 +109,19 @@ class AvailableSourceListRoute
   );
 }
 
-class AvailableSourceListRouteArgs {
-  const AvailableSourceListRouteArgs({
+class AvailableSourceRouteArgs {
+  const AvailableSourceRouteArgs({
     this.key,
     required this.book,
   });
 
   final _i27.Key? key;
 
-  final _i28.Book book;
+  final _i28.BookEntity book;
 
   @override
   String toString() {
-    return 'AvailableSourceListRouteArgs{key: $key, book: $book}';
+    return 'AvailableSourceRouteArgs{key: $key, book: $book}';
   }
 }
 
@@ -148,7 +149,7 @@ class BookFormRoute extends _i26.PageRouteInfo<void> {
 class CatalogueRoute extends _i26.PageRouteInfo<CatalogueRouteArgs> {
   CatalogueRoute({
     _i27.Key? key,
-    required _i29.BookEntity book,
+    required _i28.BookEntity book,
     List<_i26.PageRouteInfo>? children,
   }) : super(
           CatalogueRoute.name,
@@ -181,7 +182,7 @@ class CatalogueRouteArgs {
 
   final _i27.Key? key;
 
-  final _i29.BookEntity book;
+  final _i28.BookEntity book;
 
   @override
   String toString() {
@@ -213,7 +214,7 @@ class CloudReaderRoute extends _i26.PageRouteInfo<void> {
 class CoverSelectorRoute extends _i26.PageRouteInfo<CoverSelectorRouteArgs> {
   CoverSelectorRoute({
     _i27.Key? key,
-    required _i29.BookEntity book,
+    required _i28.BookEntity book,
     List<_i26.PageRouteInfo>? children,
   }) : super(
           CoverSelectorRoute.name,
@@ -246,7 +247,7 @@ class CoverSelectorRouteArgs {
 
   final _i27.Key? key;
 
-  final _i29.BookEntity book;
+  final _i28.BookEntity book;
 
   @override
   String toString() {
@@ -297,7 +298,7 @@ class HomeRoute extends _i26.PageRouteInfo<void> {
 class InformationRoute extends _i26.PageRouteInfo<InformationRouteArgs> {
   InformationRoute({
     _i27.Key? key,
-    required _i29.BookEntity book,
+    required _i28.BookEntity book,
     List<_i26.PageRouteInfo>? children,
   }) : super(
           InformationRoute.name,
@@ -330,7 +331,7 @@ class InformationRouteArgs {
 
   final _i27.Key? key;
 
-  final _i29.BookEntity book;
+  final _i28.BookEntity book;
 
   @override
   String toString() {
@@ -381,7 +382,7 @@ class ReaderLayoutRoute extends _i26.PageRouteInfo<void> {
 class ReaderRoute extends _i26.PageRouteInfo<ReaderRouteArgs> {
   ReaderRoute({
     _i27.Key? key,
-    required _i28.Book book,
+    required _i29.Book book,
     List<_i26.PageRouteInfo>? children,
   }) : super(
           ReaderRoute.name,
@@ -414,7 +415,7 @@ class ReaderRouteArgs {
 
   final _i27.Key? key;
 
-  final _i28.Book book;
+  final _i29.Book book;
 
   @override
   String toString() {

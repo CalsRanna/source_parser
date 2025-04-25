@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/page/available_source/available_source_view_model.dart';
 import 'package:source_parser/page/catalogue/catalogue_view_model.dart';
 import 'package:source_parser/page/cover_selector/cover_selector_view_model.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
@@ -28,6 +29,10 @@ class Injector {
     );
     injector.registerFactoryParam<CatalogueViewModel, BookEntity, Object?>(
       (book, _) => CatalogueViewModel(book: book),
+    );
+    injector
+        .registerFactoryParam<AvailableSourceViewModel, BookEntity, Object?>(
+      (book, _) => AvailableSourceViewModel(book: book),
     );
     injector.registerFactoryParam<CoverSelectorViewModel, int, Object?>(
       (bookId, _) => CoverSelectorViewModel(bookId),

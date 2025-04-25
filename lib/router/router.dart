@@ -22,7 +22,7 @@ class AppRouter extends RootStackRouter {
       AutoRoute(page: ReaderRoute.page),
       AutoRoute(page: SearchRoute.page),
       AutoRoute(page: CatalogueRoute.page),
-      AutoRoute(page: AvailableSourceListRoute.page),
+      AutoRoute(page: AvailableSourceRoute.page),
       AutoRoute(page: AvailableSourceFormRoute.page),
       AutoRoute(page: SourceDebuggerRoute.page),
       AutoRoute(page: SourceAdvancedConfigurationRoute.page),

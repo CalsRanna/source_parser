@@ -49,8 +49,8 @@ class BookSourceEntity {
       ..id = json['id'] ?? 0
       ..name = json['name'] ?? ''
       ..url = json['url'] ?? ''
-      ..enabled = json['enabled'] ?? true
-      ..exploreEnabled = json['explore_enabled'] ?? false
+      ..enabled = json['enabled'] == 1
+      ..exploreEnabled = json['explore_enabled'] == 1
       ..type = json['type'] ?? 'book'
       ..comment = json['comment'] ?? ''
       ..header = json['header'] ?? ''
