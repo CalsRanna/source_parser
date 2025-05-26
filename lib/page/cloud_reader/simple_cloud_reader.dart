@@ -5,14 +5,14 @@ import 'package:lottie/lottie.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 @RoutePage()
-class CloudReaderPage extends StatefulWidget {
-  const CloudReaderPage({super.key});
+class SimpleCloudReaderPage extends StatefulWidget {
+  const SimpleCloudReaderPage({super.key});
 
   @override
-  State<CloudReaderPage> createState() => _CloudReaderPageState();
+  State<SimpleCloudReaderPage> createState() => _SimpleCloudReaderPageState();
 }
 
-class _CloudReaderPageState extends State<CloudReaderPage> {
+class _SimpleCloudReaderPageState extends State<SimpleCloudReaderPage> {
   final controller = WebViewController();
   var error = '';
   var loading = true;

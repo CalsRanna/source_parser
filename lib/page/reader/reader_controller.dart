@@ -43,6 +43,7 @@ class ReaderController extends ChangeNotifier {
     var lastPage = _pageIndex == _currentChapterPages.length - 1;
     return lastChapter && lastPage;
   }
+
   int get pageIndex => _pageIndex;
 
   Future<void> init() async {

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:source_parser/page/reader/component/view.dart';
+import 'package:source_parser/page/reader/reader_content_view.dart';
 import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
 import 'package:source_parser/util/splitter.dart';
@@ -266,7 +266,7 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    var readerView = ReaderView(
+    var readerView = ReaderContentView(
       pageProgressText: '1/10 25.25%',
       customTheme: theme,
       headerText: '小说名称',

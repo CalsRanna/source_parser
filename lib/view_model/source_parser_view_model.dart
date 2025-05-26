@@ -8,6 +8,7 @@ class SourceParserViewModel {
   var isDarkMode = signal(false);
   var isEInkMode = signal(false);
   var colorSeed = signal('#FF63BBD0');
+  var screenSize = signal(Size.zero);
 
   Computed<ThemeData> get themeData {
     final pageTransitionsTheme = PageTransitionsTheme(
@@ -33,5 +34,9 @@ class SourceParserViewModel {
   void toggleDarkMode() {
     isDarkMode.value = !isDarkMode.value;
     SharedPreferenceUtil.setDarkMode(isDarkMode.value);
+  }
+
+  void updateScreenSize(Size size) {
+    screenSize.value = size;
   }
 }

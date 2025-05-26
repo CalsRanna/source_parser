@@ -8,6 +8,7 @@ import 'package:source_parser/page/home/home_view_model.dart';
 import 'package:source_parser/page/information/information_view_model.dart';
 import 'package:source_parser/page/reader/reader_view_model.dart';
 import 'package:source_parser/page/search/search_view_model.dart';
+import 'package:source_parser/page/cloud_reader/cloud_reader_view_model.dart';
 import 'package:source_parser/view_model/source_parser_view_model.dart';
 
 class Injector {
@@ -40,6 +41,9 @@ class Injector {
     );
     injector.registerFactoryParam<CoverSelectorViewModel, BookEntity, Object?>(
       (book, _) => CoverSelectorViewModel(book: book),
+    );
+    injector.registerLazySingleton<CloudReaderViewModel>(
+      () => CloudReaderViewModel(),
     );
   }
 }

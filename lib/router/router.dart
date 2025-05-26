@@ -34,6 +34,7 @@ class AppRouter extends RootStackRouter {
       AutoRoute(page: ReaderLayoutRoute.page),
       AutoRoute(page: ThemeEditorRoute.page),
       AutoRoute(page: LocalServerRoute.page),
+      AutoRoute(page: SimpleCloudReaderRoute.page),
       AutoRoute(page: CloudReaderRoute.page),
       AutoRoute(page: CoverSelectorRoute.page),
     ];

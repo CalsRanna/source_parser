@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:source_parser/page/reader/component/cache.dart';
+import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/page/reader/reader_cache_indicator_view.dart';
 import 'package:source_parser/provider/layout.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/router/router.gr.dart';
-import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/layout.dart';
 import 'package:source_parser/util/message.dart';
 
-class ReaderOverlay extends ConsumerWidget {
-  final Book book;
+class ReaderOverlayView extends ConsumerWidget {
+  final BookEntity book;
   final void Function()? onBarrierTap;
   final void Function(int)? onCached;
   final void Function()? onCatalogue;
   final void Function()? onNext;
   final void Function()? onPrevious;
   final void Function()? onRefresh;
-  const ReaderOverlay({
+  const ReaderOverlayView({
     super.key,
     required this.book,
     this.onBarrierTap,
@@ -106,7 +106,7 @@ class ReaderOverlay extends ConsumerWidget {
 }
 
 abstract class _OverlayBaseSlot extends StatelessWidget {
-  final Book book;
+  final BookEntity book;
   final void Function({int? count})? onTap;
   final String slot;
 
@@ -214,7 +214,7 @@ class _OverlayFloatingSlot extends _OverlayBaseSlot {
 }
 
 class _OverlayMoreSlot extends ConsumerWidget {
-  final Book book;
+  final BookEntity book;
   final void Function({int? count})? onTap;
   final String slot;
   const _OverlayMoreSlot({required this.book, this.onTap, required this.slot});

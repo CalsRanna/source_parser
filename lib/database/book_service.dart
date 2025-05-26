@@ -41,4 +41,9 @@ class BookService {
       'is_in_shelf': isInShelf,
     });
   }
+
+  Future<void> updateBook(BookEntity book) async {
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.table('books').where('id', book.id).update(book.toJson());
+  }
 }

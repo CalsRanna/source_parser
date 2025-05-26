@@ -72,5 +72,8 @@ class _SourceParserState extends State<SourceParser> {
   void initState() {
     super.initState();
     viewModel.initSignals();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      viewModel.updateScreenSize(MediaQuery.sizeOf(context));
+    });
   }
 }

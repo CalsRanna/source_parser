@@ -167,6 +167,7 @@ class _GridTile extends ConsumerWidget {
     // AutoRouter.of(context).push(ReaderRoute(book: book));
     // final notifier = ref.read(bookNotifierProvider.notifier);
     // notifier.update(book);
+    ReaderRoute(book: book).push(context);
   }
 }
 

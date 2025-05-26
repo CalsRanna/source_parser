@@ -10,7 +10,6 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/available_source/available_source_view_model.dart';
 import 'package:source_parser/page/available_source/component/option_bottom_sheet.dart';
 import 'package:source_parser/provider/book.dart';
-import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/loading.dart';
@@ -75,8 +74,8 @@ class _AvailableSourcePageState extends State<AvailableSourcePage> {
     Message.of(context).show(message);
     Navigator.of(context).pop();
     Navigator.of(context).pop();
-    var book = ref.read(bookNotifierProvider);
-    AutoRouter.of(context).replace(ReaderRoute(book: book));
+    // var book = ref.read(bookNotifierProvider);
+    // AutoRouter.of(context).replace(ReaderRoute(book: book));
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   }
 

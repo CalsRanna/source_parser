@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-class ReaderCacheIndicator extends StatelessWidget {
+class ReaderCacheIndicatorView extends StatelessWidget {
   final double progress;
-  const ReaderCacheIndicator({super.key, required this.progress});
+  const ReaderCacheIndicatorView({super.key, required this.progress});
 
   @override
   Widget build(BuildContext context) {

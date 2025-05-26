@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/provider/battery.dart';
-import 'package:source_parser/provider/setting.dart';
-import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
-import 'package:source_parser/util/color_extension.dart';
 import 'package:source_parser/util/merger.dart';
 import 'package:source_parser/util/string_extension.dart';
 
-class ReaderView extends ConsumerWidget {
+class ReaderContentView extends StatelessWidget {
   final String content;
   final schema.Theme? customTheme;
   final String headerText;
@@ -16,7 +13,7 @@ class ReaderView extends ConsumerWidget {
   final bool isLoading;
   final String? errorMessage;
 
-  const ReaderView({
+  const ReaderContentView({
     super.key,
     required this.content,
     this.customTheme,
@@ -26,7 +23,7 @@ class ReaderView extends ConsumerWidget {
     this.errorMessage,
   });
 
-  const ReaderView.loading({
+  const ReaderContentView.loading({
     super.key,
     this.customTheme,
   })  : content = '',
@@ -36,8 +33,8 @@ class ReaderView extends ConsumerWidget {
         errorMessage = null;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var theme = _assembleTheme(ref);
+  Widget build(BuildContext context) {
+    var theme = _assembleTheme();
     var background = _buildBackground(theme);
     var content = _buildContent(theme);
     return Scaffold(
@@ -46,27 +43,28 @@ class ReaderView extends ConsumerWidget {
     );
   }
 
-  schema.Theme _assembleTheme(WidgetRef ref) {
+  schema.Theme _assembleTheme() {
     if (customTheme != null) return customTheme!;
-    var state = ref.watch(themeNotifierProvider).valueOrNull;
-    var currentTheme = state ?? schema.Theme();
-    var backgroundColor = currentTheme.backgroundColor;
-    var contentColor = currentTheme.contentColor;
-    var footerColor = currentTheme.footerColor;
-    var headerColor = currentTheme.headerColor;
-    var setting = ref.watch(settingNotifierProvider).valueOrNull;
-    if (setting?.darkMode == true) {
-      backgroundColor = Colors.black.toHex()!;
-      contentColor = Colors.white.withValues(alpha: 0.75).toHex()!;
-      footerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
-      headerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
-    }
-    return currentTheme.copyWith(
-      backgroundColor: backgroundColor,
-      contentColor: contentColor,
-      footerColor: footerColor,
-      headerColor: headerColor,
-    );
+    // var state = ref.watch(themeNotifierProvider).valueOrNull;
+    // var currentTheme = state ?? schema.Theme();
+    // var backgroundColor = currentTheme.backgroundColor;
+    // var contentColor = currentTheme.contentColor;
+    // var footerColor = currentTheme.footerColor;
+    // var headerColor = currentTheme.headerColor;
+    // var setting = ref.watch(settingNotifierProvider).valueOrNull;
+    // if (setting?.darkMode == true) {
+    //   backgroundColor = Colors.black.toHex()!;
+    //   contentColor = Colors.white.withValues(alpha: 0.75).toHex()!;
+    //   footerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
+    //   headerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
+    // }
+    // return currentTheme.copyWith(
+    //   backgroundColor: backgroundColor,
+    //   contentColor: contentColor,
+    //   footerColor: footerColor,
+    //   headerColor: headerColor,
+    // );
+    return schema.Theme();
   }
 
   Widget _buildBackground(schema.Theme theme) {
@@ -212,14 +210,14 @@ class _Content extends StatelessWidget {
   }
 }
 
-class _Footer extends ConsumerWidget {
+class _Footer extends StatelessWidget {
   final String pageProgressText;
   final schema.Theme theme;
 
   const _Footer({required this.pageProgressText, required this.theme});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     var children = [
       Text(pageProgressText, style: _getStyle()),
       const Spacer(),
