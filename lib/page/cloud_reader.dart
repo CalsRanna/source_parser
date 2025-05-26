@@ -14,6 +14,7 @@ class CloudReaderPage extends StatefulWidget {
 
 class _CloudReaderPageState extends State<CloudReaderPage> {
   final controller = WebViewController();
+  var error = '';
   var loading = true;
   final url = 'http://43.139.61.244:4396';
 
@@ -27,6 +28,7 @@ class _CloudReaderPageState extends State<CloudReaderPage> {
     );
     var children = [
       WebViewWidget(controller: controller),
+      if (error.isNotEmpty) Center(child: Text(error)),
       if (loading) container,
     ];
     return Scaffold(body: Stack(children: children));
@@ -46,6 +48,8 @@ class _CloudReaderPageState extends State<CloudReaderPage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     var delegate = NavigationDelegate(
       onPageFinished: (_) => _finishLoading(),
+      onHttpError: (error) => _updateError(error.toString()),
+      onWebResourceError: (error) => _updateError(error.toString()),
     );
     controller.setNavigationDelegate(delegate);
     controller.loadRequest(Uri.parse(url));
@@ -56,6 +60,12 @@ class _CloudReaderPageState extends State<CloudReaderPage> {
     await Future.delayed(const Duration(seconds: 1));
     setState(() {
       loading = false;
+    });
+  }
+
+  void _updateError(String error) {
+    setState(() {
+      this.error = error;
     });
   }
 }
