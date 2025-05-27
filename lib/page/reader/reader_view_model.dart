@@ -8,6 +8,7 @@ import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
+import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/cache_network.dart';
@@ -212,5 +213,6 @@ class ReaderViewModel {
           pageIndex: pageIndex.value,
         );
     await BookService().updateBook(book);
+    GetIt.instance.get<BookshelfViewModel>().initSignals();
   }
 }
