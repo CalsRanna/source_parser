@@ -104,6 +104,10 @@ class ReaderViewModel {
         .push(context);
   }
 
+  void navigateAvailableSourcePage(BuildContext context) {
+    AvailableSourceRoute(book: book).push(context);
+  }
+
   void nextChapter() {
     if (chapterIndex.value + 1 >= chapters.value.length) {
       return;

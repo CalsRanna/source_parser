@@ -104,7 +104,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
       onCatalogue: _navigateCatalogue,
       onNext: _nextChapter,
       onPrevious: _previousChapter,
-      onRefresh: _forceRefresh,
+      onAvailableSource: _navigateAvailableSourcePage,
     );
   }
 
@@ -155,6 +155,10 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
     setState(() {
       _showCacheIndicator = false;
     });
+  }
+
+  void _navigateAvailableSourcePage() {
+    viewModel.navigateAvailableSourcePage(context);
   }
 
   Future<void> _forceRefresh() async {

@@ -12,6 +12,7 @@ import 'package:source_parser/util/message.dart';
 
 class ReaderOverlayView extends ConsumerWidget {
   final BookEntity book;
+  final void Function()? onAvailableSource;
   final void Function()? onBarrierTap;
   final void Function(int)? onCached;
   final void Function()? onCatalogue;
@@ -21,6 +22,7 @@ class ReaderOverlayView extends ConsumerWidget {
   const ReaderOverlayView({
     super.key,
     required this.book,
+    this.onAvailableSource,
     this.onBarrierTap,
     this.onCached,
     this.onCatalogue,
@@ -56,6 +58,7 @@ class ReaderOverlayView extends ConsumerWidget {
     if (slot == LayoutSlot.forceRefresh.name) return onRefresh?.call();
     if (slot == LayoutSlot.nextChapter.name) return onNext?.call();
     if (slot == LayoutSlot.previousChapter.name) return onPrevious?.call();
+    if (slot == LayoutSlot.source.name) return onAvailableSource?.call();
   }
 
   AppBar _buildAppBar(Layout layout) {
@@ -207,7 +210,7 @@ class _OverlayFloatingSlot extends _OverlayBaseSlot {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      onPressed: () => handleTap(context),
+      onPressed: onTap,
       child: Icon(_getIconData()),
     );
   }
