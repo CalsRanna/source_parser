@@ -14,6 +14,7 @@ import 'package:source_parser/page/reader/reader_content_view.dart';
 import 'package:source_parser/page/reader/reader_view_model.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/cache.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/page/reader/reader_controller.dart';
 
@@ -117,8 +118,10 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
         onTapUp: _handleTapUp,
         child: ReaderContentView(
           content: viewModel.currentChapterPages.value[index],
-          headerText: viewModel.book.name,
-          pageProgressText: '1 / 12',
+          headerText: viewModel.headerText.value,
+          pageProgressText:
+              '${viewModel.pageIndex.value + 1} / ${viewModel.currentChapterPages.value.length}',
+          customTheme: viewModel.theme.value,
         ),
       ),
       itemCount: viewModel.currentChapterPages.value.length,
@@ -298,17 +301,11 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
   }
 
   void _navigateCatalogue() {
-    // CatalogueRoute(index: _readerController!.chapterIndex).push(context);
+    viewModel.navigateCataloguePage(context);
   }
 
   void _nextChapter() {
-    // _readerController?.nextChapter();
-    // var provider = readerStateNotifierProvider(widget.book);
-    // var notifier = ref.read(provider.notifier);
-    // notifier.syncState(
-    //   chapterIndex: _readerController!.chapterIndex,
-    //   pageIndex: _readerController!.pageIndex,
-    // );
+    viewModel.nextChapter();
   }
 
   void _prepareNextPage(bool isForward) {
@@ -317,13 +314,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
   }
 
   void _previousChapter() {
-    // _readerController?.previousChapter(page: 0);
-    // var provider = readerStateNotifierProvider(widget.book);
-    // var notifier = ref.read(provider.notifier);
-    // notifier.syncState(
-    //   chapterIndex: _readerController!.chapterIndex,
-    //   pageIndex: _readerController!.pageIndex,
-    // );
+    viewModel.previousChapter();
   }
 
   void _refreshShelf() {

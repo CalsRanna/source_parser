@@ -9,6 +9,7 @@ import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/cache_network.dart';
@@ -29,19 +30,26 @@ class ReaderViewModel {
   final nextChapterPages = signal<List<String>>([]);
   late final chapterIndex = signal(book.chapterIndex);
   late final pageIndex = signal(book.pageIndex);
+  final theme = signal(Theme());
+
+  late final headerText = computed(() {
+    if (pageIndex.value == 0) return book.name;
+    return chapters.value.elementAt(chapterIndex.value).name;
+  });
 
   late final controller = PageController(initialPage: book.pageIndex);
 
   ReaderViewModel({required this.book});
 
   Future<void> initSignals() async {
-    var theme = Theme();
-    var size = _initSize(theme);
+    theme.value =
+        theme.value.copyWith(headerPaddingTop: 48, footerPaddingBottom: 24);
+    var size = _initSize(theme.value);
     availableSources.value = await _getAvailableSources();
     chapters.value = await _initChapters();
     preloadPreviousChapter();
     currentChapterContent.value = await _getContent(book.chapterIndex);
-    var splitter = Splitter(size: size, theme: theme);
+    var splitter = Splitter(size: size, theme: theme.value);
     currentChapterPages.value = splitter.split(currentChapterContent.value);
     preloadNextChapter();
   }
@@ -75,7 +83,7 @@ class ReaderViewModel {
     }
     if (pageIndex.value - 1 < 0) {
       chapterIndex.value--;
-      pageIndex.value = currentChapterPages.value.length - 1;
+      pageIndex.value = previousChapterPages.value.length - 1;
       nextChapterContent.value = currentChapterContent.value;
       nextChapterPages.value = currentChapterPages.value;
       currentChapterContent.value = previousChapterContent.value;
@@ -91,16 +99,48 @@ class ReaderViewModel {
     );
   }
 
+  void navigateCataloguePage(BuildContext context) {
+    CatalogueRoute(book: book.copyWith(chapterIndex: chapterIndex.value))
+        .push(context);
+  }
+
+  void nextChapter() {
+    if (chapterIndex.value + 1 >= chapters.value.length) {
+      return;
+    }
+    chapterIndex.value++;
+    pageIndex.value = 0;
+    previousChapterContent.value = currentChapterContent.value;
+    previousChapterPages.value = currentChapterPages.value;
+    currentChapterContent.value = nextChapterContent.value;
+    currentChapterPages.value = nextChapterPages.value;
+    controller.jumpToPage(pageIndex.value);
+    preloadNextChapter();
+  }
+
+  void previousChapter() {
+    if (chapterIndex.value - 1 < 0) {
+      return;
+    }
+    chapterIndex.value--;
+    pageIndex.value = 0;
+    nextChapterContent.value = currentChapterContent.value;
+    nextChapterPages.value = currentChapterPages.value;
+    currentChapterContent.value = previousChapterContent.value;
+    currentChapterPages.value = previousChapterPages.value;
+    controller.jumpToPage(pageIndex.value);
+    preloadPreviousChapter();
+  }
+
   Future<void> preloadNextChapter() async {
     if (chapterIndex.value + 1 >= chapters.value.length) {
       nextChapterContent.value = '';
       nextChapterPages.value = [];
       return;
     }
-    var theme = Theme();
-    var size = _initSize(theme);
+    var size = _initSize(theme.value);
     nextChapterContent.value = await _getContent(chapterIndex.value + 1);
-    var splitter = Splitter(size: size, theme: theme);
+    var splitter = Splitter(size: size, theme: theme.value);
     nextChapterPages.value = splitter.split(nextChapterContent.value);
   }
 
@@ -110,10 +150,9 @@ class ReaderViewModel {
       previousChapterPages.value = [];
       return;
     }
-    var theme = Theme();
-    var size = _initSize(theme);
+    var size = _initSize(theme.value);
     previousChapterContent.value = await _getContent(chapterIndex.value - 1);
-    var splitter = Splitter(size: size, theme: theme);
+    var splitter = Splitter(size: size, theme: theme.value);
     previousChapterPages.value = splitter.split(previousChapterContent.value);
   }
 
@@ -178,7 +217,8 @@ class ReaderViewModel {
     if (content.isEmpty) {
       return content;
     }
-    return '${book.name}\n\n$content';
+    var chapterName = chapters.value.elementAt(chapterIndex).name;
+    return '$chapterName\n\n$content';
   }
 
   Future<List<ChapterEntity>> _initChapters() async {

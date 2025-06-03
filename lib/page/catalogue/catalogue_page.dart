@@ -100,7 +100,9 @@ class _CataloguePageState extends State<CataloguePage> {
       final halfHeight = listViewHeight / 2;
       var offset = 56.0 * widget.book.chapterIndex;
       offset = (offset - halfHeight);
-      offset = offset.clamp(0, maxScrollExtent);
+      if (maxScrollExtent > 0) {
+        offset = offset.clamp(0, maxScrollExtent);
+      }
       controller.jumpTo(offset);
     });
   }
