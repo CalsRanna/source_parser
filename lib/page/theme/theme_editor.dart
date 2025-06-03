@@ -268,9 +268,9 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
   Widget build(BuildContext context) {
     var readerView = ReaderContentView(
       pageProgressText: '1/10 25.25%',
-      customTheme: theme,
+      theme: theme,
       headerText: '小说名称',
-      content: contentText,
+      contentText: contentText,
     );
     var children = [
       readerView,

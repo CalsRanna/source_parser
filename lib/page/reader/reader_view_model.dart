@@ -36,6 +36,9 @@ class ReaderViewModel {
     if (pageIndex.value == 0) return book.name;
     return chapters.value.elementAt(chapterIndex.value).name;
   });
+  late final footerText = computed(() {
+    return '${pageIndex.value + 1}/${currentChapterPages.value.length}';
+  });
 
   late final controller = PageController(initialPage: book.pageIndex);
 

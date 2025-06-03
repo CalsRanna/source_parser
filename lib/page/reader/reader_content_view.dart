@@ -6,31 +6,30 @@ import 'package:source_parser/util/merger.dart';
 import 'package:source_parser/util/string_extension.dart';
 
 class ReaderContentView extends StatelessWidget {
-  final String content;
-  final schema.Theme? customTheme;
+  final String contentText;
   final String headerText;
   final String pageProgressText;
   final bool isLoading;
-  final String? errorMessage;
+  final schema.Theme? theme;
+  final String? errorText;
 
   const ReaderContentView({
     super.key,
-    required this.content,
-    this.customTheme,
+    required this.contentText,
+    this.theme,
     required this.headerText,
     required this.pageProgressText,
-    this.isLoading = false,
-    this.errorMessage,
-  });
+  })  : isLoading = false,
+        errorText = null;
 
   const ReaderContentView.loading({
     super.key,
-    this.customTheme,
-  })  : content = '',
+    this.theme,
+  })  : contentText = '',
         headerText = '加载中',
         pageProgressText = '',
         isLoading = true,
-        errorMessage = null;
+        errorText = null;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +43,7 @@ class ReaderContentView extends StatelessWidget {
   }
 
   schema.Theme _assembleTheme() {
-    if (customTheme != null) return customTheme!;
+    if (theme != null) return theme!;
     // var state = ref.watch(themeNotifierProvider).valueOrNull;
     // var currentTheme = state ?? schema.Theme();
     // var backgroundColor = currentTheme.backgroundColor;
@@ -94,10 +93,10 @@ class ReaderContentView extends StatelessWidget {
   Widget _buildContent(schema.Theme theme) {
     var header = _Header(text: headerText, theme: theme);
     Widget contentWidget = _Content(
-      content: content,
+      content: contentText,
       theme: theme,
       isLoading: isLoading,
-      errorMessage: errorMessage,
+      errorMessage: errorText,
     );
     var footer = _Footer(pageProgressText: pageProgressText, theme: theme);
     return Column(

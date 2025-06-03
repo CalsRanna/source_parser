@@ -110,18 +110,17 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
 
   Widget _buildReaderView() {
     if (viewModel.currentChapterPages.value.isEmpty) {
-      return ReaderContentView.loading();
+      return ReaderContentView.loading(theme: viewModel.theme.value);
     }
     return PageView.builder(
       controller: viewModel.controller,
       itemBuilder: (context, index) => GestureDetector(
         onTapUp: _handleTapUp,
         child: ReaderContentView(
-          content: viewModel.currentChapterPages.value[index],
+          contentText: viewModel.currentChapterPages.value[index],
           headerText: viewModel.headerText.value,
-          pageProgressText:
-              '${viewModel.pageIndex.value + 1} / ${viewModel.currentChapterPages.value.length}',
-          customTheme: viewModel.theme.value,
+          pageProgressText: viewModel.footerText.value,
+          theme: viewModel.theme.value,
         ),
       ),
       itemCount: viewModel.currentChapterPages.value.length,
@@ -298,7 +297,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage>
         pageProgressText = "";
     }
     return ReaderContentView(
-      content: content,
+      contentText: content,
       headerText: headerText,
       pageProgressText: pageProgressText,
     );
