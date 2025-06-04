@@ -32,6 +32,16 @@ class ReaderContentView extends StatelessWidget {
         isLoading = true,
         errorText = null;
 
+  const ReaderContentView.error({
+    super.key,
+    this.theme,
+    required this.errorText,
+  })  : battery = null,
+        contentText = '',
+        headerText = '加载失败',
+        pageProgressText = '',
+        isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     var theme = _assembleTheme();

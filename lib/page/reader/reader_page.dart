@@ -37,7 +37,7 @@ class _ReaderPageState extends State<ReaderPage> {
   @override
   void deactivate() {
     viewModel.syncBookshelf();
-    viewModel.hideUiOverlays();
+    viewModel.showUiOverlays();
     super.deactivate();
   }
 
@@ -79,6 +79,15 @@ class _ReaderPageState extends State<ReaderPage> {
   }
 
   Widget _buildReaderView() {
+    if (viewModel.error.value.isNotEmpty) {
+      return GestureDetector(
+        onTapUp: viewModel.turnPage,
+        child: ReaderContentView.error(
+          errorText: viewModel.error.value,
+          theme: viewModel.theme.value,
+        ),
+      );
+    }
     if (viewModel.currentChapterPages.value.isEmpty) {
       return ReaderContentView.loading(theme: viewModel.theme.value);
     }

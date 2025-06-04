@@ -36,6 +36,7 @@ class ReaderViewModel {
   final battery = signal(100);
   final size = Signal(Size.zero);
   final source = Signal(BookSourceEntity());
+  final error = signal('');
 
   late final controller = PageController(initialPage: book.pageIndex);
 
@@ -119,29 +120,37 @@ class ReaderViewModel {
   }
 
   Future<void> initSignals() async {
-    theme.value = theme.value.copyWith(
-      headerPaddingTop: 48,
-      footerPaddingBottom: 24,
-    );
+    theme.value = _initTheme();
     size.value = _initSize(theme.value);
     chapters.value = await _initChapters();
-    if (chapters.value.isEmpty) return;
-    preloadPreviousChapter();
-    currentChapterContent.value = await _getContent(book.chapterIndex);
-    var splitter = Splitter(size: size.value, theme: theme.value);
-    currentChapterPages.value = splitter.split(currentChapterContent.value);
-    preloadNextChapter();
+    source.value = await BookSourceService().getBookSource(book.sourceId);
     battery.value = await Battery().batteryLevel;
+    if (chapters.value.isEmpty) {
+      error.value = '没有找到章节';
+      return;
+    }
+    _loadCurrentChapter();
+    _preloadPreviousChapter();
+    _preloadNextChapter();
   }
 
   Future<void> navigateAvailableSourcePage(BuildContext context) async {
-    var id = await AvailableSourceRoute(book: book).push<int>(context);
+    var copiedBook = book.copyWith(sourceId: source.value.id);
+    var id = await AvailableSourceRoute(book: copiedBook).push<int>(context);
     if (id == null) return;
+    currentChapterContent.value = '';
+    currentChapterPages.value = [];
     var availableSource = await AvailableSourceService().getAvailableSource(id);
     source.value =
         await BookSourceService().getBookSource(availableSource.sourceId);
     chapters.value = await _getRemoteChapters();
-    if (chapters.value.isEmpty) return;
+    if (chapters.value.isEmpty) {
+      error.value = '没有找到章节';
+      return;
+    }
+    _loadCurrentChapter();
+    _preloadPreviousChapter();
+    _preloadNextChapter();
     await ChapterService().destroyChapters(book.id);
     await ChapterService().addChapters(chapters.value);
     await BookService().updateBook(book.copyWith(sourceId: id));
@@ -153,15 +162,16 @@ class ReaderViewModel {
     if (index == null) return;
     chapterIndex.value = index;
     pageIndex.value = 0;
-    preloadPreviousChapter();
+    _preloadPreviousChapter();
     currentChapterContent.value = await _getContent(chapterIndex.value);
     var splitter = Splitter(size: size.value, theme: theme.value);
     currentChapterPages.value = splitter.split(currentChapterContent.value);
     controller.jumpToPage(pageIndex.value);
-    preloadNextChapter();
+    _preloadNextChapter();
   }
 
   void nextChapter() {
+    if (chapters.value.isEmpty) return;
     if (chapterIndex.value + 1 >= chapters.value.length) {
       return;
     }
@@ -172,10 +182,11 @@ class ReaderViewModel {
     currentChapterContent.value = nextChapterContent.value;
     currentChapterPages.value = nextChapterPages.value;
     controller.jumpToPage(pageIndex.value);
-    preloadNextChapter();
+    _preloadNextChapter();
   }
 
   Future<void> nextPage() async {
+    if (chapters.value.isEmpty) return;
     if (chapterIndex.value == chapters.value.length - 1 &&
         pageIndex.value + 1 >= currentChapterPages.value.length) {
       return;
@@ -188,7 +199,7 @@ class ReaderViewModel {
       currentChapterContent.value = nextChapterContent.value;
       currentChapterPages.value = nextChapterPages.value;
       controller.jumpToPage(pageIndex.value);
-      preloadNextChapter();
+      _preloadNextChapter();
       return;
     }
     controller.nextPage(
@@ -198,34 +209,9 @@ class ReaderViewModel {
     battery.value = await Battery().batteryLevel;
   }
 
-  Future<void> preloadNextChapter() async {
-    if (chapterIndex.value + 1 >= chapters.value.length) {
-      nextChapterContent.value = '';
-      nextChapterPages.value = [];
-      return;
-    }
-    var size = _initSize(theme.value);
-    nextChapterContent.value = await _getContent(chapterIndex.value + 1);
-    var splitter = Splitter(size: size, theme: theme.value);
-    nextChapterPages.value = splitter.split(nextChapterContent.value);
-  }
-
-  Future<void> preloadPreviousChapter() async {
-    if (chapterIndex.value - 1 < 0) {
-      previousChapterContent.value = '';
-      previousChapterPages.value = [];
-      return;
-    }
-    var size = _initSize(theme.value);
-    previousChapterContent.value = await _getContent(chapterIndex.value - 1);
-    var splitter = Splitter(size: size, theme: theme.value);
-    previousChapterPages.value = splitter.split(previousChapterContent.value);
-  }
-
   void previousChapter() {
-    if (chapterIndex.value - 1 < 0) {
-      return;
-    }
+    if (chapters.value.isEmpty) return;
+    if (chapterIndex.value - 1 < 0) return;
     chapterIndex.value--;
     pageIndex.value = 0;
     nextChapterContent.value = currentChapterContent.value;
@@ -233,10 +219,11 @@ class ReaderViewModel {
     currentChapterContent.value = previousChapterContent.value;
     currentChapterPages.value = previousChapterPages.value;
     controller.jumpToPage(pageIndex.value);
-    preloadPreviousChapter();
+    _preloadPreviousChapter();
   }
 
   Future<void> previousPage() async {
+    if (chapters.value.isEmpty) return;
     if (chapterIndex.value == 0 && pageIndex.value == 0) {
       return;
     }
@@ -248,7 +235,7 @@ class ReaderViewModel {
       currentChapterContent.value = previousChapterContent.value;
       currentChapterPages.value = previousChapterPages.value;
       controller.jumpToPage(pageIndex.value);
-      preloadPreviousChapter();
+      _preloadPreviousChapter();
       return;
     }
     controller.previousPage(
@@ -267,11 +254,12 @@ class ReaderViewModel {
   }
 
   Future<void> syncBookshelf() async {
-    var book = this.book.copyWith(
-          chapterIndex: chapterIndex.value,
-          pageIndex: pageIndex.value,
-        );
-    await BookService().updateBook(book);
+    var copiedBook = book.copyWith(
+      chapterIndex: chapterIndex.value,
+      pageIndex: pageIndex.value,
+      sourceId: source.value.id,
+    );
+    await BookService().updateBook(copiedBook);
     GetIt.instance.get<BookshelfViewModel>().initSignals();
   }
 
@@ -299,8 +287,6 @@ class ReaderViewModel {
   }
 
   Future<String> _getContent(int chapterIndex) async {
-    var source = await BookSourceService().getBookSource(book.sourceId);
-    final method = source.contentMethod.toUpperCase();
     final network = CachedNetwork(
       prefix: book.name,
       timeout: Duration(hours: 6),
@@ -308,35 +294,34 @@ class ReaderViewModel {
     var url = chapters.value.elementAt(chapterIndex).url;
     final html = await network.request(
       url,
-      charset: source.charset,
-      method: method,
-      reacquire: false,
+      charset: source.value.charset,
+      method: source.value.contentMethod.toUpperCase(),
     );
     final parser = HtmlParser();
     var document = parser.parse(html);
-    var content = parser.query(document, source.contentContent);
-    if (source.contentPagination.isNotEmpty) {
+    var content = parser.query(document, source.value.contentContent);
+    if (source.value.contentPagination.isNotEmpty) {
       var validation = parser.query(
         document,
-        source.contentPaginationValidation,
+        source.value.contentPaginationValidation,
       );
       while (validation.contains('下一页')) {
-        var nextUrl = parser.query(document, source.contentPagination);
+        var nextUrl = parser.query(document, source.value.contentPagination);
         if (!nextUrl.startsWith('http')) {
-          nextUrl = '${source.url}$nextUrl';
+          nextUrl = '${source.value.url}$nextUrl';
         }
         var nextHtml = await network.request(
           nextUrl,
-          charset: source.charset,
-          method: method,
+          charset: source.value.charset,
+          method: source.value.contentMethod.toUpperCase(),
           reacquire: false,
         );
         document = parser.parse(nextHtml);
-        var nextContent = parser.query(document, source.contentContent);
+        var nextContent = parser.query(document, source.value.contentContent);
         content = '$content\n$nextContent';
         validation = parser.query(
           document,
-          source.contentPaginationValidation,
+          source.value.contentPaginationValidation,
         );
       }
     }
@@ -348,20 +333,19 @@ class ReaderViewModel {
   }
 
   Future<List<ChapterEntity>> _getRemoteChapters() async {
-    var html =
-        await CachedNetwork(prefix: book.name).request(book.catalogueUrl);
-    var source = await BookSourceService().getBookSource(book.sourceId);
+    var network = CachedNetwork(prefix: book.name);
+    var html = await network.request(book.catalogueUrl);
     final parser = HtmlParser();
     var document = parser.parse(html);
-    var preset = parser.query(document, source.cataloguePreset);
-    var items = parser.queryNodes(document, source.catalogueChapters);
+    var preset = parser.query(document, source.value.cataloguePreset);
+    var items = parser.queryNodes(document, source.value.catalogueChapters);
     List<ChapterEntity> chapters = [];
-    var catalogueUrlRule = source.catalogueUrl;
+    var catalogueUrlRule = source.value.catalogueUrl;
     catalogueUrlRule = catalogueUrlRule.replaceAll('{{preset}}', preset);
     for (var i = 0; i < items.length; i++) {
-      final name = parser.query(items[i], source.catalogueName);
+      final name = parser.query(items[i], source.value.catalogueName);
       var url = parser.query(items[i], catalogueUrlRule);
-      if (!url.startsWith('http')) url = '${source.url}$url';
+      if (!url.startsWith('http')) url = '${source.value.url}$url';
       final chapter = ChapterEntity();
       chapter.name = name;
       chapter.url = url;
@@ -394,5 +378,39 @@ class ReaderViewModel {
     height -= footerPaddingVertical;
     height -= (theme.footerFontSize * theme.footerHeight);
     return Size(width, height);
+  }
+
+  Theme _initTheme() {
+    return Theme()
+      ..footerPaddingBottom = 24
+      ..headerPaddingTop = 48;
+  }
+
+  Future<void> _loadCurrentChapter() async {
+    currentChapterContent.value = await _getContent(book.chapterIndex);
+    var splitter = Splitter(size: size.value, theme: theme.value);
+    currentChapterPages.value = splitter.split(currentChapterContent.value);
+  }
+
+  Future<void> _preloadNextChapter() async {
+    if (chapterIndex.value + 1 >= chapters.value.length) {
+      nextChapterContent.value = '';
+      nextChapterPages.value = [];
+      return;
+    }
+    nextChapterContent.value = await _getContent(chapterIndex.value + 1);
+    var splitter = Splitter(size: size.value, theme: theme.value);
+    nextChapterPages.value = splitter.split(nextChapterContent.value);
+  }
+
+  Future<void> _preloadPreviousChapter() async {
+    if (chapterIndex.value - 1 < 0) {
+      previousChapterContent.value = '';
+      previousChapterPages.value = [];
+      return;
+    }
+    previousChapterContent.value = await _getContent(chapterIndex.value - 1);
+    var splitter = Splitter(size: size.value, theme: theme.value);
+    previousChapterPages.value = splitter.split(previousChapterContent.value);
   }
 }
