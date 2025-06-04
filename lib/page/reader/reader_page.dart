@@ -89,7 +89,10 @@ class _ReaderPageState extends State<ReaderPage> {
       );
     }
     if (viewModel.currentChapterPages.value.isEmpty) {
-      return ReaderContentView.loading(theme: viewModel.theme.value);
+      return GestureDetector(
+        onTapUp: viewModel.turnPage,
+        child: ReaderContentView.loading(theme: viewModel.theme.value),
+      );
     }
     return PageView.builder(
       controller: viewModel.controller,

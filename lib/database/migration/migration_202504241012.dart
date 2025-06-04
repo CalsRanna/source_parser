@@ -7,7 +7,7 @@ import 'package:source_parser/schema/layout.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/schema/theme.dart';
 
-class Migration202404241012 {
+class Migration202504241012 {
   static final createBookSourceTableSql = '''
 CREATE TABLE $bookSourceTable (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -187,7 +187,7 @@ DROP TABLE IF EXISTS $themeTable;
     var laconic = DatabaseService.instance.laconic;
     var count = await laconic
         .table('migrations')
-        .where('name', 'migration_202404241012')
+        .where('name', 'migration_202504241012')
         .count();
     if (count > 0) return;
     await laconic.statement(dropBookTableSql);
@@ -255,7 +255,7 @@ DROP TABLE IF EXISTS $themeTable;
       }
     });
     await laconic.table('migrations').insert([
-      {'name': 'migration_202404241012'}
+      {'name': 'migration_202504241012'}
     ]);
   }
 }
