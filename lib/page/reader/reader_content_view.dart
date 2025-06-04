@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/provider/battery.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
 import 'package:source_parser/util/merger.dart';
 import 'package:source_parser/util/string_extension.dart';
 
 class ReaderContentView extends StatelessWidget {
+  final int? battery;
   final String contentText;
   final String headerText;
   final String pageProgressText;
@@ -15,6 +14,7 @@ class ReaderContentView extends StatelessWidget {
 
   const ReaderContentView({
     super.key,
+    this.battery,
     required this.contentText,
     this.theme,
     required this.headerText,
@@ -25,7 +25,8 @@ class ReaderContentView extends StatelessWidget {
   const ReaderContentView.loading({
     super.key,
     this.theme,
-  })  : contentText = '',
+  })  : battery = null,
+        contentText = '',
         headerText = '加载中',
         pageProgressText = '',
         isLoading = true,
@@ -98,7 +99,11 @@ class ReaderContentView extends StatelessWidget {
       isLoading: isLoading,
       errorMessage: errorText,
     );
-    var footer = _Footer(pageProgressText: pageProgressText, theme: theme);
+    var footer = _Footer(
+      battery: battery,
+      pageProgressText: pageProgressText,
+      theme: theme,
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [header, Expanded(child: contentWidget), footer],
@@ -106,13 +111,13 @@ class ReaderContentView extends StatelessWidget {
   }
 }
 
-class _Battery extends ConsumerWidget {
+class _Battery extends StatelessWidget {
+  final int battery;
   final Size size;
-  const _Battery({required this.size});
+  const _Battery({required this.battery, required this.size});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var battery = ref.watch(batteryNotifierProvider);
+  Widget build(BuildContext context) {
     final materialTheme = Theme.of(context);
     final colorScheme = materialTheme.colorScheme;
     final primary = colorScheme.primary;
@@ -210,10 +215,15 @@ class _Content extends StatelessWidget {
 }
 
 class _Footer extends StatelessWidget {
+  final int? battery;
   final String pageProgressText;
   final schema.Theme theme;
 
-  const _Footer({required this.pageProgressText, required this.theme});
+  const _Footer({
+    this.battery,
+    required this.pageProgressText,
+    required this.theme,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -232,9 +242,10 @@ class _Footer extends StatelessWidget {
   }
 
   Widget _buildBattery() {
+    if (battery == null) return const SizedBox();
     var height = theme.footerFontSize * theme.footerHeight;
     var width = height * 2;
-    return _Battery(size: Size(width, height));
+    return _Battery(battery: battery!, size: Size(width, height));
   }
 
   Widget _buildTime() {

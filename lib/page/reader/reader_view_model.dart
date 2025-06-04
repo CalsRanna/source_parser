@@ -1,4 +1,6 @@
+import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart' hide Theme;
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/database/available_source_service.dart';
@@ -10,11 +12,9 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
-import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
-import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/splitter.dart';
 import 'package:source_parser/view_model/source_parser_view_model.dart';
 
@@ -31,18 +31,91 @@ class ReaderViewModel {
   late final chapterIndex = signal(book.chapterIndex);
   late final pageIndex = signal(book.pageIndex);
   final theme = signal(Theme());
+  final showOverlay = signal(false);
+  final progress = signal(0.0);
+  final showCacheIndicator = signal(false);
+  final battery = signal(100);
 
   late final headerText = computed(() {
     if (pageIndex.value == 0) return book.name;
     return chapters.value.elementAt(chapterIndex.value).name;
   });
-  late final footerText = computed(() {
-    return '${pageIndex.value + 1}/${currentChapterPages.value.length}';
-  });
 
   late final controller = PageController(initialPage: book.pageIndex);
 
   ReaderViewModel({required this.book});
+
+  void downloadChapters(BuildContext context, int amount) async {
+    showCacheIndicator.value = true;
+    // await cacheChapters(amount: amount);
+    if (!context.mounted) return;
+    // final message = Message.of(context);
+    // message.show('缓存完毕，${progress.succeed}章成功，${progress.failed}章失败');
+    await Future.delayed(const Duration(seconds: 1));
+    showCacheIndicator.value = false;
+  }
+
+  String getFooterText(int index) {
+    return '${index + 1}/${currentChapterPages.value.length}';
+  }
+
+  // Future<void> cacheChapters({int amount = 3}) async {
+  //   final book = ref.read(bookNotifierProvider);
+  //   final builder = isar.sources.filter();
+  //   final source = await builder.idEqualTo(book.sourceId).findFirst();
+  //   if (source == null) return;
+  //   if (amount == 0) {
+  //     amount = book.chapters.length - (book.index + 1);
+  //   }
+  //   amount = min(amount, book.chapters.length - (book.index + 1));
+  //   state = state.copyWith(amount: amount, failed: 0, succeed: 0);
+  //   final startIndex = book.index + 1;
+  //   final endIndex = min(startIndex + amount, book.chapters.length);
+  //   final setting = await ref.read(settingNotifierProvider.future);
+  //   final maxConcurrent = setting.maxConcurrent;
+  //   final semaphore = Semaphore(maxConcurrent.floor());
+  //   List<Future<void>> futures = [];
+  //   for (var i = startIndex; i < endIndex; i++) {
+  //     futures.add(_cacheChapter(source, i, semaphore));
+  //   }
+  //   await Future.wait(futures);
+  // }
+
+  // Future<void> _cacheChapter(
+  //   Source source,
+  //   int index,
+  //   Semaphore semaphore,
+  // ) async {
+  //   await semaphore.acquire();
+  //   try {
+  //     final book = ref.read(bookNotifierProvider);
+  //     final url = book.chapters.elementAt(index).url;
+  //     final setting = await ref.read(settingNotifierProvider.future);
+  //     final timeout = setting.timeout;
+  //     final network = CachedNetwork(
+  //       prefix: book.name,
+  //       timeout: Duration(milliseconds: timeout),
+  //     );
+  //     final cached = await network.cached(url);
+  //     if (!cached) {
+  //       await network.request(
+  //         url,
+  //         charset: source.charset,
+  //         method: source.contentMethod,
+  //       );
+  //     }
+  //     state = state.copyWith(succeed: state.succeed + 1);
+  //   } catch (error) {
+  //     state = state.copyWith(failed: state.failed + 1);
+  //   } finally {
+  //     semaphore.release();
+  //   }
+  // }
+
+  void hideUiOverlays() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    showOverlay.value = false;
+  }
 
   Future<void> initSignals() async {
     theme.value =
@@ -55,60 +128,16 @@ class ReaderViewModel {
     var splitter = Splitter(size: size, theme: theme.value);
     currentChapterPages.value = splitter.split(currentChapterContent.value);
     preloadNextChapter();
+    battery.value = await Battery().batteryLevel;
   }
 
-  void nextPage() {
-    if (chapterIndex.value == chapters.value.length - 1 &&
-        pageIndex.value + 1 >= currentChapterPages.value.length) {
-      return;
-    }
-    if (pageIndex.value + 1 >= currentChapterPages.value.length) {
-      chapterIndex.value++;
-      pageIndex.value = 0;
-      previousChapterContent.value = currentChapterContent.value;
-      previousChapterPages.value = currentChapterPages.value;
-      currentChapterContent.value = nextChapterContent.value;
-      currentChapterPages.value = nextChapterPages.value;
-      controller.jumpToPage(pageIndex.value);
-      preloadNextChapter();
-      return;
-    }
-    pageIndex.value++;
-    controller.nextPage(
-      duration: Durations.medium1,
-      curve: Curves.easeInOut,
-    );
-  }
-
-  void previousPage() {
-    if (chapterIndex.value == 0 && pageIndex.value == 0) {
-      return;
-    }
-    if (pageIndex.value - 1 < 0) {
-      chapterIndex.value--;
-      pageIndex.value = previousChapterPages.value.length - 1;
-      nextChapterContent.value = currentChapterContent.value;
-      nextChapterPages.value = currentChapterPages.value;
-      currentChapterContent.value = previousChapterContent.value;
-      currentChapterPages.value = previousChapterPages.value;
-      controller.jumpToPage(pageIndex.value);
-      preloadPreviousChapter();
-      return;
-    }
-    pageIndex.value--;
-    controller.previousPage(
-      duration: Durations.medium1,
-      curve: Curves.easeInOut,
-    );
+  void navigateAvailableSourcePage(BuildContext context) {
+    AvailableSourceRoute(book: book).push(context);
   }
 
   void navigateCataloguePage(BuildContext context) {
     CatalogueRoute(book: book.copyWith(chapterIndex: chapterIndex.value))
         .push(context);
-  }
-
-  void navigateAvailableSourcePage(BuildContext context) {
-    AvailableSourceRoute(book: book).push(context);
   }
 
   void nextChapter() {
@@ -125,18 +154,27 @@ class ReaderViewModel {
     preloadNextChapter();
   }
 
-  void previousChapter() {
-    if (chapterIndex.value - 1 < 0) {
+  Future<void> nextPage() async {
+    if (chapterIndex.value == chapters.value.length - 1 &&
+        pageIndex.value + 1 >= currentChapterPages.value.length) {
       return;
     }
-    chapterIndex.value--;
-    pageIndex.value = 0;
-    nextChapterContent.value = currentChapterContent.value;
-    nextChapterPages.value = currentChapterPages.value;
-    currentChapterContent.value = previousChapterContent.value;
-    currentChapterPages.value = previousChapterPages.value;
-    controller.jumpToPage(pageIndex.value);
-    preloadPreviousChapter();
+    if (pageIndex.value + 1 >= currentChapterPages.value.length) {
+      chapterIndex.value++;
+      pageIndex.value = 0;
+      previousChapterContent.value = currentChapterContent.value;
+      previousChapterPages.value = currentChapterPages.value;
+      currentChapterContent.value = nextChapterContent.value;
+      currentChapterPages.value = nextChapterPages.value;
+      controller.jumpToPage(pageIndex.value);
+      preloadNextChapter();
+      return;
+    }
+    controller.nextPage(
+      duration: Durations.medium1,
+      curve: Curves.easeInOut,
+    );
+    battery.value = await Battery().batteryLevel;
   }
 
   Future<void> preloadNextChapter() async {
@@ -163,19 +201,76 @@ class ReaderViewModel {
     previousChapterPages.value = splitter.split(previousChapterContent.value);
   }
 
+  void previousChapter() {
+    if (chapterIndex.value - 1 < 0) {
+      return;
+    }
+    chapterIndex.value--;
+    pageIndex.value = 0;
+    nextChapterContent.value = currentChapterContent.value;
+    nextChapterPages.value = currentChapterPages.value;
+    currentChapterContent.value = previousChapterContent.value;
+    currentChapterPages.value = previousChapterPages.value;
+    controller.jumpToPage(pageIndex.value);
+    preloadPreviousChapter();
+  }
+
+  Future<void> previousPage() async {
+    if (chapterIndex.value == 0 && pageIndex.value == 0) {
+      return;
+    }
+    if (pageIndex.value - 1 < 0) {
+      chapterIndex.value--;
+      pageIndex.value = previousChapterPages.value.length - 1;
+      nextChapterContent.value = currentChapterContent.value;
+      nextChapterPages.value = currentChapterPages.value;
+      currentChapterContent.value = previousChapterContent.value;
+      currentChapterPages.value = previousChapterPages.value;
+      controller.jumpToPage(pageIndex.value);
+      preloadPreviousChapter();
+      return;
+    }
+    controller.previousPage(
+      duration: Durations.medium1,
+      curve: Curves.easeInOut,
+    );
+    battery.value = await Battery().batteryLevel;
+  }
+
+  void showUiOverlays() {
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
+    showOverlay.value = true;
+  }
+
+  Future<void> syncBookshelf() async {
+    var book = this.book.copyWith(
+          chapterIndex: chapterIndex.value,
+          pageIndex: pageIndex.value,
+        );
+    await BookService().updateBook(book);
+    GetIt.instance.get<BookshelfViewModel>().initSignals();
+  }
+
+  void updatePageIndex(int index) {
+    pageIndex.value = index;
+  }
+
   Future<List<AvailableSourceEntity>> _getAvailableSources() async {
     return await AvailableSourceService().getAvailableSources(book.id);
   }
 
   Future<List<ChapterEntity>> _getChapters() async {
-    var source = await BookSourceService().getBookSource(book.sourceId);
-    var chapters = await Parser.getChapters(
-      book.name,
-      book.catalogueUrl,
-      Source(),
-      Durations.medium1,
-      Durations.medium2,
-    );
+    // var source = await BookSourceService().getBookSource(book.sourceId);
+    // var chapters = await Parser.getChapters(
+    //   book.name,
+    //   book.catalogueUrl,
+    //   Source(),
+    //   Durations.medium1,
+    //   Durations.medium2,
+    // );
     return [];
   }
 
@@ -252,14 +347,5 @@ class ReaderViewModel {
     height -= footerPaddingVertical;
     height -= (theme.footerFontSize * theme.footerHeight);
     return Size(width, height);
-  }
-
-  Future<void> syncBookshelf() async {
-    var book = this.book.copyWith(
-          chapterIndex: chapterIndex.value,
-          pageIndex: pageIndex.value,
-        );
-    await BookService().updateBook(book);
-    GetIt.instance.get<BookshelfViewModel>().initSignals();
   }
 }
