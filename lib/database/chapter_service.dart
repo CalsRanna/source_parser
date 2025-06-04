@@ -10,4 +10,15 @@ class ChapterService {
         .map((chapter) => ChapterEntity.fromJson(chapter.toMap()))
         .toList();
   }
+
+  Future<void> destroyChapters(int bookId) async {
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.table('chapters').where('book_id', bookId).delete();
+  }
+
+  Future<void> addChapters(List<ChapterEntity> chapters) async {
+    var data = chapters.map((chapter) => chapter.toJson()).toList();
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.table('chapters').insert(data);
+  }
 }

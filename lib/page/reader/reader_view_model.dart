@@ -12,9 +12,11 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
+import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
+import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/splitter.dart';
 import 'package:source_parser/view_model/source_parser_view_model.dart';
 
@@ -36,6 +38,7 @@ class ReaderViewModel {
   final showCacheIndicator = signal(false);
   final battery = signal(100);
   final size = Signal(Size.zero);
+  final availableSource = Signal(AvailableSourceEntity());
 
   late final controller = PageController(initialPage: book.pageIndex);
 
@@ -134,8 +137,29 @@ class ReaderViewModel {
     battery.value = await Battery().batteryLevel;
   }
 
-  void navigateAvailableSourcePage(BuildContext context) {
-    AvailableSourceRoute(book: book).push(context);
+  Future<void> navigateAvailableSourcePage(BuildContext context) async {
+    var id = await AvailableSourceRoute(book: book).push<int>(context);
+    if (id == null) return;
+    availableSource.value =
+        await AvailableSourceService().getAvailableSource(id);
+    var source = await BookSourceService()
+        .getBookSourceByName(availableSource.value.name);
+    var stream = await Parser.getChapters(
+      book.name,
+      availableSource.value.url,
+      Source.fromJson(source.toJson()),
+      Duration(hours: 6),
+      Duration(seconds: 30),
+    );
+    await for (var item in stream) {
+      chapters.value = [
+        ...chapters.value,
+        ChapterEntity.fromJson(item.toJson())
+      ];
+    }
+    await ChapterService().destroyChapters(book.id);
+    await ChapterService().addChapters(chapters.value);
+    await BookService().updateBook(book.copyWith(availableSourceId: id));
   }
 
   Future<void> navigateCataloguePage(BuildContext context) async {

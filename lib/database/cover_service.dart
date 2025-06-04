@@ -6,7 +6,7 @@ class CoverService {
     var laconic = DatabaseService.instance.laconic;
     var coverData = cover.toJson();
     coverData.remove('id');
-    await laconic.table('covers').insert(coverData);
+    await laconic.table('covers').insert([coverData]);
   }
 
   Future<bool> exist(String url) async {

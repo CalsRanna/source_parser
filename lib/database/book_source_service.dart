@@ -9,6 +9,13 @@ class BookSourceService {
     return BookSourceEntity.fromJson(bookSource.toMap());
   }
 
+  Future<BookSourceEntity> getBookSourceByName(String name) async {
+    var laconic = DatabaseService.instance.laconic;
+    var bookSource =
+        await laconic.table('book_sources').where('name', name).first();
+    return BookSourceEntity.fromJson(bookSource.toMap());
+  }
+
   Future<List<BookSourceEntity>> getEnabledBookSources() async {
     var laconic = DatabaseService.instance.laconic;
     var bookSources =

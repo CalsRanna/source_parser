@@ -4,7 +4,7 @@ import 'package:source_parser/model/book_entity.dart';
 class BookService {
   Future<void> addToBookshelf(BookEntity book) async {
     var laconic = DatabaseService.instance.laconic;
-    await laconic.table('books').insert(book.toJson());
+    await laconic.table('books').insert([book.toJson()]);
   }
 
   Future<void> destroyBook(BookEntity book) async {

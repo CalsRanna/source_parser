@@ -7,6 +7,7 @@ import Foundation
 
 import battery_plus
 import connectivity_plus
+import file_picker
 import icloud_storage_sync
 import isar_flutter_libs
 import network_info_plus
@@ -22,6 +23,7 @@ import webview_flutter_wkwebview
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   BatteryPlusMacosPlugin.register(with: registry.registrar(forPlugin: "BatteryPlusMacosPlugin"))
   ConnectivityPlusPlugin.register(with: registry.registrar(forPlugin: "ConnectivityPlusPlugin"))
+  FilePickerPlugin.register(with: registry.registrar(forPlugin: "FilePickerPlugin"))
   IcloudStorageSyncPlugin.register(with: registry.registrar(forPlugin: "IcloudStorageSyncPlugin"))
   IsarFlutterLibsPlugin.register(with: registry.registrar(forPlugin: "IsarFlutterLibsPlugin"))
   NetworkInfoPlusPlugin.register(with: registry.registrar(forPlugin: "NetworkInfoPlusPlugin"))

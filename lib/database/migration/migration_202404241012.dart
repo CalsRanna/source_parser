@@ -207,7 +207,7 @@ DROP TABLE IF EXISTS $themeTable;
     var bookSources = await isar.sources.where().findAll();
     laconic.transaction(() async {
       for (var bookSource in bookSources) {
-        await laconic.table(bookSourceTable).insert(bookSource.toJson());
+        await laconic.table(bookSourceTable).insert([bookSource.toJson()]);
       }
     });
     var availableSources = await isar.availableSources.where().findAll();
@@ -215,7 +215,7 @@ DROP TABLE IF EXISTS $themeTable;
       for (var availableSource in availableSources) {
         await laconic
             .table(availableSourceTable)
-            .insert(availableSource.toJson());
+            .insert([availableSource.toJson()]);
       }
     });
     var books = await isar.books.where().findAll();
@@ -228,34 +228,34 @@ DROP TABLE IF EXISTS $themeTable;
         bookData.remove('index');
         bookData['chapter_index'] = book.index;
         bookData['page_index'] = book.cursor;
-        await laconic.table(bookTable).insert(bookData);
+        await laconic.table(bookTable).insert([bookData]);
         var chapters = book.chapters;
         for (var chapter in chapters) {
           var chapterData = chapter.toJson();
           chapterData['book_id'] = book.id;
-          await laconic.table(chapterTable).insert(chapterData);
+          await laconic.table(chapterTable).insert([chapterData]);
         }
         var covers = book.covers;
         for (var cover in covers) {
           var coverData = {'url': cover, 'book_id': book.id};
-          await laconic.table(coverTable).insert(coverData);
+          await laconic.table(coverTable).insert([coverData]);
         }
       }
     });
     var layouts = await isar.layouts.where().findAll();
     laconic.transaction(() async {
       for (var layout in layouts) {
-        await laconic.table(layoutTable).insert(layout.toJson());
+        await laconic.table(layoutTable).insert([layout.toJson()]);
       }
     });
     var themes = await isar.themes.where().findAll();
     laconic.transaction(() async {
       for (var theme in themes) {
-        await laconic.table(themeTable).insert(theme.toJson());
+        await laconic.table(themeTable).insert([theme.toJson()]);
       }
     });
-    await laconic
-        .table('migrations')
-        .insert({'name': 'migration_202404241012'});
+    await laconic.table('migrations').insert([
+      {'name': 'migration_202404241012'}
+    ]);
   }
 }

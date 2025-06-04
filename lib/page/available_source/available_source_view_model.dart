@@ -1,12 +1,9 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:signals/signals.dart';
 import 'package:source_parser/database/available_source_service.dart';
 import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/page/reader/reader_view_model.dart';
 import 'package:source_parser/util/parser_util.dart';
 
 class AvailableSourceViewModel {
@@ -50,13 +47,6 @@ class AvailableSourceViewModel {
 
   Future<void> updateAvailableSource(BuildContext context, int index) async {
     var availableSource = availableSources.value[index];
-    BookService().updateBook(
-      book.copyWith(
-        sourceId: availableSource.id,
-        availableSourceId: availableSource.id,
-      ),
-    );
-    AutoRouter.of(context).maybePop();
-    GetIt.instance<ReaderViewModel>(param1: book).initSignals();
+    Navigator.of(context).pop(availableSource.id);
   }
 }

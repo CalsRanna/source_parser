@@ -6,7 +6,7 @@ class AvailableSourceService {
     var laconic = DatabaseService.instance.laconic;
     var json = availableSource.toJson();
     json.remove('id');
-    await laconic.table('available_sources').insert(json);
+    await laconic.table('available_sources').insert([json]);
   }
 
   Future<bool> exist(String url) async {

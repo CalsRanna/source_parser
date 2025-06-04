@@ -13,7 +13,7 @@ class DialogUtil {
   /// [message] The main content text to display in the dialog.
   /// [title] Optional title text for the dialog.
   ///
-  /// Returns a Future<bool?> that completes with true if the user confirms,
+  /// Returns a `Future<bool?>` that completes with true if the user confirms,
   /// false if they cancel, or null if the dialog is dismissed another way.
   static Future<bool?> confirm(String message, {String? title}) async {
     var cancelTextButton = TextButton(
