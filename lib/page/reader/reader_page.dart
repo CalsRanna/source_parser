@@ -74,7 +74,7 @@ class _ReaderPageState extends State<ReaderPage> {
       onBarrierTap: viewModel.hideUiOverlays,
       onCached: (amount) => viewModel.downloadChapters(context, amount),
       onCatalogue: () => viewModel.navigateCataloguePage(context),
-      onDarkMode: () => sourceParserViewModel.toggleDarkMode(),
+      onDarkMode: () => viewModel.toggleDarkMode(),
       onNext: viewModel.nextChapter,
       onPrevious: viewModel.previousChapter,
       onAvailableSource: () => viewModel.navigateAvailableSourcePage(context),
