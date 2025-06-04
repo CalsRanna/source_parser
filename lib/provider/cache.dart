@@ -82,7 +82,7 @@ class CacheProgressNotifier extends _$CacheProgressNotifier {
         prefix: book.name,
         timeout: Duration(milliseconds: timeout),
       );
-      final cached = await network.cached(url);
+      final cached = await network.check(url);
       if (!cached) {
         await network.request(
           url,

@@ -49,7 +49,7 @@ class CachedNetwork {
   }
 
   /// Check the given url is cached or not.
-  Future<bool> cached(String url) async {
+  Future<bool> check(String url) async {
     temporaryDirectory ??= await getTemporaryDirectory();
     final hash = md5.convert(utf8.encode(url)).toString();
     String filePath;

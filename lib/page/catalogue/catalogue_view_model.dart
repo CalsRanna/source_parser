@@ -6,20 +6,34 @@ import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 
 class CatalogueViewModel {
   final BookEntity book;
+  var chapters = Signal(<ChapterEntity>[]);
+
   CatalogueViewModel({required this.book});
 
-  var chapters = Signal(<ChapterEntity>[]);
+  Future<bool> checkChapter(int index) async {
+    var chapter = chapters.value.elementAt(index);
+    return CachedNetwork(prefix: book.name).check(chapter.url);
+  }
 
   Future<void> initSignals() async {
     var isInShelf = await BookService().exist(book.id);
     if (isInShelf) {
       chapters.value = await ChapterService().getChapters(book.id);
     }
+  }
+
+  bool isActive(int index) {
+    return book.chapterIndex == index;
+  }
+
+  void navigateReaderPage(BuildContext context, int index) {
+    Navigator.of(context).pop(index);
   }
 
   Future<void> refreshChapters() async {
@@ -42,6 +56,4 @@ class CatalogueViewModel {
     await stream.last;
     chapters.value = newChapters;
   }
-
-  void navigateReaderPage(BuildContext context) {}
 }

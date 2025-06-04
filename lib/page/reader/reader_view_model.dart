@@ -35,11 +35,7 @@ class ReaderViewModel {
   final progress = signal(0.0);
   final showCacheIndicator = signal(false);
   final battery = signal(100);
-
-  late final headerText = computed(() {
-    if (pageIndex.value == 0) return book.name;
-    return chapters.value.elementAt(chapterIndex.value).name;
-  });
+  final size = Signal(Size.zero);
 
   late final controller = PageController(initialPage: book.pageIndex);
 
@@ -53,6 +49,11 @@ class ReaderViewModel {
     // message.show('缓存完毕，${progress.succeed}章成功，${progress.failed}章失败');
     await Future.delayed(const Duration(seconds: 1));
     showCacheIndicator.value = false;
+  }
+
+  String getHeaderText(int index) {
+    if (index == 0) return book.name;
+    return chapters.value.elementAt(chapterIndex.value).name;
   }
 
   String getFooterText(int index) {
@@ -118,14 +119,16 @@ class ReaderViewModel {
   }
 
   Future<void> initSignals() async {
-    theme.value =
-        theme.value.copyWith(headerPaddingTop: 48, footerPaddingBottom: 24);
-    var size = _initSize(theme.value);
+    theme.value = theme.value.copyWith(
+      headerPaddingTop: 48,
+      footerPaddingBottom: 24,
+    );
+    size.value = _initSize(theme.value);
     availableSources.value = await _getAvailableSources();
     chapters.value = await _initChapters();
     preloadPreviousChapter();
     currentChapterContent.value = await _getContent(book.chapterIndex);
-    var splitter = Splitter(size: size, theme: theme.value);
+    var splitter = Splitter(size: size.value, theme: theme.value);
     currentChapterPages.value = splitter.split(currentChapterContent.value);
     preloadNextChapter();
     battery.value = await Battery().batteryLevel;
@@ -135,9 +138,18 @@ class ReaderViewModel {
     AvailableSourceRoute(book: book).push(context);
   }
 
-  void navigateCataloguePage(BuildContext context) {
-    CatalogueRoute(book: book.copyWith(chapterIndex: chapterIndex.value))
-        .push(context);
+  Future<void> navigateCataloguePage(BuildContext context) async {
+    var currentState = book.copyWith(chapterIndex: chapterIndex.value);
+    var index = await CatalogueRoute(book: currentState).push<int>(context);
+    if (index == null) return;
+    chapterIndex.value = index;
+    pageIndex.value = 0;
+    preloadPreviousChapter();
+    currentChapterContent.value = await _getContent(chapterIndex.value);
+    var splitter = Splitter(size: size.value, theme: theme.value);
+    currentChapterPages.value = splitter.split(currentChapterContent.value);
+    controller.jumpToPage(pageIndex.value);
+    preloadNextChapter();
   }
 
   void nextChapter() {
@@ -252,6 +264,25 @@ class ReaderViewModel {
         );
     await BookService().updateBook(book);
     GetIt.instance.get<BookshelfViewModel>().initSignals();
+  }
+
+  void turnPage(TapUpDetails details) {
+    final size = GetIt.instance.get<SourceParserViewModel>().screenSize.value;
+    final horizontalTapArea = details.globalPosition.dx / size.width;
+    final verticalTapArea = details.globalPosition.dy / size.height;
+    if (horizontalTapArea < 1 / 3) {
+      previousPage();
+    } else if (horizontalTapArea > 2 / 3) {
+      nextPage();
+    } else if (horizontalTapArea >= 1 / 3 && horizontalTapArea <= 2 / 3) {
+      if (verticalTapArea > 3 / 4) {
+        nextPage();
+      } else if (verticalTapArea < 1 / 4) {
+        previousPage();
+      } else {
+        showUiOverlays();
+      }
+    }
   }
 
   void updatePageIndex(int index) {

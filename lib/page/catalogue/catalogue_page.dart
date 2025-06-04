@@ -9,7 +9,6 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/catalogue/catalogue_view_model.dart';
 import 'package:source_parser/provider/book.dart';
-import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/message.dart';
 
 @RoutePage()
@@ -109,14 +108,14 @@ class _CataloguePageState extends State<CataloguePage> {
 
   Widget _itemBuilder(int index) {
     final chapter = viewModel.chapters.value.elementAt(index);
-    final isActive = widget.book.chapterIndex == index;
-    final future = CachedNetwork(prefix: widget.book.name).cached(chapter.url);
+    final isActive = viewModel.isActive(index);
+    final future = viewModel.checkChapter(index);
     return FutureBuilder(
       builder: (_, snapshot) => _Tile(
         chapter,
         isActive: isActive,
         isCached: snapshot.data ?? false,
-        onTap: () => viewModel.navigateReaderPage(context),
+        onTap: () => viewModel.navigateReaderPage(context, index),
       ),
       future: future,
     );
