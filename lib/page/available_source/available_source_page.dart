@@ -9,6 +9,7 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/available_source/available_source_view_model.dart';
 import 'package:source_parser/page/available_source/component/option_bottom_sheet.dart';
 import 'package:source_parser/util/dialog_util.dart';
+import 'package:source_parser/util/logger.dart';
 
 @RoutePage()
 class AvailableSourcePage extends StatefulWidget {
@@ -89,8 +90,9 @@ class _AvailableSourcePageState extends State<AvailableSourcePage> {
   }
 
   Widget _itemBuilder(int index) {
-    final active = viewModel.availableSources.value[index].id ==
-        widget.book.availableSourceId;
+    final active =
+        viewModel.availableSources.value[index].id == widget.book.sourceId;
+    logger.d('active: $active');
     return ListTile(
       onLongPress: openBottomSheet,
       onTap: () => switchSource(context, index),

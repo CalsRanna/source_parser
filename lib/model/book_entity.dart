@@ -10,12 +10,11 @@ class BookEntity {
   String latestChapter = '';
   String name = '';
   int pageIndex = 0;
-  int sourceId = 0;
   String status = '';
   String updatedAt = '';
   String url = '';
   String words = '';
-  int availableSourceId = 0;
+  int sourceId = 0;
 
   BookEntity();
 
@@ -32,12 +31,11 @@ class BookEntity {
       ..latestChapter = json['latest_chapter'] ?? ''
       ..name = json['name'] ?? ''
       ..pageIndex = json['page_index'] ?? 0
-      ..sourceId = json['source_id'] as int? ?? 0
       ..status = json['status'] ?? ''
       ..updatedAt = json['updated_at'] ?? ''
       ..url = json['url'] ?? ''
       ..words = json['words'] ?? ''
-      ..availableSourceId = json['available_source_id'] ?? 0;
+      ..sourceId = json['source_id'] as int? ?? 0;
   }
 
   BookEntity copyWith({
@@ -52,12 +50,11 @@ class BookEntity {
     String? latestChapter,
     String? name,
     int? pageIndex,
-    int? sourceId,
     String? status,
     String? updatedAt,
     String? url,
     String? words,
-    int? availableSourceId,
+    int? sourceId,
   }) {
     return BookEntity()
       ..id = id ?? this.id
@@ -71,12 +68,11 @@ class BookEntity {
       ..latestChapter = latestChapter ?? this.latestChapter
       ..name = name ?? this.name
       ..pageIndex = pageIndex ?? this.pageIndex
-      ..sourceId = sourceId ?? this.sourceId
       ..status = status ?? this.status
       ..updatedAt = updatedAt ?? this.updatedAt
       ..url = url ?? this.url
       ..words = words ?? this.words
-      ..availableSourceId = availableSourceId ?? this.availableSourceId;
+      ..sourceId = sourceId ?? this.sourceId;
   }
 
   Map<String, dynamic> toJson() {
@@ -92,12 +88,11 @@ class BookEntity {
       'latest_chapter': latestChapter,
       'name': name,
       'page_index': pageIndex,
-      'source_id': sourceId,
       'status': status,
       'updated_at': updatedAt,
       'url': url,
       'words': words,
-      'available_source_id': availableSourceId
+      'source_id': sourceId,
     };
   }
 }

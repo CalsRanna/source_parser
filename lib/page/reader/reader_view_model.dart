@@ -12,11 +12,9 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
-import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
-import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/splitter.dart';
 import 'package:source_parser/view_model/source_parser_view_model.dart';
 
@@ -54,13 +52,13 @@ class ReaderViewModel {
     showCacheIndicator.value = false;
   }
 
+  String getFooterText(int index) {
+    return '${index + 1}/${currentChapterPages.value.length}';
+  }
+
   String getHeaderText(int index) {
     if (index == 0) return book.name;
     return chapters.value.elementAt(chapterIndex.value).name;
-  }
-
-  String getFooterText(int index) {
-    return '${index + 1}/${currentChapterPages.value.length}';
   }
 
   // Future<void> cacheChapters({int amount = 3}) async {
@@ -127,8 +125,9 @@ class ReaderViewModel {
       footerPaddingBottom: 24,
     );
     size.value = _initSize(theme.value);
-    availableSources.value = await _getAvailableSources();
+    availableSources.value = await _initAvailableSources();
     chapters.value = await _initChapters();
+    if (chapters.value.isEmpty) return;
     preloadPreviousChapter();
     currentChapterContent.value = await _getContent(book.chapterIndex);
     var splitter = Splitter(size: size.value, theme: theme.value);
@@ -142,24 +141,11 @@ class ReaderViewModel {
     if (id == null) return;
     availableSource.value =
         await AvailableSourceService().getAvailableSource(id);
-    var source = await BookSourceService()
-        .getBookSourceByName(availableSource.value.name);
-    var stream = await Parser.getChapters(
-      book.name,
-      availableSource.value.url,
-      Source.fromJson(source.toJson()),
-      Duration(hours: 6),
-      Duration(seconds: 30),
-    );
-    await for (var item in stream) {
-      chapters.value = [
-        ...chapters.value,
-        ChapterEntity.fromJson(item.toJson())
-      ];
-    }
+    chapters.value = await _getRemoteChapters();
+    if (chapters.value.isEmpty) return;
     await ChapterService().destroyChapters(book.id);
     await ChapterService().addChapters(chapters.value);
-    await BookService().updateBook(book.copyWith(availableSourceId: id));
+    await BookService().updateBook(book.copyWith(sourceId: id));
   }
 
   Future<void> navigateCataloguePage(BuildContext context) async {
@@ -313,22 +299,6 @@ class ReaderViewModel {
     pageIndex.value = index;
   }
 
-  Future<List<AvailableSourceEntity>> _getAvailableSources() async {
-    return await AvailableSourceService().getAvailableSources(book.id);
-  }
-
-  Future<List<ChapterEntity>> _getChapters() async {
-    // var source = await BookSourceService().getBookSource(book.sourceId);
-    // var chapters = await Parser.getChapters(
-    //   book.name,
-    //   book.catalogueUrl,
-    //   Source(),
-    //   Durations.medium1,
-    //   Durations.medium2,
-    // );
-    return [];
-  }
-
   Future<String> _getContent(int chapterIndex) async {
     var source = await BookSourceService().getBookSource(book.sourceId);
     final method = source.contentMethod.toUpperCase();
@@ -378,10 +348,37 @@ class ReaderViewModel {
     return '$chapterName\n\n$content';
   }
 
+  Future<List<ChapterEntity>> _getRemoteChapters() async {
+    var html =
+        await CachedNetwork(prefix: book.name).request(book.catalogueUrl);
+    var source = await BookSourceService().getBookSource(book.sourceId);
+    final parser = HtmlParser();
+    var document = parser.parse(html);
+    var preset = parser.query(document, source.cataloguePreset);
+    var items = parser.queryNodes(document, source.catalogueChapters);
+    List<ChapterEntity> chapters = [];
+    var catalogueUrlRule = source.catalogueUrl;
+    catalogueUrlRule = catalogueUrlRule.replaceAll('{{preset}}', preset);
+    for (var i = 0; i < items.length; i++) {
+      final name = parser.query(items[i], source.catalogueName);
+      var url = parser.query(items[i], catalogueUrlRule);
+      if (!url.startsWith('http')) url = '${source.url}$url';
+      final chapter = ChapterEntity();
+      chapter.name = name;
+      chapter.url = url;
+      chapters.add(chapter);
+    }
+    return chapters;
+  }
+
+  Future<List<AvailableSourceEntity>> _initAvailableSources() async {
+    return await AvailableSourceService().getAvailableSources(book.id);
+  }
+
   Future<List<ChapterEntity>> _initChapters() async {
     var chapters = await ChapterService().getChapters(book.id);
     if (chapters.isNotEmpty) return chapters;
-    return await _getChapters();
+    return await _getRemoteChapters();
   }
 
   Size _initSize(Theme theme) {

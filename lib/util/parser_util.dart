@@ -170,8 +170,8 @@ class ParserUtil {
             bookEntity.introduction = introduction;
             bookEntity.latestChapter = latestChapter;
             bookEntity.name = name;
-            bookEntity.availableSourceId = bookSource.id;
             bookEntity.url = url;
+            bookEntity.sourceId = bookSource.id;
             var coverEntity = CoverEntity();
             coverEntity.url = cover;
             coverEntity.bookId = bookEntity.id;

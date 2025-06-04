@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'package:charset/charset.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/schema/available_source.dart';
@@ -373,8 +374,8 @@ class Parser {
       var result = DebugResultNew();
       var books = <Book>[];
       var book = Book();
-      var chapters = <Chapter>[];
-      final helper = _ParserUtil(network, source);
+      var chapters = <ChapterEntity>[];
+      final helper = ParserUtil(network, source);
       // 调试搜索解析规则
       try {
         result.title = '搜索';
@@ -787,10 +788,10 @@ class Parser {
   }
 }
 
-class _ParserUtil {
+class ParserUtil {
   final CachedNetwork network;
   final Source source;
-  _ParserUtil(this.network, this.source);
+  ParserUtil(this.network, this.source);
   String buildSearchUrl(String credential, {int page = 1}) {
     String url = source.searchUrl;
     url = url.replaceAll('{{credential}}', credential);
@@ -862,19 +863,19 @@ class _ParserUtil {
     return book;
   }
 
-  Future<List<Chapter>> getChapters(String html) async {
+  Future<List<ChapterEntity>> getChapters(String html) async {
     final parser = HtmlParser();
     var document = parser.parse(html);
     var preset = parser.query(document, source.cataloguePreset);
     var items = parser.queryNodes(document, source.catalogueChapters);
-    List<Chapter> chapters = [];
+    List<ChapterEntity> chapters = [];
     var catalogueUrlRule = source.catalogueUrl;
     catalogueUrlRule = catalogueUrlRule.replaceAll('{{preset}}', preset);
     for (var i = 0; i < items.length; i++) {
       final name = parser.query(items[i], source.catalogueName);
       var url = parser.query(items[i], catalogueUrlRule);
       if (!url.startsWith('http')) url = '${source.url}$url';
-      final chapter = Chapter();
+      final chapter = ChapterEntity();
       chapter.name = name;
       chapter.url = url;
       chapters.add(chapter);

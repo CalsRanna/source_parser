@@ -44,8 +44,8 @@ class InformationViewModel {
             await AvailableSourceService().getAvailableSources(book.id);
         chapters.value = await ChapterService().getChapters(book.id);
         covers.value = await CoverService().getCovers(book.id);
-        currentSource.value = await AvailableSourceService()
-            .getAvailableSource(book.availableSourceId);
+        currentSource.value =
+            await AvailableSourceService().getAvailableSource(book.sourceId);
       } catch (error) {
         logger.e(error.toString());
       }
