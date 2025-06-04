@@ -16,6 +16,7 @@ class ReaderOverlayView extends ConsumerWidget {
   final void Function()? onBarrierTap;
   final void Function(int)? onCached;
   final void Function()? onCatalogue;
+  final void Function()? onDarkMode;
   final void Function()? onNext;
   final void Function()? onPrevious;
   final void Function()? onRefresh;
@@ -26,6 +27,7 @@ class ReaderOverlayView extends ConsumerWidget {
     this.onBarrierTap,
     this.onCached,
     this.onCatalogue,
+    this.onDarkMode,
     this.onNext,
     this.onPrevious,
     this.onRefresh,
@@ -59,6 +61,7 @@ class ReaderOverlayView extends ConsumerWidget {
     if (slot == LayoutSlot.nextChapter.name) return onNext?.call();
     if (slot == LayoutSlot.previousChapter.name) return onPrevious?.call();
     if (slot == LayoutSlot.source.name) return onAvailableSource?.call();
+    if (slot == LayoutSlot.darkMode) return onDarkMode?.call();
   }
 
   AppBar _buildAppBar(Layout layout) {

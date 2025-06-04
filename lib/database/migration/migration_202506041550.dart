@@ -19,16 +19,6 @@ ALTER TABLE $bookTable DROP COLUMN available_source_id;
     if (count > 0) return;
     await laconic.statement(alterAvailableSourceTableSql);
     await laconic.statement(alterBookTableSql);
-    var availableSources = await laconic.table(availableSourceTable).get();
-    List<Map<String, Object?>> copiedAvailableSources = [];
-    for (var availableSource in availableSources) {
-      var copiedAvailableSource = availableSource.toMap();
-      copiedAvailableSource['sourceId'] = 0;
-      copiedAvailableSources.add(copiedAvailableSource);
-    }
-    laconic.transaction(() async {
-      await laconic.table(availableSourceTable).insert(copiedAvailableSources);
-    });
     await laconic.table('migrations').insert([
       {'name': 'migration_202506041550'}
     ]);

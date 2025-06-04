@@ -9,14 +9,14 @@ class ReaderContentView extends StatelessWidget {
   final String headerText;
   final String pageProgressText;
   final bool isLoading;
-  final schema.Theme? theme;
+  final schema.Theme theme;
   final String? errorText;
 
   const ReaderContentView({
     super.key,
     this.battery,
     required this.contentText,
-    this.theme,
+    required this.theme,
     required this.headerText,
     required this.pageProgressText,
   })  : isLoading = false,
@@ -24,7 +24,7 @@ class ReaderContentView extends StatelessWidget {
 
   const ReaderContentView.loading({
     super.key,
-    this.theme,
+    required this.theme,
   })  : battery = null,
         contentText = '',
         headerText = '加载中',
@@ -34,7 +34,7 @@ class ReaderContentView extends StatelessWidget {
 
   const ReaderContentView.error({
     super.key,
-    this.theme,
+    required this.theme,
     required this.errorText,
   })  : battery = null,
         contentText = '',
@@ -44,37 +44,12 @@ class ReaderContentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var theme = _assembleTheme();
     var background = _buildBackground(theme);
     var content = _buildContent(theme);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(children: [background, content]),
     );
-  }
-
-  schema.Theme _assembleTheme() {
-    if (theme != null) return theme!;
-    // var state = ref.watch(themeNotifierProvider).valueOrNull;
-    // var currentTheme = state ?? schema.Theme();
-    // var backgroundColor = currentTheme.backgroundColor;
-    // var contentColor = currentTheme.contentColor;
-    // var footerColor = currentTheme.footerColor;
-    // var headerColor = currentTheme.headerColor;
-    // var setting = ref.watch(settingNotifierProvider).valueOrNull;
-    // if (setting?.darkMode == true) {
-    //   backgroundColor = Colors.black.toHex()!;
-    //   contentColor = Colors.white.withValues(alpha: 0.75).toHex()!;
-    //   footerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
-    //   headerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
-    // }
-    // return currentTheme.copyWith(
-    //   backgroundColor: backgroundColor,
-    //   contentColor: contentColor,
-    //   footerColor: footerColor,
-    //   headerColor: headerColor,
-    // );
-    return schema.Theme();
   }
 
   Widget _buildBackground(schema.Theme theme) {

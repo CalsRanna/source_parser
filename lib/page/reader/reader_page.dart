@@ -7,6 +7,7 @@ import 'package:source_parser/page/reader/reader_cache_indicator_view.dart';
 import 'package:source_parser/page/reader/reader_content_view.dart';
 import 'package:source_parser/page/reader/reader_overlay_view.dart';
 import 'package:source_parser/page/reader/reader_view_model.dart';
+import 'package:source_parser/view_model/source_parser_view_model.dart';
 
 @RoutePage()
 class ReaderPage extends StatefulWidget {
@@ -21,6 +22,7 @@ class _ReaderPageState extends State<ReaderPage> {
   late final viewModel = GetIt.instance.get<ReaderViewModel>(
     param1: widget.book,
   );
+  final sourceParserViewModel = GetIt.instance.get<SourceParserViewModel>();
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +74,7 @@ class _ReaderPageState extends State<ReaderPage> {
       onBarrierTap: viewModel.hideUiOverlays,
       onCached: (amount) => viewModel.downloadChapters(context, amount),
       onCatalogue: () => viewModel.navigateCataloguePage(context),
+      onDarkMode: () => sourceParserViewModel.toggleDarkMode(),
       onNext: viewModel.nextChapter,
       onPrevious: viewModel.previousChapter,
       onAvailableSource: () => viewModel.navigateAvailableSourcePage(context),

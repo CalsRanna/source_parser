@@ -14,6 +14,7 @@ import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/cache_network.dart';
+import 'package:source_parser/util/color_extension.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
 import 'package:source_parser/util/splitter.dart';
 import 'package:source_parser/view_model/source_parser_view_model.dart';
@@ -263,6 +264,11 @@ class ReaderViewModel {
     GetIt.instance.get<BookshelfViewModel>().initSignals();
   }
 
+  void toggleDarkMode() {
+    GetIt.instance.get<SourceParserViewModel>().toggleDarkMode();
+    theme.value = _assembleTheme(theme.value);
+  }
+
   void turnPage(TapUpDetails details) {
     final size = GetIt.instance.get<SourceParserViewModel>().screenSize.value;
     final horizontalTapArea = details.globalPosition.dx / size.width;
@@ -284,6 +290,27 @@ class ReaderViewModel {
 
   void updatePageIndex(int index) {
     pageIndex.value = index;
+  }
+
+  Theme _assembleTheme(Theme theme) {
+    var backgroundColor = theme.backgroundColor;
+    var contentColor = theme.contentColor;
+    var footerColor = theme.footerColor;
+    var headerColor = theme.headerColor;
+    var darkModel =
+        GetIt.instance.get<SourceParserViewModel>().isDarkMode.value;
+    if (darkModel) {
+      backgroundColor = Colors.black.toHex()!;
+      contentColor = Colors.white.withValues(alpha: 0.75).toHex()!;
+      footerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
+      headerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
+    }
+    return theme.copyWith(
+      backgroundColor: backgroundColor,
+      contentColor: contentColor,
+      footerColor: footerColor,
+      headerColor: headerColor,
+    );
   }
 
   Future<String> _getContent(int chapterIndex) async {
@@ -381,9 +408,10 @@ class ReaderViewModel {
   }
 
   Theme _initTheme() {
-    return Theme()
+    var defaultTheme = Theme()
       ..footerPaddingBottom = 24
       ..headerPaddingTop = 48;
+    return _assembleTheme(defaultTheme);
   }
 
   Future<void> _loadCurrentChapter() async {
