@@ -12,7 +12,7 @@ import 'package:source_parser/model/cover_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/logger.dart';
-// import 'package:source_parser/router/router.gr.dart';
+import 'package:source_parser/util/parser_util.dart';
 
 class InformationViewModel {
   final BookEntity book;
@@ -52,11 +52,25 @@ class InformationViewModel {
     } else {}
   }
 
-  void navigateAvailableSourcePage(BuildContext context) {
-    AvailableSourceRoute(book: book).push(context);
+  Future<void> navigateAvailableSourcePage(BuildContext context) async {
+    var id = await AvailableSourceRoute(book: book).push<int>(context);
+    await refreshAvailableSources();
+    if (id == null) return;
+    currentSource.value =
+        availableSources.value.firstWhere((item) => item.id == id);
   }
 
   void navigateCataloguePage(BuildContext context) {
     CatalogueRoute(book: book).push(context);
+  }
+
+  Future<void> refreshAvailableSources() async {
+    availableSources.value =
+        await AvailableSourceService().getAvailableSources(book.id);
+    if (availableSources.value.isNotEmpty) return;
+    var stream = ParserUtil.instance.getAvailableSources(book);
+    await for (var availableSource in stream) {
+      availableSources.value = [...availableSources.value, availableSource];
+    }
   }
 }

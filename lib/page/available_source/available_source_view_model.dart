@@ -13,15 +13,12 @@ class AvailableSourceViewModel {
   var availableSources = signal(<AvailableSourceEntity>[]);
 
   Future<void> initSignals() async {
-    var exist = await BookService().exist(book.id);
-    if (!exist) {
-      var stream = ParserUtil.instance.getAvailableSources(book);
-      await for (var availableSource in stream) {
-        availableSources.value = [...availableSources.value, availableSource];
-      }
-    } else {
-      availableSources.value =
-          await AvailableSourceService().getAvailableSources(book.id);
+    availableSources.value =
+        await AvailableSourceService().getAvailableSources(book.id);
+    if (availableSources.value.isNotEmpty) return;
+    var stream = ParserUtil.instance.getAvailableSources(book);
+    await for (var availableSource in stream) {
+      availableSources.value = [...availableSources.value, availableSource];
     }
   }
 
