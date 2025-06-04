@@ -7,8 +7,8 @@ import 'package:source_parser/database/available_source_service.dart';
 import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/database/book_source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
-import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/model/book_source_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
@@ -20,7 +20,6 @@ import 'package:source_parser/view_model/source_parser_view_model.dart';
 
 class ReaderViewModel {
   final BookEntity book;
-  final availableSources = signal<List<AvailableSourceEntity>>([]);
   final chapters = signal<List<ChapterEntity>>([]);
   final previousChapterContent = signal('');
   final previousChapterPages = signal<List<String>>([]);
@@ -36,7 +35,7 @@ class ReaderViewModel {
   final showCacheIndicator = signal(false);
   final battery = signal(100);
   final size = Signal(Size.zero);
-  final availableSource = Signal(AvailableSourceEntity());
+  final source = Signal(BookSourceEntity());
 
   late final controller = PageController(initialPage: book.pageIndex);
 
@@ -125,7 +124,6 @@ class ReaderViewModel {
       footerPaddingBottom: 24,
     );
     size.value = _initSize(theme.value);
-    availableSources.value = await _initAvailableSources();
     chapters.value = await _initChapters();
     if (chapters.value.isEmpty) return;
     preloadPreviousChapter();
@@ -139,8 +137,9 @@ class ReaderViewModel {
   Future<void> navigateAvailableSourcePage(BuildContext context) async {
     var id = await AvailableSourceRoute(book: book).push<int>(context);
     if (id == null) return;
-    availableSource.value =
-        await AvailableSourceService().getAvailableSource(id);
+    var availableSource = await AvailableSourceService().getAvailableSource(id);
+    source.value =
+        await BookSourceService().getBookSource(availableSource.sourceId);
     chapters.value = await _getRemoteChapters();
     if (chapters.value.isEmpty) return;
     await ChapterService().destroyChapters(book.id);
@@ -369,10 +368,6 @@ class ReaderViewModel {
       chapters.add(chapter);
     }
     return chapters;
-  }
-
-  Future<List<AvailableSourceEntity>> _initAvailableSources() async {
-    return await AvailableSourceService().getAvailableSources(book.id);
   }
 
   Future<List<ChapterEntity>> _initChapters() async {
