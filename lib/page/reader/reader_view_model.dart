@@ -293,10 +293,11 @@ class ReaderViewModel {
   }
 
   Theme _assembleTheme(Theme theme) {
-    var backgroundColor = theme.backgroundColor;
-    var contentColor = theme.contentColor;
-    var footerColor = theme.footerColor;
-    var headerColor = theme.headerColor;
+    var defaultTheme = Theme();
+    var backgroundColor = defaultTheme.backgroundColor;
+    var contentColor = defaultTheme.contentColor;
+    var footerColor = defaultTheme.footerColor;
+    var headerColor = defaultTheme.headerColor;
     var darkModel =
         GetIt.instance.get<SourceParserViewModel>().isDarkMode.value;
     if (darkModel) {

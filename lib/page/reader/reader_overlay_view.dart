@@ -4,7 +4,6 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/reader/reader_cache_indicator_view.dart';
 import 'package:source_parser/provider/layout.dart';
-import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/layout.dart';
@@ -122,7 +121,7 @@ abstract class _OverlayBaseSlot extends StatelessWidget {
     if (slot == LayoutSlot.audio.name) _showMessage(context);
     if (slot == LayoutSlot.cache.name) _showCacheSheet(context);
     if (slot == LayoutSlot.catalogue.name) onTap?.call();
-    if (slot == LayoutSlot.darkMode.name) _toggleDarkMode(context);
+    if (slot == LayoutSlot.darkMode.name) onTap?.call();
     if (slot == LayoutSlot.forceRefresh.name) onTap?.call();
     if (slot == LayoutSlot.information.name) _navigateBookInformation(context);
     if (slot == LayoutSlot.nextChapter.name) onTap?.call();
@@ -193,13 +192,6 @@ abstract class _OverlayBaseSlot extends StatelessWidget {
 
   void _showMessage(BuildContext context) {
     Message.of(context).show('开发中，但很有可能会移除该功能');
-  }
-
-  void _toggleDarkMode(BuildContext context) {
-    var container = ProviderScope.containerOf(context);
-    var provider = settingNotifierProvider;
-    var notifier = container.read(provider.notifier);
-    notifier.toggleDarkMode();
   }
 }
 
