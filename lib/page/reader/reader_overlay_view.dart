@@ -61,6 +61,7 @@ class ReaderOverlayView extends ConsumerWidget {
     if (slot == LayoutSlot.previousChapter.name) return onPrevious?.call();
     if (slot == LayoutSlot.source.name) return onAvailableSource?.call();
     if (slot == LayoutSlot.darkMode.name) return onDarkMode?.call();
+    if (slot == LayoutSlot.cache.name) return onCached?.call(count ?? 0);
   }
 
   AppBar _buildAppBar(Layout layout) {

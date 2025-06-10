@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter/services.dart';
@@ -16,6 +18,8 @@ import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/color_extension.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
+import 'package:source_parser/util/message.dart';
+import 'package:source_parser/util/semaphore.dart';
 import 'package:source_parser/util/splitter.dart';
 import 'package:source_parser/view_model/source_parser_view_model.dart';
 
@@ -32,25 +36,57 @@ class ReaderViewModel {
   late final pageIndex = signal(book.pageIndex);
   final theme = signal(Theme());
   final showOverlay = signal(false);
-  final progress = signal(0.0);
   final showCacheIndicator = signal(false);
+  final downloadAmount = signal(0);
+  final downloadSucceed = signal(0);
+  final downloadFailed = signal(0);
   final battery = signal(100);
   final size = Signal(Size.zero);
   final source = Signal(BookSourceEntity());
   final error = signal('');
+
+  late final progress = computed(() {
+    if (downloadAmount.value == 0) return 0.0;
+    return (downloadSucceed.value + downloadFailed.value) /
+        downloadAmount.value;
+  });
 
   late final controller = PageController(initialPage: book.pageIndex);
 
   ReaderViewModel({required this.book});
 
   void downloadChapters(BuildContext context, int amount) async {
+    var realAmount = amount;
+    if (amount == 0) {
+      realAmount = chapters.value.length - (chapterIndex.value + 1);
+    }
+    realAmount = min(
+      realAmount,
+      chapters.value.length - (chapterIndex.value + 1),
+    );
+    downloadAmount.value = realAmount;
+    downloadSucceed.value = 0;
+    downloadFailed.value = 0;
     showCacheIndicator.value = true;
-    // await cacheChapters(amount: amount);
+    final startIndex = book.chapterIndex + 1;
+    final endIndex = min(
+      startIndex + downloadAmount.value,
+      chapters.value.length,
+    );
+    final semaphore = Semaphore(16);
+    List<Future<void>> futures = [];
+    for (var i = startIndex; i < endIndex; i++) {
+      futures.add(_downloadChapter(source.value, i, semaphore));
+    }
+    await Future.wait(futures);
     if (!context.mounted) return;
-    // final message = Message.of(context);
-    // message.show('缓存完毕，${progress.succeed}章成功，${progress.failed}章失败');
+    final message = Message.of(context);
+    message.show('缓存完毕，$downloadSucceed章成功，$downloadFailed章失败');
     await Future.delayed(const Duration(seconds: 1));
     showCacheIndicator.value = false;
+    downloadAmount.value = 0;
+    downloadSucceed.value = 0;
+    downloadFailed.value = 0;
   }
 
   String getFooterText(int index) {
@@ -61,59 +97,6 @@ class ReaderViewModel {
     if (index == 0) return book.name;
     return chapters.value.elementAt(chapterIndex.value).name;
   }
-
-  // Future<void> cacheChapters({int amount = 3}) async {
-  //   final book = ref.read(bookNotifierProvider);
-  //   final builder = isar.sources.filter();
-  //   final source = await builder.idEqualTo(book.sourceId).findFirst();
-  //   if (source == null) return;
-  //   if (amount == 0) {
-  //     amount = book.chapters.length - (book.index + 1);
-  //   }
-  //   amount = min(amount, book.chapters.length - (book.index + 1));
-  //   state = state.copyWith(amount: amount, failed: 0, succeed: 0);
-  //   final startIndex = book.index + 1;
-  //   final endIndex = min(startIndex + amount, book.chapters.length);
-  //   final setting = await ref.read(settingNotifierProvider.future);
-  //   final maxConcurrent = setting.maxConcurrent;
-  //   final semaphore = Semaphore(maxConcurrent.floor());
-  //   List<Future<void>> futures = [];
-  //   for (var i = startIndex; i < endIndex; i++) {
-  //     futures.add(_cacheChapter(source, i, semaphore));
-  //   }
-  //   await Future.wait(futures);
-  // }
-
-  // Future<void> _cacheChapter(
-  //   Source source,
-  //   int index,
-  //   Semaphore semaphore,
-  // ) async {
-  //   await semaphore.acquire();
-  //   try {
-  //     final book = ref.read(bookNotifierProvider);
-  //     final url = book.chapters.elementAt(index).url;
-  //     final setting = await ref.read(settingNotifierProvider.future);
-  //     final timeout = setting.timeout;
-  //     final network = CachedNetwork(
-  //       prefix: book.name,
-  //       timeout: Duration(milliseconds: timeout),
-  //     );
-  //     final cached = await network.cached(url);
-  //     if (!cached) {
-  //       await network.request(
-  //         url,
-  //         charset: source.charset,
-  //         method: source.contentMethod,
-  //       );
-  //     }
-  //     state = state.copyWith(succeed: state.succeed + 1);
-  //   } catch (error) {
-  //     state = state.copyWith(failed: state.failed + 1);
-  //   } finally {
-  //     semaphore.release();
-  //   }
-  // }
 
   void hideUiOverlays() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
@@ -312,6 +295,31 @@ class ReaderViewModel {
       footerColor: footerColor,
       headerColor: headerColor,
     );
+  }
+
+  Future<void> _downloadChapter(
+    BookSourceEntity source,
+    int index,
+    Semaphore semaphore,
+  ) async {
+    await semaphore.acquire();
+    try {
+      final url = chapters.value.elementAt(index).url;
+      final network = CachedNetwork(prefix: book.name);
+      final cached = await network.check(url);
+      if (!cached) {
+        await network.request(
+          url,
+          charset: source.charset,
+          method: source.contentMethod,
+        );
+      }
+      downloadSucceed.value++;
+    } catch (error) {
+      downloadFailed.value++;
+    } finally {
+      semaphore.release();
+    }
   }
 
   Future<String> _getContent(int chapterIndex) async {
