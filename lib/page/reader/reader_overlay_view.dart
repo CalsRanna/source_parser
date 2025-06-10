@@ -175,10 +175,9 @@ class ReaderOverlayView extends ConsumerWidget {
   }
 
   Widget _buildFloatingButton(Layout layout) {
-    return _OverlayFloatingSlot(
-      book: book,
-      onTap: ({int? count}) => handleTap(layout.slot6, count: count),
-      slot: layout.slot6,
+    return FloatingActionButton(
+      onPressed: ({int? count}) => handleTap(layout.slot6, count: count),
+      child: Icon(_getIconData(layout.slot6)),
     );
   }
 
@@ -218,22 +217,6 @@ class ReaderOverlayView extends ConsumerWidget {
       LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
       LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
     };
-  }
-}
-
-class _OverlayFloatingSlot extends ReaderOverlayBaseSlot {
-  const _OverlayFloatingSlot({
-    required super.book,
-    super.onTap,
-    required super.slot,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: onTap,
-      child: Icon(_getIconData()),
-    );
   }
 }
 
