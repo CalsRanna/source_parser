@@ -50,6 +50,10 @@ class ReaderViewModel {
     return (downloadSucceed.value + downloadFailed.value) /
         downloadAmount.value;
   });
+  late final isDarkMode = computed(() {
+    var sourceParserViewModel = GetIt.instance.get<SourceParserViewModel>();
+    return sourceParserViewModel.isDarkMode.value;
+  });
 
   late final controller = PageController(initialPage: book.pageIndex);
 

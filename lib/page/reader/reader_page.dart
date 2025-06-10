@@ -71,6 +71,7 @@ class _ReaderPageState extends State<ReaderPage> {
     if (!viewModel.showOverlay.value) return const SizedBox();
     return ReaderOverlayView(
       book: widget.book,
+      isDarkMode: viewModel.isDarkMode.value,
       onBarrierTap: viewModel.hideUiOverlays,
       onCached: (amount) => viewModel.downloadChapters(context, amount),
       onCatalogue: () => viewModel.navigateCataloguePage(context),

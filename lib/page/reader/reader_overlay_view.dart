@@ -3,120 +3,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/reader/reader_cache_indicator_view.dart';
+import 'package:source_parser/page/reader/reader_overlay_dark_mode_slot.dart';
 import 'package:source_parser/provider/layout.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/layout.dart';
 import 'package:source_parser/util/message.dart';
 
-class ReaderOverlayView extends ConsumerWidget {
-  final BookEntity book;
-  final void Function()? onAvailableSource;
-  final void Function()? onBarrierTap;
-  final void Function(int)? onCached;
-  final void Function()? onCatalogue;
-  final void Function()? onDarkMode;
-  final void Function()? onNext;
-  final void Function()? onPrevious;
-  final void Function()? onRefresh;
-  const ReaderOverlayView({
-    super.key,
-    required this.book,
-    this.onAvailableSource,
-    this.onBarrierTap,
-    this.onCached,
-    this.onCatalogue,
-    this.onDarkMode,
-    this.onNext,
-    this.onPrevious,
-    this.onRefresh,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final layout = ref.watch(readerLayoutNotifierProviderProvider).valueOrNull;
-    if (layout == null) return const SizedBox();
-    var barrier = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onBarrierTap,
-      child: SizedBox(height: double.infinity, width: double.infinity),
-    );
-    return Scaffold(
-      appBar: _buildAppBar(layout),
-      backgroundColor: Colors.transparent,
-      body: barrier,
-      bottomNavigationBar: _buildBottomBar(layout),
-      floatingActionButton: _buildFloatingButton(layout),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
-    );
-  }
-
-  void handleTap(String slot, {int? count}) {
-    if (slot == LayoutSlot.cache.name && count != null) {
-      return onCached?.call(count);
-    }
-    if (slot == LayoutSlot.catalogue.name) return onCatalogue?.call();
-    if (slot == LayoutSlot.forceRefresh.name) return onRefresh?.call();
-    if (slot == LayoutSlot.nextChapter.name) return onNext?.call();
-    if (slot == LayoutSlot.previousChapter.name) return onPrevious?.call();
-    if (slot == LayoutSlot.source.name) return onAvailableSource?.call();
-    if (slot == LayoutSlot.darkMode.name) return onDarkMode?.call();
-    if (slot == LayoutSlot.cache.name) return onCached?.call(count ?? 0);
-  }
-
-  AppBar _buildAppBar(Layout layout) {
-    var slot0 = _OverlayRegularSlot(
-      book: book,
-      onTap: ({int? count}) => handleTap(layout.slot0, count: count),
-      slot: layout.slot0,
-    );
-    var slot1 = _OverlayRegularSlot(
-      book: book,
-      onTap: ({int? count}) => handleTap(layout.slot1, count: count),
-      slot: layout.slot1,
-    );
-    return AppBar(actions: [slot0, slot1], title: Text(book.name));
-  }
-
-  Widget _buildBottomBar(Layout layout) {
-    var slot2 = _OverlayRegularSlot(
-      book: book,
-      onTap: ({int? count}) => handleTap(layout.slot2, count: count),
-      slot: layout.slot2,
-    );
-    var slot3 = _OverlayRegularSlot(
-      book: book,
-      onTap: ({int? count}) => handleTap(layout.slot3, count: count),
-      slot: layout.slot3,
-    );
-    var slot4 = _OverlayRegularSlot(
-      book: book,
-      onTap: ({int? count}) => handleTap(layout.slot4, count: count),
-      slot: layout.slot4,
-    );
-    var slot5 = _OverlayRegularSlot(
-      book: book,
-      onTap: ({int? count}) => handleTap(layout.slot5, count: count),
-      slot: layout.slot5,
-    );
-    return BottomAppBar(child: Row(children: [slot2, slot3, slot4, slot5]));
-  }
-
-  Widget _buildFloatingButton(Layout layout) {
-    return _OverlayFloatingSlot(
-      book: book,
-      onTap: ({int? count}) => handleTap(layout.slot6, count: count),
-      slot: layout.slot6,
-    );
-  }
-}
-
-abstract class _OverlayBaseSlot extends StatelessWidget {
+abstract class ReaderOverlayBaseSlot extends StatelessWidget {
   final BookEntity book;
   final void Function({int? count})? onTap;
   final String slot;
 
-  const _OverlayBaseSlot({required this.book, this.onTap, required this.slot});
+  const ReaderOverlayBaseSlot({
+    super.key,
+    required this.book,
+    this.onTap,
+    required this.slot,
+  });
 
   void handleTap(BuildContext context) {
     if (slot == LayoutSlot.audio.name) _showMessage(context);
@@ -196,7 +100,128 @@ abstract class _OverlayBaseSlot extends StatelessWidget {
   }
 }
 
-class _OverlayFloatingSlot extends _OverlayBaseSlot {
+class ReaderOverlayView extends ConsumerWidget {
+  final BookEntity book;
+  final bool isDarkMode;
+  final void Function()? onAvailableSource;
+  final void Function()? onBarrierTap;
+  final void Function(int)? onCached;
+  final void Function()? onCatalogue;
+  final void Function()? onDarkMode;
+  final void Function()? onNext;
+  final void Function()? onPrevious;
+  final void Function()? onRefresh;
+  const ReaderOverlayView({
+    super.key,
+    required this.book,
+    required this.isDarkMode,
+    this.onAvailableSource,
+    this.onBarrierTap,
+    this.onCached,
+    this.onCatalogue,
+    this.onDarkMode,
+    this.onNext,
+    this.onPrevious,
+    this.onRefresh,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final layout = ref.watch(readerLayoutNotifierProviderProvider).valueOrNull;
+    if (layout == null) return const SizedBox();
+    var barrier = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onBarrierTap,
+      child: SizedBox(height: double.infinity, width: double.infinity),
+    );
+    return Scaffold(
+      appBar: _buildAppBar(layout),
+      backgroundColor: Colors.transparent,
+      body: barrier,
+      bottomNavigationBar: _buildBottomBar(layout),
+      floatingActionButton: _buildFloatingButton(layout),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
+    );
+  }
+
+  void handleTap(String slot, {int? count}) {
+    if (slot == LayoutSlot.cache.name && count != null) {
+      return onCached?.call(count);
+    }
+    if (slot == LayoutSlot.catalogue.name) return onCatalogue?.call();
+    if (slot == LayoutSlot.forceRefresh.name) return onRefresh?.call();
+    if (slot == LayoutSlot.nextChapter.name) return onNext?.call();
+    if (slot == LayoutSlot.previousChapter.name) return onPrevious?.call();
+    if (slot == LayoutSlot.source.name) return onAvailableSource?.call();
+    if (slot == LayoutSlot.darkMode.name) return onDarkMode?.call();
+    if (slot == LayoutSlot.cache.name) return onCached?.call(count ?? 0);
+  }
+
+  AppBar _buildAppBar(Layout layout) {
+    return AppBar(
+      actions: [_buildSlot(layout.slot0), _buildSlot(layout.slot1)],
+      title: Text(book.name),
+    );
+  }
+
+  Widget _buildBottomBar(Layout layout) {
+    var children = [
+      _buildSlot(layout.slot2),
+      _buildSlot(layout.slot3),
+      _buildSlot(layout.slot4),
+      _buildSlot(layout.slot5)
+    ];
+    return BottomAppBar(child: Row(children: children));
+  }
+
+  Widget _buildFloatingButton(Layout layout) {
+    return _OverlayFloatingSlot(
+      book: book,
+      onTap: ({int? count}) => handleTap(layout.slot6, count: count),
+      slot: layout.slot6,
+    );
+  }
+
+  Widget _buildSlot(String slot) {
+    if (slot.isEmpty) return const SizedBox();
+    if (slot == LayoutSlot.more.name) {
+      return _OverlayMoreSlot(
+          book: book,
+          onTap: ({int? count}) => handleTap(slot, count: count),
+          slot: slot);
+    }
+    if (slot == LayoutSlot.darkMode.name) {
+      return ReaderOverlayDarkModeSlot(
+        isDarkMode: isDarkMode,
+        onTap: ({int? count}) => handleTap(slot, count: count),
+      );
+    }
+    return IconButton(
+      onPressed: ({int? count}) => handleTap(slot, count: count),
+      icon: Icon(_getIconData(slot)),
+    );
+  }
+
+  IconData _getIconData(String slot) {
+    var values = LayoutSlot.values;
+    var layoutSlot = values.firstWhere((value) => value.name == slot);
+    return switch (layoutSlot) {
+      LayoutSlot.audio => HugeIcons.strokeRoundedHeadphones,
+      LayoutSlot.cache => HugeIcons.strokeRoundedDownload04,
+      LayoutSlot.catalogue => HugeIcons.strokeRoundedMenu01,
+      LayoutSlot.darkMode => HugeIcons.strokeRoundedMoon02,
+      LayoutSlot.forceRefresh => HugeIcons.strokeRoundedRefresh,
+      LayoutSlot.information => HugeIcons.strokeRoundedBook01,
+      LayoutSlot.more => HugeIcons.strokeRoundedMoreVertical,
+      LayoutSlot.nextChapter => HugeIcons.strokeRoundedNext,
+      LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
+      LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
+      LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
+    };
+  }
+}
+
+class _OverlayFloatingSlot extends ReaderOverlayBaseSlot {
   const _OverlayFloatingSlot({
     required super.book,
     super.onTap,
@@ -263,7 +288,7 @@ class _OverlayMoreSlot extends ConsumerWidget {
   }
 }
 
-class _OverlayMoreSlotItem extends _OverlayBaseSlot {
+class _OverlayMoreSlotItem extends ReaderOverlayBaseSlot {
   const _OverlayMoreSlotItem({
     required super.book,
     required super.onTap,
@@ -277,26 +302,6 @@ class _OverlayMoreSlotItem extends _OverlayBaseSlot {
       // current context will be disposed while trigger the onPressed callback
       onPressed: () => handleTap(globalKey.currentContext!),
       child: Text(_getButtonLabel()),
-    );
-  }
-}
-
-class _OverlayRegularSlot extends _OverlayBaseSlot {
-  const _OverlayRegularSlot({
-    required super.book,
-    super.onTap,
-    required super.slot,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (slot.isEmpty) return const SizedBox();
-    if (slot == LayoutSlot.more.name) {
-      return _OverlayMoreSlot(book: book, onTap: onTap, slot: slot);
-    }
-    return IconButton(
-      onPressed: () => handleTap(context),
-      icon: Icon(_getIconData()),
     );
   }
 }
