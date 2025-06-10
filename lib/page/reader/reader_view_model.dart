@@ -162,7 +162,7 @@ class ReaderViewModel {
     var index = await CatalogueRoute(book: currentState).push<int>(context);
     if (index == null) return;
     chapterIndex.value = index;
-    pageIndex.value = 0;
+    updatePageIndex(0);
     _preloadPreviousChapter();
     currentChapterContent.value = await _getContent(chapterIndex.value);
     var splitter = Splitter(size: size.value, theme: theme.value);
@@ -177,7 +177,7 @@ class ReaderViewModel {
       return;
     }
     chapterIndex.value++;
-    pageIndex.value = 0;
+    updatePageIndex(0);
     previousChapterContent.value = currentChapterContent.value;
     previousChapterPages.value = currentChapterPages.value;
     currentChapterContent.value = nextChapterContent.value;
@@ -194,7 +194,7 @@ class ReaderViewModel {
     }
     if (pageIndex.value + 1 >= currentChapterPages.value.length) {
       chapterIndex.value++;
-      pageIndex.value = 0;
+      updatePageIndex(0);
       previousChapterContent.value = currentChapterContent.value;
       previousChapterPages.value = currentChapterPages.value;
       currentChapterContent.value = nextChapterContent.value;
@@ -214,7 +214,7 @@ class ReaderViewModel {
     if (chapters.value.isEmpty) return;
     if (chapterIndex.value - 1 < 0) return;
     chapterIndex.value--;
-    pageIndex.value = 0;
+    updatePageIndex(0);
     nextChapterContent.value = currentChapterContent.value;
     nextChapterPages.value = currentChapterPages.value;
     currentChapterContent.value = previousChapterContent.value;
@@ -230,7 +230,7 @@ class ReaderViewModel {
     }
     if (pageIndex.value - 1 < 0) {
       chapterIndex.value--;
-      pageIndex.value = previousChapterPages.value.length - 1;
+      updatePageIndex(previousChapterPages.value.length - 1);
       nextChapterContent.value = currentChapterContent.value;
       nextChapterPages.value = currentChapterPages.value;
       currentChapterContent.value = previousChapterContent.value;
@@ -255,12 +255,6 @@ class ReaderViewModel {
   }
 
   Future<void> syncBookshelf() async {
-    var copiedBook = book.copyWith(
-      chapterIndex: chapterIndex.value,
-      pageIndex: pageIndex.value,
-      sourceId: source.value.id,
-    );
-    await BookService().updateBook(copiedBook);
     GetIt.instance.get<BookshelfViewModel>().initSignals();
   }
 
@@ -290,6 +284,12 @@ class ReaderViewModel {
 
   void updatePageIndex(int index) {
     pageIndex.value = index;
+    var copiedBook = book.copyWith(
+      chapterIndex: chapterIndex.value,
+      pageIndex: pageIndex.value,
+      sourceId: source.value.id,
+    );
+    BookService().updateBook(copiedBook);
   }
 
   Theme _assembleTheme(Theme theme) {
