@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
@@ -98,7 +100,7 @@ class _CataloguePageState extends State<CataloguePage> {
       listViewHeight = listViewHeight - appBarRenderBox.size.height;
       final halfHeight = listViewHeight / 2;
       var offset = 56.0 * widget.book.chapterIndex;
-      offset = (offset - halfHeight);
+      offset = max(0, (offset - halfHeight));
       if (maxScrollExtent > 0) {
         offset = offset.clamp(0, maxScrollExtent);
       }
