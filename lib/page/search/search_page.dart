@@ -174,7 +174,7 @@ class _SearchPageState extends State<SearchPage> {
       onPressed: handlePressed,
     );
     var result = SearchResultView(
-      books: viewModel.searchedBooks.value,
+      results: viewModel.searchedResults.value,
       isSearching: viewModel.isSearching.value,
       onTap: (book) => viewModel.navigateInformationPage(context, book),
     );

@@ -1,44 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/model/search_result_entity.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class SearchResultView extends StatelessWidget {
-  final List<BookEntity> books;
+  final List<SearchResultEntity> results;
   final bool isSearching;
   final void Function(BookEntity)? onTap;
   const SearchResultView({
     super.key,
-    required this.books,
+    required this.results,
     this.isSearching = false,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (books.isEmpty && !isSearching) {
+    if (results.isEmpty && !isSearching) {
       return const Center(child: Text('没有找到相关书籍'));
     }
     return ListView.separated(
       itemBuilder: _buildItem,
-      itemCount: books.length,
+      itemCount: results.length,
       separatorBuilder: (_, __) => const SizedBox(height: 8),
     );
   }
 
   Widget _buildItem(BuildContext context, int index) {
     return _Tile(
-      book: books[index],
-      onTap: () => onTap?.call(books[index]),
+      result: results[index],
+      onTap: () => onTap?.call(results[index].book),
     );
   }
 }
 
 class _Tile extends ConsumerWidget {
-  final BookEntity book;
+  final SearchResultEntity result;
   final void Function()? onTap;
 
-  const _Tile({required this.book, this.onTap});
+  const _Tile({required this.result, this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,13 +48,13 @@ class _Tile extends ConsumerWidget {
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
     final title = Text(
-      book.name,
+      result.book.name,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: bodyMedium,
     );
     final introduction = Text(
-      book.introduction.replaceAll(RegExp(r'\s'), ''),
+      result.book.introduction.replaceAll(RegExp(r'\s'), ''),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
       style: bodyMedium,
@@ -69,7 +70,7 @@ class _Tile extends ConsumerWidget {
       children: children,
     );
     final rowChildren = [
-      BookCover(url: book.cover),
+      BookCover(url: result.book.cover),
       const SizedBox(width: 16),
       Expanded(child: SizedBox(height: 96, child: column)),
     ];
@@ -90,17 +91,17 @@ class _Tile extends ConsumerWidget {
 
   String? _buildSubtitle() {
     final spans = <String>[];
-    if (book.author.isNotEmpty) {
-      spans.add(book.author);
+    if (result.book.author.isNotEmpty) {
+      spans.add(result.book.author);
     }
-    if (book.category.isNotEmpty) {
-      spans.add(book.category);
+    if (result.book.category.isNotEmpty) {
+      spans.add(result.book.category);
     }
-    if (book.status.isNotEmpty) {
-      spans.add(book.status);
+    if (result.book.status.isNotEmpty) {
+      spans.add(result.book.status);
     }
-    if (book.words.isNotEmpty) {
-      spans.add(book.words);
+    if (result.book.words.isNotEmpty) {
+      spans.add(result.book.words);
     }
     return spans.isNotEmpty ? spans.join(' · ') : null;
   }
