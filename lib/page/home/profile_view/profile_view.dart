@@ -55,7 +55,7 @@ class _ProfileViewState extends State<ProfileView> {
       var theme = _SettingTile(
         icon: HugeIcons.strokeRoundedTextFont,
         onTap: () => handleTap(context, const ReaderThemeRoute()),
-        title: '主题',
+        title: '阅读器主题',
       );
       var layout = _SettingTile(
         icon: HugeIcons.strokeRoundedSmartPhone01,

@@ -23,7 +23,7 @@ class ReaderThemePage extends ConsumerWidget {
       AsyncData(:final value) => _buildData(value),
       _ => const SizedBox(),
     };
-    return Scaffold(appBar: AppBar(title: const Text('主题')), body: child);
+    return Scaffold(appBar: AppBar(title: const Text('阅读器主题')), body: child);
   }
 
   Widget _buildData(List<Theme> themes) {
