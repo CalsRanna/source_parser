@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:source_parser/model/book_entity.dart';
 
-class BookRemoveDialog extends StatelessWidget {
+class BookshelfRemoveBookDialog extends StatelessWidget {
   final BookEntity book;
   final void Function()? onConfirmed;
-  const BookRemoveDialog({super.key, required this.book, this.onConfirmed});
+  const BookshelfRemoveBookDialog({
+    super.key,
+    required this.book,
+    this.onConfirmed,
+  });
 
   @override
   Widget build(BuildContext context) {

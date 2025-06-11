@@ -7,6 +7,8 @@ import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/book_source_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
+import 'package:source_parser/page/home/bookshelf_view/bookshelf_bottom_sheet.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
 import 'package:source_parser/util/logger.dart';
@@ -15,20 +17,22 @@ import 'package:source_parser/util/message.dart';
 class BookshelfViewModel {
   final books = signal(<BookEntity>[]);
 
-  Future<void> archiveBook(BookEntity book) async {
-    var updatedBook = book.copyWith(archive: !book.archive);
-    await BookService().updateBook(updatedBook);
-    books.value = await BookService().getBooks();
-  }
-
-  Future<void> destroyBook(BookEntity book) async {
-    await BookService().destroyBook(book);
-    books.value = await BookService().getBooks();
-  }
-
   Future<void> initSignals() async {
     books.value = await BookService().getBooks();
     FlutterNativeSplash.remove();
+  }
+
+  void navigateReaderPage(BuildContext context, BookEntity book) {
+    ReaderRoute(book: book).push(context);
+  }
+
+  void openBookBottomSheet(BuildContext context, BookEntity book) {
+    var bottomSheet = BookshelfBottomSheet(
+      book: book,
+      onArchive: () => _archiveBook(book),
+      onDestroyed: () => _destroyBook(book),
+    );
+    showModalBottomSheet(builder: (_) => bottomSheet, context: context);
   }
 
   Future<void> refreshSignals(BuildContext context) async {
@@ -48,6 +52,17 @@ class BookshelfViewModel {
       if (!context.mounted) return;
       Message.of(context).show(error.toString());
     }
+  }
+
+  Future<void> _archiveBook(BookEntity book) async {
+    var updatedBook = book.copyWith(archive: !book.archive);
+    await BookService().updateBook(updatedBook);
+    books.value = await BookService().getBooks();
+  }
+
+  Future<void> _destroyBook(BookEntity book) async {
+    await BookService().destroyBook(book);
+    books.value = await BookService().getBooks();
   }
 
   Future<List<ChapterEntity>> _getRemoteChapters(

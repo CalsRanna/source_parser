@@ -1,35 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/page/home/bookshelf_view/book_remove_dialog.dart';
-import 'package:source_parser/page/listener.dart';
-import 'package:source_parser/provider/book.dart';
-import 'package:source_parser/provider/cache.dart';
-import 'package:source_parser/router/router.gr.dart';
-import 'package:source_parser/util/message.dart';
+import 'package:source_parser/page/home/bookshelf_view/bookshelf_remove_book_dialog.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
-class BookBottomSheet extends ConsumerWidget {
+class BookshelfBottomSheet extends StatefulWidget {
   final BookEntity book;
   final void Function()? onArchive;
+  final void Function()? onCache;
+  final void Function()? onClearCache;
+  final void Function()? onCoverSelect;
   final void Function()? onDestroyed;
+  final void Function()? onDetail;
 
-  const BookBottomSheet({
+  const BookshelfBottomSheet({
     super.key,
     required this.book,
     this.onArchive,
+    this.onCache,
+    this.onClearCache,
+    this.onCoverSelect,
     this.onDestroyed,
+    this.onDetail,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  State<BookshelfBottomSheet> createState() => _BookBottomSheet();
+}
+
+class _BookBottomSheet extends State<BookshelfBottomSheet> {
+  var isArchived = false;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final surface = colorScheme.surface;
     final onSurface = colorScheme.onSurface;
     var title = Text(
-      book.name,
+      widget.book.name,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
       style: const TextStyle(fontSize: 14, height: 1.2),
@@ -39,7 +48,7 @@ class BookBottomSheet extends ConsumerWidget {
       height: 1.2,
       color: onSurface.withValues(alpha: 0.5),
     );
-    var author = Text(book.author, style: authorStyle);
+    var author = Text(widget.book.author, style: authorStyle);
     var subtitleStyle = TextStyle(
       fontSize: 12,
       height: 1.2,
@@ -58,33 +67,32 @@ class BookBottomSheet extends ConsumerWidget {
       children: children,
     );
     var rowChildren = [
-      BookCover(height: 80, url: book.cover, width: 60),
+      BookCover(height: 80, url: widget.book.cover, width: 60),
       const SizedBox(width: 16),
       Expanded(child: column),
     ];
-    final archived = book.archive;
     var icon = HugeIcons.strokeRoundedQuillWrite01;
-    if (archived) icon = HugeIcons.strokeRoundedArchive02;
-    final text = archived ? '已完结' : '连载中';
+    if (isArchived) icon = HugeIcons.strokeRoundedArchive02;
+    final text = isArchived ? '已完结' : '连载中';
     var informationAction = _SheetAction(
       icon: const Icon(HugeIcons.strokeRoundedInformationCircle),
       text: '详情',
-      onTap: () => navigateInformationPage(context),
+      onTap: _navigateInformationPage,
     );
     var coverAction = _SheetAction(
       icon: const Icon(HugeIcons.strokeRoundedImage02),
       text: '更改封面',
-      onTap: () => selectCover(context, ref),
+      onTap: _selectCover,
     );
     var archiveAction = _SheetAction(
       icon: Icon(icon),
       text: text,
-      onTap: onArchive,
+      onTap: _archiveBook,
     );
     var removeAction = _SheetAction(
       icon: const Icon(HugeIcons.strokeRoundedDelete02),
       text: '移出书架',
-      onTap: () => remove(context, ref),
+      onTap: _openRemoveDialog,
     );
     var actionChildren = [
       informationAction,
@@ -95,12 +103,12 @@ class BookBottomSheet extends ConsumerWidget {
     var cacheAction = _SheetAction(
       icon: const Icon(HugeIcons.strokeRoundedDownload04),
       text: '缓存',
-      onTap: () => cache(context, ref),
+      onTap: _cache,
     );
     var clearAction = _SheetAction(
       icon: const Icon(HugeIcons.strokeRoundedClean),
       text: '清除缓存',
-      onTap: () => clearCache(context, ref),
+      onTap: _clearCache,
     );
     var cacheChildren = [
       cacheAction,
@@ -127,69 +135,57 @@ class BookBottomSheet extends ConsumerWidget {
     return ListView(padding: const EdgeInsets.all(16), children: listChildren);
   }
 
-  void cache(BuildContext context, WidgetRef ref) async {
-    Navigator.pop(context);
-    Message.of(context).show('开始缓存');
-    final notifier = ref.read(cacheProgressNotifierProvider.notifier);
-    await notifier.cacheChapters(amount: 0);
-    if (!context.mounted) return;
-    final message = Message.of(context);
-    final progress = ref.read(cacheProgressNotifierProvider);
-    message.show('缓存完毕，${progress.succeed}章成功，${progress.failed}章失败');
-    await Future.delayed(const Duration(seconds: 1));
+  @override
+  void initState() {
+    super.initState();
+    isArchived = widget.book.archive;
   }
 
-  void cancel(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-
-  void clearCache(BuildContext context, WidgetRef ref) async {
-    Navigator.pop(context);
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    notifier.clearCache();
-    Message.of(context).show('缓存已清除');
-  }
-
-  void confirm(BuildContext context, WidgetRef ref) async {
-    Navigator.pop(context);
-    // final notifier = ref.read(booksProvider.notifier);
-    // notifier.delete(book);
-  }
-
-  void navigate(BuildContext context, WidgetRef ref) {
-    Navigator.pop(context);
-    final book = ref.read(bookNotifierProvider);
-    final navigator = Navigator.of(context);
-    var page = ListenerPage(book: book);
-    final route = MaterialPageRoute(builder: (context) => page);
-    navigator.push(route);
-  }
-
-  void remove(BuildContext context, WidgetRef ref) {
-    Navigator.of(context).pop();
-    var dialog = BookRemoveDialog(book: book, onConfirmed: onDestroyed);
-    showDialog(builder: (_) => dialog, context: context);
-  }
-
-  void selectCover(BuildContext context, WidgetRef ref) {
-    Navigator.of(context).pop();
-    CoverSelectorRoute(book: book).push(context);
-  }
-
-  void navigateInformationPage(BuildContext context) {
-    Navigator.of(context).pop();
-    InformationRoute(book: book).push(context);
+  void _archiveBook() {
+    widget.onArchive?.call();
+    setState(() {
+      isArchived = !isArchived;
+    });
   }
 
   String _buildSpan() {
     final spans = <String>[];
-    if (book.category.isNotEmpty) {
-      spans.add(book.category);
+    if (widget.book.category.isNotEmpty) {
+      spans.add(widget.book.category);
     }
-    if (book.status.isNotEmpty) {
-      spans.add(book.status);
+    if (widget.book.status.isNotEmpty) {
+      spans.add(widget.book.status);
     }
     return spans.join(' · ');
+  }
+
+  void _cache() async {
+    Navigator.pop(context);
+    widget.onCache?.call();
+  }
+
+  void _clearCache() async {
+    Navigator.pop(context);
+    widget.onClearCache?.call();
+  }
+
+  void _navigateInformationPage() {
+    Navigator.of(context).pop();
+    widget.onDetail?.call();
+  }
+
+  void _openRemoveDialog() {
+    Navigator.of(context).pop();
+    var dialog = BookshelfRemoveBookDialog(
+      book: widget.book,
+      onConfirmed: widget.onDestroyed,
+    );
+    showDialog(builder: (_) => dialog, context: context);
+  }
+
+  void _selectCover() {
+    Navigator.of(context).pop();
+    widget.onCoverSelect?.call();
   }
 }
 

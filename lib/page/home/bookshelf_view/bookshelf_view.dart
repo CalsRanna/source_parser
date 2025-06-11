@@ -1,13 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/page/home/bookshelf_view/book_bottom_sheet.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/page/home/widget/search_button.dart';
 import 'package:source_parser/provider/book.dart';
@@ -31,12 +29,6 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
   bool get wantKeepAlive => true;
 
   @override
-  void initState() {
-    super.initState();
-    viewModel.initSignals();
-  }
-
-  @override
   Widget build(BuildContext context) {
     super.build(context);
     var appBar = AppBar(
@@ -50,6 +42,12 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
     );
     var scaffold = Scaffold(appBar: appBar, body: easyRefresh);
     return ScaffoldMessenger(child: scaffold);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    viewModel.initSignals();
   }
 
   Future<void> refresh(BuildContext context, WidgetRef ref) async {
@@ -68,13 +66,13 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
     if (viewModel.books.value.isEmpty) return const Center(child: Text('空空如也'));
     var listView = _ListView(
       books: viewModel.books.value,
-      onArchive: viewModel.archiveBook,
-      onDestroyed: viewModel.destroyBook,
+      onLongPress: (book) => viewModel.openBookBottomSheet(context, book),
+      onTap: (book) => viewModel.navigateReaderPage(context, book),
     );
     var gridView = _GridView(
       books: viewModel.books.value,
-      onArchive: viewModel.archiveBook,
-      onDestroyed: viewModel.destroyBook,
+      onLongPress: (book) => viewModel.openBookBottomSheet(context, book),
+      onTap: (book) => viewModel.navigateReaderPage(context, book),
     );
     return switch (mode) {
       'list' => listView,
@@ -87,15 +85,15 @@ class _GridTile extends ConsumerWidget {
   final BookEntity book;
   final double coverHeight;
   final double coverWidth;
-  final void Function()? onArchive;
-  final void Function()? onDestroyed;
+  final void Function()? onLongPress;
+  final void Function()? onTap;
 
   const _GridTile({
     required this.book,
     required this.coverHeight,
     required this.coverWidth,
-    this.onArchive,
-    this.onDestroyed,
+    this.onLongPress,
+    this.onTap,
   });
 
   @override
@@ -127,21 +125,10 @@ class _GridTile extends ConsumerWidget {
     );
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onLongPress: () => _handleLongPress(context, ref),
-      onTap: () => _handleTap(context, ref),
+      onLongPress: onLongPress,
+      onTap: onTap,
       child: column,
     );
-  }
-
-  void cancel(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-
-  void confirm(BuildContext context, WidgetRef ref) async {
-    final navigator = Navigator.of(context);
-    // final notifier = ref.read(booksProvider.notifier);
-    // await notifier.delete(book);
-    navigator.pop();
   }
 
   String? _buildSubtitle() {
@@ -163,31 +150,14 @@ class _GridTile extends ConsumerWidget {
     // return chapters - current - 1;
     return 0;
   }
-
-  void _handleLongPress(BuildContext context, WidgetRef ref) async {
-    HapticFeedback.heavyImpact();
-    var bottomSheet = BookBottomSheet(
-      book: book,
-      onArchive: onArchive,
-      onDestroyed: onDestroyed,
-    );
-    showModalBottomSheet(builder: (_) => bottomSheet, context: context);
-  }
-
-  void _handleTap(BuildContext context, WidgetRef ref) {
-    // AutoRouter.of(context).push(ReaderRoute(book: book));
-    // final notifier = ref.read(bookNotifierProvider.notifier);
-    // notifier.update(book);
-    ReaderRoute(book: book).push(context);
-  }
 }
 
 class _GridView extends StatelessWidget {
   final List<BookEntity> books;
-  final void Function(BookEntity)? onArchive;
-  final void Function(BookEntity)? onDestroyed;
+  final void Function(BookEntity)? onLongPress;
+  final void Function(BookEntity)? onTap;
 
-  const _GridView({required this.books, this.onArchive, this.onDestroyed});
+  const _GridView({required this.books, this.onLongPress, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -217,18 +187,18 @@ class _GridView extends StatelessWidget {
       book: books[index],
       coverHeight: coverHeight,
       coverWidth: coverWidth,
-      onArchive: () => onArchive?.call(books[index]),
-      onDestroyed: () => onDestroyed?.call(books[index]),
+      onLongPress: () => onLongPress?.call(books[index]),
+      onTap: () => onTap?.call(books[index]),
     );
   }
 }
 
 class _ListTile extends ConsumerWidget {
   final BookEntity book;
-  final void Function()? onArchive;
-  final void Function()? onDestroyed;
+  final void Function()? onLongPress;
+  final void Function()? onTap;
 
-  const _ListTile({required this.book, this.onArchive, this.onDestroyed});
+  const _ListTile({required this.book, this.onLongPress, this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -269,21 +239,10 @@ class _ListTile extends ConsumerWidget {
     );
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onLongPress: () => _handleLongPress(context, ref),
-      onTap: () => _handleTap(context, ref),
+      onLongPress: onLongPress,
+      onTap: onTap,
       child: padding,
     );
-  }
-
-  void cancel(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-
-  void confirm(BuildContext context, WidgetRef ref) async {
-    final navigator = Navigator.of(context);
-    // final notifier = ref.read(booksProvider.notifier);
-    // await notifier.delete(book);
-    navigator.pop();
   }
 
   String? _buildLatestChapter() {
@@ -319,29 +278,14 @@ class _ListTile extends ConsumerWidget {
     // return chapters - current - 1;
     return 0;
   }
-
-  void _handleLongPress(BuildContext context, WidgetRef ref) async {
-    var bottomSheet = BookBottomSheet(
-      book: book,
-      onArchive: onArchive,
-      onDestroyed: onDestroyed,
-    );
-    showModalBottomSheet(builder: (_) => bottomSheet, context: context);
-  }
-
-  void _handleTap(BuildContext context, WidgetRef ref) {
-    // AutoRouter.of(context).push(ReaderRoute(book: book));
-    // final notifier = ref.read(bookNotifierProvider.notifier);
-    // notifier.update(book);
-  }
 }
 
 class _ListView extends StatelessWidget {
   final List<BookEntity> books;
-  final void Function(BookEntity)? onArchive;
-  final void Function(BookEntity)? onDestroyed;
+  final void Function(BookEntity)? onLongPress;
+  final void Function(BookEntity)? onTap;
 
-  const _ListView({required this.books, this.onArchive, this.onDestroyed});
+  const _ListView({required this.books, this.onLongPress, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -355,8 +299,8 @@ class _ListView extends StatelessWidget {
   Widget _buildItem(BuildContext context, int index) {
     return _ListTile(
       book: books[index],
-      onArchive: () => onArchive?.call(books[index]),
-      onDestroyed: () => onDestroyed?.call(books[index]),
+      onLongPress: () => onLongPress?.call(books[index]),
+      onTap: () => onTap?.call(books[index]),
     );
   }
 }
