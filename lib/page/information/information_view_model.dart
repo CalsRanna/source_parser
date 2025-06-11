@@ -16,16 +16,17 @@ import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
-import 'package:source_parser/util/logger.dart';
 import 'package:source_parser/util/parser_util.dart';
 
 class InformationViewModel {
   final InformationEntity information;
   final availableSources = signal(<AvailableSourceEntity>[]);
+  final book = signal(BookEntity());
   final chapters = signal(<ChapterEntity>[]);
   final covers = signal(<CoverEntity>[]);
-  final currentSource = signal(AvailableSourceEntity());
+  final source = signal(SourceEntity());
   final isInShelf = signal(false);
+  final isLoading = signal(false);
 
   InformationViewModel({required this.information});
 
@@ -48,26 +49,26 @@ class InformationViewModel {
   Future<void> initSignals() async {
     isInShelf.value = await BookService().exist(information.book.id);
     if (isInShelf.value) {
-      try {
-        availableSources.value = await AvailableSourceService()
-            .getAvailableSources(information.book.id);
-        chapters.value =
-            await ChapterService().getChapters(information.book.id);
-        covers.value = await CoverService().getCovers(information.book.id);
-        currentSource.value = await AvailableSourceService()
-            .getAvailableSource(information.book.sourceId);
-      } catch (error) {
-        logger.e(error.toString());
-      }
+      var bookId = information.book.id;
+      book.value = await BookService().getBook(bookId);
+      availableSources.value =
+          await AvailableSourceService().getAvailableSources(bookId);
+      chapters.value = await ChapterService().getChapters(bookId);
+      covers.value = await CoverService().getCovers(bookId);
+      source.value = await SourceService().getBookSource(bookId);
     } else {
+      book.value = information.book;
       availableSources.value = information.availableSources;
       chapters.value = information.chapters;
       covers.value = information.covers;
-      currentSource.value = information.availableSources.first;
-    }
-    if (chapters.value.isEmpty) {
-      var source = await SourceService().getBookSource(currentSource.value.id);
-      chapters.value = await _getRemoteChapters(information.book, source);
+      var sourceId = information.availableSources.first.sourceId;
+      source.value = await SourceService().getBookSource(sourceId);
+      if (chapters.value.isEmpty) {
+        isLoading.value = true;
+        var source = await SourceService().getBookSource(this.source.value.id);
+        chapters.value = await _getRemoteChapters(information.book, source);
+        isLoading.value = false;
+      }
     }
   }
 
@@ -76,8 +77,9 @@ class InformationViewModel {
         await AvailableSourceRoute(book: information.book).push<int>(context);
     await refreshAvailableSources();
     if (id == null) return;
-    currentSource.value =
-        availableSources.value.firstWhere((item) => item.id == id);
+    var sourceId =
+        availableSources.value.firstWhere((item) => item.id == id).sourceId;
+    source.value = await SourceService().getBookSource(sourceId);
   }
 
   void navigateCataloguePage(BuildContext context) {

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/available_source_entity.dart';
+import 'package:source_parser/model/source_entity.dart';
 
 class InformationAvailableSourceView extends StatelessWidget {
   final List<AvailableSourceEntity> availableSources;
-  final AvailableSourceEntity currentSource;
+  final SourceEntity source;
   final void Function()? onTap;
 
   const InformationAvailableSourceView({
     super.key,
     required this.availableSources,
-    required this.currentSource,
+    required this.source,
     this.onTap,
   });
 
@@ -18,8 +19,8 @@ class InformationAvailableSourceView extends StatelessWidget {
   Widget build(BuildContext context) {
     const boldTextStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
     var name = '';
-    if (currentSource.name.isNotEmpty) {
-      name = '${currentSource.name} · ';
+    if (source.name.isNotEmpty) {
+      name = '${source.name} · ';
     }
     var theme = Theme.of(context);
     var colorScheme = theme.colorScheme;

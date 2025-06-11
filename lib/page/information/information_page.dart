@@ -25,8 +25,6 @@ class InformationPage extends ConsumerStatefulWidget {
 }
 
 class _InformationPageState extends ConsumerState<InformationPage> {
-  bool loading = false;
-
   late final viewModel = GetIt.instance<InformationViewModel>(
     param1: widget.information,
   );
@@ -39,14 +37,14 @@ class _InformationPageState extends ConsumerState<InformationPage> {
     );
     var bottomNavigationBar = Watch(
       (_) => InformationBottomView(
-        book: widget.information.book,
+        book: viewModel.book.value,
         isInShelf: viewModel.isInShelf.value,
         onIsInShelfChanged: () => viewModel.changeIsInShelf(
-          widget.information.book,
+          viewModel.book.value,
         ),
         onReaderOpened: () => viewModel.navigateReaderPage(
           context,
-          widget.information.book,
+          viewModel.book.value,
         ),
       ),
     );
@@ -55,20 +53,11 @@ class _InformationPageState extends ConsumerState<InformationPage> {
 
   Future<void> getInformation(WidgetRef ref) async {
     final message = Message.of(context);
-    setState(() {
-      loading = true;
-    });
     try {
       final notifier = ref.read(bookNotifierProvider.notifier);
       await notifier.refreshInformation();
-      setState(() {
-        loading = false;
-      });
     } catch (error) {
       message.show(error.toString());
-      setState(() {
-        loading = false;
-      });
     }
   }
 
@@ -81,7 +70,7 @@ class _InformationPageState extends ConsumerState<InformationPage> {
 
   SliverAppBar _buildAppBar() {
     var flexibleSpaceBar = FlexibleSpaceBar(
-      background: InformationMetaDataView(book: widget.information.book),
+      background: InformationMetaDataView(book: viewModel.book.value),
       collapseMode: CollapseMode.pin,
     );
     return SliverAppBar(
@@ -95,27 +84,27 @@ class _InformationPageState extends ConsumerState<InformationPage> {
   SliverList _buildList(BuildContext context) {
     var catalogue = Watch(
       (_) => InformationCatalogueView(
-        book: widget.information.book,
+        book: viewModel.book.value,
         chapters: viewModel.chapters.value,
-        loading: loading,
+        loading: viewModel.isLoading.value,
         onTap: () => viewModel.navigateCataloguePage(context),
       ),
     );
     var availableSource = Watch(
       (_) => InformationAvailableSourceView(
         availableSources: viewModel.availableSources.value,
-        currentSource: viewModel.currentSource.value,
+        source: viewModel.source.value,
         onTap: () => viewModel.navigateAvailableSourcePage(context),
       ),
     );
     var children = [
-      InformationDescriptionView(book: widget.information.book),
+      InformationDescriptionView(book: viewModel.book.value),
       const SizedBox(height: 8),
       catalogue,
       const SizedBox(height: 8),
       availableSource,
       const SizedBox(height: 8),
-      InformationArchiveView(isArchive: widget.information.book.archive),
+      InformationArchiveView(isArchive: viewModel.book.value.archive),
     ];
     return SliverList(delegate: SliverChildListDelegate(children));
   }
