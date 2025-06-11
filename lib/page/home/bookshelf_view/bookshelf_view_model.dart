@@ -1,7 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:signals/signals.dart';
 import 'package:source_parser/database/book_service.dart';
+import 'package:source_parser/database/book_source_service.dart';
+import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/model/book_source_entity.dart';
+import 'package:source_parser/model/chapter_entity.dart';
+import 'package:source_parser/util/cache_network.dart';
+import 'package:source_parser/util/html_parser_plus.dart';
+import 'package:source_parser/util/logger.dart';
+import 'package:source_parser/util/message.dart';
 
 class BookshelfViewModel {
   final books = signal(<BookEntity>[]);
@@ -14,5 +23,48 @@ class BookshelfViewModel {
   Future<void> initSignals() async {
     books.value = await BookService().getBooks();
     FlutterNativeSplash.remove();
+  }
+
+  Future<void> refreshSignals(BuildContext context) async {
+    try {
+      for (var book in books.value) {
+        if (book.archive) continue;
+        final source = await BookSourceService().getBookSource(book.sourceId);
+        var chapters = await _getRemoteChapters(book, source);
+        if (chapters.isEmpty) continue;
+        var chapterServer = ChapterService();
+        await chapterServer.destroyChapters(book.id);
+        await chapterServer.addChapters(chapters);
+      }
+      books.value = await BookService().getBooks();
+    } catch (error) {
+      logger.e(error);
+      if (!context.mounted) return;
+      Message.of(context).show(error.toString());
+    }
+  }
+
+  Future<List<ChapterEntity>> _getRemoteChapters(
+      BookEntity book, BookSourceEntity source) async {
+    var network = CachedNetwork(prefix: book.name);
+    var html = await network.request(book.catalogueUrl);
+    final parser = HtmlParser();
+    var document = parser.parse(html);
+    var preset = parser.query(document, source.cataloguePreset);
+    var items = parser.queryNodes(document, source.catalogueChapters);
+    List<ChapterEntity> chapters = [];
+    var catalogueUrlRule = source.catalogueUrl;
+    catalogueUrlRule = catalogueUrlRule.replaceAll('{{preset}}', preset);
+    for (var i = 0; i < items.length; i++) {
+      final name = parser.query(items[i], source.catalogueName);
+      var url = parser.query(items[i], catalogueUrlRule);
+      if (!url.startsWith('http')) url = '${source.url}$url';
+      final chapter = ChapterEntity();
+      chapter.name = name;
+      chapter.url = url;
+      chapter.bookId = book.id;
+      chapters.add(chapter);
+    }
+    return chapters;
   }
 }

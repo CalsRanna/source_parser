@@ -45,7 +45,7 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
       title: Text('书架'),
     );
     var easyRefresh = EasyRefresh(
-      onRefresh: () => refresh(context, ref),
+      onRefresh: () => viewModel.refreshSignals(context),
       child: Watch((_) => _buildView(ref)),
     );
     var scaffold = Scaffold(appBar: appBar, body: easyRefresh);

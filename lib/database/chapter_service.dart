@@ -17,7 +17,11 @@ class ChapterService {
   }
 
   Future<void> addChapters(List<ChapterEntity> chapters) async {
-    var data = chapters.map((chapter) => chapter.toJson()).toList();
+    var data = chapters.map((chapter) {
+      var json = chapter.toJson();
+      json.remove('id');
+      return json;
+    }).toList();
     var laconic = DatabaseService.instance.laconic;
     await laconic.table('chapters').insert(data);
   }
