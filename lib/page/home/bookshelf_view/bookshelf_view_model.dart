@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:signals/signals.dart';
 import 'package:source_parser/database/book_service.dart';
@@ -28,6 +29,7 @@ class BookshelfViewModel {
   }
 
   void openBookBottomSheet(BuildContext context, BookEntity book) {
+    HapticFeedback.heavyImpact();
     var bottomSheet = BookshelfBottomSheet(
       book: book,
       onArchive: () => _archiveBook(book),
