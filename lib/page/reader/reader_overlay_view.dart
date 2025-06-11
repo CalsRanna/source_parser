@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/page/reader/reader_cache_indicator_view.dart';
+import 'package:source_parser/page/reader/reader_cache_sheet_view.dart';
+import 'package:source_parser/page/reader/reader_overlay_cache_slot.dart';
 import 'package:source_parser/page/reader/reader_overlay_dark_mode_slot.dart';
 import 'package:source_parser/provider/layout.dart';
 import 'package:source_parser/router/router.dart';
@@ -185,15 +186,19 @@ class ReaderOverlayView extends ConsumerWidget {
     if (slot.isEmpty) return const SizedBox();
     if (slot == LayoutSlot.more.name) {
       return _OverlayMoreSlot(
-          book: book,
-          onTap: ({int? count}) => handleTap(slot, count: count),
-          slot: slot);
+        book: book,
+        onTap: ({int? count}) => handleTap(slot, count: count),
+        slot: slot,
+      );
     }
     if (slot == LayoutSlot.darkMode.name) {
       return ReaderOverlayDarkModeSlot(
         isDarkMode: isDarkMode,
-        onTap: ({int? count}) => handleTap(slot, count: count),
+        onTap: onDarkMode,
       );
+    }
+    if (slot == LayoutSlot.cache.name) {
+      return ReaderOverlayCacheSlot(onTap: onCached);
     }
     return IconButton(
       onPressed: ({int? count}) => handleTap(slot, count: count),
