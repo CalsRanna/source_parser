@@ -248,6 +248,7 @@ class ReaderViewModel {
   void toggleDarkMode() {
     GetIt.instance.get<SourceParserViewModel>().toggleDarkMode();
     theme.value = _assembleTheme(theme.value);
+    controller.jumpToPage(pageIndex.value);
   }
 
   void turnPage(TapUpDetails details) {
