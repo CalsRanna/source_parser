@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/model/information_entity.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
@@ -90,9 +93,14 @@ class _ExploreTile extends StatelessWidget {
   }
 
   void handleTap(BuildContext context, WidgetRef ref) {
-    // AutoRouter.of(context).push(InformationRoute());
-    // final notifier = ref.read(bookNotifierProvider.notifier);
-    // notifier.update(book);
+    var bookEntity = BookEntity.fromJson(book.toJson());
+    var information = InformationEntity(
+      book: bookEntity,
+      chapters: [],
+      availableSources: [],
+      covers: [],
+    );
+    InformationRoute(information: information).push(context);
   }
 
   String? _buildSubtitle() {

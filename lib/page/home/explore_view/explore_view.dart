@@ -9,7 +9,7 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/information_entity.dart';
 import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/page/explore.dart';
-import 'package:source_parser/page/home/widget/search_button.dart';
+import 'package:source_parser/page/home/search_button.dart';
 import 'package:source_parser/provider/explore.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/provider/source.dart';
@@ -114,9 +114,14 @@ class _BannerTile extends ConsumerWidget {
   }
 
   void handleTap(BuildContext context, WidgetRef ref) {
-    // AutoRouter.of(context).push(InformationRoute());
-    // final notifier = ref.read(bookNotifierProvider.notifier);
-    // notifier.update(book);
+    var bookEntity = BookEntity.fromJson(book.toJson());
+    var information = InformationEntity(
+      book: bookEntity,
+      chapters: [],
+      availableSources: [],
+      covers: [],
+    );
+    InformationRoute(information: information).push(context);
   }
 }
 
@@ -338,9 +343,14 @@ class _GridTile extends ConsumerWidget {
   }
 
   void handleTap(BuildContext context, WidgetRef ref) {
-    // AutoRouter.of(context).push(InformationRoute());
-    // final notifier = ref.read(bookNotifierProvider.notifier);
-    // notifier.update(book);
+    var bookEntity = BookEntity.fromJson(book.toJson());
+    var information = InformationEntity(
+      book: bookEntity,
+      chapters: [],
+      availableSources: [],
+      covers: [],
+    );
+    InformationRoute(information: information).push(context);
   }
 
   String? _buildSubtitle() {

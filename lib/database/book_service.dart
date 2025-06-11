@@ -24,6 +24,12 @@ class BookService {
     return BookEntity.fromJson(book.toMap());
   }
 
+  Future<BookEntity> getBookByName(String name) async {
+    var laconic = DatabaseService.instance.laconic;
+    var book = await laconic.table('books').where('name', name).first();
+    return BookEntity.fromJson(book.toMap());
+  }
+
   Future<List<BookEntity>> getBooks() async {
     var laconic = DatabaseService.instance.laconic;
     var books = await laconic.table('books').get();

@@ -5,8 +5,8 @@ import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view.dart';
-import 'package:source_parser/page/home/component/explore.dart';
-import 'package:source_parser/page/home/component/profile_view.dart';
+import 'package:source_parser/page/home/explore_view/explore_view.dart';
+import 'package:source_parser/page/home/profile_view/profile_view.dart';
 import 'package:source_parser/provider/reader.dart';
 import 'package:source_parser/page/home/home_view_model.dart';
 

@@ -36,9 +36,19 @@ class InformationViewModel {
     if (isInShelf.value) {
       bookshelfViewModel.books.value.add(book);
       await BookService().addBook(book);
+      var newBook = await BookService().getBookByName(book.name);
+      availableSources.value = availableSources.value
+          .map((item) => item.copyWith(bookId: newBook.id))
+          .toList();
       await AvailableSourceService()
           .addAvailableSources(availableSources.value);
+      covers.value = covers.value
+          .map((item) => item.copyWith(bookId: newBook.id))
+          .toList();
       await CoverService().addCovers(covers.value);
+      chapters.value = chapters.value
+          .map((item) => item.copyWith(bookId: newBook.id))
+          .toList();
       await ChapterService().addChapters(chapters.value);
     } else {
       bookshelfViewModel.books.value.removeWhere((item) => item.id == book.id);
@@ -61,7 +71,13 @@ class InformationViewModel {
       availableSources.value = information.availableSources;
       chapters.value = information.chapters;
       covers.value = information.covers;
-      var sourceId = information.availableSources.first.sourceId;
+      if (availableSources.value.isEmpty) {
+        var stream = ParserUtil.instance.getAvailableSources(information.book);
+        await for (var availableSource in stream) {
+          availableSources.value = [...availableSources.value, availableSource];
+        }
+      }
+      var sourceId = availableSources.value.first.sourceId;
       source.value = await SourceService().getBookSource(sourceId);
       if (chapters.value.isEmpty) {
         isLoading.value = true;
@@ -89,9 +105,19 @@ class InformationViewModel {
   Future<void> navigateReaderPage(BuildContext context, BookEntity book) async {
     if (!isInShelf.value) {
       await BookService().addBook(book);
+      var newBook = await BookService().getBookByName(book.name);
+      availableSources.value = availableSources.value
+          .map((item) => item.copyWith(bookId: newBook.id))
+          .toList();
       await AvailableSourceService()
           .addAvailableSources(availableSources.value);
+      covers.value = covers.value
+          .map((item) => item.copyWith(bookId: newBook.id))
+          .toList();
       await CoverService().addCovers(covers.value);
+      chapters.value = chapters.value
+          .map((item) => item.copyWith(bookId: newBook.id))
+          .toList();
       await ChapterService().addChapters(chapters.value);
       isInShelf.value = true;
     }
