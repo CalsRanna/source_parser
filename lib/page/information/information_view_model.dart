@@ -106,24 +106,25 @@ class InformationViewModel {
   Future<void> navigateReaderPage(BuildContext context, BookEntity book) async {
     if (!isInShelf.value) {
       await BookService().addBook(book);
-      var newBook = await BookService().getBookByName(book.name);
+      var storedBook = await BookService().getBookByName(book.name);
       availableSources.value = availableSources.value
-          .map((item) => item.copyWith(bookId: newBook.id))
+          .map((item) => item.copyWith(bookId: storedBook.id))
           .toList();
       await AvailableSourceService()
           .addAvailableSources(availableSources.value);
       covers.value = covers.value
-          .map((item) => item.copyWith(bookId: newBook.id))
+          .map((item) => item.copyWith(bookId: storedBook.id))
           .toList();
       await CoverService().addCovers(covers.value);
       chapters.value = chapters.value
-          .map((item) => item.copyWith(bookId: newBook.id))
+          .map((item) => item.copyWith(bookId: storedBook.id))
           .toList();
       await ChapterService().addChapters(chapters.value);
       isInShelf.value = true;
     }
+    var storedBook = await BookService().getBookByName(book.name);
     if (!context.mounted) return;
-    ReaderRoute(book: book).push(context);
+    ReaderRoute(book: storedBook).push(context);
   }
 
   Future<void> refreshAvailableSources() async {

@@ -263,10 +263,10 @@ class SearchViewModel {
           introduction = parser.query(document, source.informationIntroduction);
           if (name.isNotEmpty) {
             var availableSource = AvailableSourceEntity();
-            availableSource.id = source.id;
             availableSource.name = source.name;
             availableSource.url = url;
             availableSource.latestChapter = latestChapter;
+            availableSource.sourceId = source.id;
             var book = BookEntity();
             book.author = author;
             book.catalogueUrl = catalogueUrl;
