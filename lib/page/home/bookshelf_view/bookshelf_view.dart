@@ -68,13 +68,18 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
     if (viewModel.books.value.isEmpty) return const Center(child: Text('空空如也'));
     var listView = _ListView(
       books: viewModel.books.value,
+      onArchive: viewModel.archiveBook,
       onDestroyed: viewModel.destroyBook,
     );
     var gridView = _GridView(
       books: viewModel.books.value,
+      onArchive: viewModel.archiveBook,
       onDestroyed: viewModel.destroyBook,
     );
-    return switch (mode) { 'list' => listView, _ => gridView };
+    return switch (mode) {
+      'list' => listView,
+      _ => gridView,
+    };
   }
 }
 
@@ -82,12 +87,14 @@ class _GridTile extends ConsumerWidget {
   final BookEntity book;
   final double coverHeight;
   final double coverWidth;
+  final void Function()? onArchive;
   final void Function()? onDestroyed;
 
   const _GridTile({
     required this.book,
     required this.coverHeight,
     required this.coverWidth,
+    this.onArchive,
     this.onDestroyed,
   });
 
@@ -159,7 +166,11 @@ class _GridTile extends ConsumerWidget {
 
   void _handleLongPress(BuildContext context, WidgetRef ref) async {
     HapticFeedback.heavyImpact();
-    var bottomSheet = BookBottomSheet(book: book, onDestroyed: onDestroyed);
+    var bottomSheet = BookBottomSheet(
+      book: book,
+      onArchive: onArchive,
+      onDestroyed: onDestroyed,
+    );
     showModalBottomSheet(builder: (_) => bottomSheet, context: context);
   }
 
@@ -173,9 +184,10 @@ class _GridTile extends ConsumerWidget {
 
 class _GridView extends StatelessWidget {
   final List<BookEntity> books;
+  final void Function(BookEntity)? onArchive;
   final void Function(BookEntity)? onDestroyed;
 
-  const _GridView({required this.books, this.onDestroyed});
+  const _GridView({required this.books, this.onArchive, this.onDestroyed});
 
   @override
   Widget build(BuildContext context) {
@@ -205,6 +217,7 @@ class _GridView extends StatelessWidget {
       book: books[index],
       coverHeight: coverHeight,
       coverWidth: coverWidth,
+      onArchive: () => onArchive?.call(books[index]),
       onDestroyed: () => onDestroyed?.call(books[index]),
     );
   }
@@ -212,9 +225,10 @@ class _GridView extends StatelessWidget {
 
 class _ListTile extends ConsumerWidget {
   final BookEntity book;
+  final void Function()? onArchive;
   final void Function()? onDestroyed;
 
-  const _ListTile({required this.book, this.onDestroyed});
+  const _ListTile({required this.book, this.onArchive, this.onDestroyed});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -307,7 +321,11 @@ class _ListTile extends ConsumerWidget {
   }
 
   void _handleLongPress(BuildContext context, WidgetRef ref) async {
-    var bottomSheet = BookBottomSheet(book: book, onDestroyed: onDestroyed);
+    var bottomSheet = BookBottomSheet(
+      book: book,
+      onArchive: onArchive,
+      onDestroyed: onDestroyed,
+    );
     showModalBottomSheet(builder: (_) => bottomSheet, context: context);
   }
 
@@ -320,9 +338,10 @@ class _ListTile extends ConsumerWidget {
 
 class _ListView extends StatelessWidget {
   final List<BookEntity> books;
+  final void Function(BookEntity)? onArchive;
   final void Function(BookEntity)? onDestroyed;
 
-  const _ListView({required this.books, this.onDestroyed});
+  const _ListView({required this.books, this.onArchive, this.onDestroyed});
 
   @override
   Widget build(BuildContext context) {
@@ -336,6 +355,7 @@ class _ListView extends StatelessWidget {
   Widget _buildItem(BuildContext context, int index) {
     return _ListTile(
       book: books[index],
+      onArchive: () => onArchive?.call(books[index]),
       onDestroyed: () => onDestroyed?.call(books[index]),
     );
   }

@@ -12,9 +12,15 @@ import 'package:source_parser/widget/book_cover.dart';
 
 class BookBottomSheet extends ConsumerWidget {
   final BookEntity book;
+  final void Function()? onArchive;
   final void Function()? onDestroyed;
 
-  const BookBottomSheet({super.key, required this.book, this.onDestroyed});
+  const BookBottomSheet({
+    super.key,
+    required this.book,
+    this.onArchive,
+    this.onDestroyed,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -56,8 +62,7 @@ class BookBottomSheet extends ConsumerWidget {
       const SizedBox(width: 16),
       Expanded(child: column),
     ];
-    final newBook = ref.watch(bookNotifierProvider);
-    final archived = newBook.archive;
+    final archived = book.archive;
     var icon = HugeIcons.strokeRoundedQuillWrite01;
     if (archived) icon = HugeIcons.strokeRoundedArchive02;
     final text = archived ? '已完结' : '连载中';
@@ -74,7 +79,7 @@ class BookBottomSheet extends ConsumerWidget {
     var archiveAction = _SheetAction(
       icon: Icon(icon),
       text: text,
-      onTap: () => toggleArchive(context, ref),
+      onTap: onArchive,
     );
     var removeAction = _SheetAction(
       icon: const Icon(HugeIcons.strokeRoundedDelete02),
@@ -174,11 +179,6 @@ class BookBottomSheet extends ConsumerWidget {
   void navigateInformationPage(BuildContext context) {
     Navigator.of(context).pop();
     InformationRoute(book: book).push(context);
-  }
-
-  void toggleArchive(BuildContext context, WidgetRef ref) async {
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    await notifier.toggleArchive();
   }
 
   String _buildSpan() {

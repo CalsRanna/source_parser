@@ -15,6 +15,12 @@ import 'package:source_parser/util/message.dart';
 class BookshelfViewModel {
   final books = signal(<BookEntity>[]);
 
+  Future<void> archiveBook(BookEntity book) async {
+    var updatedBook = book.copyWith(archive: !book.archive);
+    await BookService().updateBook(updatedBook);
+    books.value = await BookService().getBooks();
+  }
+
   Future<void> destroyBook(BookEntity book) async {
     await BookService().destroyBook(book);
     books.value = await BookService().getBooks();
