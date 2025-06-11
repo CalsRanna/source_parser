@@ -78,6 +78,7 @@ class InformationViewModel {
           availableSources.value = [...availableSources.value, availableSource];
         }
       }
+      if (availableSources.value.isEmpty) return;
       var sourceId = availableSources.value.first.sourceId;
       source.value = await SourceService().getBookSource(sourceId);
       if (chapters.value.isEmpty) {
