@@ -12,8 +12,6 @@ import 'package:source_parser/page/information/information_catalogue_view.dart';
 import 'package:source_parser/page/information/information_description_view.dart';
 import 'package:source_parser/page/information/information_meta_data_view.dart';
 import 'package:source_parser/page/information/information_view_model.dart';
-import 'package:source_parser/provider/book.dart';
-import 'package:source_parser/util/message.dart';
 
 @RoutePage()
 class InformationPage extends ConsumerStatefulWidget {
@@ -32,7 +30,7 @@ class _InformationPageState extends ConsumerState<InformationPage> {
   @override
   Widget build(BuildContext context) {
     var body = EasyRefresh(
-      onRefresh: () => getInformation(ref),
+      // onRefresh: () => getInformation(ref),
       child: CustomScrollView(slivers: [_buildAppBar(), _buildList(context)]),
     );
     var bottomNavigationBar = Watch(
@@ -51,21 +49,12 @@ class _InformationPageState extends ConsumerState<InformationPage> {
     return Scaffold(body: body, bottomNavigationBar: bottomNavigationBar);
   }
 
-  Future<void> getInformation(WidgetRef ref) async {
-    final message = Message.of(context);
-    try {
-      final notifier = ref.read(bookNotifierProvider.notifier);
-      await notifier.refreshInformation();
-    } catch (error) {
-      message.show(error.toString());
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    getInformation(ref);
-    viewModel.initSignals();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      viewModel.initSignals();
+    });
   }
 
   SliverAppBar _buildAppBar() {
