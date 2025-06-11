@@ -100,6 +100,15 @@ class InformationViewModel {
     source.value = await SourceService().getBookSource(sourceId);
   }
 
+  void toggleArchive() {
+    book.value = book.value.copyWith(archive: !book.value.archive);
+    if (isInShelf.value) {
+      BookService().updateBook(book.value);
+      var bookshelfViewModel = GetIt.instance<BookshelfViewModel>();
+      bookshelfViewModel.initSignals();
+    }
+  }
+
   void navigateCataloguePage(BuildContext context) {
     CatalogueRoute(book: information.book).push(context);
   }

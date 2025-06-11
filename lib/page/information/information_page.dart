@@ -93,7 +93,10 @@ class _InformationPageState extends ConsumerState<InformationPage> {
       ),
     );
     var archive = Watch(
-      (_) => InformationArchiveView(isArchive: viewModel.book.value.archive),
+      (_) => InformationArchiveView(
+        isArchive: viewModel.book.value.archive,
+        onTap: viewModel.toggleArchive,
+      ),
     );
     var children = [
       introduction,
