@@ -5,7 +5,7 @@ import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/database/book_source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/model/information_wrapper_entity.dart';
+import 'package:source_parser/model/information_entity.dart';
 import 'package:source_parser/model/book_source_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_bottom_sheet.dart';
@@ -97,7 +97,7 @@ class BookshelfViewModel {
   }
 
   void _navigateInformationPage(BuildContext context, BookEntity book) {
-    var information = InformationWrapperEntity(
+    var information = InformationEntity(
       book: book,
       chapters: [],
       availableSources: [],

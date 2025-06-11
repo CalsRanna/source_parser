@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/model/information_wrapper_entity.dart';
+import 'package:source_parser/model/information_entity.dart';
 import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/page/explore.dart';
 import 'package:source_parser/page/home/widget/search_button.dart';
@@ -56,7 +56,7 @@ class _BannerState extends State<_Banner> {
 
   void handleTap(BuildContext context, WidgetRef ref, int index) {
     var bookEntity = BookEntity.fromJson(books[index].toJson());
-    var information = InformationWrapperEntity(
+    var information = InformationEntity(
       book: bookEntity,
       chapters: [],
       availableSources: [],
@@ -487,7 +487,7 @@ class _ListTile extends ConsumerWidget {
 
   void handleTap(BuildContext context, WidgetRef ref) {
     var bookEntity = BookEntity.fromJson(book.toJson());
-    var information = InformationWrapperEntity(
+    var information = InformationEntity(
       book: bookEntity,
       chapters: [],
       availableSources: [],

@@ -11,7 +11,7 @@
 import 'package:auto_route/auto_route.dart' as _i27;
 import 'package:flutter/material.dart' as _i28;
 import 'package:source_parser/model/book_entity.dart' as _i29;
-import 'package:source_parser/model/information_wrapper_entity.dart' as _i30;
+import 'package:source_parser/model/information_entity.dart' as _i30;
 import 'package:source_parser/page/about.dart' as _i1;
 import 'package:source_parser/page/available_source/available_source_page.dart'
     as _i3;
@@ -300,7 +300,7 @@ class HomeRoute extends _i27.PageRouteInfo<void> {
 class InformationRoute extends _i27.PageRouteInfo<InformationRouteArgs> {
   InformationRoute({
     _i28.Key? key,
-    required _i30.InformationWrapperEntity information,
+    required _i30.InformationEntity information,
     List<_i27.PageRouteInfo>? children,
   }) : super(
           InformationRoute.name,
@@ -333,7 +333,7 @@ class InformationRouteArgs {
 
   final _i28.Key? key;
 
-  final _i30.InformationWrapperEntity information;
+  final _i30.InformationEntity information;
 
   @override
   String toString() {

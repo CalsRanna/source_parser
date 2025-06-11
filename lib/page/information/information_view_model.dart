@@ -8,10 +8,10 @@ import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/database/cover_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/model/information_wrapper_entity.dart';
 import 'package:source_parser/model/book_source_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/model/cover_entity.dart';
+import 'package:source_parser/model/information_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/cache_network.dart';
@@ -20,7 +20,7 @@ import 'package:source_parser/util/logger.dart';
 import 'package:source_parser/util/parser_util.dart';
 
 class InformationViewModel {
-  final InformationWrapperEntity information;
+  final InformationEntity information;
   final availableSources = signal(<AvailableSourceEntity>[]);
   final chapters = signal(<ChapterEntity>[]);
   final covers = signal(<CoverEntity>[]);
@@ -43,19 +43,6 @@ class InformationViewModel {
       bookshelfViewModel.books.value.removeWhere((item) => item.id == book.id);
       await BookService().destroyBook(book.id);
     }
-  }
-
-  Future<void> navigateReaderPage(BuildContext context, BookEntity book) async {
-    if (!isInShelf.value) {
-      await BookService().addBook(book);
-      await AvailableSourceService()
-          .addAvailableSources(availableSources.value);
-      await CoverService().addCovers(covers.value);
-      await ChapterService().addChapters(chapters.value);
-      isInShelf.value = true;
-    }
-    if (!context.mounted) return;
-    ReaderRoute(book: book).push(context);
   }
 
   Future<void> initSignals() async {
@@ -85,6 +72,42 @@ class InformationViewModel {
     }
   }
 
+  Future<void> navigateAvailableSourcePage(BuildContext context) async {
+    var id =
+        await AvailableSourceRoute(book: information.book).push<int>(context);
+    await refreshAvailableSources();
+    if (id == null) return;
+    currentSource.value =
+        availableSources.value.firstWhere((item) => item.id == id);
+  }
+
+  void navigateCataloguePage(BuildContext context) {
+    CatalogueRoute(book: information.book).push(context);
+  }
+
+  Future<void> navigateReaderPage(BuildContext context, BookEntity book) async {
+    if (!isInShelf.value) {
+      await BookService().addBook(book);
+      await AvailableSourceService()
+          .addAvailableSources(availableSources.value);
+      await CoverService().addCovers(covers.value);
+      await ChapterService().addChapters(chapters.value);
+      isInShelf.value = true;
+    }
+    if (!context.mounted) return;
+    ReaderRoute(book: book).push(context);
+  }
+
+  Future<void> refreshAvailableSources() async {
+    availableSources.value =
+        await AvailableSourceService().getAvailableSources(information.book.id);
+    if (availableSources.value.isNotEmpty) return;
+    var stream = ParserUtil.instance.getAvailableSources(information.book);
+    await for (var availableSource in stream) {
+      availableSources.value = [...availableSources.value, availableSource];
+    }
+  }
+
   Future<List<ChapterEntity>> _getRemoteChapters(
       BookEntity book, BookSourceEntity source) async {
     var network = CachedNetwork(prefix: book.name);
@@ -107,28 +130,5 @@ class InformationViewModel {
       chapters.add(chapter);
     }
     return chapters;
-  }
-
-  Future<void> navigateAvailableSourcePage(BuildContext context) async {
-    var id =
-        await AvailableSourceRoute(book: information.book).push<int>(context);
-    await refreshAvailableSources();
-    if (id == null) return;
-    currentSource.value =
-        availableSources.value.firstWhere((item) => item.id == id);
-  }
-
-  void navigateCataloguePage(BuildContext context) {
-    CatalogueRoute(book: information.book).push(context);
-  }
-
-  Future<void> refreshAvailableSources() async {
-    availableSources.value =
-        await AvailableSourceService().getAvailableSources(information.book.id);
-    if (availableSources.value.isNotEmpty) return;
-    var stream = ParserUtil.instance.getAvailableSources(information.book);
-    await for (var availableSource in stream) {
-      availableSources.value = [...availableSources.value, availableSource];
-    }
   }
 }
