@@ -30,7 +30,9 @@ class BookshelfViewModel {
     var bottomSheet = BookshelfBottomSheet(
       book: book,
       onArchive: () => _archiveBook(book),
+      onCoverSelect: () => _navigateCoverSelectorPage(context, book),
       onDestroyed: () => _destroyBook(book),
+      onDetail: () => _navigateInformationPage(context, book),
     );
     showModalBottomSheet(builder: (_) => bottomSheet, context: context);
   }
@@ -87,5 +89,13 @@ class BookshelfViewModel {
       chapters.add(chapter);
     }
     return chapters;
+  }
+
+  void _navigateCoverSelectorPage(BuildContext context, BookEntity book) {
+    CoverSelectorRoute(book: book).push(context);
+  }
+
+  void _navigateInformationPage(BuildContext context, BookEntity book) {
+    InformationRoute(book: book).push(context);
   }
 }
