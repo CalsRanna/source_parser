@@ -9,6 +9,17 @@ class AvailableSourceService {
     await laconic.table('available_sources').insert([json]);
   }
 
+  Future<void> addAvailableSources(
+      List<AvailableSourceEntity> availableSources) async {
+    var laconic = DatabaseService.instance.laconic;
+    var data = availableSources.map((source) {
+      var json = source.toJson();
+      json.remove('id');
+      return json;
+    }).toList();
+    await laconic.table('available_sources').insert(data);
+  }
+
   Future<bool> exist(String url) async {
     var laconic = DatabaseService.instance.laconic;
     var count =

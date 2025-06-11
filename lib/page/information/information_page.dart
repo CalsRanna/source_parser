@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/model/book_information_wrapper_entity.dart';
 import 'package:source_parser/page/information/information_archive_view.dart';
 import 'package:source_parser/page/information/information_available_source_view.dart';
 import 'package:source_parser/page/information/information_bottom_view.dart';
@@ -17,8 +17,8 @@ import 'package:source_parser/util/message.dart';
 
 @RoutePage()
 class InformationPage extends ConsumerStatefulWidget {
-  final BookEntity book;
-  const InformationPage({super.key, required this.book});
+  final BookInformationWrapperEntity information;
+  const InformationPage({super.key, required this.information});
 
   @override
   ConsumerState<InformationPage> createState() => _InformationPageState();
@@ -28,7 +28,7 @@ class _InformationPageState extends ConsumerState<InformationPage> {
   bool loading = false;
 
   late final viewModel = GetIt.instance<InformationViewModel>(
-    param1: widget.book,
+    param1: widget.information,
   );
 
   @override
@@ -39,9 +39,15 @@ class _InformationPageState extends ConsumerState<InformationPage> {
     );
     var bottomNavigationBar = Watch(
       (_) => InformationBottomView(
-        book: widget.book,
+        book: widget.information.book,
         isInShelf: viewModel.isInShelf.value,
-        onIsInShelfChanged: () => viewModel.changeIsInShelf(widget.book),
+        onIsInShelfChanged: () => viewModel.changeIsInShelf(
+          widget.information.book,
+        ),
+        onReaderOpened: () => viewModel.navigateReaderPage(
+          context,
+          widget.information.book,
+        ),
       ),
     );
     return Scaffold(body: body, bottomNavigationBar: bottomNavigationBar);
@@ -75,7 +81,7 @@ class _InformationPageState extends ConsumerState<InformationPage> {
 
   SliverAppBar _buildAppBar() {
     var flexibleSpaceBar = FlexibleSpaceBar(
-      background: InformationMetaDataView(book: widget.book),
+      background: InformationMetaDataView(book: widget.information.book),
       collapseMode: CollapseMode.pin,
     );
     return SliverAppBar(
@@ -89,7 +95,7 @@ class _InformationPageState extends ConsumerState<InformationPage> {
   SliverList _buildList(BuildContext context) {
     var catalogue = Watch(
       (_) => InformationCatalogueView(
-        book: widget.book,
+        book: widget.information.book,
         chapters: viewModel.chapters.value,
         loading: loading,
         onTap: () => viewModel.navigateCataloguePage(context),
@@ -103,13 +109,13 @@ class _InformationPageState extends ConsumerState<InformationPage> {
       ),
     );
     var children = [
-      InformationDescriptionView(book: widget.book),
+      InformationDescriptionView(book: widget.information.book),
       const SizedBox(height: 8),
       catalogue,
       const SizedBox(height: 8),
       availableSource,
       const SizedBox(height: 8),
-      InformationArchiveView(isArchive: widget.book.archive),
+      InformationArchiveView(isArchive: widget.information.book.archive),
     ];
     return SliverList(delegate: SliverChildListDelegate(children));
   }

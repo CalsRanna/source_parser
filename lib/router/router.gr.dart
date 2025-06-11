@@ -11,6 +11,8 @@
 import 'package:auto_route/auto_route.dart' as _i27;
 import 'package:flutter/material.dart' as _i28;
 import 'package:source_parser/model/book_entity.dart' as _i29;
+import 'package:source_parser/model/book_information_wrapper_entity.dart'
+    as _i30;
 import 'package:source_parser/page/about.dart' as _i1;
 import 'package:source_parser/page/available_source/available_source_page.dart'
     as _i3;
@@ -299,13 +301,13 @@ class HomeRoute extends _i27.PageRouteInfo<void> {
 class InformationRoute extends _i27.PageRouteInfo<InformationRouteArgs> {
   InformationRoute({
     _i28.Key? key,
-    required _i29.BookEntity book,
+    required _i30.BookInformationWrapperEntity information,
     List<_i27.PageRouteInfo>? children,
   }) : super(
           InformationRoute.name,
           args: InformationRouteArgs(
             key: key,
-            book: book,
+            information: information,
           ),
           initialChildren: children,
         );
@@ -318,7 +320,7 @@ class InformationRoute extends _i27.PageRouteInfo<InformationRouteArgs> {
       final args = data.argsAs<InformationRouteArgs>();
       return _i10.InformationPage(
         key: args.key,
-        book: args.book,
+        information: args.information,
       );
     },
   );
@@ -327,16 +329,16 @@ class InformationRoute extends _i27.PageRouteInfo<InformationRouteArgs> {
 class InformationRouteArgs {
   const InformationRouteArgs({
     this.key,
-    required this.book,
+    required this.information,
   });
 
   final _i28.Key? key;
 
-  final _i29.BookEntity book;
+  final _i30.BookInformationWrapperEntity information;
 
   @override
   String toString() {
-    return 'InformationRouteArgs{key: $key, book: $book}';
+    return 'InformationRouteArgs{key: $key, information: $information}';
   }
 }
 

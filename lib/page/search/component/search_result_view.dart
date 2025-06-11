@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/search_result_entity.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class SearchResultView extends StatelessWidget {
   final List<SearchResultEntity> results;
   final bool isSearching;
-  final void Function(BookEntity)? onTap;
+  final void Function(SearchResultEntity)? onTap;
   const SearchResultView({
     super.key,
     required this.results,
@@ -30,7 +29,7 @@ class SearchResultView extends StatelessWidget {
   Widget _buildItem(BuildContext context, int index) {
     return _Tile(
       result: results[index],
-      onTap: () => onTap?.call(results[index].book),
+      onTap: () => onTap?.call(results[index]),
     );
   }
 }

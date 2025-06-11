@@ -5,6 +5,7 @@ import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/database/book_source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/model/book_information_wrapper_entity.dart';
 import 'package:source_parser/model/book_source_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_bottom_sheet.dart';
@@ -63,7 +64,7 @@ class BookshelfViewModel {
   }
 
   Future<void> _destroyBook(BookEntity book) async {
-    await BookService().destroyBook(book);
+    await BookService().destroyBook(book.id);
     books.value = await BookService().getBooks();
   }
 
@@ -96,6 +97,12 @@ class BookshelfViewModel {
   }
 
   void _navigateInformationPage(BuildContext context, BookEntity book) {
-    InformationRoute(book: book).push(context);
+    var information = BookInformationWrapperEntity(
+      book: book,
+      chapters: [],
+      availableSources: [],
+      covers: [],
+    );
+    InformationRoute(information: information).push(context);
   }
 }

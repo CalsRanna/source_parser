@@ -22,7 +22,7 @@ final cacheSizeProvider =
 
 typedef _$CacheSize = AutoDisposeAsyncNotifier<String>;
 String _$cacheProgressNotifierHash() =>
-    r'6b90c808e008948e8c23aec2887590004c356459';
+    r'46ccfe1243d4115d93178399d781c23836e6b867';
 
 /// See also [CacheProgressNotifier].
 @ProviderFor(CacheProgressNotifier)

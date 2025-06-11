@@ -4,9 +4,19 @@ import 'package:source_parser/model/cover_entity.dart';
 class CoverService {
   Future<void> addCover(CoverEntity cover) async {
     var laconic = DatabaseService.instance.laconic;
-    var coverData = cover.toJson();
-    coverData.remove('id');
-    await laconic.table('covers').insert([coverData]);
+    var json = cover.toJson();
+    json.remove('id');
+    await laconic.table('covers').insert([json]);
+  }
+
+  Future<void> addCovers(List<CoverEntity> covers) async {
+    var laconic = DatabaseService.instance.laconic;
+    var coverData = covers.map((cover) {
+      var json = cover.toJson();
+      json.remove('id');
+      return json;
+    }).toList();
+    await laconic.table('covers').insert(coverData);
   }
 
   Future<bool> exist(String url) async {

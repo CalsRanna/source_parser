@@ -9,6 +9,7 @@ import 'package:signals/signals.dart';
 import 'package:source_parser/database/book_source_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/model/book_information_wrapper_entity.dart';
 import 'package:source_parser/model/book_source_entity.dart';
 import 'package:source_parser/model/cover_entity.dart';
 import 'package:source_parser/model/search_result_entity.dart';
@@ -47,9 +48,16 @@ class SearchViewModel {
         books.map((book) => BookEntity.fromJson(book.toJson())).toList();
   }
 
-  void navigateInformationPage(BuildContext context, BookEntity book) {
+  void navigateInformationPage(
+      BuildContext context, SearchResultEntity result) {
     removeCurrentMaterialBanner(context);
-    InformationRoute(book: book).push(context);
+    var information = BookInformationWrapperEntity(
+      book: result.book,
+      chapters: [],
+      availableSources: result.availableSources,
+      covers: result.covers,
+    );
+    InformationRoute(information: information).push(context);
   }
 
   void removeCurrentMaterialBanner(BuildContext context) {
@@ -219,12 +227,10 @@ class SearchViewModel {
           final author = parser.query(items[i], source.searchAuthor);
           final category = parser.query(items[i], source.searchCategory);
           var cover = parser.query(items[i], source.searchCover);
-          var needFurtherParse = cover.isEmpty;
           if (!cover.startsWith('http')) {
             cover = '${source.url}$cover';
           }
-          final introduction =
-              parser.query(items[i], source.searchIntroduction);
+          var introduction = parser.query(items[i], source.searchIntroduction);
           final name = parser.query(items[i], source.searchName);
           var url = parser.query(items[i], source.searchInformationUrl);
           if (!url.startsWith('http')) {
@@ -232,24 +238,29 @@ class SearchViewModel {
           }
           var latestChapter =
               parser.query(items[i], source.searchLatestChapter);
-          if (!needFurtherParse) needFurtherParse = latestChapter.isEmpty;
-          if (needFurtherParse) {
-            html = await network.request(
-              url,
-              charset: source.charset,
-              duration: duration,
-              method: method,
-            );
-            document = parser.parse(html);
-            cover = parser.query(document, source.informationCover);
-            if (!cover.startsWith('http')) {
-              cover = '${source.url}$cover';
-            }
-            latestChapter = parser.query(
-              document,
-              source.informationLatestChapter,
-            );
+          html = await network.request(
+            url,
+            charset: source.charset,
+            duration: duration,
+            method: method,
+          );
+          document = parser.parse(html);
+          cover = parser.query(document, source.informationCover);
+          if (!cover.startsWith('http')) {
+            cover = '${source.url}$cover';
           }
+          latestChapter = parser.query(
+            document,
+            source.informationLatestChapter,
+          );
+          var catalogueUrl = parser.query(
+            document,
+            source.informationCatalogueUrl,
+          );
+          if (!catalogueUrl.startsWith('http')) {
+            catalogueUrl = '${source.url}$catalogueUrl';
+          }
+          introduction = parser.query(document, source.informationIntroduction);
           if (name.isNotEmpty) {
             var availableSource = AvailableSourceEntity();
             availableSource.id = source.id;
@@ -258,16 +269,14 @@ class SearchViewModel {
             availableSource.latestChapter = latestChapter;
             var book = BookEntity();
             book.author = author;
+            book.catalogueUrl = catalogueUrl;
             book.category = category;
             book.cover = cover;
             book.introduction = introduction;
             book.latestChapter = latestChapter;
             book.name = name;
             book.sourceId = source.id;
-            // book.sources = [availableSource];
             book.url = url;
-            print(introduction);
-            print(url);
             var result = SearchResultEntity(
               book: book,
               availableSources: [availableSource],
