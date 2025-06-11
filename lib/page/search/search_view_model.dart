@@ -10,7 +10,7 @@ import 'package:source_parser/database/book_source_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/information_entity.dart';
-import 'package:source_parser/model/book_source_entity.dart';
+import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/model/cover_entity.dart';
 import 'package:source_parser/model/search_result_entity.dart';
 import 'package:source_parser/router/router.gr.dart';
@@ -191,7 +191,7 @@ class SearchViewModel {
     port.listen((message) async {
       final network = message[0] as CachedNetwork;
       final duration = message[1] as Duration;
-      final source = message[2] as BookSourceEntity;
+      final source = message[2] as SourceEntity;
       var credential = message[3] as String;
       final sender = message[4] as SendPort;
       try {

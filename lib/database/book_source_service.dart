@@ -1,27 +1,27 @@
 import 'package:source_parser/database/service.dart';
-import 'package:source_parser/model/book_source_entity.dart';
+import 'package:source_parser/model/source_entity.dart';
 
 class BookSourceService {
-  Future<BookSourceEntity> getBookSource(int id) async {
+  Future<SourceEntity> getBookSource(int id) async {
     var laconic = DatabaseService.instance.laconic;
     var bookSource =
         await laconic.table('book_sources').where('id', id).first();
-    return BookSourceEntity.fromJson(bookSource.toMap());
+    return SourceEntity.fromJson(bookSource.toMap());
   }
 
-  Future<BookSourceEntity> getBookSourceByName(String name) async {
+  Future<SourceEntity> getBookSourceByName(String name) async {
     var laconic = DatabaseService.instance.laconic;
     var bookSource =
         await laconic.table('book_sources').where('name', name).first();
-    return BookSourceEntity.fromJson(bookSource.toMap());
+    return SourceEntity.fromJson(bookSource.toMap());
   }
 
-  Future<List<BookSourceEntity>> getEnabledBookSources() async {
+  Future<List<SourceEntity>> getEnabledBookSources() async {
     var laconic = DatabaseService.instance.laconic;
     var bookSources =
         await laconic.table('book_sources').where('enabled', true).get();
     return bookSources
-        .map((bookSource) => BookSourceEntity.fromJson(bookSource.toMap()))
+        .map((bookSource) => SourceEntity.fromJson(bookSource.toMap()))
         .toList();
   }
 }

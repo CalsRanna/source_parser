@@ -10,7 +10,7 @@ import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/database/book_source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/model/book_source_entity.dart';
+import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
@@ -42,7 +42,7 @@ class ReaderViewModel {
   final downloadFailed = signal(0);
   final battery = signal(100);
   final size = Signal(Size.zero);
-  final source = Signal(BookSourceEntity());
+  final source = Signal(SourceEntity());
   final error = signal('');
 
   late final progress = computed(() {
@@ -312,7 +312,7 @@ class ReaderViewModel {
   }
 
   Future<void> _downloadChapter(
-    BookSourceEntity source,
+    SourceEntity source,
     int index,
     Semaphore semaphore,
   ) async {

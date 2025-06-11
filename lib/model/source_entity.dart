@@ -1,4 +1,4 @@
-class BookSourceEntity {
+class SourceEntity {
   int id = 0;
   String name = '';
   String url = '';
@@ -42,10 +42,10 @@ class BookSourceEntity {
   String contentPaginationValidation = '';
   String exploreJson = '';
 
-  BookSourceEntity();
+  SourceEntity();
 
-  factory BookSourceEntity.fromJson(Map<String, dynamic> json) {
-    return BookSourceEntity()
+  factory SourceEntity.fromJson(Map<String, dynamic> json) {
+    return SourceEntity()
       ..id = json['id'] ?? 0
       ..name = json['name'] ?? ''
       ..url = json['url'] ?? ''
@@ -92,7 +92,7 @@ class BookSourceEntity {
       ..exploreJson = json['explore_json'] ?? '';
   }
 
-  BookSourceEntity copyWith({
+  SourceEntity copyWith({
     int? id,
     String? name,
     String? url,
@@ -136,7 +136,7 @@ class BookSourceEntity {
     String? contentPaginationValidation,
     String? exploreJson,
   }) {
-    return BookSourceEntity()
+    return SourceEntity()
       ..id = id ?? this.id
       ..name = name ?? this.name
       ..url = url ?? this.url

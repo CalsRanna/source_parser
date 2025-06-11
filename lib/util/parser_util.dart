@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/database/book_source_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/model/book_source_entity.dart';
+import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/model/cover_entity.dart';
 import 'package:source_parser/model/parser_search_result_entity.dart';
 import 'package:source_parser/util/cache_network.dart';
@@ -90,7 +90,7 @@ class ParserUtil {
     port.listen((message) async {
       final network = message[0] as CachedNetwork;
       final duration = message[1] as Duration;
-      final bookSource = message[2] as BookSourceEntity;
+      final bookSource = message[2] as SourceEntity;
       var credential = message[3] as String;
       final sender = message[4] as SendPort;
       try {

@@ -6,7 +6,7 @@ import 'package:source_parser/database/book_source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/information_entity.dart';
-import 'package:source_parser/model/book_source_entity.dart';
+import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_bottom_sheet.dart';
 import 'package:source_parser/router/router.gr.dart';
@@ -69,7 +69,7 @@ class BookshelfViewModel {
   }
 
   Future<List<ChapterEntity>> _getRemoteChapters(
-      BookEntity book, BookSourceEntity source) async {
+      BookEntity book, SourceEntity source) async {
     var network = CachedNetwork(prefix: book.name);
     var html = await network.request(book.catalogueUrl);
     final parser = HtmlParser();
