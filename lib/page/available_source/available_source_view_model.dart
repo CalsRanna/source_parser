@@ -27,7 +27,7 @@ class AvailableSourceViewModel {
     await for (var item in stream) {
       availableSources.value = [...availableSources.value, item];
     }
-    var isInShelf = await BookService().exist(book.id);
+    var isInShelf = await BookService().checkIsInShelf(book.id);
     if (!isInShelf) return;
     for (var availableSource in availableSources.value) {
       availableSource.bookId = book.id;

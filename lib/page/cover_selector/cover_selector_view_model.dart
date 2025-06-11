@@ -24,7 +24,7 @@ class CoverSelectorViewModel {
     await for (var cover in stream) {
       covers.value = [...covers.value, cover];
     }
-    var isInShelf = await BookService().exist(book.id);
+    var isInShelf = await BookService().checkIsInShelf(book.id);
     if (isInShelf) {
       for (var cover in covers.value) {
         var exist = await CoverService().exist(cover.url);

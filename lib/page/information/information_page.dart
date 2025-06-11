@@ -69,8 +69,11 @@ class _InformationPageState extends ConsumerState<InformationPage> {
   }
 
   SliverAppBar _buildAppBar() {
+    var metaView = Watch(
+      (_) => InformationMetaDataView(book: viewModel.book.value),
+    );
     var flexibleSpaceBar = FlexibleSpaceBar(
-      background: InformationMetaDataView(book: viewModel.book.value),
+      background: metaView,
       collapseMode: CollapseMode.pin,
     );
     return SliverAppBar(
@@ -82,6 +85,9 @@ class _InformationPageState extends ConsumerState<InformationPage> {
   }
 
   SliverList _buildList(BuildContext context) {
+    var introduction = Watch(
+      (_) => InformationDescriptionView(book: viewModel.book.value),
+    );
     var catalogue = Watch(
       (_) => InformationCatalogueView(
         book: viewModel.book.value,
@@ -97,14 +103,17 @@ class _InformationPageState extends ConsumerState<InformationPage> {
         onTap: () => viewModel.navigateAvailableSourcePage(context),
       ),
     );
+    var archive = Watch(
+      (_) => InformationArchiveView(isArchive: viewModel.book.value.archive),
+    );
     var children = [
-      InformationDescriptionView(book: viewModel.book.value),
+      introduction,
       const SizedBox(height: 8),
       catalogue,
       const SizedBox(height: 8),
       availableSource,
       const SizedBox(height: 8),
-      InformationArchiveView(isArchive: viewModel.book.value.archive),
+      archive
     ];
     return SliverList(delegate: SliverChildListDelegate(children));
   }

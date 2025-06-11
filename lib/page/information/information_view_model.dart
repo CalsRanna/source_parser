@@ -3,15 +3,15 @@ import 'package:get_it/get_it.dart';
 import 'package:signals/signals.dart';
 import 'package:source_parser/database/available_source_service.dart';
 import 'package:source_parser/database/book_service.dart';
-import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/database/cover_service.dart';
+import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/model/cover_entity.dart';
 import 'package:source_parser/model/information_entity.dart';
+import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/cache_network.dart';
@@ -57,15 +57,16 @@ class InformationViewModel {
   }
 
   Future<void> initSignals() async {
-    isInShelf.value = await BookService().exist(information.book.id);
+    var bookId = information.book.id;
+    isInShelf.value = await BookService().checkIsInShelf(bookId);
     if (isInShelf.value) {
-      var bookId = information.book.id;
       book.value = await BookService().getBook(bookId);
       availableSources.value =
           await AvailableSourceService().getAvailableSources(bookId);
       chapters.value = await ChapterService().getChapters(bookId);
       covers.value = await CoverService().getCovers(bookId);
-      source.value = await SourceService().getBookSource(bookId);
+      var sourceId = book.value.sourceId;
+      source.value = await SourceService().getBookSource(sourceId);
     } else {
       book.value = information.book;
       availableSources.value = information.availableSources;

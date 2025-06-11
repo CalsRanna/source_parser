@@ -7,15 +7,15 @@ class BookService {
     await laconic.table('books').insert([book.toJson()]);
   }
 
-  Future<void> destroyBook(int bookId) async {
+  Future<bool> checkIsInShelf(int id) async {
     var laconic = DatabaseService.instance.laconic;
-    await laconic.table('books').where('id', bookId).delete();
+    var count = await laconic.table('books').where('id', id).count();
+    return count > 0;
   }
 
-  Future<bool> exist(int bookId) async {
+  Future<void> destroyBook(int id) async {
     var laconic = DatabaseService.instance.laconic;
-    var count = await laconic.table('books').where('id', bookId).count();
-    return count > 0;
+    await laconic.table('books').where('id', id).delete();
   }
 
   Future<BookEntity> getBook(int id) async {
@@ -36,15 +36,15 @@ class BookService {
     return books.map((book) => BookEntity.fromJson(book.toMap())).toList();
   }
 
-  Future<void> updateIsInShelf(int bookId, bool isInShelf) async {
-    var laconic = DatabaseService.instance.laconic;
-    await laconic.table('books').where('id', bookId).update({
-      'is_in_shelf': isInShelf,
-    });
-  }
-
   Future<void> updateBook(BookEntity book) async {
     var laconic = DatabaseService.instance.laconic;
     await laconic.table('books').where('id', book.id).update(book.toJson());
+  }
+
+  Future<void> updateIsInShelf(int id, bool isInShelf) async {
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.table('books').where('id', id).update({
+      'is_in_shelf': isInShelf,
+    });
   }
 }

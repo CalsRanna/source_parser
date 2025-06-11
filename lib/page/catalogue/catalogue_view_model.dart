@@ -22,7 +22,7 @@ class CatalogueViewModel {
   }
 
   Future<void> initSignals() async {
-    var isInShelf = await BookService().exist(book.id);
+    var isInShelf = await BookService().checkIsInShelf(book.id);
     if (isInShelf) {
       chapters.value = await ChapterService().getChapters(book.id);
     }
