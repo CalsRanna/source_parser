@@ -94,7 +94,16 @@ class ReaderViewModel {
   }
 
   String getFooterText(int index) {
-    return '${index + 1}/${currentChapterPages.value.length}';
+    var totalPagesInChapter = currentChapterPages.value.length;
+    var totalChapters = chapters.value.length;
+    if (totalChapters == 0 || totalPagesInChapter == 0) {
+      return '${index + 1}/$totalPagesInChapter 0.00%';
+    }
+    var pageProgress = '${index + 1}/$totalPagesInChapter';
+    var progressInChapter = (index + 1) / totalPagesInChapter;
+    var progress = (chapterIndex.value + progressInChapter) / totalChapters;
+    var percent = (progress.clamp(0.0, 1.0) * 100).toStringAsFixed(2);
+    return '$pageProgress $percent%';
   }
 
   String getHeaderText(int index) {
