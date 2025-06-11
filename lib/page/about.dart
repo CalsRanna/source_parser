@@ -38,6 +38,7 @@ class _AboutPageState extends State<AboutPage> {
       Text('凤箫声动，玉壶光转，一夜鱼龙舞。', style: style),
       const SizedBox(height: 8, width: double.infinity),
       Text(version, style: style),
+      const SizedBox(height: 16, width: double.infinity),
     ];
     final column = Column(
       mainAxisAlignment: MainAxisAlignment.center,
