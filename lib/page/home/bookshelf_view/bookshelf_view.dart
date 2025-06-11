@@ -133,7 +133,7 @@ class _GridTile extends ConsumerWidget {
 
   String? _buildSubtitle() {
     final spans = <String>[];
-    final chapters = _calculateUnreadChapters();
+    final chapters = book.chapterCount - book.chapterIndex + 1;
     if (chapters > 0) {
       spans.add('$chapters章未读');
     } else if (chapters == 0) {
@@ -142,13 +142,6 @@ class _GridTile extends ConsumerWidget {
       spans.add('未找到章节');
     }
     return spans.isNotEmpty ? spans.join(' · ') : null;
-  }
-
-  int _calculateUnreadChapters() {
-    // final chapters = book.chapters.length;
-    // final current = book.index;
-    // return chapters - current - 1;
-    return 0;
   }
 }
 

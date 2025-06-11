@@ -4,6 +4,7 @@ class BookEntity {
   bool archive = false;
   String catalogueUrl = '';
   String category = '';
+  int chapterCount = 0;
   int chapterIndex = 0;
   String cover = '';
   String introduction = '';
@@ -25,6 +26,7 @@ class BookEntity {
       ..archive = json['archive'] == 1 ? true : false
       ..catalogueUrl = json['catalogue_url'] ?? ''
       ..category = json['category'] ?? ''
+      ..chapterCount = json['chapter_count'] ?? 0
       ..chapterIndex = json['chapter_index'] ?? 0
       ..cover = json['cover'] ?? ''
       ..introduction = json['introduction'] ?? ''
@@ -44,6 +46,7 @@ class BookEntity {
     bool? archive,
     String? catalogueUrl,
     String? category,
+    int? chapterCount,
     int? chapterIndex,
     String? cover,
     String? introduction,
@@ -62,6 +65,7 @@ class BookEntity {
       ..archive = archive ?? this.archive
       ..catalogueUrl = catalogueUrl ?? this.catalogueUrl
       ..category = category ?? this.category
+      ..chapterCount = chapterCount ?? this.chapterCount
       ..chapterIndex = chapterIndex ?? this.chapterIndex
       ..cover = cover ?? this.cover
       ..introduction = introduction ?? this.introduction
@@ -82,6 +86,7 @@ class BookEntity {
       'archive': archive ? 1 : 0,
       'catalogue_url': catalogueUrl,
       'category': category,
+      'chapter_count': chapterCount,
       'chapter_index': chapterIndex,
       'cover': cover,
       'introduction': introduction,

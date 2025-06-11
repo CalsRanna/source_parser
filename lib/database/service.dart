@@ -5,6 +5,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/database/migration/migration_202504241012.dart';
 import 'package:source_parser/database/migration/migration_202506041550.dart';
+import 'package:source_parser/database/migration/migration_202506111919.dart';
 import 'package:source_parser/util/logger.dart';
 
 class DatabaseService {
@@ -38,6 +39,7 @@ class DatabaseService {
     }
     await Migration202504241012().migrate();
     await Migration202506041550().migrate();
+    await Migration202506111919().migrate();
   }
 
   final migrationCreateSql = '''
