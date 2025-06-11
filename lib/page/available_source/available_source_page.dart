@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/available_source/available_source_view_model.dart';
 import 'package:source_parser/page/available_source/component/option_bottom_sheet.dart';
@@ -13,8 +14,13 @@ import 'package:source_parser/util/logger.dart';
 
 @RoutePage()
 class AvailableSourcePage extends StatefulWidget {
+  final List<AvailableSourceEntity>? availableSources;
   final BookEntity book;
-  const AvailableSourcePage({super.key, required this.book});
+  const AvailableSourcePage({
+    super.key,
+    this.availableSources,
+    required this.book,
+  });
 
   @override
   State<AvailableSourcePage> createState() => _AvailableSourcePageState();

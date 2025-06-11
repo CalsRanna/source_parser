@@ -91,8 +91,10 @@ class InformationViewModel {
   }
 
   Future<void> navigateAvailableSourcePage(BuildContext context) async {
-    var id =
-        await AvailableSourceRoute(book: information.book).push<int>(context);
+    var id = await AvailableSourceRoute(
+      availableSources: availableSources.value,
+      book: information.book,
+    ).push<int>(context);
     await refreshAvailableSources();
     if (id == null) return;
     var sourceId =

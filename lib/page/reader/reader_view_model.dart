@@ -9,6 +9,7 @@ import 'package:source_parser/database/available_source_service.dart';
 import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
+import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
@@ -26,6 +27,7 @@ import 'package:source_parser/view_model/source_parser_view_model.dart';
 class ReaderViewModel {
   final BookEntity book;
   final chapters = signal<List<ChapterEntity>>([]);
+  final availableSources = signal(<AvailableSourceEntity>[]);
   final previousChapterContent = signal('');
   final previousChapterPages = signal<List<String>>([]);
   final currentChapterContent = signal('');
@@ -116,10 +118,15 @@ class ReaderViewModel {
     showOverlay.value = false;
   }
 
+  Future<List<AvailableSourceEntity>> _initAvailableSources() async {
+    return await AvailableSourceService().getAvailableSources(book.id);
+  }
+
   Future<void> initSignals() async {
     theme.value = _initTheme();
     size.value = _initSize(theme.value);
     chapters.value = await _initChapters();
+    availableSources.value = await _initAvailableSources();
     source.value = await SourceService().getBookSource(book.sourceId);
     battery.value = await Battery().batteryLevel;
     if (chapters.value.isEmpty) {
@@ -133,7 +140,10 @@ class ReaderViewModel {
 
   Future<void> navigateAvailableSourcePage(BuildContext context) async {
     var copiedBook = book.copyWith(sourceId: source.value.id);
-    var id = await AvailableSourceRoute(book: copiedBook).push<int>(context);
+    var id = await AvailableSourceRoute(
+      availableSources: availableSources.value,
+      book: copiedBook,
+    ).push<int>(context);
     if (id == null) return;
     currentChapterContent.value = '';
     currentChapterPages.value = [];
