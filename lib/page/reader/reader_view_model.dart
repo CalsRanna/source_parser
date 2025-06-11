@@ -155,7 +155,10 @@ class ReaderViewModel {
 
   Future<void> navigateCataloguePage(BuildContext context) async {
     var currentState = book.copyWith(chapterIndex: chapterIndex.value);
-    var index = await CatalogueRoute(book: currentState).push<int>(context);
+    var index = await CatalogueRoute(
+      book: currentState,
+      chapters: chapters.value,
+    ).push<int>(context);
     if (index == null) return;
     chapterIndex.value = index;
     updatePageIndex(0);

@@ -16,8 +16,9 @@ import 'package:source_parser/util/message.dart';
 @RoutePage()
 class CataloguePage extends StatefulWidget {
   final BookEntity book;
+  final List<ChapterEntity>? chapters;
 
-  const CataloguePage({super.key, required this.book});
+  const CataloguePage({super.key, required this.book, this.chapters});
 
   @override
   State<CataloguePage> createState() => _CataloguePageState();
@@ -88,7 +89,7 @@ class _CataloguePageState extends State<CataloguePage> {
   @override
   void initState() {
     super.initState();
-    viewModel.initSignals();
+    viewModel.initSignals(chapters: widget.chapters);
     controller = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final height = MediaQuery.of(context).size.height;

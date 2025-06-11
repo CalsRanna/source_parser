@@ -21,10 +21,14 @@ class CatalogueViewModel {
     return CachedNetwork(prefix: book.name).check(chapter.url);
   }
 
-  Future<void> initSignals() async {
+  Future<void> initSignals({List<ChapterEntity>? chapters}) async {
+    if (chapters != null) {
+      this.chapters.value = chapters;
+      return;
+    }
     var isInShelf = await BookService().checkIsInShelf(book.id);
     if (isInShelf) {
-      chapters.value = await ChapterService().getChapters(book.id);
+      this.chapters.value = await ChapterService().getChapters(book.id);
     }
   }
 
