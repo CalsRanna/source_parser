@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/database/service.dart';
 import 'package:source_parser/page/theme/color_picker.dart';
 import 'package:source_parser/router/router.gr.dart';
+import 'package:source_parser/util/message.dart';
 import 'package:source_parser/view_model/source_parser_view_model.dart';
 
 class ProfileView extends StatelessWidget {
@@ -53,6 +55,11 @@ class ProfileView extends StatelessWidget {
       onTap: () => handleTap(context, const SimpleCloudReaderRoute()),
       title: '云阅读',
     );
+    var database = _SettingTile(
+      icon: HugeIcons.strokeRoundedDatabaseSetting,
+      onTap: () => cleanDatabase(context),
+      title: '清理数据库',
+    );
     var setting = _SettingTile(
       icon: HugeIcons.strokeRoundedSettings01,
       onTap: () => handleTap(context, const SettingRoute()),
@@ -76,6 +83,7 @@ class ProfileView extends StatelessWidget {
       fileManager,
       cloudReader,
       simpleCloudReader,
+      database,
       setting,
       about,
       if (kDebugMode) color,
@@ -84,19 +92,35 @@ class ProfileView extends StatelessWidget {
     return Scaffold(appBar: appBar, body: listView);
   }
 
-  void navigateColor(BuildContext context) {
-    ColorPicker.pick(context);
+  Future<void> cleanDatabase(BuildContext context) async {
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.table('book_sources').where('id', 0).delete();
+    await laconic.table('books').where('id', 0).delete();
+    // await laconic.table('books').where('source_id', 0).delete();
+    await laconic.table('chapters').where('id', 0).delete();
+    await laconic.table('chapters').where('book_id', 0).delete();
+    await laconic.table('covers').where('id', 0).delete();
+    await laconic.table('covers').where('book_id', 0).delete();
+    await laconic.table('available_sources').where('id', 0).delete();
+    await laconic.table('available_sources').where('book_id', 0).delete();
+    await laconic.table('available_sources').where('source_id', 0).delete();
+    if (!context.mounted) return;
+    Message.of(context).show('数据库清理完成');
   }
 
   void handleTap(BuildContext context, PageRouteInfo route) {
     AutoRouter.of(context).push(route);
   }
+
+  void navigateColor(BuildContext context) {
+    ColorPicker.pick(context);
+  }
 }
 
 class _DarkModeToggler extends StatelessWidget {
-  _DarkModeToggler();
-
   final viewModel = GetIt.instance<SourceParserViewModel>();
+
+  _DarkModeToggler();
 
   @override
   Widget build(BuildContext context) {
