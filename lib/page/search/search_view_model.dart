@@ -6,7 +6,7 @@ import 'package:charset/charset.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:signals/signals.dart';
-import 'package:source_parser/database/book_source_service.dart';
+import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/information_entity.dart';
@@ -153,7 +153,7 @@ class SearchViewModel {
     Duration duration,
     Duration timeout,
   ) async* {
-    final sources = await BookSourceService().getEnabledBookSources();
+    final sources = await SourceService().getEnabledBookSources();
     final directory = await getTemporaryDirectory();
     final network = CachedNetwork(
       temporaryDirectory: directory,

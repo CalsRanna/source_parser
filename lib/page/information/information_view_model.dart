@@ -3,7 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:signals/signals.dart';
 import 'package:source_parser/database/available_source_service.dart';
 import 'package:source_parser/database/book_service.dart';
-import 'package:source_parser/database/book_source_service.dart';
+import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/database/cover_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
@@ -66,8 +66,7 @@ class InformationViewModel {
       currentSource.value = information.availableSources.first;
     }
     if (chapters.value.isEmpty) {
-      var source =
-          await BookSourceService().getBookSource(currentSource.value.id);
+      var source = await SourceService().getBookSource(currentSource.value.id);
       chapters.value = await _getRemoteChapters(information.book, source);
     }
   }

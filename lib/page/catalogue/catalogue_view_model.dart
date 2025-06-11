@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals.dart';
 import 'package:source_parser/database/book_service.dart';
-import 'package:source_parser/database/book_source_service.dart';
+import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
@@ -37,7 +37,7 @@ class CatalogueViewModel {
   }
 
   Future<void> refreshChapters() async {
-    var bookSource = await BookSourceService().getBookSource(book.sourceId);
+    var bookSource = await SourceService().getBookSource(book.sourceId);
     var source = Source.fromJson(bookSource.toJson());
     final cacheDuration = await SharedPreferenceUtil.getCacheDuration();
     final timeout = await SharedPreferenceUtil.getTimeout();

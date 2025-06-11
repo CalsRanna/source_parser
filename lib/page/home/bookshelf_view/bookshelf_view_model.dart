@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:signals/signals.dart';
 import 'package:source_parser/database/book_service.dart';
-import 'package:source_parser/database/book_source_service.dart';
+import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/information_entity.dart';
@@ -42,7 +42,7 @@ class BookshelfViewModel {
     try {
       for (var book in books.value) {
         if (book.archive) continue;
-        final source = await BookSourceService().getBookSource(book.sourceId);
+        final source = await SourceService().getBookSource(book.sourceId);
         var chapters = await _getRemoteChapters(book, source);
         if (chapters.isEmpty) continue;
         var chapterServer = ChapterService();

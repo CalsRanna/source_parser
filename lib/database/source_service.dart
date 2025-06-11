@@ -1,7 +1,7 @@
 import 'package:source_parser/database/service.dart';
 import 'package:source_parser/model/source_entity.dart';
 
-class BookSourceService {
+class SourceService {
   Future<SourceEntity> getBookSource(int id) async {
     var laconic = DatabaseService.instance.laconic;
     var bookSource =

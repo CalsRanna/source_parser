@@ -4,7 +4,7 @@ import 'dart:isolate';
 
 import 'package:charset/charset.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:source_parser/database/book_source_service.dart';
+import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/source_entity.dart';
@@ -46,7 +46,7 @@ class ParserUtil {
     var timeout = Duration(milliseconds: storedTimeout);
     var storedMaxConcurrent = await SharedPreferenceUtil.getMaxConcurrent();
     var maxConcurrent = storedMaxConcurrent.floor();
-    final bookSources = await BookSourceService().getEnabledBookSources();
+    final bookSources = await SourceService().getEnabledBookSources();
     final directory = await getTemporaryDirectory();
     final network = CachedNetwork(
       temporaryDirectory: directory,

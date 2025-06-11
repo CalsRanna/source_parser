@@ -7,7 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/database/available_source_service.dart';
 import 'package:source_parser/database/book_service.dart';
-import 'package:source_parser/database/book_source_service.dart';
+import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/source_entity.dart';
@@ -120,7 +120,7 @@ class ReaderViewModel {
     theme.value = _initTheme();
     size.value = _initSize(theme.value);
     chapters.value = await _initChapters();
-    source.value = await BookSourceService().getBookSource(book.sourceId);
+    source.value = await SourceService().getBookSource(book.sourceId);
     battery.value = await Battery().batteryLevel;
     if (chapters.value.isEmpty) {
       error.value = '没有找到章节';
@@ -139,7 +139,7 @@ class ReaderViewModel {
     currentChapterPages.value = [];
     var availableSource = await AvailableSourceService().getAvailableSource(id);
     source.value =
-        await BookSourceService().getBookSource(availableSource.sourceId);
+        await SourceService().getBookSource(availableSource.sourceId);
     chapters.value = await _getRemoteChapters();
     if (chapters.value.isEmpty) {
       error.value = '没有找到章节';
