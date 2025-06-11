@@ -8,7 +8,7 @@ import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/database/cover_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/model/book_information_wrapper_entity.dart';
+import 'package:source_parser/model/information_wrapper_entity.dart';
 import 'package:source_parser/model/book_source_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/model/cover_entity.dart';
@@ -20,7 +20,7 @@ import 'package:source_parser/util/logger.dart';
 import 'package:source_parser/util/parser_util.dart';
 
 class InformationViewModel {
-  final BookInformationWrapperEntity information;
+  final InformationWrapperEntity information;
   final availableSources = signal(<AvailableSourceEntity>[]);
   final chapters = signal(<ChapterEntity>[]);
   final covers = signal(<CoverEntity>[]);

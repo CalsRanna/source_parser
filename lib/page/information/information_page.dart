@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:source_parser/model/book_information_wrapper_entity.dart';
+import 'package:source_parser/model/information_wrapper_entity.dart';
 import 'package:source_parser/page/information/information_archive_view.dart';
 import 'package:source_parser/page/information/information_available_source_view.dart';
 import 'package:source_parser/page/information/information_bottom_view.dart';
@@ -17,7 +17,7 @@ import 'package:source_parser/util/message.dart';
 
 @RoutePage()
 class InformationPage extends ConsumerStatefulWidget {
-  final BookInformationWrapperEntity information;
+  final InformationWrapperEntity information;
   const InformationPage({super.key, required this.information});
 
   @override

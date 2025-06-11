@@ -9,7 +9,7 @@ import 'package:signals/signals.dart';
 import 'package:source_parser/database/book_source_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/model/book_information_wrapper_entity.dart';
+import 'package:source_parser/model/information_wrapper_entity.dart';
 import 'package:source_parser/model/book_source_entity.dart';
 import 'package:source_parser/model/cover_entity.dart';
 import 'package:source_parser/model/search_result_entity.dart';
@@ -51,7 +51,7 @@ class SearchViewModel {
   void navigateInformationPage(
       BuildContext context, SearchResultEntity result) {
     removeCurrentMaterialBanner(context);
-    var information = BookInformationWrapperEntity(
+    var information = InformationWrapperEntity(
       book: result.book,
       chapters: [],
       availableSources: result.availableSources,
