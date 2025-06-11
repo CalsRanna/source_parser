@@ -16,6 +16,11 @@ class SharedPreferenceUtil {
     return instance.getBool('dark_mode') ?? false;
   }
 
+  static Future<bool> getDeveloperMode() async {
+    var instance = await SharedPreferences.getInstance();
+    return instance.getBool('developer_mode') ?? false;
+  }
+
   static Future<bool> getEInkMode() async {
     var instance = await SharedPreferences.getInstance();
     return instance.getBool('e_ink_mode') ?? false;
@@ -59,6 +64,11 @@ class SharedPreferenceUtil {
   static Future<void> setDarkMode(bool darkMode) async {
     var instance = await SharedPreferences.getInstance();
     await instance.setBool('dark_mode', darkMode);
+  }
+
+  static Future<void> setDeveloperMode(bool enable) async {
+    var instance = await SharedPreferences.getInstance();
+    await instance.setBool('developer_mode', enable);
   }
 
   static Future<void> setEInkMode(bool eInkMode) async {
