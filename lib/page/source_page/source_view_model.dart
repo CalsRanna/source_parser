@@ -55,64 +55,8 @@ class SourceViewModel {
     );
   }
 
-  void _confirm(BuildContext context, {bool override = false}) async {
-    final router = Navigator.of(context);
-    await _confirmImport(override);
-    router.pop();
-  }
-
-  Future<void> _confirmImport(bool override) async {
-    if (override) {
-      for (var oldSource in oldSources.value) {
-        var source = await SourceService()
-            .getSourceByNameAndUrl(oldSource.name, oldSource.url);
-        await SourceService().updateSource(oldSource.copyWith(id: source.id));
-      }
-    }
-    await SourceService().addSources(newSources.value);
-    initSignals();
-  }
-
-  void _confirmImporting(
-    BuildContext context,
-    String value, {
-    String from = 'local',
-  }) async {
-    final router = Navigator.of(context);
-    if (from == 'network') {
-      router.pop();
-    }
-    showDialog(
-      barrierDismissible: false,
-      builder: (context) => SourceImportLoadingDialog(),
-      context: context,
-    );
-    final message = Message.of(context);
-    try {
-      await _getSources(from: from, value: value);
-      router.pop();
-      if (oldSources.value.isNotEmpty) {
-        var sourceImportAlertDialog = SourceImportAlertDialog(
-          message: '发现${oldSources.value.length}个同名书源书源',
-          onConfirm: (override) => _confirm(context, override: true),
-        );
-        if (!context.mounted) return;
-        showDialog(
-          builder: (_) => sourceImportAlertDialog,
-          context: context,
-        );
-      } else {
-        await _confirmImport(false);
-      }
-    } catch (error) {
-      router.pop();
-      message.show(error.toString());
-    }
-  }
-
   void _exportSource(BuildContext context) async {
-    final router = Navigator.of(context);
-    router.pop();
+    Navigator.of(context).pop();
     final json = sources.value.map((source) {
       final string = source.toJson();
       string.remove('id');
@@ -134,32 +78,66 @@ class SourceViewModel {
     }
   }
 
-  Future<void> _getSources({
-    String from = 'network',
-    required String value,
+  void _getSourceContent(
+    BuildContext context,
+    String value, {
+    String from = 'local',
   }) async {
-    final timeout = Duration(milliseconds: 30000);
-    List<SourceEntity> sources = [];
+    final router = Navigator.of(context);
     if (from == 'network') {
-      sources = await Parser.importNetworkSource(value, timeout);
-    } else {
-      sources = await Parser.importLocalSource(value);
+      router.pop();
     }
-    List<SourceEntity> newSources = [];
-    List<SourceEntity> oldSources = [];
-    for (var source in sources) {
-      if (sources.where((element) {
-        final hasSameName = element.name == source.name;
-        final hasSameUrl = element.url == source.url;
-        return hasSameName && hasSameUrl;
-      }).isNotEmpty) {
-        oldSources.add(source);
+    showDialog(
+      barrierDismissible: false,
+      builder: (context) => SourceImportLoadingDialog(),
+      context: context,
+    );
+    final message = Message.of(context);
+    try {
+      final timeout = Duration(milliseconds: 30000);
+      List<SourceEntity> sources = [];
+      if (from == 'network') {
+        sources = await Parser.importNetworkSource(value, timeout);
       } else {
-        newSources.add(source);
+        sources = await Parser.importLocalSource(value);
       }
+      List<SourceEntity> newSources = [];
+      List<SourceEntity> oldSources = [];
+      for (var source in sources) {
+        if (sources.where((element) {
+          final hasSameName = element.name == source.name;
+          final hasSameUrl = element.url == source.url;
+          return hasSameName && hasSameUrl;
+        }).isNotEmpty) {
+          oldSources.add(source);
+        } else {
+          newSources.add(source);
+        }
+      }
+      this.newSources.value = newSources;
+      this.oldSources.value = oldSources;
+      router.pop();
+      if (oldSources.isNotEmpty) {
+        var sourceImportAlertDialog = SourceImportAlertDialog(
+          message: '发现${oldSources.length}个同名书源书源',
+          onConfirm: (override) async {
+            final router = Navigator.of(context);
+            await _importSources(override);
+            router.pop();
+          },
+        );
+        if (!context.mounted) return;
+        showDialog(
+          builder: (_) => sourceImportAlertDialog,
+          context: context,
+        );
+      } else {
+        await _importSources(false);
+      }
+    } catch (error) {
+      router.pop();
+      message.show(error.toString());
     }
-    this.newSources.value = newSources;
-    this.oldSources.value = oldSources;
   }
 
   void _importLocalSource(BuildContext context) async {
@@ -168,7 +146,7 @@ class SourceViewModel {
       final file = File(result.files.single.path!);
       final content = await file.readAsString();
       if (!context.mounted) return;
-      _confirmImporting(context, content, from: 'local');
+      _getSourceContent(context, content, from: 'local');
     }
     if (!context.mounted) return;
     Navigator.of(context).pop();
@@ -177,7 +155,7 @@ class SourceViewModel {
   void _importNetworkSource(BuildContext context) async {
     Navigator.of(context).pop();
     var sourceImportBottomSheet = SourceImportBottomSheet(
-      onConfirm: (value) => _confirmImporting(context, value, from: 'network'),
+      onConfirm: (value) => _getSourceContent(context, value, from: 'network'),
     );
     showModalBottomSheet(
       showDragHandle: true,
@@ -185,6 +163,18 @@ class SourceViewModel {
       context: context,
     );
     // router.pop();
+  }
+
+  Future<void> _importSources(bool override) async {
+    if (override) {
+      for (var oldSource in oldSources.value) {
+        var source = await SourceService()
+            .getSourceByNameAndUrl(oldSource.name, oldSource.url);
+        await SourceService().updateSource(oldSource.copyWith(id: source.id));
+      }
+    }
+    await SourceService().addSources(newSources.value);
+    initSignals();
   }
 
   Future<Stream<int>> _validate() async {
