@@ -17,7 +17,8 @@ import 'package:source_parser/model/information_entity.dart' as _i34;
 import 'package:source_parser/page/about.dart' as _i1;
 import 'package:source_parser/page/available_source/available_source_page.dart'
     as _i3;
-import 'package:source_parser/page/available_source/form.dart' as _i2;
+import 'package:source_parser/page/available_source/available_source_form_page.dart'
+    as _i2;
 import 'package:source_parser/page/book/form.dart' as _i4;
 import 'package:source_parser/page/catalogue/catalogue_page.dart' as _i5;
 import 'package:source_parser/page/cloud_reader/cloud_reader.dart' as _i6;

@@ -4,6 +4,7 @@ import 'package:source_parser/database/available_source_service.dart';
 import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/parser_util.dart';
 
 class AvailableSourceViewModel {
@@ -40,7 +41,11 @@ class AvailableSourceViewModel {
     }
   }
 
-  Future<void> navigateAvailableSourceFormPage(BuildContext context) async {}
+  Future<void> navigateAvailableSourceFormPage(BuildContext context) async {
+    var result = await AvailableSourceFormRoute().push<String?>(context);
+    if (result == null) return;
+    if (result.isEmpty) return;
+  }
 
   Future<void> updateAvailableSource(BuildContext context, int index) async {
     var availableSource = availableSources.value[index];
