@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:lpinyin/lpinyin.dart';
 import 'package:signals/signals.dart';
 import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/database/source_service.dart';
@@ -21,6 +22,11 @@ class BookshelfViewModel {
 
   Future<void> initSignals() async {
     books.value = await BookService().getBooks();
+    books.value.sort((a, b) {
+      final pinyinA = PinyinHelper.getPinyin(a.name);
+      final pinyinB = PinyinHelper.getPinyin(b.name);
+      return pinyinA.compareTo(pinyinB);
+    });
     FlutterNativeSplash.remove();
   }
 
@@ -52,6 +58,11 @@ class BookshelfViewModel {
         await chapterServer.addChapters(chapters);
       }
       books.value = await BookService().getBooks();
+      books.value.sort((a, b) {
+        final pinyinA = PinyinHelper.getPinyin(a.name);
+        final pinyinB = PinyinHelper.getPinyin(b.name);
+        return pinyinA.compareTo(pinyinB);
+      });
     } catch (error) {
       logger.e(error);
       if (!context.mounted) return;
@@ -63,11 +74,21 @@ class BookshelfViewModel {
     var updatedBook = book.copyWith(archive: !book.archive);
     await BookService().updateBook(updatedBook);
     books.value = await BookService().getBooks();
+    books.value.sort((a, b) {
+      final pinyinA = PinyinHelper.getPinyin(a.name);
+      final pinyinB = PinyinHelper.getPinyin(b.name);
+      return pinyinA.compareTo(pinyinB);
+    });
   }
 
   Future<void> _destroyBook(BookEntity book) async {
     await BookService().destroyBook(book.id);
     books.value = await BookService().getBooks();
+    books.value.sort((a, b) {
+      final pinyinA = PinyinHelper.getPinyin(a.name);
+      final pinyinB = PinyinHelper.getPinyin(b.name);
+      return pinyinA.compareTo(pinyinB);
+    });
   }
 
   Future<List<ChapterEntity>> _getRemoteChapters(
