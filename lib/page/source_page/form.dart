@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/provider/source.dart';
-import 'package:source_parser/page/source/component/debug_button.dart';
+import 'package:source_parser/page/source_page/component/debug_button.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/message.dart';
-import 'package:source_parser/page/source/component/rule_group_label.dart';
-import 'package:source_parser/page/source/component/rule_tile.dart';
+import 'package:source_parser/page/source_page/component/rule_group_label.dart';
+import 'package:source_parser/page/source_page/component/rule_tile.dart';
 
 @RoutePage()
 class SourceFormPage extends StatelessWidget {

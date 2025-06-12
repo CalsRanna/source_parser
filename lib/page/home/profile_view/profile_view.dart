@@ -49,7 +49,7 @@ class _ProfileViewState extends State<ProfileView> {
     var listView = Watch((_) {
       var source = _SettingTile(
         icon: HugeIcons.strokeRoundedSourceCodeCircle,
-        onTap: () => handleTap(context, const SourceListRoute()),
+        onTap: () => handleTap(context, const SourceRoute()),
         title: '书源管理',
       );
       var theme = _SettingTile(

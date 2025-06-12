@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/util/string_extension.dart';
-import 'package:source_parser/page/source/rule_input.dart';
+import 'package:source_parser/page/source_page/rule_input.dart';
 
 class RuleTile extends StatelessWidget {
   final bool? bordered;

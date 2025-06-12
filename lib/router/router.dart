@@ -14,7 +14,7 @@ class AppRouter extends RootStackRouter {
       AutoRoute(page: HomeRoute.page, initial: true),
       AutoRoute(page: BookFormRoute.page),
       AutoRoute(page: InformationRoute.page),
-      AutoRoute(page: SourceListRoute.page),
+      AutoRoute(page: SourceRoute.page),
       AutoRoute(page: ReaderThemeRoute.page),
       AutoRoute(page: SettingRoute.page),
       AutoRoute(page: DeveloperRoute.page),

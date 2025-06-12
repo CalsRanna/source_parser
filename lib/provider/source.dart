@@ -26,35 +26,6 @@ class Sources extends _$Sources {
     return sources;
   }
 
-  Future<(List<Source>, List<Source>)> importSources({
-    String from = 'network',
-    required String value,
-  }) async {
-    final setting = await ref.read(settingNotifierProvider.future);
-    final timeout = Duration(milliseconds: setting.timeout);
-    List<Source> sources = [];
-    if (from == 'network') {
-      sources = await Parser.importNetworkSource(value, timeout);
-    } else {
-      sources = await Parser.importLocalSource(value);
-    }
-    final sourcesInDatabase = await isar.sources.where().findAll();
-    List<Source> newSources = [];
-    List<Source> oldSources = [];
-    for (var source in sources) {
-      if (sourcesInDatabase.where((element) {
-        final hasSameName = element.name == source.name;
-        final hasSameUrl = element.url == source.url;
-        return hasSameName && hasSameUrl;
-      }).isNotEmpty) {
-        oldSources.add(source);
-      } else {
-        newSources.add(source);
-      }
-    }
-    return (newSources, oldSources);
-  }
-
   Future<void> confirmImport(
     List<Source> newSources,
     List<Source> oldSources, {

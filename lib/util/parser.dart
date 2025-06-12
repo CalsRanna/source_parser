@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/model/explore.dart';
+import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/schema/available_source.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
@@ -236,11 +237,11 @@ class Parser {
     }
   }
 
-  static Future<List<Source>> importLocalSource(String value) async {
+  static Future<List<SourceEntity>> importLocalSource(String value) async {
     return _importSource(value);
   }
 
-  static Future<List<Source>> importNetworkSource(
+  static Future<List<SourceEntity>> importNetworkSource(
       String url, Duration timeout) async {
     final network = CachedNetwork(timeout: timeout);
     final html = await network.request(url, reacquire: true);
@@ -675,15 +676,15 @@ class Parser {
     });
   }
 
-  static List<Source> _importSource(String text) {
+  static List<SourceEntity> _importSource(String text) {
     final json = jsonDecode(text);
-    List<Source> sources = [];
+    List<SourceEntity> sources = [];
     if (json is List) {
       for (var element in json) {
-        sources.add(Source.fromJson(element));
+        sources.add(SourceEntity.fromJson(element));
       }
     } else {
-      sources.add(Source.fromJson(json));
+      sources.add(SourceEntity.fromJson(json));
     }
     return sources;
   }

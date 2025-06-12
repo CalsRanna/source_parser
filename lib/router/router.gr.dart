@@ -35,14 +35,14 @@ import 'package:source_parser/page/local_server/local_server.dart' as _i13;
 import 'package:source_parser/page/reader/reader_page.dart' as _i15;
 import 'package:source_parser/page/search/search_page.dart' as _i17;
 import 'package:source_parser/page/setting.dart' as _i18;
-import 'package:source_parser/page/source/advanced.dart' as _i20;
-import 'package:source_parser/page/source/catalogue.dart' as _i21;
-import 'package:source_parser/page/source/content.dart' as _i22;
-import 'package:source_parser/page/source/debugger.dart' as _i23;
-import 'package:source_parser/page/source/form.dart' as _i24;
-import 'package:source_parser/page/source/information.dart' as _i25;
-import 'package:source_parser/page/source/search.dart' as _i27;
-import 'package:source_parser/page/source/source.dart' as _i26;
+import 'package:source_parser/page/source_page/advanced.dart' as _i20;
+import 'package:source_parser/page/source_page/catalogue.dart' as _i21;
+import 'package:source_parser/page/source_page/content.dart' as _i22;
+import 'package:source_parser/page/source_page/debugger.dart' as _i23;
+import 'package:source_parser/page/source_page/form.dart' as _i24;
+import 'package:source_parser/page/source_page/information.dart' as _i25;
+import 'package:source_parser/page/source_page/search.dart' as _i27;
+import 'package:source_parser/page/source_page/source_page.dart' as _i26;
 import 'package:source_parser/page/theme/theme.dart' as _i16;
 import 'package:source_parser/page/theme/theme_editor.dart' as _i28;
 
@@ -727,20 +727,20 @@ class SourceInformationConfigurationRoute extends _i29.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i26.SourceListPage]
-class SourceListRoute extends _i29.PageRouteInfo<void> {
-  const SourceListRoute({List<_i29.PageRouteInfo>? children})
+/// [_i26.SourcePage]
+class SourceRoute extends _i29.PageRouteInfo<void> {
+  const SourceRoute({List<_i29.PageRouteInfo>? children})
       : super(
-          SourceListRoute.name,
+          SourceRoute.name,
           initialChildren: children,
         );
 
-  static const String name = 'SourceListRoute';
+  static const String name = 'SourceRoute';
 
   static _i29.PageInfo page = _i29.PageInfo(
     name,
     builder: (data) {
-      return const _i26.SourceListPage();
+      return const _i26.SourcePage();
     },
   );
 }
