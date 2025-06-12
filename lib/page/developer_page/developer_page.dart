@@ -33,7 +33,12 @@ class _DeveloperPageState extends State<DeveloperPage> {
       onTap: () => viewModel.navigateSimpleCloudReaderPage(context),
       title: '云阅读',
     );
-    var database = _Tile(
+    var localDatabase = _Tile(
+      icon: HugeIcons.strokeRoundedDatabase,
+      onTap: () => viewModel.navigateDatabasePage(context),
+      title: '本地数据库',
+    );
+    var cleanDatabase = _Tile(
       icon: HugeIcons.strokeRoundedDatabaseSetting,
       onTap: () => viewModel.cleanDatabase(context),
       title: '清理数据库',
@@ -48,7 +53,8 @@ class _DeveloperPageState extends State<DeveloperPage> {
       fileManager,
       cloudReader,
       simpleCloudReader,
-      database,
+      localDatabase,
+      cleanDatabase,
       color
     ];
     return Scaffold(

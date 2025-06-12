@@ -5,6 +5,7 @@ import 'package:source_parser/page/available_source/available_source_view_model.
 import 'package:source_parser/page/catalogue/catalogue_view_model.dart';
 import 'package:source_parser/page/cloud_reader/cloud_reader_view_model.dart';
 import 'package:source_parser/page/cover_selector/cover_selector_view_model.dart';
+import 'package:source_parser/page/database_page/database_view_model.dart';
 import 'package:source_parser/page/developer_page/developer_view_model.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/page/home/home_view_model.dart';
@@ -29,7 +30,7 @@ class Injector {
     injector.registerLazySingleton<ProfileViewModel>(
       () => ProfileViewModel(),
     );
-    injector.registerFactory(
+    injector.registerFactory<SearchViewModel>(
       () => SearchViewModel(),
     );
     injector
@@ -54,6 +55,9 @@ class Injector {
     );
     injector.registerLazySingleton<DeveloperViewModel>(
       () => DeveloperViewModel(),
+    );
+    injector.registerFactory<DatabaseViewModel>(
+      () => DatabaseViewModel(),
     );
   }
 }

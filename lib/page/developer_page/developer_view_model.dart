@@ -31,6 +31,10 @@ class DeveloperViewModel {
     Navigator.of(context).pop(false);
   }
 
+  void navigateDatabasePage(BuildContext context) {
+    DatabaseRoute().push(context);
+  }
+
   void navigateCloudReaderPage(BuildContext context) {
     CloudReaderRoute().push(context);
   }
