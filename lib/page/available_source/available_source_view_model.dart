@@ -8,43 +8,54 @@ import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/parser_util.dart';
 
 class AvailableSourceViewModel {
-  final BookEntity book;
-  AvailableSourceViewModel({required this.book});
-
   var availableSources = signal(<AvailableSourceEntity>[]);
+  final _book = signal(BookEntity());
 
-  Future<void> initSignals() async {
-    availableSources.value =
-        await AvailableSourceService().getAvailableSources(book.id);
-    if (availableSources.value.isNotEmpty) return;
-    var stream = ParserUtil.instance.getAvailableSources(book);
-    await for (var availableSource in stream) {
-      availableSources.value = [...availableSources.value, availableSource];
-    }
+  bool checkIsActive(int index) {
+    return availableSources.value[index].id == _book.value.sourceId;
   }
 
-  Future<void> refreshAvailableSources() async {
-    var stream = ParserUtil.instance.getAvailableSources(book);
-    await for (var item in stream) {
-      availableSources.value = [...availableSources.value, item];
-    }
-    var isInShelf = await BookService().checkIsInShelf(book.id);
-    if (!isInShelf) return;
-    for (var availableSource in availableSources.value) {
-      availableSource.bookId = book.id;
-      var exist = await AvailableSourceService().exist(availableSource.url);
-      if (!exist) {
-        await AvailableSourceService().addAvailableSource(availableSource);
-      } else {
-        await AvailableSourceService().updateAvailableSource(availableSource);
-      }
-    }
+  Future<void> initSignals(BookEntity book) async {
+    _book.value = book;
+    availableSources.value = await AvailableSourceService().getAvailableSources(
+      _book.value.id,
+    );
   }
 
   Future<void> navigateAvailableSourceFormPage(BuildContext context) async {
     var result = await AvailableSourceFormRoute().push<String?>(context);
     if (result == null) return;
     if (result.isEmpty) return;
+  }
+
+  Future<void> refreshAvailableSources() async {
+    var isInShelf = await BookService().checkIsInShelf(_book.value.id);
+    var stream = ParserUtil.instance.getAvailableSources(_book.value);
+    var updatedSources = List<AvailableSourceEntity>.from(
+      availableSources.value,
+    );
+    await for (var item in stream) {
+      item.bookId = _book.value.id;
+      var existingIndex = updatedSources.indexWhere(
+        (source) => source.url == item.url,
+      );
+      if (existingIndex != -1) {
+        var existingId = updatedSources[existingIndex].id;
+        updatedSources[existingIndex] = item;
+        updatedSources[existingIndex].id = existingId;
+      } else {
+        updatedSources.add(item);
+      }
+    }
+    availableSources.value = [...updatedSources];
+    if (!isInShelf) return;
+    for (var availableSource in availableSources.value) {
+      if (availableSource.id == 0) {
+        await AvailableSourceService().addAvailableSource(availableSource);
+      } else {
+        await AvailableSourceService().updateAvailableSource(availableSource);
+      }
+    }
   }
 
   Future<void> updateAvailableSource(BuildContext context, int index) async {

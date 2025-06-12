@@ -10,7 +10,6 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/available_source/available_source_view_model.dart';
 import 'package:source_parser/page/available_source/component/option_bottom_sheet.dart';
 import 'package:source_parser/util/dialog_util.dart';
-import 'package:source_parser/util/logger.dart';
 
 @RoutePage()
 class AvailableSourcePage extends StatefulWidget {
@@ -27,14 +26,12 @@ class AvailableSourcePage extends StatefulWidget {
 }
 
 class _AvailableSourcePageState extends State<AvailableSourcePage> {
-  late final viewModel = GetIt.instance<AvailableSourceViewModel>(
-    param1: widget.book,
-  );
+  final viewModel = GetIt.instance<AvailableSourceViewModel>();
 
   @override
   void initState() {
     super.initState();
-    viewModel.initSignals();
+    viewModel.initSignals(widget.book);
   }
 
   @override
@@ -76,8 +73,7 @@ class _AvailableSourcePageState extends State<AvailableSourcePage> {
     var primary = colorScheme.primary;
     var latestChapter = viewModel.availableSources.value[index].latestChapter;
     if (latestChapter.isEmpty) latestChapter = '未知最新章节';
-    final active =
-        viewModel.availableSources.value[index].id == widget.book.sourceId;
+    final active = viewModel.checkIsActive(index);
     return Text(
       latestChapter,
       style: TextStyle(color: active ? primary : null),
@@ -90,15 +86,12 @@ class _AvailableSourcePageState extends State<AvailableSourcePage> {
     var primary = colorScheme.primary;
     var name = viewModel.availableSources.value[index].name;
     if (name.isEmpty) name = '未知书源';
-    final active =
-        viewModel.availableSources.value[index].id == widget.book.sourceId;
+    final active = viewModel.checkIsActive(index);
     return Text(name, style: TextStyle(color: active ? primary : null));
   }
 
   Widget _itemBuilder(int index) {
-    final active =
-        viewModel.availableSources.value[index].id == widget.book.sourceId;
-    logger.d('active: $active');
+    final active = viewModel.checkIsActive(index);
     return ListTile(
       onLongPress: openBottomSheet,
       onTap: () => switchSource(context, index),

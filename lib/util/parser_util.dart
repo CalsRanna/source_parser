@@ -159,10 +159,10 @@ class ParserUtil {
           }
           if (name.isNotEmpty) {
             var availableSourceEntity = AvailableSourceEntity();
-            availableSourceEntity.id = bookSource.id;
             availableSourceEntity.name = bookSource.name;
             availableSourceEntity.url = url;
             availableSourceEntity.latestChapter = latestChapter;
+            availableSourceEntity.sourceId = bookSource.id;
             var bookEntity = BookEntity();
             bookEntity.author = author;
             bookEntity.category = category;

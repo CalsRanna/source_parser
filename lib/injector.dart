@@ -35,9 +35,8 @@ class Injector {
     injector.registerFactoryParam<CatalogueViewModel, BookEntity, Object?>(
       (book, _) => CatalogueViewModel(book: book),
     );
-    injector
-        .registerFactoryParam<AvailableSourceViewModel, BookEntity, Object?>(
-      (book, _) => AvailableSourceViewModel(book: book),
+    injector.registerFactory<AvailableSourceViewModel>(
+      () => AvailableSourceViewModel(),
     );
     injector.registerFactoryParam<ReaderViewModel, BookEntity, Object?>(
       (book, _) => ReaderViewModel(book: book),
