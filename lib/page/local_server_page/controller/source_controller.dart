@@ -24,8 +24,12 @@ class LocalServerSourceController with LocalServerController {
   }
 
   Future<Response> show(Request request, String id) async {
-    final source = await SourceService().getBookSource(int.parse(id));
-    return response(source);
+    try {
+      final source = await SourceService().getBookSource(int.parse(id));
+      return response(source);
+    } catch (error) {
+      return response(null);
+    }
   }
 
   Future<Response> store(Request request) async {
@@ -37,11 +41,15 @@ class LocalServerSourceController with LocalServerController {
   }
 
   Future<Response> update(Request request, String id) async {
-    var source = await SourceService().getBookSource(int.parse(id));
-    final body = await request.readAsString();
-    final json = jsonDecode(body) as Map<String, dynamic>;
-    var updatedSource = source.updateWithJson(json);
-    await SourceService().updateSource(updatedSource);
-    return response(updatedSource);
+    try {
+      var source = await SourceService().getBookSource(int.parse(id));
+      final body = await request.readAsString();
+      final json = jsonDecode(body) as Map<String, dynamic>;
+      var updatedSource = source.updateWithJson(json);
+      await SourceService().updateSource(updatedSource);
+      return response(updatedSource);
+    } catch (error) {
+      return response({"message": error.toString()}, statusCode: 500);
+    }
   }
 }
