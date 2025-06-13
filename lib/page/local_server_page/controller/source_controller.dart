@@ -14,8 +14,15 @@ class LocalServerSourceController with LocalServerController {
   LocalServerSourceController._();
 
   Future<Response> destroy(Request request, String id) async {
-    await SourceService().destroySource(int.parse(id));
-    return response({}, statusCode: 204);
+    var service = SourceService();
+    try {
+      var count = await service.countSourceById(int.parse(id));
+      if (count == 0) return error('Source not found');
+      await service.destroySource(int.parse(id));
+      return response({}, statusCode: 204);
+    } catch (e) {
+      return error(e);
+    }
   }
 
   Future<Response> index(Request request) async {
@@ -25,19 +32,30 @@ class LocalServerSourceController with LocalServerController {
 
   Future<Response> show(Request request, String id) async {
     try {
+      var count = await SourceService().countSourceById(int.parse(id));
+      if (count == 0) return response(null);
       final source = await SourceService().getBookSource(int.parse(id));
       return response(source);
-    } catch (error) {
-      return response(null);
+    } catch (e) {
+      return error(e);
     }
   }
 
   Future<Response> store(Request request) async {
-    final body = await request.readAsString();
-    final json = jsonDecode(body) as Map<String, dynamic>;
-    final source = SourceEntity.fromJson(json);
-    await SourceService().addSources([source]);
-    return response(source, statusCode: 201);
+    try {
+      final body = await request.readAsString();
+      final json = jsonDecode(body) as Map<String, dynamic>;
+      var count = await SourceService().countSourceByNameAndUrl(
+        json['name'],
+        json['url'],
+      );
+      if (count > 0) return error('Source already exists');
+      final source = SourceEntity.fromJson(json);
+      await SourceService().addSources([source]);
+      return response(source, statusCode: 201);
+    } catch (e) {
+      return error(e);
+    }
   }
 
   Future<Response> update(Request request, String id) async {
@@ -48,8 +66,8 @@ class LocalServerSourceController with LocalServerController {
       var updatedSource = source.updateWithJson(json);
       await SourceService().updateSource(updatedSource);
       return response(updatedSource);
-    } catch (error) {
-      return response({"message": error.toString()}, statusCode: 500);
+    } catch (e) {
+      return error(e);
     }
   }
 }
