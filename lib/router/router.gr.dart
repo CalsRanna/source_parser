@@ -15,10 +15,10 @@ import 'package:source_parser/model/book_entity.dart' as _i32;
 import 'package:source_parser/model/chapter_entity.dart' as _i33;
 import 'package:source_parser/model/information_entity.dart' as _i34;
 import 'package:source_parser/page/about.dart' as _i1;
-import 'package:source_parser/page/available_source/available_source_page.dart'
-    as _i3;
 import 'package:source_parser/page/available_source/available_source_form_page.dart'
     as _i2;
+import 'package:source_parser/page/available_source/available_source_page.dart'
+    as _i3;
 import 'package:source_parser/page/book/form.dart' as _i4;
 import 'package:source_parser/page/catalogue/catalogue_page.dart' as _i5;
 import 'package:source_parser/page/cloud_reader/cloud_reader.dart' as _i6;
@@ -32,7 +32,8 @@ import 'package:source_parser/page/file_manager.dart' as _i10;
 import 'package:source_parser/page/home/home_page.dart' as _i11;
 import 'package:source_parser/page/information/information_page.dart' as _i12;
 import 'package:source_parser/page/layout.dart' as _i14;
-import 'package:source_parser/page/local_server/local_server.dart' as _i13;
+import 'package:source_parser/page/local_server_page/local_server_page.dart'
+    as _i13;
 import 'package:source_parser/page/reader/reader_page.dart' as _i15;
 import 'package:source_parser/page/search/search_page.dart' as _i17;
 import 'package:source_parser/page/setting.dart' as _i18;

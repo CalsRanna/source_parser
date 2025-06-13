@@ -2,6 +2,11 @@ import 'package:source_parser/database/service.dart';
 import 'package:source_parser/model/source_entity.dart';
 
 class SourceService {
+  Future<void> destroySource(int id) async {
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.table('book_sources').where('id', id).delete();
+  }
+
   Future<SourceEntity> getBookSource(int id) async {
     var laconic = DatabaseService.instance.laconic;
     var bookSource =
