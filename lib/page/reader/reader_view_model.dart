@@ -18,6 +18,7 @@ import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/color_extension.dart';
+import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/semaphore.dart';
@@ -145,22 +146,31 @@ class ReaderViewModel {
       book: copiedBook,
     ).push<int>(context);
     if (id == null) return;
-    currentChapterContent.value = '';
-    currentChapterPages.value = [];
+    DialogUtil.loading();
     var availableSource = await AvailableSourceService().getAvailableSource(id);
     source.value =
         await SourceService().getBookSource(availableSource.sourceId);
-    chapters.value = await _getRemoteChapters();
-    if (chapters.value.isEmpty) {
-      error.value = '没有找到章节';
+    var updatedChapters = await _getRemoteChapters();
+    if (updatedChapters.isEmpty) {
+      DialogUtil.dismiss();
+      if (!context.mounted) return;
+      Message.of(context).show('没有找到章节');
       return;
     }
+    chapters.value = updatedChapters;
+    currentChapterContent.value = '';
+    currentChapterPages.value = [];
     _loadCurrentChapter();
     _preloadPreviousChapter();
     _preloadNextChapter();
     await ChapterService().destroyChapters(book.id);
-    await ChapterService().addChapters(chapters.value);
-    await BookService().updateBook(book.copyWith(sourceId: id));
+    await ChapterService().addChapters(updatedChapters);
+    var updatedBook = book.copyWith(
+      sourceId: id,
+      chapterCount: updatedChapters.length,
+    );
+    await BookService().updateBook(updatedBook);
+    DialogUtil.dismiss();
   }
 
   Future<void> navigateCataloguePage(BuildContext context) async {
