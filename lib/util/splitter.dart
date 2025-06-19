@@ -7,7 +7,6 @@ import 'package:source_parser/util/string_extension.dart';
 /// The [Splitter] uses a binary search algorithm to find optimal page breaks while
 /// ensuring that each page:
 /// - Fits within the specified size constraints
-/// - Starts with actual content (no leading newlines except for the first page)
 /// - Is properly filled with newlines when it's the last page
 class Splitter {
   /// The size constraints for each page.
@@ -55,7 +54,7 @@ class Splitter {
   /// Each page is optimally filled while respecting the size constraints.
   ///
   /// The first page will be prefixed with a newline character to indicate it should
-  /// display the chapter title. Other pages will never start with a newline.
+  /// display the chapter title.
   ///
   /// Throws a [SplitterException] if splitting fails.
   List<String> split(String content) {
