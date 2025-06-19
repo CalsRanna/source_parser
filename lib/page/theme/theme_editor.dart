@@ -271,6 +271,7 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       theme: theme,
       headerText: '小说名称',
       contentText: contentText,
+      isFirstPage: true,
     );
     var children = [
       readerView,

@@ -109,6 +109,7 @@ class _ReaderPageState extends State<ReaderPage> {
           headerText: viewModel.getHeaderText(index),
           pageProgressText: viewModel.getFooterText(index),
           theme: viewModel.theme.value,
+          isFirstPage: index == 0,
         ),
       ),
       itemCount: viewModel.currentChapterPages.value.length,

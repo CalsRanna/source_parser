@@ -28,8 +28,7 @@ class Merger {
           wordSpacing: theme.contentWordSpacing,
         );
 
-  TextSpan merge(String pageContent) {
-    bool isFirstPage = pageContent.startsWith('\n');
+  TextSpan merge(String pageContent, {bool isFirstPage = false}) {
     if (isFirstPage) {
       pageContent = pageContent.substring(1); // Remove the marker
     }

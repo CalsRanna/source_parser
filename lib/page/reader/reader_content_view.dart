@@ -9,6 +9,7 @@ class ReaderContentView extends StatelessWidget {
   final String headerText;
   final String pageProgressText;
   final bool isLoading;
+  final bool isFirstPage;
   final schema.Theme theme;
   final String? errorText;
 
@@ -19,6 +20,7 @@ class ReaderContentView extends StatelessWidget {
     required this.theme,
     required this.headerText,
     required this.pageProgressText,
+    required this.isFirstPage,
   })  : isLoading = false,
         errorText = null;
 
@@ -30,6 +32,7 @@ class ReaderContentView extends StatelessWidget {
         headerText = '加载中',
         pageProgressText = '',
         isLoading = true,
+        isFirstPage = false,
         errorText = null;
 
   const ReaderContentView.error({
@@ -40,7 +43,8 @@ class ReaderContentView extends StatelessWidget {
         contentText = '',
         headerText = '加载失败',
         pageProgressText = '',
-        isLoading = false;
+        isLoading = false,
+        isFirstPage = false;
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +86,7 @@ class ReaderContentView extends StatelessWidget {
       content: contentText,
       theme: theme,
       isLoading: isLoading,
+      isFirstPage: isFirstPage,
       errorMessage: errorText,
     );
     var footer = _Footer(
@@ -148,12 +153,14 @@ class _Battery extends StatelessWidget {
 class _Content extends StatelessWidget {
   final String content;
   final schema.Theme theme;
+  final bool isFirstPage;
   final bool isLoading;
   final String? errorMessage;
 
   const _Content({
     required this.content,
     required this.theme,
+    required this.isFirstPage,
     required this.isLoading,
     this.errorMessage,
   });
@@ -185,7 +192,7 @@ class _Content extends StatelessWidget {
       color: theme.backgroundColor.toColor(),
       padding: _getPadding(),
       width: double.infinity,
-      child: RichText(text: merger.merge(content)),
+      child: RichText(text: merger.merge(content, isFirstPage: isFirstPage)),
     );
   }
 
