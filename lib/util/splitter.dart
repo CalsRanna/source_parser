@@ -65,7 +65,6 @@ class Splitter {
     bool isFirstPage = true;
     try {
       while (cursor < content.length) {
-        cursor = _skipLeadingNewlines(content, cursor, isFirstPage);
         if (cursor >= content.length) break;
         var end = _findEnd(content, cursor, isFirstPage);
         if (end <= cursor) break; // Prevent infinite loop
@@ -126,18 +125,6 @@ class Splitter {
       }
     }
     return lastGoodEnd;
-  }
-
-  /// Skips leading newlines for non-first pages.
-  ///
-  /// Returns the new cursor position after skipping newlines.
-  int _skipLeadingNewlines(String content, int cursor, bool isFirstPage) {
-    if (isFirstPage) return cursor;
-
-    while (cursor < content.length && content[cursor] == '\n') {
-      cursor++;
-    }
-    return cursor;
   }
 
   TextSpan _toElement(String paragraph) {
