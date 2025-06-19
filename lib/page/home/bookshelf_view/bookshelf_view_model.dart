@@ -56,6 +56,8 @@ class BookshelfViewModel {
         var chapterServer = ChapterService();
         await chapterServer.destroyChapters(book.id);
         await chapterServer.addChapters(chapters);
+        var updatedBook = book.copyWith(chapterCount: chapters.length);
+        await BookService().updateBook(updatedBook);
       }
       books.value = await BookService().getBooks();
       books.value.sort((a, b) {
