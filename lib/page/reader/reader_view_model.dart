@@ -74,7 +74,7 @@ class ReaderViewModel {
     downloadSucceed.value = 0;
     downloadFailed.value = 0;
     showCacheIndicator.value = true;
-    final startIndex = book.chapterIndex + 1;
+    final startIndex = chapterIndex.value + 1;
     final endIndex = min(
       startIndex + downloadAmount.value,
       chapters.value.length,
