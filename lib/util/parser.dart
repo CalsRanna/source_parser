@@ -16,6 +16,7 @@ import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
 import 'package:source_parser/util/semaphore.dart';
+import 'package:source_parser/util/shared_preference_util.dart';
 
 class Parser {
   static const debugCredential = '都市';
@@ -25,8 +26,11 @@ class Parser {
       '//div[@class="container-bg_lQ801"]/div/div[@class="category-wrap_iQLoo"]';
   static const url = 'https://top.baidu.com/board?tab=novel';
 
-  static Stream<DebugResultNew> debug(
-      Source source, Duration duration, Duration timeout) async* {
+  static Stream<DebugResultNew> debug(SourceEntity source) async* {
+    var hours = await SharedPreferenceUtil.getCacheDuration();
+    var duration = Duration(hours: hours);
+    var seconds = await SharedPreferenceUtil.getTimeout();
+    var timeout = Duration(seconds: seconds);
     final directory = await getTemporaryDirectory();
     final network = CachedNetwork(
       temporaryDirectory: directory,
@@ -368,7 +372,7 @@ class Parser {
       final network = message[0] as CachedNetwork;
       // var duration = message[1] as Duration;
       var credential = message[2] as String;
-      final source = message[3] as Source;
+      final source = message[3] as SourceEntity;
       final sender = message[4] as SendPort;
 
       final parser = HtmlParser();
@@ -791,7 +795,7 @@ class Parser {
 
 class ParserUtil {
   final CachedNetwork network;
-  final Source source;
+  final SourceEntity source;
   ParserUtil(this.network, this.source);
   String buildSearchUrl(String credential, {int page = 1}) {
     String url = source.searchUrl;

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:source_parser/model/debug.dart';
+import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/provider/book.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/schema/isar.dart';
@@ -136,14 +137,8 @@ class FormSource extends _$FormSource {
   }
 
   Future<Stream<DebugResultNew>> debug() async {
-    final setting = await ref.read(settingNotifierProvider.future);
-    final duration = setting.cacheDuration;
-    final timeout = setting.timeout;
-    final stream = Parser.debug(
-      state,
-      Duration(hours: duration.floor()),
-      Duration(milliseconds: timeout),
-    );
+    var source = SourceEntity.fromJson(state.toJson());
+    final stream = Parser.debug(source);
     return stream;
   }
 }
@@ -154,14 +149,7 @@ class SourceDebugger extends _$SourceDebugger {
   Future<Stream<List<DebugResultNew>>> build() async {
     final controller = StreamController<List<DebugResultNew>>();
     final source = ref.read(formSourceProvider);
-    final setting = await ref.read(settingNotifierProvider.future);
-    final duration = setting.cacheDuration;
-    final timeout = setting.timeout;
-    var stream = Parser.debug(
-      source,
-      Duration(hours: duration.floor()),
-      Duration(milliseconds: timeout),
-    );
+    var stream = Parser.debug(SourceEntity.fromJson(source.toJson()));
     List<DebugResultNew> results = [];
     stream.listen(
       (result) {
