@@ -99,7 +99,7 @@ class _ReaderPageState extends State<ReaderPage> {
       );
     }
     ScrollPhysics? physics;
-    if (viewModel.eInkMode.value) {
+    if (viewModel.eInkMode.value || viewModel.turningMode.value & 1 == 0) {
       physics = const NeverScrollableScrollPhysics();
     }
     return PageView.builder(

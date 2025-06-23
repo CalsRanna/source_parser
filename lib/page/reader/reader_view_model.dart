@@ -50,6 +50,7 @@ class ReaderViewModel {
   final source = Signal(SourceEntity());
   final error = signal('');
   final eInkMode = signal(false);
+  final turningMode = signal(0);
 
   late final progress = computed(() {
     if (downloadAmount.value == 0) return 0.0;
@@ -146,6 +147,7 @@ class ReaderViewModel {
     _preloadPreviousChapter();
     _preloadNextChapter();
     eInkMode.value = await SharedPreferenceUtil.getEInkMode();
+    turningMode.value = await SharedPreferenceUtil.getTurningMode();
   }
 
   Future<void> navigateAvailableSourcePage(BuildContext context) async {
@@ -299,17 +301,17 @@ class ReaderViewModel {
     final horizontalTapArea = details.globalPosition.dx / size.width;
     final verticalTapArea = details.globalPosition.dy / size.height;
     if (horizontalTapArea < 1 / 3) {
-      if (eInkMode.value) return;
+      if (eInkMode.value || turningMode.value & 2 == 0) return;
       previousPage();
     } else if (horizontalTapArea > 2 / 3) {
-      if (eInkMode.value) return;
+      if (eInkMode.value || turningMode.value & 2 == 0) return;
       nextPage();
     } else if (horizontalTapArea >= 1 / 3 && horizontalTapArea <= 2 / 3) {
       if (verticalTapArea > 3 / 4) {
-        if (eInkMode.value) return;
+        if (eInkMode.value || turningMode.value & 2 == 0) return;
         nextPage();
       } else if (verticalTapArea < 1 / 4) {
-        if (eInkMode.value) return;
+        if (eInkMode.value || turningMode.value & 2 == 0) return;
         previousPage();
       } else {
         showUiOverlays();
