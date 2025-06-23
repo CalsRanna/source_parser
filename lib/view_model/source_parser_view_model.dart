@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals.dart';
-import 'package:source_parser/main.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 import 'package:source_parser/util/string_extension.dart';
+
+class NoAnimationPageTransitionBuilder extends PageTransitionsBuilder {
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return child;
+  }
+}
 
 class SourceParserViewModel {
   var isDarkMode = signal(false);
