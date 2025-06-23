@@ -51,9 +51,9 @@ class SharedPreferenceUtil {
     return instance.getInt('turning_mode') ?? 3;
   }
 
-  static Future<void> setCacheDuration(double duration) async {
+  static Future<void> setCacheDuration(int duration) async {
     var instance = await SharedPreferences.getInstance();
-    await instance.setDouble('cache_duration', duration);
+    await instance.setInt('cache_duration', duration);
   }
 
   static Future<void> setColorSeed(String colorSeed) async {
@@ -76,9 +76,9 @@ class SharedPreferenceUtil {
     await instance.setBool('e_ink_mode', eInkMode);
   }
 
-  static Future<void> setMaxConcurrent(double maxConcurrent) async {
+  static Future<void> setMaxConcurrent(int maxConcurrent) async {
     var instance = await SharedPreferences.getInstance();
-    await instance.setDouble('max_concurrent', maxConcurrent);
+    await instance.setInt('max_concurrent', maxConcurrent);
   }
 
   static Future<void> setSearchFilter(bool searchFilter) async {
