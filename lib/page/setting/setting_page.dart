@@ -129,46 +129,6 @@ class _EInkModeTile extends ConsumerWidget {
   }
 }
 
-class _MaxConcurrent extends ConsumerWidget {
-  const _MaxConcurrent();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final maxConcurrent = setting?.maxConcurrent.floor() ?? 16;
-    return ListTile(
-      onTap: () => handleTap(context, ref),
-      subtitle: const Text('搜索书籍和缓存章节内容时，最大并发请求数量'),
-      title: const Text('最大线程数量'),
-      trailing: Text('$maxConcurrent线程'),
-    );
-  }
-
-  Future<void> dismissSheet(BuildContext context, int concurrent) async {
-    Navigator.of(context).pop(concurrent);
-  }
-
-  Future<void> handleTap(BuildContext context, WidgetRef ref) async {
-    final listView = ListView.builder(itemBuilder: _itemBuilder, itemCount: 4);
-    final concurrent = await showModalBottomSheet(
-      builder: (_) => listView,
-      context: context,
-      showDragHandle: true,
-    );
-    if (concurrent == null) return;
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.updateMaxConcurrent(concurrent.toDouble());
-  }
-
-  Widget _itemBuilder(BuildContext context, int index) {
-    final concurrent = (index + 1) * 4;
-    return ListTile(
-      title: Text('$concurrent线程', textAlign: TextAlign.center),
-      onTap: () => dismissSheet(context, concurrent),
-    );
-  }
-}
-
 class _SettingPageState extends State<SettingPage> {
   final viewModel = GetIt.instance.get<SettingViewModel>();
 
@@ -191,12 +151,21 @@ class _SettingPageState extends State<SettingPage> {
       _buildTurningMode(),
       _buildSearchFilter(),
       _buildTimeout(),
-      _MaxConcurrent(),
+      _buildMaxConcurrent(),
       _CacheDurationTile(),
       _EInkModeTile(),
       _ClearCacheTile(),
     ];
     return ListView(children: children);
+  }
+
+  Widget _buildMaxConcurrent() {
+    return ListTile(
+      onTap: () => viewModel.openMaxConcurrentBottomSheet(context),
+      subtitle: const Text('搜索书籍和缓存章节内容时，最大并发请求数量'),
+      title: const Text('最大线程数量'),
+      trailing: Text('${viewModel.maxConcurrent.value}线程'),
+    );
   }
 
   Widget _buildSearchFilter() {

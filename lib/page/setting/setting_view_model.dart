@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals.dart';
 import 'package:signals/signals_flutter.dart' hide signal;
+import 'package:source_parser/page/setting/setting_max_concurrent_bottom_sheet.dart';
 import 'package:source_parser/page/setting/setting_timeout_bottom_sheet.dart';
 import 'package:source_parser/page/setting/setting_turning_mode_bottom_sheet.dart';
 import 'package:source_parser/util/cache_network.dart';
@@ -32,6 +33,17 @@ class SettingViewModel {
       string = '${(total / 1024 / 1024).toStringAsFixed(2)} MB';
     }
     cacheSize.value = string;
+  }
+
+  Future<void> openMaxConcurrentBottomSheet(BuildContext context) async {
+    final concurrent = await showModalBottomSheet(
+      builder: (_) => SettingMaxConcurrentBottomSheet(),
+      context: context,
+      showDragHandle: true,
+    );
+    if (concurrent == null) return;
+    maxConcurrent.value = concurrent;
+    await SharedPreferenceUtil.setMaxConcurrent(concurrent);
   }
 
   Future<void> openTimeoutBottomSheet(BuildContext context) async {
