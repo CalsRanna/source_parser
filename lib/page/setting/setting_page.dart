@@ -18,49 +18,6 @@ class SettingPage extends StatefulWidget {
   State<SettingPage> createState() => _SettingPageState();
 }
 
-class _SettingPageState extends State<SettingPage> {
-  final viewModel = GetIt.instance.get<SettingViewModel>();
-
-  @override
-  void initState() {
-    super.initState();
-    viewModel.initSignals();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('设置')),
-      body: Watch((_) => _buildBody()),
-    );
-  }
-
-  Widget _buildBody() {
-    final children = [
-      _buildTurningMode(),
-      _SearchFilterTile(),
-      _TimeoutTile(),
-      _MaxConcurrent(),
-      _CacheDurationTile(),
-      _EInkModeTile(),
-      _ClearCacheTile(),
-    ];
-    return ListView(children: children);
-  }
-
-  Widget _buildTurningMode() {
-    List<String> modes = [];
-    if (viewModel.turningMode.value & 1 == 1) modes.add('滑动翻页');
-    if (viewModel.turningMode.value & 2 == 2) modes.add('点击翻页');
-    return ListTile(
-      onTap: () => viewModel.openTurningModeBottomSheet(context),
-      title: const Text('翻页方式'),
-      subtitle: const Text('阅读器的翻页方式'),
-      trailing: Text(modes.join('，')),
-    );
-  }
-}
-
 class _CacheDurationTile extends ConsumerWidget {
   const _CacheDurationTile();
 
@@ -212,24 +169,55 @@ class _MaxConcurrent extends ConsumerWidget {
   }
 }
 
-class _SearchFilterTile extends ConsumerWidget {
-  const _SearchFilterTile();
+class _SettingPageState extends State<SettingPage> {
+  final viewModel = GetIt.instance.get<SettingViewModel>();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final searchFilter = setting?.searchFilter ?? false;
-    return SwitchListTile(
-      subtitle: const Text('过滤书名或作者不包含关键字的搜索结果'),
-      title: const Text('搜索过滤'),
-      value: searchFilter,
-      onChanged: (value) => updateSearchFilter(ref, value),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('设置')),
+      body: Watch((_) => _buildBody()),
     );
   }
 
-  Future<void> updateSearchFilter(WidgetRef ref, bool value) async {
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.updateSearchFilter(value);
+  @override
+  void initState() {
+    super.initState();
+    viewModel.initSignals();
+  }
+
+  Widget _buildBody() {
+    final children = [
+      _buildTurningMode(),
+      _buildSearchFilter(),
+      _TimeoutTile(),
+      _MaxConcurrent(),
+      _CacheDurationTile(),
+      _EInkModeTile(),
+      _ClearCacheTile(),
+    ];
+    return ListView(children: children);
+  }
+
+  Widget _buildSearchFilter() {
+    return SwitchListTile(
+      subtitle: const Text('过滤书名或作者不包含关键字的搜索结果'),
+      title: const Text('搜索过滤'),
+      value: viewModel.searchFilter.value,
+      onChanged: viewModel.updateSearchFilter,
+    );
+  }
+
+  Widget _buildTurningMode() {
+    List<String> modes = [];
+    if (viewModel.turningMode.value & 1 == 1) modes.add('滑动翻页');
+    if (viewModel.turningMode.value & 2 == 2) modes.add('点击翻页');
+    return ListTile(
+      onTap: () => viewModel.openTurningModeBottomSheet(context),
+      title: const Text('翻页方式'),
+      subtitle: const Text('阅读器的翻页方式'),
+      trailing: Text(modes.join('，')),
+    );
   }
 }
 

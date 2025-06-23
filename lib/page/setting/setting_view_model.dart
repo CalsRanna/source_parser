@@ -47,6 +47,11 @@ class SettingViewModel {
     );
   }
 
+  Future<void> updateSearchFilter(bool value) async {
+    searchFilter.value = value;
+    await SharedPreferenceUtil.setSearchFilter(value);
+  }
+
   void _updateTurningMode(int value) async {
     if (turningMode.value & value != 0) {
       turningMode.value -= value;
