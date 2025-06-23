@@ -5,7 +5,7 @@ class SettingCacheDurationBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(itemBuilder: _itemBuilder, itemCount: 7);
+    return ListView.builder(itemBuilder: _itemBuilder, itemCount: 4);
   }
 
   String _getText(int hour) {
@@ -17,7 +17,7 @@ class SettingCacheDurationBottomSheet extends StatelessWidget {
   }
 
   Widget _itemBuilder(BuildContext context, int index) {
-    final hour = index * 4;
+    final hour = index * 8;
     return ListTile(
       title: Text(_getText(hour), textAlign: TextAlign.center),
       onTap: () => Navigator.of(context).pop(hour),
