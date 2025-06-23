@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPreferenceUtil {
   static Future<int> getCacheDuration() async {
     var instance = await SharedPreferences.getInstance();
-    return instance.getInt('cache_duration') ?? 4;
+    return instance.getInt('cache_duration') ?? 8;
   }
 
   static Future<String> getColorSeed() async {
