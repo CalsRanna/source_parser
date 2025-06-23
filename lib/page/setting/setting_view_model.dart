@@ -83,6 +83,11 @@ class SettingViewModel {
     );
   }
 
+  void updateEInkMode(bool value) async {
+    eInkMode.value = value;
+    await SharedPreferenceUtil.setEInkMode(value);
+  }
+
   Future<void> updateSearchFilter(bool value) async {
     searchFilter.value = value;
     await SharedPreferenceUtil.setSearchFilter(value);

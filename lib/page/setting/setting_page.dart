@@ -7,7 +7,6 @@ import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/page/setting/setting_view_model.dart';
 import 'package:source_parser/provider/cache.dart';
-import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/util/message.dart';
 
 @RoutePage()
@@ -59,28 +58,6 @@ class _ClearCacheTile extends ConsumerWidget {
   }
 }
 
-class _EInkModeTile extends ConsumerWidget {
-  const _EInkModeTile();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (!Platform.isAndroid) return const SizedBox();
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final eInkMode = setting?.eInkMode ?? false;
-    return SwitchListTile(
-      subtitle: const Text('减少动画，更适合低刷新率的设备'),
-      title: const Text('墨水屏模式'),
-      value: eInkMode,
-      onChanged: (value) => updateEInkMode(ref, value),
-    );
-  }
-
-  void updateEInkMode(WidgetRef ref, bool value) async {
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.updateEInkMode(value);
-  }
-}
-
 class _SettingPageState extends State<SettingPage> {
   final viewModel = GetIt.instance.get<SettingViewModel>();
 
@@ -105,7 +82,7 @@ class _SettingPageState extends State<SettingPage> {
       _buildTimeout(),
       _buildMaxConcurrent(),
       _buildCacheDuration(),
-      _EInkModeTile(),
+      _buildEInkMode(),
       _ClearCacheTile(),
     ];
     return ListView(children: children);
@@ -117,6 +94,16 @@ class _SettingPageState extends State<SettingPage> {
       subtitle: const Text('网络请求缓存的有效时长，不影响缓存的封面和章节'),
       title: const Text('缓存时长'),
       trailing: Text('${viewModel.cacheDuration.value}小时'),
+    );
+  }
+
+  Widget _buildEInkMode() {
+    if (!Platform.isAndroid) return const SizedBox();
+    return SwitchListTile(
+      subtitle: const Text('减少动画，更适合低刷新率的设备'),
+      title: const Text('墨水屏模式'),
+      value: viewModel.eInkMode.value,
+      onChanged: viewModel.updateEInkMode,
     );
   }
 
