@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:signals/signals.dart';
 import 'package:signals/signals_flutter.dart' hide signal;
 import 'package:source_parser/page/setting/setting_cache_duration_bottom_sheet.dart';
+import 'package:source_parser/page/setting/setting_clear_cache_dialog.dart';
 import 'package:source_parser/page/setting/setting_max_concurrent_bottom_sheet.dart';
 import 'package:source_parser/page/setting/setting_timeout_bottom_sheet.dart';
 import 'package:source_parser/page/setting/setting_turning_mode_bottom_sheet.dart';
@@ -24,16 +25,7 @@ class SettingViewModel {
     maxConcurrent.value = await SharedPreferenceUtil.getMaxConcurrent();
     cacheDuration.value = await SharedPreferenceUtil.getCacheDuration();
     eInkMode.value = await SharedPreferenceUtil.getEInkMode();
-    final total = await CacheManager().getCacheSize();
-    String string;
-    if (total < 1024) {
-      string = '$total Bytes';
-    } else if (total >= 1024 && total < 1024 * 1024) {
-      string = '${(total / 1024).toStringAsFixed(2)} KB';
-    } else {
-      string = '${(total / 1024 / 1024).toStringAsFixed(2)} MB';
-    }
-    cacheSize.value = string;
+    cacheSize.value = await _getCacheSize();
   }
 
   Future<void> openCacheDurationBottomSheet(BuildContext context) async {
@@ -45,6 +37,16 @@ class SettingViewModel {
     if (hour == null) return;
     cacheDuration.value = hour;
     await SharedPreferenceUtil.setCacheDuration(hour);
+  }
+
+  Future<void> openClearCacheDialog(BuildContext context) async {
+    final result = await showDialog<bool>(
+      builder: (_) => SettingClearCacheDialog(),
+      context: context,
+    );
+    if (result != true) return;
+    await CacheManager().clearCache();
+    cacheSize.value = await _getCacheSize();
   }
 
   Future<void> openMaxConcurrentBottomSheet(BuildContext context) async {
@@ -91,6 +93,19 @@ class SettingViewModel {
   Future<void> updateSearchFilter(bool value) async {
     searchFilter.value = value;
     await SharedPreferenceUtil.setSearchFilter(value);
+  }
+
+  Future<String> _getCacheSize() async {
+    final total = await CacheManager().getCacheSize();
+    String string;
+    if (total < 1024) {
+      string = '$total Bytes';
+    } else if (total >= 1024 && total < 1024 * 1024) {
+      string = '${(total / 1024).toStringAsFixed(2)} KB';
+    } else {
+      string = '${(total / 1024 / 1024).toStringAsFixed(2)} MB';
+    }
+    return string;
   }
 
   void _updateTurningMode(int value) async {

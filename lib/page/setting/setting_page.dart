@@ -2,12 +2,9 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/page/setting/setting_view_model.dart';
-import 'package:source_parser/provider/cache.dart';
-import 'package:source_parser/util/message.dart';
 
 @RoutePage()
 class SettingPage extends StatefulWidget {
@@ -15,47 +12,6 @@ class SettingPage extends StatefulWidget {
 
   @override
   State<SettingPage> createState() => _SettingPageState();
-}
-
-class _ClearCacheTile extends ConsumerWidget {
-  const _ClearCacheTile();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final size = ref.watch(cacheSizeProvider).valueOrNull ?? '';
-    return ListTile(
-      onTap: () => handleTap(context, ref),
-      title: const Text('清理缓存'),
-      trailing: Text(size),
-    );
-  }
-
-  Future<void> dismissDialog(BuildContext context, bool confirm) async {
-    Navigator.of(context).pop(confirm);
-  }
-
-  void handleTap(BuildContext context, WidgetRef ref) async {
-    final cancelButton = TextButton(
-      onPressed: () => dismissDialog(context, false),
-      child: const Text('取消'),
-    );
-    final confirmButton = TextButton(
-      onPressed: () => dismissDialog(context, true),
-      child: const Text('确认'),
-    );
-    final dialog = AlertDialog(
-      actions: [cancelButton, confirmButton],
-      content: const Text('确定清空所有已缓存的内容？'),
-      title: const Text('清空缓存'),
-    );
-    final result = await showDialog(builder: (_) => dialog, context: context);
-    if (result != true) return;
-    if (!context.mounted) return;
-    final message = Message.of(context);
-    final notifier = ref.read(cacheSizeProvider.notifier);
-    final succeed = await notifier.clear();
-    message.show(succeed ? '已清空缓存' : '清空缓存失败');
-  }
 }
 
 class _SettingPageState extends State<SettingPage> {
@@ -83,7 +39,7 @@ class _SettingPageState extends State<SettingPage> {
       _buildMaxConcurrent(),
       _buildCacheDuration(),
       _buildEInkMode(),
-      _ClearCacheTile(),
+      _buildClearCache(),
     ];
     return ListView(children: children);
   }
@@ -94,6 +50,14 @@ class _SettingPageState extends State<SettingPage> {
       subtitle: const Text('网络请求缓存的有效时长，不影响缓存的封面和章节'),
       title: const Text('缓存时长'),
       trailing: Text('${viewModel.cacheDuration.value}小时'),
+    );
+  }
+
+  Widget _buildClearCache() {
+    return ListTile(
+      onTap: () => viewModel.openClearCacheDialog(context),
+      title: const Text('清理缓存'),
+      trailing: Text(viewModel.cacheSize.value),
     );
   }
 
