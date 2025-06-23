@@ -5,11 +5,11 @@ import 'dart:isolate';
 import 'package:charset/charset.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/model/source_entity.dart';
-import 'package:source_parser/schema/available_source.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -584,7 +584,7 @@ class Parser {
           if (!url.startsWith('http')) {
             url = '${source.url}$url';
           }
-          var availableSource = AvailableSource();
+          var availableSource = AvailableSourceEntity();
           availableSource.id = source.id;
           availableSource.name = source.name;
           availableSource.url = url;
@@ -763,7 +763,7 @@ class Parser {
             );
           }
           if (name.isNotEmpty) {
-            var availableSource = AvailableSource();
+            var availableSource = AvailableSourceEntity();
             availableSource.id = source.id;
             availableSource.name = source.name;
             availableSource.url = url;
@@ -843,7 +843,7 @@ class ParserUtil {
     var name = parser.query(document, source.informationName);
     // final updatedAt = parser.query(document, source.informationUpdatedAt);
     final words = parser.query(document, source.informationWordCount);
-    var availableSource = AvailableSource();
+    var availableSource = AvailableSourceEntity();
     availableSource.id = source.id;
     availableSource.latestChapter = latestChapter;
     availableSource.name = source.name;
@@ -902,7 +902,7 @@ class ParserUtil {
       var url = parser.query(items[i], source.searchInformationUrl);
       if (!url.startsWith('http')) url = '${source.url}$url';
       final words = parser.query(items[i], source.searchWordCount);
-      var availableSource = AvailableSource();
+      var availableSource = AvailableSourceEntity();
       availableSource.id = source.id;
       availableSource.latestChapter = latestChapter;
       availableSource.name = source.name;

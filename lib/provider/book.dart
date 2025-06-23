@@ -5,7 +5,6 @@ import 'package:lpinyin/lpinyin.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/setting.dart';
-import 'package:source_parser/schema/available_source.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
@@ -445,15 +444,16 @@ class BookNotifier extends _$BookNotifier {
 class Books extends _$Books {
   Future<bool> _exist(String url) async {
     // var books = await future;
-    List<AvailableSource> sources = [];
+    // List<AvailableSource> sources = [];
     // for (var book in books) {
     //   sources.addAll(book.sources);
     // }
-    List<String> urls = [];
-    for (var source in sources) {
-      urls.add(source.url);
-    }
-    return urls.contains(url);
+    // List<String> urls = [];
+    // for (var source in sources) {
+    //   urls.add(source.url);
+    // }
+    // return urls.contains(url);
+    return false;
   }
 
   Future<void> addBook(String url) async {
