@@ -12,7 +12,7 @@ class AvailableSourceViewModel {
   final _book = signal(BookEntity());
 
   bool checkIsActive(int index) {
-    return availableSources.value[index].id == _book.value.sourceId;
+    return availableSources.value[index].sourceId == _book.value.sourceId;
   }
 
   Future<void> initSignals(BookEntity book) async {
