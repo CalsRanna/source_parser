@@ -111,7 +111,8 @@ class InformationViewModel {
 
   Future<void> navigateReaderPage(BuildContext context, BookEntity book) async {
     if (!isInShelf.value) {
-      await BookService().addBook(book);
+      var copiedBook = book.copyWith(chapterCount: chapters.value.length);
+      await BookService().addBook(copiedBook);
       var storedBook = await BookService().getBookByName(book.name);
       availableSources.value = availableSources.value
           .map((item) => item.copyWith(bookId: storedBook.id))
