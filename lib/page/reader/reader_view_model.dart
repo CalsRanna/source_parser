@@ -22,6 +22,7 @@ import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/semaphore.dart';
+import 'package:source_parser/util/shared_preference_util.dart';
 import 'package:source_parser/util/splitter.dart';
 import 'package:source_parser/util/volume_util.dart';
 import 'package:source_parser/view_model/source_parser_view_model.dart';
@@ -48,6 +49,7 @@ class ReaderViewModel {
   final size = Signal(Size.zero);
   final source = Signal(SourceEntity());
   final error = signal('');
+  final eInkMode = signal(false);
 
   late final progress = computed(() {
     if (downloadAmount.value == 0) return 0.0;
@@ -143,6 +145,7 @@ class ReaderViewModel {
     _loadCurrentChapter();
     _preloadPreviousChapter();
     _preloadNextChapter();
+    eInkMode.value = await SharedPreferenceUtil.getEInkMode();
   }
 
   Future<void> navigateAvailableSourcePage(BuildContext context) async {

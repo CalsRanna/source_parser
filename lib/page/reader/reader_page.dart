@@ -98,6 +98,10 @@ class _ReaderPageState extends State<ReaderPage> {
         child: ReaderContentView.loading(theme: viewModel.theme.value),
       );
     }
+    ScrollPhysics? physics;
+    if (viewModel.eInkMode.value) {
+      physics = const NeverScrollableScrollPhysics();
+    }
     return PageView.builder(
       key: ValueKey(viewModel.theme.value),
       controller: viewModel.controller,
@@ -114,6 +118,7 @@ class _ReaderPageState extends State<ReaderPage> {
       ),
       itemCount: viewModel.currentChapterPages.value.length,
       onPageChanged: viewModel.updatePageIndex,
+      physics: physics,
     );
   }
 }
