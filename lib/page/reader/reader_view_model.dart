@@ -23,6 +23,7 @@ import 'package:source_parser/util/html_parser_plus.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/semaphore.dart';
 import 'package:source_parser/util/splitter.dart';
+import 'package:source_parser/util/volume_util.dart';
 import 'package:source_parser/view_model/source_parser_view_model.dart';
 
 class ReaderViewModel {
@@ -59,6 +60,13 @@ class ReaderViewModel {
   });
 
   late final controller = PageController(initialPage: book.pageIndex);
+  late final subscription = VolumeUtil.stream.listen((event) {
+    if (event == 'volume_up') {
+      previousPage();
+    } else if (event == 'volume_down') {
+      nextPage();
+    }
+  });
 
   ReaderViewModel({required this.book});
 
