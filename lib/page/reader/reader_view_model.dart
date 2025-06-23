@@ -7,12 +7,12 @@ import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/database/available_source_service.dart';
 import 'package:source_parser/database/book_service.dart';
-import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
+import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
+import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/theme.dart';
@@ -35,8 +35,8 @@ class ReaderViewModel {
   final currentChapterPages = signal<List<String>>([]);
   final nextChapterContent = signal('');
   final nextChapterPages = signal<List<String>>([]);
-  late final chapterIndex = signal(book.chapterIndex);
-  late final pageIndex = signal(book.pageIndex);
+  final chapterIndex = signal(0);
+  final pageIndex = signal(0);
   final theme = signal(Theme());
   final showOverlay = signal(false);
   final showCacheIndicator = signal(false);
@@ -119,13 +119,11 @@ class ReaderViewModel {
     showOverlay.value = false;
   }
 
-  Future<List<AvailableSourceEntity>> _initAvailableSources() async {
-    return await AvailableSourceService().getAvailableSources(book.id);
-  }
-
   Future<void> initSignals() async {
     theme.value = _initTheme();
     size.value = _initSize(theme.value);
+    chapterIndex.value = book.chapterIndex;
+    pageIndex.value = book.pageIndex;
     chapters.value = await _initChapters();
     availableSources.value = await _initAvailableSources();
     source.value = await SourceService().getBookSource(book.sourceId);
@@ -425,6 +423,10 @@ class ReaderViewModel {
       chapters.add(chapter);
     }
     return chapters;
+  }
+
+  Future<List<AvailableSourceEntity>> _initAvailableSources() async {
+    return await AvailableSourceService().getAvailableSources(book.id);
   }
 
   Future<List<ChapterEntity>> _initChapters() async {
