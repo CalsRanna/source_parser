@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals.dart';
 import 'package:signals/signals_flutter.dart' hide signal;
+import 'package:source_parser/page/setting/setting_timeout_bottom_sheet.dart';
 import 'package:source_parser/page/setting/setting_turning_mode_bottom_sheet.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
@@ -31,6 +32,17 @@ class SettingViewModel {
       string = '${(total / 1024 / 1024).toStringAsFixed(2)} MB';
     }
     cacheSize.value = string;
+  }
+
+  Future<void> openTimeoutBottomSheet(BuildContext context) async {
+    final timeout = await showModalBottomSheet(
+      builder: (_) => SettingTimeoutBottomSheet(),
+      context: context,
+      showDragHandle: true,
+    );
+    if (timeout == null) return;
+    timeout.value = timeout;
+    await SharedPreferenceUtil.setTimeout(timeout);
   }
 
   Future<void> openTurningModeBottomSheet(BuildContext context) async {

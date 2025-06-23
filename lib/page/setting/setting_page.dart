@@ -190,7 +190,7 @@ class _SettingPageState extends State<SettingPage> {
     final children = [
       _buildTurningMode(),
       _buildSearchFilter(),
-      _TimeoutTile(),
+      _buildTimeout(),
       _MaxConcurrent(),
       _CacheDurationTile(),
       _EInkModeTile(),
@@ -208,6 +208,15 @@ class _SettingPageState extends State<SettingPage> {
     );
   }
 
+  Widget _buildTimeout() {
+    return ListTile(
+      onTap: () => viewModel.openTimeoutBottomSheet(context),
+      subtitle: const Text('网络请求最大等待时长，超时将取消请求'),
+      title: const Text('请求超时'),
+      trailing: Text('${viewModel.timeout.value}秒'),
+    );
+  }
+
   Widget _buildTurningMode() {
     List<String> modes = [];
     if (viewModel.turningMode.value & 1 == 1) modes.add('滑动翻页');
@@ -217,51 +226,6 @@ class _SettingPageState extends State<SettingPage> {
       title: const Text('翻页方式'),
       subtitle: const Text('阅读器的翻页方式'),
       trailing: Text(modes.join('，')),
-    );
-  }
-}
-
-class _TimeoutTile extends ConsumerWidget {
-  const _TimeoutTile();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final timeout = setting?.timeout ?? 30 * 1000;
-    return ListTile(
-      onTap: () => handleTap(context, ref),
-      subtitle: const Text('网络请求最大等待时长，超时将取消请求'),
-      title: const Text('请求超时'),
-      trailing: Text(_buildText(timeout)),
-    );
-  }
-
-  Future<void> dismissSheet(BuildContext context, int timeout) async {
-    Navigator.of(context).pop(timeout);
-  }
-
-  Future<void> handleTap(BuildContext context, WidgetRef ref) async {
-    final listView = ListView.builder(itemBuilder: _itemBuilder, itemCount: 4);
-    final timeout = await showModalBottomSheet(
-      builder: (_) => listView,
-      context: context,
-      showDragHandle: true,
-    );
-    if (timeout == null) return;
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.updateTimeout(timeout);
-  }
-
-  String _buildText(int timeout) {
-    final seconds = timeout ~/ 1000;
-    return '$seconds秒';
-  }
-
-  Widget _itemBuilder(BuildContext context, int index) {
-    final timeout = (index + 1) * 15 * 1000;
-    return ListTile(
-      title: Text(_buildText(timeout), textAlign: TextAlign.center),
-      onTap: () => dismissSheet(context, timeout),
     );
   }
 }
