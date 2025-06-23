@@ -61,14 +61,14 @@ class SettingViewModel {
   }
 
   Future<void> openTimeoutBottomSheet(BuildContext context) async {
-    final timeout = await showModalBottomSheet(
+    final seconds = await showModalBottomSheet(
       builder: (_) => SettingTimeoutBottomSheet(),
       context: context,
       showDragHandle: true,
     );
-    if (timeout == null) return;
-    timeout.value = timeout;
-    await SharedPreferenceUtil.setTimeout(timeout);
+    if (seconds == null) return;
+    timeout.value = seconds;
+    await SharedPreferenceUtil.setTimeout(seconds);
   }
 
   Future<void> openTurningModeBottomSheet(BuildContext context) async {
