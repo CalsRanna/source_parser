@@ -18,54 +18,6 @@ class SettingPage extends StatefulWidget {
   State<SettingPage> createState() => _SettingPageState();
 }
 
-class _CacheDurationTile extends ConsumerWidget {
-  const _CacheDurationTile();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final hour = setting?.cacheDuration.floor() ?? 8;
-    return ListTile(
-      onTap: () => handleTap(context, ref),
-      subtitle: const Text('网络请求缓存的有效时长，不影响缓存的封面和章节'),
-      title: const Text('缓存时长'),
-      trailing: Text(_buildText(hour)),
-    );
-  }
-
-  Future<void> dismissSheet(BuildContext context, int hour) async {
-    Navigator.of(context).pop(hour);
-  }
-
-  Future<void> handleTap(BuildContext context, WidgetRef ref) async {
-    final listView = ListView.builder(itemBuilder: _itemBuilder, itemCount: 7);
-    final hour = await showModalBottomSheet(
-      builder: (_) => listView,
-      context: context,
-      showDragHandle: true,
-    );
-    if (hour == null) return;
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.updateCacheDuration(hour.toDouble());
-  }
-
-  String _buildText(int hour) {
-    return switch (hour) {
-      0 => '不缓存',
-      24 => '1天',
-      _ => '$hour小时',
-    };
-  }
-
-  Widget _itemBuilder(BuildContext context, int index) {
-    final hour = index * 4;
-    return ListTile(
-      title: Text(_buildText(hour), textAlign: TextAlign.center),
-      onTap: () => dismissSheet(context, hour),
-    );
-  }
-}
-
 class _ClearCacheTile extends ConsumerWidget {
   const _ClearCacheTile();
 
@@ -152,11 +104,20 @@ class _SettingPageState extends State<SettingPage> {
       _buildSearchFilter(),
       _buildTimeout(),
       _buildMaxConcurrent(),
-      _CacheDurationTile(),
+      _buildCacheDuration(),
       _EInkModeTile(),
       _ClearCacheTile(),
     ];
     return ListView(children: children);
+  }
+
+  Widget _buildCacheDuration() {
+    return ListTile(
+      onTap: () => viewModel.openCacheDurationBottomSheet(context),
+      subtitle: const Text('网络请求缓存的有效时长，不影响缓存的封面和章节'),
+      title: const Text('缓存时长'),
+      trailing: Text('${viewModel.cacheDuration.value}小时'),
+    );
   }
 
   Widget _buildMaxConcurrent() {

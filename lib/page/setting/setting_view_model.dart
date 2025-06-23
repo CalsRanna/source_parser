@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals.dart';
 import 'package:signals/signals_flutter.dart' hide signal;
+import 'package:source_parser/page/setting/setting_cache_duration_bottom_sheet.dart';
 import 'package:source_parser/page/setting/setting_max_concurrent_bottom_sheet.dart';
 import 'package:source_parser/page/setting/setting_timeout_bottom_sheet.dart';
 import 'package:source_parser/page/setting/setting_turning_mode_bottom_sheet.dart';
@@ -33,6 +34,17 @@ class SettingViewModel {
       string = '${(total / 1024 / 1024).toStringAsFixed(2)} MB';
     }
     cacheSize.value = string;
+  }
+
+  Future<void> openCacheDurationBottomSheet(BuildContext context) async {
+    final hour = await showModalBottomSheet(
+      builder: (_) => SettingCacheDurationBottomSheet(),
+      context: context,
+      showDragHandle: true,
+    );
+    if (hour == null) return;
+    cacheDuration.value = hour;
+    await SharedPreferenceUtil.setCacheDuration(hour);
   }
 
   Future<void> openMaxConcurrentBottomSheet(BuildContext context) async {
