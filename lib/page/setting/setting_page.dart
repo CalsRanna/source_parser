@@ -3,19 +3,41 @@ import 'dart:io';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hugeicons/hugeicons.dart';
+import 'package:get_it/get_it.dart';
+import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/page/setting/setting_view_model.dart';
 import 'package:source_parser/provider/cache.dart';
 import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/util/message.dart';
 
 @RoutePage()
-class SettingPage extends StatelessWidget {
+class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
 
   @override
+  State<SettingPage> createState() => _SettingPageState();
+}
+
+class _SettingPageState extends State<SettingPage> {
+  final viewModel = GetIt.instance.get<SettingViewModel>();
+
+  @override
+  void initState() {
+    super.initState();
+    viewModel.initSignals();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('设置')),
+      body: Watch((_) => _buildBody()),
+    );
+  }
+
+  Widget _buildBody() {
     final children = [
-      _TurningModeTile(),
+      _buildTurningMode(),
       _SearchFilterTile(),
       _TimeoutTile(),
       _MaxConcurrent(),
@@ -23,9 +45,18 @@ class SettingPage extends StatelessWidget {
       _EInkModeTile(),
       _ClearCacheTile(),
     ];
-    return Scaffold(
-      appBar: AppBar(title: const Text('设置')),
-      body: ListView(children: children),
+    return ListView(children: children);
+  }
+
+  Widget _buildTurningMode() {
+    List<String> modes = [];
+    if (viewModel.turningMode.value & 1 == 1) modes.add('滑动翻页');
+    if (viewModel.turningMode.value & 2 == 2) modes.add('点击翻页');
+    return ListTile(
+      onTap: () => viewModel.openTurningModeBottomSheet(context),
+      title: const Text('翻页方式'),
+      subtitle: const Text('阅读器的翻页方式'),
+      trailing: Text(modes.join('，')),
     );
   }
 }
@@ -244,65 +275,5 @@ class _TimeoutTile extends ConsumerWidget {
       title: Text(_buildText(timeout), textAlign: TextAlign.center),
       onTap: () => dismissSheet(context, timeout),
     );
-  }
-}
-
-class _TurningModeListTile extends ConsumerWidget {
-  final int mode;
-  final String title;
-  const _TurningModeListTile({required this.mode, required this.title});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final turningMode = setting?.turningMode ?? 3;
-    return ListTile(
-      title: Text(title),
-      trailing: turningMode & mode == mode
-          ? Icon(HugeIcons.strokeRoundedTick02)
-          : null,
-      onTap: () => updateTurningMode(ref, mode),
-    );
-  }
-
-  void updateTurningMode(WidgetRef ref, int value) async {
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.updateTurningMode(value);
-  }
-}
-
-class _TurningModeTile extends ConsumerWidget {
-  const _TurningModeTile();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final turningMode = setting?.turningMode ?? 3;
-    List<String> modes = [];
-    if (turningMode & 1 == 1) modes.add('滑动翻页');
-    if (turningMode & 2 == 2) modes.add('点击翻页');
-    return ListTile(
-      onTap: () => handleTap(context),
-      title: const Text('翻页方式'),
-      subtitle: const Text('阅读界面的翻页方式'),
-      trailing: Text(modes.join('，')),
-    );
-  }
-
-  Future<void> handleTap(BuildContext context) async {
-    final children = [
-      _TurningModeListTile(mode: 1, title: '滑动翻页'),
-      _TurningModeListTile(mode: 2, title: '点击翻页'),
-    ];
-    await showModalBottomSheet(
-      builder: (_) => ListView(children: children),
-      context: context,
-      showDragHandle: true,
-    );
-  }
-
-  void updateTurningMode(WidgetRef ref, int value) async {
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.updateTurningMode(value);
   }
 }

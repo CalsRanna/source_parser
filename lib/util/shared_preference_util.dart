@@ -1,9 +1,9 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferenceUtil {
-  static Future<double> getCacheDuration() async {
+  static Future<int> getCacheDuration() async {
     var instance = await SharedPreferences.getInstance();
-    return instance.getDouble('cache_duration') ?? 4.0;
+    return instance.getInt('cache_duration') ?? 4;
   }
 
   static Future<String> getColorSeed() async {
@@ -26,9 +26,9 @@ class SharedPreferenceUtil {
     return instance.getBool('e_ink_mode') ?? false;
   }
 
-  static Future<double> getMaxConcurrent() async {
+  static Future<int> getMaxConcurrent() async {
     var instance = await SharedPreferences.getInstance();
-    return instance.getDouble('max_concurrent') ?? 16.0;
+    return instance.getInt('max_concurrent') ?? 16;
   }
 
   static Future<bool> getSearchFilter() async {
@@ -43,7 +43,7 @@ class SharedPreferenceUtil {
 
   static Future<int> getTimeout() async {
     var instance = await SharedPreferences.getInstance();
-    return instance.getInt('timeout') ?? 30 * 1000;
+    return instance.getInt('timeout') ?? 30;
   }
 
   static Future<int> getTurningMode() async {

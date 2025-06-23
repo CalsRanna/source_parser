@@ -36,7 +36,7 @@ import 'package:source_parser/page/local_server_page/local_server_page.dart'
     as _i13;
 import 'package:source_parser/page/reader/reader_page.dart' as _i15;
 import 'package:source_parser/page/search/search_page.dart' as _i17;
-import 'package:source_parser/page/setting.dart' as _i18;
+import 'package:source_parser/page/setting/setting_page.dart' as _i18;
 import 'package:source_parser/page/source_page/advanced.dart' as _i20;
 import 'package:source_parser/page/source_page/catalogue.dart' as _i21;
 import 'package:source_parser/page/source_page/content.dart' as _i22;

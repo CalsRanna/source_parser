@@ -13,6 +13,7 @@ import 'package:source_parser/page/home/profile_view/profile_view_model.dart';
 import 'package:source_parser/page/information/information_view_model.dart';
 import 'package:source_parser/page/reader/reader_view_model.dart';
 import 'package:source_parser/page/search/search_view_model.dart';
+import 'package:source_parser/page/setting/setting_view_model.dart';
 import 'package:source_parser/page/source_page/source_view_model.dart';
 import 'package:source_parser/view_model/source_parser_view_model.dart';
 
@@ -52,5 +53,6 @@ class Injector {
       () => DeveloperViewModel(),
     );
     injector.registerFactory<DatabaseViewModel>(() => DatabaseViewModel());
+    injector.registerLazySingleton<SettingViewModel>(() => SettingViewModel());
   }
 }
