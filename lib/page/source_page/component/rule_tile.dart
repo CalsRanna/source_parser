@@ -5,7 +5,7 @@ import 'package:source_parser/util/string_extension.dart';
 
 class RuleTile extends StatelessWidget {
   final bool? bordered;
-  final void Function(dynamic)? onChange;
+  final void Function(String)? onChange;
   final void Function()? onTap;
   final String? placeholder;
   final String title;
