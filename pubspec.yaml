@@ -29,6 +29,7 @@ dependencies:
   flutter_riverpod: ^2.4.9
   # flutter_tts: ^4.0.2
   get_it: ^8.0.3
+  gpt_markdown: ^1.0.20
   html: ^0.15.0
   http: ^1.1.0
   hugeicons: ^0.0.7
@@ -47,6 +48,7 @@ dependencies:
   lottie: ^3.3.1
   lpinyin: ^2.0.3
   network_info_plus: ^6.1.2
+  openai_dart: ^0.5.2
   package_info_plus: ^8.0.2
   path: ^1.8.3
   path_provider: ^2.0.14

@@ -48,6 +48,11 @@ class _DeveloperPageState extends State<DeveloperPage> {
       onTap: () => viewModel.navigateColor(context),
       title: '颜色选择器',
     );
+    var analysis = _Tile(
+      icon: HugeIcons.strokeRoundedColors,
+      onTap: () => viewModel.analyze(context),
+      title: '分析书架',
+    );
     var children = [
       developer,
       fileManager,
@@ -55,7 +60,8 @@ class _DeveloperPageState extends State<DeveloperPage> {
       simpleCloudReader,
       localDatabase,
       cleanDatabase,
-      color
+      color,
+      analysis,
     ];
     return Scaffold(
       appBar: AppBar(title: Text('开发者页面')),
