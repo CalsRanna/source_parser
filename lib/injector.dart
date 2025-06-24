@@ -15,7 +15,7 @@ import 'package:source_parser/page/reader/reader_view_model.dart';
 import 'package:source_parser/page/search/search_view_model.dart';
 import 'package:source_parser/page/setting/setting_view_model.dart';
 import 'package:source_parser/page/source_page/source_view_model.dart';
-import 'package:source_parser/view_model/source_parser_view_model.dart';
+import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 
 class Injector {
   static void ensureInitialized() {

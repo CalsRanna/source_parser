@@ -7,7 +7,7 @@ import 'package:source_parser/page/reader/reader_cache_indicator_view.dart';
 import 'package:source_parser/page/reader/reader_content_view.dart';
 import 'package:source_parser/page/reader/reader_overlay_view.dart';
 import 'package:source_parser/page/reader/reader_view_model.dart';
-import 'package:source_parser/view_model/source_parser_view_model.dart';
+import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 
 @RoutePage()
 class ReaderPage extends StatefulWidget {

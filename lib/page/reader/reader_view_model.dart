@@ -25,7 +25,7 @@ import 'package:source_parser/util/semaphore.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 import 'package:source_parser/util/splitter.dart';
 import 'package:source_parser/util/volume_util.dart';
-import 'package:source_parser/view_model/source_parser_view_model.dart';
+import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 
 class ReaderViewModel {
   final BookEntity book;

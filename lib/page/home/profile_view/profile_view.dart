@@ -5,7 +5,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/page/home/profile_view/profile_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
-import 'package:source_parser/view_model/source_parser_view_model.dart';
+import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
