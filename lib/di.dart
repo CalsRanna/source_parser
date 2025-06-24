@@ -17,42 +17,42 @@ import 'package:source_parser/page/setting/setting_view_model.dart';
 import 'package:source_parser/page/source_page/source_view_model.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 
-class Injector {
+class DI {
   static void ensureInitialized() {
-    var injector = GetIt.instance;
-    injector.registerLazySingleton<SourceParserViewModel>(
+    var instance = GetIt.instance;
+    instance.registerLazySingleton<SourceParserViewModel>(
       () => SourceParserViewModel(),
     );
-    injector.registerLazySingleton<HomeViewModel>(() => HomeViewModel());
-    injector.registerLazySingleton<BookshelfViewModel>(
+    instance.registerLazySingleton<HomeViewModel>(() => HomeViewModel());
+    instance.registerLazySingleton<BookshelfViewModel>(
       () => BookshelfViewModel(),
     );
-    injector.registerLazySingleton<ProfileViewModel>(() => ProfileViewModel());
-    injector.registerFactory<SearchViewModel>(() => SearchViewModel());
-    injector
+    instance.registerLazySingleton<ProfileViewModel>(() => ProfileViewModel());
+    instance.registerFactory<SearchViewModel>(() => SearchViewModel());
+    instance
         .registerFactoryParam<InformationViewModel, InformationEntity, Object?>(
       (information, _) => InformationViewModel(information: information),
     );
-    injector.registerFactoryParam<CatalogueViewModel, BookEntity, Object?>(
+    instance.registerFactoryParam<CatalogueViewModel, BookEntity, Object?>(
       (book, _) => CatalogueViewModel(book: book),
     );
-    injector.registerFactory<AvailableSourceViewModel>(
+    instance.registerFactory<AvailableSourceViewModel>(
       () => AvailableSourceViewModel(),
     );
-    injector.registerFactoryParam<ReaderViewModel, BookEntity, Object?>(
+    instance.registerFactoryParam<ReaderViewModel, BookEntity, Object?>(
       (book, _) => ReaderViewModel(book: book),
     );
-    injector.registerFactoryParam<CoverSelectorViewModel, BookEntity, Object?>(
+    instance.registerFactoryParam<CoverSelectorViewModel, BookEntity, Object?>(
       (book, _) => CoverSelectorViewModel(book: book),
     );
-    injector.registerFactory<SourceViewModel>(() => SourceViewModel());
-    injector.registerLazySingleton<CloudReaderViewModel>(
+    instance.registerFactory<SourceViewModel>(() => SourceViewModel());
+    instance.registerLazySingleton<CloudReaderViewModel>(
       () => CloudReaderViewModel(),
     );
-    injector.registerLazySingleton<DeveloperViewModel>(
+    instance.registerLazySingleton<DeveloperViewModel>(
       () => DeveloperViewModel(),
     );
-    injector.registerFactory<DatabaseViewModel>(() => DatabaseViewModel());
-    injector.registerLazySingleton<SettingViewModel>(() => SettingViewModel());
+    instance.registerFactory<DatabaseViewModel>(() => DatabaseViewModel());
+    instance.registerLazySingleton<SettingViewModel>(() => SettingViewModel());
   }
 }

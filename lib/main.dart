@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/database/service.dart';
-import 'package:source_parser/injector.dart';
+import 'package:source_parser/di.dart';
 import 'package:source_parser/page/source_parser/source_parser.dart';
 import 'package:source_parser/schema/available_source.dart';
 import 'package:source_parser/schema/book.dart';
@@ -26,7 +26,7 @@ void main() async {
     SourceSchema,
     ThemeSchema,
   ], directory: directory.path);
-  Injector.ensureInitialized();
+  DI.ensureInitialized();
   await DatabaseService.instance.ensureInitialized();
   runApp(ProviderScope(child: SourceParser()));
 }
