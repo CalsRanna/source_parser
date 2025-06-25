@@ -2,5 +2,4 @@ class Config {
   static final apiKey = 'Place your Key here';
   static final baseUrl = 'Place your Base URL here';
   static final model = 'Place your Model here';
-  static final prompt = '根据我网文书架的内容，锐评我的读书喜好。下面是我的书架数据：{content}';
 }

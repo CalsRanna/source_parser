@@ -32,12 +32,13 @@ class DeveloperViewModel {
     if (analyzed.value) return;
     analyzing.value = true;
     var books = await BookService().getBooks();
+    var content = books.map((book) => book.toJson()).toList();
     try {
-      var content = books.map((book) => book.toJson()).toList();
+      var prompt = '根据我网文书架的内容，分析我的读书喜好并生成报告。下面是我的书架数据：{content}';
       var client = OpenAIClient(apiKey: Config.apiKey, baseUrl: Config.baseUrl);
       var message = ChatCompletionMessage.user(
         content: ChatCompletionUserMessageContent.string(
-          Config.prompt.replaceAll('{content}', content.toString()),
+          prompt.replaceAll('{content}', content.toString()),
         ),
       );
       var request = CreateChatCompletionRequest(
