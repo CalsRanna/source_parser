@@ -49,8 +49,8 @@ class CatalogueViewModel {
       book.name,
       book.catalogueUrl,
       source,
-      Duration(hours: cacheDuration.floor()),
-      Duration(milliseconds: timeout),
+      Duration(hours: cacheDuration),
+      Duration(seconds: timeout),
     );
     stream = stream.asBroadcastStream();
     List<ChapterEntity> newChapters = [];

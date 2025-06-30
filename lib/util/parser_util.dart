@@ -41,11 +41,10 @@ class ParserUtil {
 
   Stream<ParserSearchResultEntity> search(String credential) async* {
     var storedCacheDuration = await SharedPreferenceUtil.getCacheDuration();
-    var cachedDuration = Duration(hours: storedCacheDuration.floor());
+    var cachedDuration = Duration(hours: storedCacheDuration);
     var storedTimeout = await SharedPreferenceUtil.getTimeout();
-    var timeout = Duration(milliseconds: storedTimeout);
-    var storedMaxConcurrent = await SharedPreferenceUtil.getMaxConcurrent();
-    var maxConcurrent = storedMaxConcurrent.floor();
+    var timeout = Duration(seconds: storedTimeout);
+    var maxConcurrent = await SharedPreferenceUtil.getMaxConcurrent();
     final bookSources = await SourceService().getEnabledBookSources();
     final directory = await getTemporaryDirectory();
     final network = CachedNetwork(

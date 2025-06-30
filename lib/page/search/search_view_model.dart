@@ -40,9 +40,9 @@ class SearchViewModel {
 
   Future<void> initSignals() async {
     var storedCacheDuration = await SharedPreferenceUtil.getCacheDuration();
-    var cacheDuration = Duration(hours: storedCacheDuration.floor());
+    var cacheDuration = Duration(hours: storedCacheDuration);
     var storedTimeout = await SharedPreferenceUtil.getTimeout();
-    var timeout = Duration(milliseconds: storedTimeout);
+    var timeout = Duration(seconds: storedTimeout);
     var books = await Parser.topSearch(cacheDuration, timeout);
     trendingBooks.value =
         books.map((book) => BookEntity.fromJson(book.toJson())).toList();
@@ -71,11 +71,10 @@ class SearchViewModel {
     _openMaterialBanner(context);
     var credential = controller.text;
     var storedCacheDuration = await SharedPreferenceUtil.getCacheDuration();
-    var cacheDuration = Duration(hours: storedCacheDuration.floor());
+    var cacheDuration = Duration(hours: storedCacheDuration);
     var storedTimeout = await SharedPreferenceUtil.getTimeout();
-    var timeout = Duration(milliseconds: storedTimeout);
-    var storedMaxConcurrent = await SharedPreferenceUtil.getMaxConcurrent();
-    var maxConcurrent = storedMaxConcurrent.floor();
+    var timeout = Duration(seconds: storedTimeout);
+    var maxConcurrent = await SharedPreferenceUtil.getMaxConcurrent();
     var stream =
         _searchBooks(credential, maxConcurrent, cacheDuration, timeout);
     stream.listen(_listenStream, onDone: () {

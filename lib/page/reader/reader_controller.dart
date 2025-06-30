@@ -190,7 +190,7 @@ class ReaderController extends ChangeNotifier {
       var source = await _getSource();
       if (source == null) return [];
       var setting = await _getSetting();
-      var timeout = Duration(milliseconds: setting.timeout);
+      var timeout = Duration(seconds: setting.timeout);
       var document = await Parser.getContent(
         name: book.name,
         url: chapter.url,
