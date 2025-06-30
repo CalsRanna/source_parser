@@ -22,6 +22,12 @@ class _SourceFormPageState extends State<SourceFormPage> {
   final viewModel = GetIt.instance.get<SourceFormViewModel>();
 
   @override
+  void initState() {
+    super.initState();
+    viewModel.initSignals(widget.source);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

@@ -14,6 +14,7 @@ import 'package:source_parser/model/available_source_entity.dart' as _i31;
 import 'package:source_parser/model/book_entity.dart' as _i32;
 import 'package:source_parser/model/chapter_entity.dart' as _i33;
 import 'package:source_parser/model/information_entity.dart' as _i34;
+import 'package:source_parser/model/source_entity.dart' as _i35;
 import 'package:source_parser/page/about.dart' as _i1;
 import 'package:source_parser/page/available_source/available_source_form_page.dart'
     as _i2;
@@ -37,11 +38,12 @@ import 'package:source_parser/page/local_server_page/local_server_page.dart'
 import 'package:source_parser/page/reader/reader_page.dart' as _i15;
 import 'package:source_parser/page/search/search_page.dart' as _i17;
 import 'package:source_parser/page/setting/setting_page.dart' as _i18;
+import 'package:source_parser/page/source_form_page.dart/source_form_page.dart'
+    as _i24;
 import 'package:source_parser/page/source_page/advanced.dart' as _i20;
 import 'package:source_parser/page/source_page/catalogue.dart' as _i21;
 import 'package:source_parser/page/source_page/content.dart' as _i22;
 import 'package:source_parser/page/source_page/debugger.dart' as _i23;
-import 'package:source_parser/page/source_page/form.dart' as _i24;
 import 'package:source_parser/page/source_page/information.dart' as _i25;
 import 'package:source_parser/page/source_page/search.dart' as _i27;
 import 'package:source_parser/page/source_page/source_page.dart' as _i26;
@@ -666,13 +668,13 @@ class SourceDebuggerRoute extends _i29.PageRouteInfo<void> {
 class SourceFormRoute extends _i29.PageRouteInfo<SourceFormRouteArgs> {
   SourceFormRoute({
     _i30.Key? key,
-    int? id,
+    _i35.SourceEntity? source,
     List<_i29.PageRouteInfo>? children,
   }) : super(
           SourceFormRoute.name,
           args: SourceFormRouteArgs(
             key: key,
-            id: id,
+            source: source,
           ),
           initialChildren: children,
         );
@@ -686,7 +688,7 @@ class SourceFormRoute extends _i29.PageRouteInfo<SourceFormRouteArgs> {
           orElse: () => const SourceFormRouteArgs());
       return _i24.SourceFormPage(
         key: args.key,
-        id: args.id,
+        source: args.source,
       );
     },
   );
@@ -695,16 +697,16 @@ class SourceFormRoute extends _i29.PageRouteInfo<SourceFormRouteArgs> {
 class SourceFormRouteArgs {
   const SourceFormRouteArgs({
     this.key,
-    this.id,
+    this.source,
   });
 
   final _i30.Key? key;
 
-  final int? id;
+  final _i35.SourceEntity? source;
 
   @override
   String toString() {
-    return 'SourceFormRouteArgs{key: $key, id: $id}';
+    return 'SourceFormRouteArgs{key: $key, source: $source}';
   }
 }
 

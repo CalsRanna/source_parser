@@ -39,7 +39,10 @@ class _SourcePageState extends State<SourcePage> {
             return _SourceTile(
               key: ValueKey('source-$index'),
               source: viewModel.sources.value[index],
-              onTap: (id) => viewModel.editSource(context, id),
+              onTap: () => viewModel.editSource(
+                context,
+                viewModel.sources.value[index],
+              ),
             );
           },
         );
@@ -61,7 +64,7 @@ class _SourcePageState extends State<SourcePage> {
 class _SourceTile extends StatelessWidget {
   final SourceEntity source;
 
-  final void Function(int)? onTap;
+  final void Function()? onTap;
   const _SourceTile({super.key, required this.source, this.onTap});
 
   @override
@@ -75,13 +78,9 @@ class _SourceTile extends StatelessWidget {
     );
     return ListTile(
       leading: circleAvatar,
-      onTap: handleTap,
+      onTap: onTap,
       title: Text(source.name),
       subtitle: Text(source.url),
     );
-  }
-
-  void handleTap() {
-    onTap?.call(source.id);
   }
 }

@@ -17,6 +17,11 @@ class SourceFormViewModel {
     }
   }
 
+  void initSignals(SourceEntity? source) {
+    if (source == null) return;
+    this.source.value = source;
+  }
+
   void navigateSourceDetailAdvancedPage(BuildContext context) {
     SourceAdvancedConfigurationRoute().push(context);
   }

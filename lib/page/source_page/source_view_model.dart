@@ -28,8 +28,8 @@ class SourceViewModel {
     SourceFormRoute().push(context);
   }
 
-  void editSource(BuildContext context, int id) async {
-    SourceFormRoute(id: id).push(context);
+  void editSource(BuildContext context, SourceEntity source) async {
+    SourceFormRoute(source: source).push(context);
   }
 
   Future<void> initSignals() async {
