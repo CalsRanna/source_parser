@@ -6,7 +6,7 @@ part of 'search.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$topSearchBooksHash() => r'c66d47da727a20a8b639abdad64a7a154cdfecf0';
+String _$topSearchBooksHash() => r'28f6da262747588e81503845e36aafa712ed24b0';
 
 /// See also [TopSearchBooks].
 @ProviderFor(TopSearchBooks)

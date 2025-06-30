@@ -6,6 +6,7 @@ import 'package:charset/charset.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/model/available_source_entity.dart';
+import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/model/explore.dart';
@@ -310,7 +311,7 @@ class Parser {
     }).toList();
   }
 
-  static Future<List<Book>> topSearch(
+  static Future<List<BookEntity>> topSearch(
     Duration duration,
     Duration timeout,
   ) async {
@@ -320,7 +321,7 @@ class Parser {
     final node = parser.parse(html);
     final nodes = parser.queryNodes(node, nodeRule);
     final books =
-        nodes.map((node) => Book()..name = parser.query(node, nameRule));
+        nodes.map((node) => BookEntity()..name = parser.query(node, nameRule));
     return books.toList();
   }
 

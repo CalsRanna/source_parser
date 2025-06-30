@@ -43,9 +43,7 @@ class SearchViewModel {
     var cacheDuration = Duration(hours: storedCacheDuration);
     var storedTimeout = await SharedPreferenceUtil.getTimeout();
     var timeout = Duration(seconds: storedTimeout);
-    var books = await Parser.topSearch(cacheDuration, timeout);
-    trendingBooks.value =
-        books.map((book) => BookEntity.fromJson(book.toJson())).toList();
+    trendingBooks.value = await Parser.topSearch(cacheDuration, timeout);
   }
 
   void navigateInformationPage(
