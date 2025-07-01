@@ -31,10 +31,11 @@ class LocalServerSourceController with LocalServerController {
   }
 
   Future<Response> show(Request request, String id) async {
+    var service = SourceService();
     try {
-      var count = await SourceService().countSourceById(int.parse(id));
+      var count = await service.countSourceById(int.parse(id));
       if (count == 0) return response(null);
-      final source = await SourceService().getBookSource(int.parse(id));
+      final source = await service.getBookSource(int.parse(id));
       return response(source);
     } catch (e) {
       return error(e);
@@ -42,16 +43,17 @@ class LocalServerSourceController with LocalServerController {
   }
 
   Future<Response> store(Request request) async {
+    var service = SourceService();
     try {
       final body = await request.readAsString();
       final json = jsonDecode(body) as Map<String, dynamic>;
-      var count = await SourceService().countSourceByNameAndUrl(
+      var count = await service.countSourceByNameAndUrl(
         json['name'],
         json['url'],
       );
       if (count > 0) return error('Source already exists');
       final source = SourceEntity.fromJson(json);
-      await SourceService().addSources([source]);
+      await service.addSources([source]);
       return response(source, statusCode: 201);
     } catch (e) {
       return error(e);
@@ -59,12 +61,13 @@ class LocalServerSourceController with LocalServerController {
   }
 
   Future<Response> update(Request request, String id) async {
+    var service = SourceService();
     try {
-      var source = await SourceService().getBookSource(int.parse(id));
+      var source = await service.getBookSource(int.parse(id));
       final body = await request.readAsString();
       final json = jsonDecode(body) as Map<String, dynamic>;
       var updatedSource = source.updateWithJson(json);
-      await SourceService().updateSource(updatedSource);
+      await service.updateSource(updatedSource);
       return response(updatedSource);
     } catch (e) {
       return error(e);
