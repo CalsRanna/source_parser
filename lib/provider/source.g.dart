@@ -37,7 +37,7 @@ final currentSourceProvider =
 );
 
 typedef _$CurrentSource = AutoDisposeAsyncNotifier<Source?>;
-String _$formSourceHash() => r'8b7e96b0a7662d2a105a468837ba770d10fddb44';
+String _$formSourceHash() => r'76e72b78096ba7565aa72d724ba67433d5562ef9';
 
 /// See also [FormSource].
 @ProviderFor(FormSource)
@@ -51,12 +51,12 @@ final formSourceProvider = NotifierProvider<FormSource, Source>.internal(
 );
 
 typedef _$FormSource = Notifier<Source>;
-String _$sourceDebuggerHash() => r'0930ebbb25a2135718a5b84fb5e553bacb41a50a';
+String _$sourceDebuggerHash() => r'896408e1d9cae5ba19959aa5184699e035cd2cc6';
 
 /// See also [SourceDebugger].
 @ProviderFor(SourceDebugger)
 final sourceDebuggerProvider = AutoDisposeAsyncNotifierProvider<SourceDebugger,
-    Stream<List<DebugResultNew>>>.internal(
+    Stream<List<DebugResultEntity>>>.internal(
   SourceDebugger.new,
   name: r'sourceDebuggerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -67,7 +67,7 @@ final sourceDebuggerProvider = AutoDisposeAsyncNotifierProvider<SourceDebugger,
 );
 
 typedef _$SourceDebugger
-    = AutoDisposeAsyncNotifier<Stream<List<DebugResultNew>>>;
+    = AutoDisposeAsyncNotifier<Stream<List<DebugResultEntity>>>;
 String _$exploreSourcesNotifierHash() =>
     r'fb881a0f9b942f1e0e3c0a9f27f7d7e5caf2c0be';
 

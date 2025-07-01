@@ -32,6 +32,7 @@ class AppRouter extends RootStackRouter {
       AutoRoute(page: SourceCatalogueConfigurationRoute.page),
       AutoRoute(page: SourceContentConfigurationRoute.page),
       AutoRoute(page: SourceFormRoute.page),
+      AutoRoute(page: SourceFormDebugRoute.page),
       AutoRoute(page: ReaderLayoutRoute.page),
       AutoRoute(page: ThemeEditorRoute.page),
       AutoRoute(page: LocalServerRoute.page),

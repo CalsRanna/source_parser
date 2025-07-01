@@ -136,7 +136,7 @@ class FormSource extends _$FormSource {
     ref.invalidateSelf();
   }
 
-  Future<Stream<DebugResultNew>> debug() async {
+  Future<Stream<DebugResultEntity>> debug() async {
     var source = SourceEntity.fromJson(state.toJson());
     final stream = Parser.debug(source);
     return stream;
@@ -146,11 +146,11 @@ class FormSource extends _$FormSource {
 @riverpod
 class SourceDebugger extends _$SourceDebugger {
   @override
-  Future<Stream<List<DebugResultNew>>> build() async {
-    final controller = StreamController<List<DebugResultNew>>();
+  Future<Stream<List<DebugResultEntity>>> build() async {
+    final controller = StreamController<List<DebugResultEntity>>();
     final source = ref.read(formSourceProvider);
     var stream = Parser.debug(SourceEntity.fromJson(source.toJson()));
-    List<DebugResultNew> results = [];
+    List<DebugResultEntity> results = [];
     stream.listen(
       (result) {
         results.add(result);
@@ -159,7 +159,7 @@ class SourceDebugger extends _$SourceDebugger {
         final isLinux = Platform.isLinux;
         final showExtra = isMacOS || isWindows || isLinux;
         if (showExtra && result.title == '正文') {
-          results.add(DebugResultNew(
+          results.add(DebugResultEntity(
             json: result.json,
             html: jsonDecode(result.json)['content'].codeUnits.toString(),
             title: '正文Unicode编码',

@@ -85,7 +85,7 @@ class _SourceFormPageState extends State<SourceFormPage> {
 
   Widget _buildDebugButton() {
     return IconButton(
-      onPressed: () {},
+      onPressed: () => viewModel.navigateSourceFormDebugPage(context),
       icon: const Icon(HugeIcons.strokeRoundedCursorMagicSelection02),
     );
   }

@@ -22,8 +22,8 @@ class DebugResult {
   String contentContent;
 }
 
-class DebugResultNew {
-  DebugResultNew({
+class DebugResultEntity {
+  DebugResultEntity({
     this.title = '',
     this.html = '',
     this.json = '',

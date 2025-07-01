@@ -67,4 +67,8 @@ class SourceFormViewModel {
   void updateUrl(String url) {
     source.value = source.value.copyWith(url: url);
   }
+
+  void navigateSourceFormDebugPage(BuildContext context) {
+    SourceFormDebugRoute(source: source.value).push(context);
+  }
 }

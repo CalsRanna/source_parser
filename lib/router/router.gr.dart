@@ -8,13 +8,13 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i29;
-import 'package:flutter/material.dart' as _i30;
-import 'package:source_parser/model/available_source_entity.dart' as _i31;
-import 'package:source_parser/model/book_entity.dart' as _i32;
-import 'package:source_parser/model/chapter_entity.dart' as _i33;
-import 'package:source_parser/model/information_entity.dart' as _i34;
-import 'package:source_parser/model/source_entity.dart' as _i35;
+import 'package:auto_route/auto_route.dart' as _i30;
+import 'package:flutter/material.dart' as _i31;
+import 'package:source_parser/model/available_source_entity.dart' as _i32;
+import 'package:source_parser/model/book_entity.dart' as _i33;
+import 'package:source_parser/model/chapter_entity.dart' as _i34;
+import 'package:source_parser/model/information_entity.dart' as _i35;
+import 'package:source_parser/model/source_entity.dart' as _i36;
 import 'package:source_parser/page/about.dart' as _i1;
 import 'package:source_parser/page/available_source/available_source_form_page.dart'
     as _i2;
@@ -38,22 +38,24 @@ import 'package:source_parser/page/local_server_page/local_server_page.dart'
 import 'package:source_parser/page/reader/reader_page.dart' as _i15;
 import 'package:source_parser/page/search/search_page.dart' as _i17;
 import 'package:source_parser/page/setting/setting_page.dart' as _i18;
-import 'package:source_parser/page/source_form_page.dart/source_form_page.dart'
+import 'package:source_parser/page/source_form_page.dart/source_form_debug_page.dart'
     as _i24;
+import 'package:source_parser/page/source_form_page.dart/source_form_page.dart'
+    as _i25;
 import 'package:source_parser/page/source_page/advanced.dart' as _i20;
 import 'package:source_parser/page/source_page/catalogue.dart' as _i21;
 import 'package:source_parser/page/source_page/content.dart' as _i22;
 import 'package:source_parser/page/source_page/debugger.dart' as _i23;
-import 'package:source_parser/page/source_page/information.dart' as _i25;
-import 'package:source_parser/page/source_page/search.dart' as _i27;
-import 'package:source_parser/page/source_page/source_page.dart' as _i26;
+import 'package:source_parser/page/source_page/information.dart' as _i26;
+import 'package:source_parser/page/source_page/search.dart' as _i28;
+import 'package:source_parser/page/source_page/source_page.dart' as _i27;
 import 'package:source_parser/page/theme/theme.dart' as _i16;
-import 'package:source_parser/page/theme/theme_editor.dart' as _i28;
+import 'package:source_parser/page/theme/theme_editor.dart' as _i29;
 
 /// generated route for
 /// [_i1.AboutPage]
-class AboutRoute extends _i29.PageRouteInfo<void> {
-  const AboutRoute({List<_i29.PageRouteInfo>? children})
+class AboutRoute extends _i30.PageRouteInfo<void> {
+  const AboutRoute({List<_i30.PageRouteInfo>? children})
       : super(
           AboutRoute.name,
           initialChildren: children,
@@ -61,7 +63,7 @@ class AboutRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'AboutRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i1.AboutPage();
@@ -71,8 +73,8 @@ class AboutRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i2.AvailableSourceFormPage]
-class AvailableSourceFormRoute extends _i29.PageRouteInfo<void> {
-  const AvailableSourceFormRoute({List<_i29.PageRouteInfo>? children})
+class AvailableSourceFormRoute extends _i30.PageRouteInfo<void> {
+  const AvailableSourceFormRoute({List<_i30.PageRouteInfo>? children})
       : super(
           AvailableSourceFormRoute.name,
           initialChildren: children,
@@ -80,7 +82,7 @@ class AvailableSourceFormRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'AvailableSourceFormRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i2.AvailableSourceFormPage();
@@ -91,12 +93,12 @@ class AvailableSourceFormRoute extends _i29.PageRouteInfo<void> {
 /// generated route for
 /// [_i3.AvailableSourcePage]
 class AvailableSourceRoute
-    extends _i29.PageRouteInfo<AvailableSourceRouteArgs> {
+    extends _i30.PageRouteInfo<AvailableSourceRouteArgs> {
   AvailableSourceRoute({
-    _i30.Key? key,
-    List<_i31.AvailableSourceEntity>? availableSources,
-    required _i32.BookEntity book,
-    List<_i29.PageRouteInfo>? children,
+    _i31.Key? key,
+    List<_i32.AvailableSourceEntity>? availableSources,
+    required _i33.BookEntity book,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           AvailableSourceRoute.name,
           args: AvailableSourceRouteArgs(
@@ -109,7 +111,7 @@ class AvailableSourceRoute
 
   static const String name = 'AvailableSourceRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<AvailableSourceRouteArgs>();
@@ -129,11 +131,11 @@ class AvailableSourceRouteArgs {
     required this.book,
   });
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
-  final List<_i31.AvailableSourceEntity>? availableSources;
+  final List<_i32.AvailableSourceEntity>? availableSources;
 
-  final _i32.BookEntity book;
+  final _i33.BookEntity book;
 
   @override
   String toString() {
@@ -143,8 +145,8 @@ class AvailableSourceRouteArgs {
 
 /// generated route for
 /// [_i4.BookFormPage]
-class BookFormRoute extends _i29.PageRouteInfo<void> {
-  const BookFormRoute({List<_i29.PageRouteInfo>? children})
+class BookFormRoute extends _i30.PageRouteInfo<void> {
+  const BookFormRoute({List<_i30.PageRouteInfo>? children})
       : super(
           BookFormRoute.name,
           initialChildren: children,
@@ -152,7 +154,7 @@ class BookFormRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'BookFormRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i4.BookFormPage();
@@ -162,12 +164,12 @@ class BookFormRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i5.CataloguePage]
-class CatalogueRoute extends _i29.PageRouteInfo<CatalogueRouteArgs> {
+class CatalogueRoute extends _i30.PageRouteInfo<CatalogueRouteArgs> {
   CatalogueRoute({
-    _i30.Key? key,
-    required _i32.BookEntity book,
-    List<_i33.ChapterEntity>? chapters,
-    List<_i29.PageRouteInfo>? children,
+    _i31.Key? key,
+    required _i33.BookEntity book,
+    List<_i34.ChapterEntity>? chapters,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           CatalogueRoute.name,
           args: CatalogueRouteArgs(
@@ -180,7 +182,7 @@ class CatalogueRoute extends _i29.PageRouteInfo<CatalogueRouteArgs> {
 
   static const String name = 'CatalogueRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<CatalogueRouteArgs>();
@@ -200,11 +202,11 @@ class CatalogueRouteArgs {
     this.chapters,
   });
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
-  final _i32.BookEntity book;
+  final _i33.BookEntity book;
 
-  final List<_i33.ChapterEntity>? chapters;
+  final List<_i34.ChapterEntity>? chapters;
 
   @override
   String toString() {
@@ -214,8 +216,8 @@ class CatalogueRouteArgs {
 
 /// generated route for
 /// [_i6.CloudReaderPage]
-class CloudReaderRoute extends _i29.PageRouteInfo<void> {
-  const CloudReaderRoute({List<_i29.PageRouteInfo>? children})
+class CloudReaderRoute extends _i30.PageRouteInfo<void> {
+  const CloudReaderRoute({List<_i30.PageRouteInfo>? children})
       : super(
           CloudReaderRoute.name,
           initialChildren: children,
@@ -223,7 +225,7 @@ class CloudReaderRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'CloudReaderRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i6.CloudReaderPage();
@@ -233,11 +235,11 @@ class CloudReaderRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i7.CoverSelectorPage]
-class CoverSelectorRoute extends _i29.PageRouteInfo<CoverSelectorRouteArgs> {
+class CoverSelectorRoute extends _i30.PageRouteInfo<CoverSelectorRouteArgs> {
   CoverSelectorRoute({
-    _i30.Key? key,
-    required _i32.BookEntity book,
-    List<_i29.PageRouteInfo>? children,
+    _i31.Key? key,
+    required _i33.BookEntity book,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           CoverSelectorRoute.name,
           args: CoverSelectorRouteArgs(
@@ -249,7 +251,7 @@ class CoverSelectorRoute extends _i29.PageRouteInfo<CoverSelectorRouteArgs> {
 
   static const String name = 'CoverSelectorRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<CoverSelectorRouteArgs>();
@@ -267,9 +269,9 @@ class CoverSelectorRouteArgs {
     required this.book,
   });
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
-  final _i32.BookEntity book;
+  final _i33.BookEntity book;
 
   @override
   String toString() {
@@ -279,8 +281,8 @@ class CoverSelectorRouteArgs {
 
 /// generated route for
 /// [_i8.DatabasePage]
-class DatabaseRoute extends _i29.PageRouteInfo<void> {
-  const DatabaseRoute({List<_i29.PageRouteInfo>? children})
+class DatabaseRoute extends _i30.PageRouteInfo<void> {
+  const DatabaseRoute({List<_i30.PageRouteInfo>? children})
       : super(
           DatabaseRoute.name,
           initialChildren: children,
@@ -288,7 +290,7 @@ class DatabaseRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'DatabaseRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i8.DatabasePage();
@@ -298,8 +300,8 @@ class DatabaseRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i9.DeveloperPage]
-class DeveloperRoute extends _i29.PageRouteInfo<void> {
-  const DeveloperRoute({List<_i29.PageRouteInfo>? children})
+class DeveloperRoute extends _i30.PageRouteInfo<void> {
+  const DeveloperRoute({List<_i30.PageRouteInfo>? children})
       : super(
           DeveloperRoute.name,
           initialChildren: children,
@@ -307,7 +309,7 @@ class DeveloperRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'DeveloperRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i9.DeveloperPage();
@@ -317,8 +319,8 @@ class DeveloperRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i10.FileManagerPage]
-class FileManagerRoute extends _i29.PageRouteInfo<void> {
-  const FileManagerRoute({List<_i29.PageRouteInfo>? children})
+class FileManagerRoute extends _i30.PageRouteInfo<void> {
+  const FileManagerRoute({List<_i30.PageRouteInfo>? children})
       : super(
           FileManagerRoute.name,
           initialChildren: children,
@@ -326,7 +328,7 @@ class FileManagerRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'FileManagerRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i10.FileManagerPage();
@@ -336,8 +338,8 @@ class FileManagerRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i11.HomePage]
-class HomeRoute extends _i29.PageRouteInfo<void> {
-  const HomeRoute({List<_i29.PageRouteInfo>? children})
+class HomeRoute extends _i30.PageRouteInfo<void> {
+  const HomeRoute({List<_i30.PageRouteInfo>? children})
       : super(
           HomeRoute.name,
           initialChildren: children,
@@ -345,7 +347,7 @@ class HomeRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'HomeRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i11.HomePage();
@@ -355,11 +357,11 @@ class HomeRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i12.InformationPage]
-class InformationRoute extends _i29.PageRouteInfo<InformationRouteArgs> {
+class InformationRoute extends _i30.PageRouteInfo<InformationRouteArgs> {
   InformationRoute({
-    _i30.Key? key,
-    required _i34.InformationEntity information,
-    List<_i29.PageRouteInfo>? children,
+    _i31.Key? key,
+    required _i35.InformationEntity information,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           InformationRoute.name,
           args: InformationRouteArgs(
@@ -371,7 +373,7 @@ class InformationRoute extends _i29.PageRouteInfo<InformationRouteArgs> {
 
   static const String name = 'InformationRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<InformationRouteArgs>();
@@ -389,9 +391,9 @@ class InformationRouteArgs {
     required this.information,
   });
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
-  final _i34.InformationEntity information;
+  final _i35.InformationEntity information;
 
   @override
   String toString() {
@@ -401,8 +403,8 @@ class InformationRouteArgs {
 
 /// generated route for
 /// [_i13.LocalServerPage]
-class LocalServerRoute extends _i29.PageRouteInfo<void> {
-  const LocalServerRoute({List<_i29.PageRouteInfo>? children})
+class LocalServerRoute extends _i30.PageRouteInfo<void> {
+  const LocalServerRoute({List<_i30.PageRouteInfo>? children})
       : super(
           LocalServerRoute.name,
           initialChildren: children,
@@ -410,7 +412,7 @@ class LocalServerRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'LocalServerRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i13.LocalServerPage();
@@ -420,8 +422,8 @@ class LocalServerRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i14.ReaderLayoutPage]
-class ReaderLayoutRoute extends _i29.PageRouteInfo<void> {
-  const ReaderLayoutRoute({List<_i29.PageRouteInfo>? children})
+class ReaderLayoutRoute extends _i30.PageRouteInfo<void> {
+  const ReaderLayoutRoute({List<_i30.PageRouteInfo>? children})
       : super(
           ReaderLayoutRoute.name,
           initialChildren: children,
@@ -429,7 +431,7 @@ class ReaderLayoutRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'ReaderLayoutRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i14.ReaderLayoutPage();
@@ -439,11 +441,11 @@ class ReaderLayoutRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i15.ReaderPage]
-class ReaderRoute extends _i29.PageRouteInfo<ReaderRouteArgs> {
+class ReaderRoute extends _i30.PageRouteInfo<ReaderRouteArgs> {
   ReaderRoute({
-    _i30.Key? key,
-    required _i32.BookEntity book,
-    List<_i29.PageRouteInfo>? children,
+    _i31.Key? key,
+    required _i33.BookEntity book,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           ReaderRoute.name,
           args: ReaderRouteArgs(
@@ -455,7 +457,7 @@ class ReaderRoute extends _i29.PageRouteInfo<ReaderRouteArgs> {
 
   static const String name = 'ReaderRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<ReaderRouteArgs>();
@@ -473,9 +475,9 @@ class ReaderRouteArgs {
     required this.book,
   });
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
-  final _i32.BookEntity book;
+  final _i33.BookEntity book;
 
   @override
   String toString() {
@@ -485,8 +487,8 @@ class ReaderRouteArgs {
 
 /// generated route for
 /// [_i16.ReaderThemePage]
-class ReaderThemeRoute extends _i29.PageRouteInfo<void> {
-  const ReaderThemeRoute({List<_i29.PageRouteInfo>? children})
+class ReaderThemeRoute extends _i30.PageRouteInfo<void> {
+  const ReaderThemeRoute({List<_i30.PageRouteInfo>? children})
       : super(
           ReaderThemeRoute.name,
           initialChildren: children,
@@ -494,7 +496,7 @@ class ReaderThemeRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'ReaderThemeRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i16.ReaderThemePage();
@@ -504,11 +506,11 @@ class ReaderThemeRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i17.SearchPage]
-class SearchRoute extends _i29.PageRouteInfo<SearchRouteArgs> {
+class SearchRoute extends _i30.PageRouteInfo<SearchRouteArgs> {
   SearchRoute({
-    _i30.Key? key,
+    _i31.Key? key,
     String? credential,
-    List<_i29.PageRouteInfo>? children,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           SearchRoute.name,
           args: SearchRouteArgs(
@@ -520,7 +522,7 @@ class SearchRoute extends _i29.PageRouteInfo<SearchRouteArgs> {
 
   static const String name = 'SearchRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final args =
@@ -539,7 +541,7 @@ class SearchRouteArgs {
     this.credential,
   });
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
   final String? credential;
 
@@ -551,8 +553,8 @@ class SearchRouteArgs {
 
 /// generated route for
 /// [_i18.SettingPage]
-class SettingRoute extends _i29.PageRouteInfo<void> {
-  const SettingRoute({List<_i29.PageRouteInfo>? children})
+class SettingRoute extends _i30.PageRouteInfo<void> {
+  const SettingRoute({List<_i30.PageRouteInfo>? children})
       : super(
           SettingRoute.name,
           initialChildren: children,
@@ -560,7 +562,7 @@ class SettingRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'SettingRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i18.SettingPage();
@@ -570,8 +572,8 @@ class SettingRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i19.SimpleCloudReaderPage]
-class SimpleCloudReaderRoute extends _i29.PageRouteInfo<void> {
-  const SimpleCloudReaderRoute({List<_i29.PageRouteInfo>? children})
+class SimpleCloudReaderRoute extends _i30.PageRouteInfo<void> {
+  const SimpleCloudReaderRoute({List<_i30.PageRouteInfo>? children})
       : super(
           SimpleCloudReaderRoute.name,
           initialChildren: children,
@@ -579,7 +581,7 @@ class SimpleCloudReaderRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'SimpleCloudReaderRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i19.SimpleCloudReaderPage();
@@ -589,8 +591,8 @@ class SimpleCloudReaderRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i20.SourceAdvancedConfigurationPage]
-class SourceAdvancedConfigurationRoute extends _i29.PageRouteInfo<void> {
-  const SourceAdvancedConfigurationRoute({List<_i29.PageRouteInfo>? children})
+class SourceAdvancedConfigurationRoute extends _i30.PageRouteInfo<void> {
+  const SourceAdvancedConfigurationRoute({List<_i30.PageRouteInfo>? children})
       : super(
           SourceAdvancedConfigurationRoute.name,
           initialChildren: children,
@@ -598,7 +600,7 @@ class SourceAdvancedConfigurationRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'SourceAdvancedConfigurationRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i20.SourceAdvancedConfigurationPage();
@@ -608,8 +610,8 @@ class SourceAdvancedConfigurationRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i21.SourceCatalogueConfigurationPage]
-class SourceCatalogueConfigurationRoute extends _i29.PageRouteInfo<void> {
-  const SourceCatalogueConfigurationRoute({List<_i29.PageRouteInfo>? children})
+class SourceCatalogueConfigurationRoute extends _i30.PageRouteInfo<void> {
+  const SourceCatalogueConfigurationRoute({List<_i30.PageRouteInfo>? children})
       : super(
           SourceCatalogueConfigurationRoute.name,
           initialChildren: children,
@@ -617,7 +619,7 @@ class SourceCatalogueConfigurationRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'SourceCatalogueConfigurationRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i21.SourceCatalogueConfigurationPage();
@@ -627,8 +629,8 @@ class SourceCatalogueConfigurationRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i22.SourceContentConfigurationPage]
-class SourceContentConfigurationRoute extends _i29.PageRouteInfo<void> {
-  const SourceContentConfigurationRoute({List<_i29.PageRouteInfo>? children})
+class SourceContentConfigurationRoute extends _i30.PageRouteInfo<void> {
+  const SourceContentConfigurationRoute({List<_i30.PageRouteInfo>? children})
       : super(
           SourceContentConfigurationRoute.name,
           initialChildren: children,
@@ -636,7 +638,7 @@ class SourceContentConfigurationRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'SourceContentConfigurationRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i22.SourceContentConfigurationPage();
@@ -646,8 +648,8 @@ class SourceContentConfigurationRoute extends _i29.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i23.SourceDebuggerPage]
-class SourceDebuggerRoute extends _i29.PageRouteInfo<void> {
-  const SourceDebuggerRoute({List<_i29.PageRouteInfo>? children})
+class SourceDebuggerRoute extends _i30.PageRouteInfo<void> {
+  const SourceDebuggerRoute({List<_i30.PageRouteInfo>? children})
       : super(
           SourceDebuggerRoute.name,
           initialChildren: children,
@@ -655,7 +657,7 @@ class SourceDebuggerRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'SourceDebuggerRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       return const _i23.SourceDebuggerPage();
@@ -664,12 +666,59 @@ class SourceDebuggerRoute extends _i29.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i24.SourceFormPage]
-class SourceFormRoute extends _i29.PageRouteInfo<SourceFormRouteArgs> {
+/// [_i24.SourceFormDebugPage]
+class SourceFormDebugRoute
+    extends _i30.PageRouteInfo<SourceFormDebugRouteArgs> {
+  SourceFormDebugRoute({
+    _i31.Key? key,
+    required _i36.SourceEntity source,
+    List<_i30.PageRouteInfo>? children,
+  }) : super(
+          SourceFormDebugRoute.name,
+          args: SourceFormDebugRouteArgs(
+            key: key,
+            source: source,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'SourceFormDebugRoute';
+
+  static _i30.PageInfo page = _i30.PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<SourceFormDebugRouteArgs>();
+      return _i24.SourceFormDebugPage(
+        key: args.key,
+        source: args.source,
+      );
+    },
+  );
+}
+
+class SourceFormDebugRouteArgs {
+  const SourceFormDebugRouteArgs({
+    this.key,
+    required this.source,
+  });
+
+  final _i31.Key? key;
+
+  final _i36.SourceEntity source;
+
+  @override
+  String toString() {
+    return 'SourceFormDebugRouteArgs{key: $key, source: $source}';
+  }
+}
+
+/// generated route for
+/// [_i25.SourceFormPage]
+class SourceFormRoute extends _i30.PageRouteInfo<SourceFormRouteArgs> {
   SourceFormRoute({
-    _i30.Key? key,
-    _i35.SourceEntity? source,
-    List<_i29.PageRouteInfo>? children,
+    _i31.Key? key,
+    _i36.SourceEntity? source,
+    List<_i30.PageRouteInfo>? children,
   }) : super(
           SourceFormRoute.name,
           args: SourceFormRouteArgs(
@@ -681,12 +730,12 @@ class SourceFormRoute extends _i29.PageRouteInfo<SourceFormRouteArgs> {
 
   static const String name = 'SourceFormRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
       final args = data.argsAs<SourceFormRouteArgs>(
           orElse: () => const SourceFormRouteArgs());
-      return _i24.SourceFormPage(
+      return _i25.SourceFormPage(
         key: args.key,
         source: args.source,
       );
@@ -700,9 +749,9 @@ class SourceFormRouteArgs {
     this.source,
   });
 
-  final _i30.Key? key;
+  final _i31.Key? key;
 
-  final _i35.SourceEntity? source;
+  final _i36.SourceEntity? source;
 
   @override
   String toString() {
@@ -711,10 +760,10 @@ class SourceFormRouteArgs {
 }
 
 /// generated route for
-/// [_i25.SourceInformationConfigurationPage]
-class SourceInformationConfigurationRoute extends _i29.PageRouteInfo<void> {
+/// [_i26.SourceInformationConfigurationPage]
+class SourceInformationConfigurationRoute extends _i30.PageRouteInfo<void> {
   const SourceInformationConfigurationRoute(
-      {List<_i29.PageRouteInfo>? children})
+      {List<_i30.PageRouteInfo>? children})
       : super(
           SourceInformationConfigurationRoute.name,
           initialChildren: children,
@@ -722,18 +771,18 @@ class SourceInformationConfigurationRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'SourceInformationConfigurationRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i25.SourceInformationConfigurationPage();
+      return const _i26.SourceInformationConfigurationPage();
     },
   );
 }
 
 /// generated route for
-/// [_i26.SourcePage]
-class SourceRoute extends _i29.PageRouteInfo<void> {
-  const SourceRoute({List<_i29.PageRouteInfo>? children})
+/// [_i27.SourcePage]
+class SourceRoute extends _i30.PageRouteInfo<void> {
+  const SourceRoute({List<_i30.PageRouteInfo>? children})
       : super(
           SourceRoute.name,
           initialChildren: children,
@@ -741,18 +790,18 @@ class SourceRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'SourceRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i26.SourcePage();
+      return const _i27.SourcePage();
     },
   );
 }
 
 /// generated route for
-/// [_i27.SourceSearchConfigurationPage]
-class SourceSearchConfigurationRoute extends _i29.PageRouteInfo<void> {
-  const SourceSearchConfigurationRoute({List<_i29.PageRouteInfo>? children})
+/// [_i28.SourceSearchConfigurationPage]
+class SourceSearchConfigurationRoute extends _i30.PageRouteInfo<void> {
+  const SourceSearchConfigurationRoute({List<_i30.PageRouteInfo>? children})
       : super(
           SourceSearchConfigurationRoute.name,
           initialChildren: children,
@@ -760,18 +809,18 @@ class SourceSearchConfigurationRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'SourceSearchConfigurationRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i27.SourceSearchConfigurationPage();
+      return const _i28.SourceSearchConfigurationPage();
     },
   );
 }
 
 /// generated route for
-/// [_i28.ThemeEditorPage]
-class ThemeEditorRoute extends _i29.PageRouteInfo<void> {
-  const ThemeEditorRoute({List<_i29.PageRouteInfo>? children})
+/// [_i29.ThemeEditorPage]
+class ThemeEditorRoute extends _i30.PageRouteInfo<void> {
+  const ThemeEditorRoute({List<_i30.PageRouteInfo>? children})
       : super(
           ThemeEditorRoute.name,
           initialChildren: children,
@@ -779,10 +828,10 @@ class ThemeEditorRoute extends _i29.PageRouteInfo<void> {
 
   static const String name = 'ThemeEditorRoute';
 
-  static _i29.PageInfo page = _i29.PageInfo(
+  static _i30.PageInfo page = _i30.PageInfo(
     name,
     builder: (data) {
-      return const _i28.ThemeEditorPage();
+      return const _i29.ThemeEditorPage();
     },
   );
 }

@@ -3,41 +3,22 @@ import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/debug.dart';
-import 'package:source_parser/provider/source.dart';
-import 'package:source_parser/util/message.dart';
-import 'package:source_parser/util/string_extension.dart';
+import 'package:source_parser/model/source_entity.dart';
+import 'package:source_parser/page/source_form_page.dart/source_form_debug_view_model.dart';
 import 'package:source_parser/page/source_page/component/rule_group_label.dart';
+import 'package:source_parser/provider/source.dart';
+import 'package:source_parser/util/string_extension.dart';
 
 @RoutePage()
-class SourceDebuggerPage extends StatefulWidget {
-  const SourceDebuggerPage({super.key});
+class SourceFormDebugPage extends StatefulWidget {
+  final SourceEntity source;
+  const SourceFormDebugPage({super.key, required this.source});
 
   @override
-  State<StatefulWidget> createState() => _SourceDebuggerPageState();
-}
-
-class _DebugButton extends ConsumerWidget {
-  const _DebugButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return IconButton(
-      icon: const Icon(HugeIcons.strokeRoundedCursorMagicSelection02),
-      onPressed: () => debug(context, ref),
-    );
-  }
-
-  void debug(BuildContext context, WidgetRef ref) async {
-    try {
-      final notifier = ref.read(sourceDebuggerProvider.notifier);
-      notifier.debug();
-    } catch (e) {
-      final message = Message.of(context);
-      message.show(e.toString());
-    }
-  }
+  State<StatefulWidget> createState() => _SourceFormDebugPageState();
 }
 
 class _JsonDataPage extends StatelessWidget {
@@ -146,7 +127,8 @@ class _RawDataPage extends StatelessWidget {
   }
 }
 
-class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
+class _SourceFormDebugPageState extends State<SourceFormDebugPage> {
+  final viewModel = GetIt.instance.get<SourceFormDebugViewModel>();
   String defaultCredential = '都市';
   final keys = [
     'archive',
@@ -164,7 +146,7 @@ class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(actions: [_DebugButton()], title: const Text('书源调试')),
+      appBar: AppBar(actions: [_buildDebugButton()], title: const Text('书源调试')),
       body: Consumer(builder: (context, ref, child) {
         final state = ref.watch(sourceDebuggerProvider);
         return StreamBuilder(
@@ -210,6 +192,13 @@ class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
           },
         );
       }),
+    );
+  }
+
+  Widget _buildDebugButton() {
+    return IconButton(
+      icon: const Icon(HugeIcons.strokeRoundedCursorMagicSelection02),
+      onPressed: viewModel.debug,
     );
   }
 

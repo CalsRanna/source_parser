@@ -27,7 +27,7 @@ class Parser {
       '//div[@class="container-bg_lQ801"]/div/div[@class="category-wrap_iQLoo"]';
   static const url = 'https://top.baidu.com/board?tab=novel';
 
-  static Stream<DebugResultNew> debug(SourceEntity source) async* {
+  static Stream<DebugResultEntity> debug(SourceEntity source) async* {
     var hours = await SharedPreferenceUtil.getCacheDuration();
     var duration = Duration(hours: hours);
     var seconds = await SharedPreferenceUtil.getTimeout();
@@ -49,7 +49,7 @@ class Parser {
     ];
     (await sender.first as SendPort).send(messages);
     await for (var item in receiver) {
-      if (item is DebugResultNew) {
+      if (item is DebugResultEntity) {
         yield item;
       } else {
         isolate.kill();
@@ -349,7 +349,7 @@ class Parser {
         [network, duration, credential, source, receiver.sendPort],
       );
       receiver.forEach((element) {
-        if (element is DebugResultNew) {
+        if (element is DebugResultEntity) {
           if (element.title == '正文') {
             controller.add(source.id);
           }
@@ -377,9 +377,9 @@ class Parser {
       final sender = message[4] as SendPort;
 
       final parser = HtmlParser();
-      var result = DebugResultNew();
-      var books = <Book>[];
-      var book = Book();
+      var result = DebugResultEntity();
+      var books = <BookEntity>[];
+      var book = BookEntity();
       var chapters = <ChapterEntity>[];
       final helper = ParserUtil(network, source);
       // 调试搜索解析规则
@@ -830,7 +830,7 @@ class ParserUtil {
     );
   }
 
-  Future<Book> getBook(String html, {required String url}) async {
+  Future<BookEntity> getBook(String html, {required String url}) async {
     final parser = HtmlParser();
     final document = parser.parse(html);
     var author = parser.query(document, source.informationAuthor);
@@ -853,7 +853,7 @@ class ParserUtil {
     availableSource.latestChapter = latestChapter;
     availableSource.name = source.name;
     availableSource.url = url;
-    var book = Book();
+    var book = BookEntity();
     book.author = author;
     book.catalogueUrl = catalogueUrl;
     book.category = category;
@@ -889,11 +889,11 @@ class ParserUtil {
     return chapters;
   }
 
-  Future<List<Book>> search(String html) async {
+  Future<List<BookEntity>> search(String html) async {
     final parser = HtmlParser();
     final document = parser.parse(html);
     final items = parser.queryNodes(document, source.searchBooks);
-    List<Book> books = [];
+    List<BookEntity> books = [];
     for (var i = 0; i < items.length; i++) {
       final author = parser.query(items[i], source.searchAuthor);
       final category = parser.query(items[i], source.searchCategory);
@@ -912,7 +912,7 @@ class ParserUtil {
       availableSource.latestChapter = latestChapter;
       availableSource.name = source.name;
       availableSource.url = url;
-      final book = Book();
+      final book = BookEntity();
       book.author = author;
       book.category = category;
       book.cover = cover;
