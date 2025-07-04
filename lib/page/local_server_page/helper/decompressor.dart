@@ -41,7 +41,7 @@ class LocalServerDecompressor {
   }
 
   Future<void> _initSiteDirectory() async {
-    final directory = await getApplicationDocumentsDirectory();
+    final directory = await getApplicationSupportDirectory();
     site = join(directory.path, 'site');
   }
 
