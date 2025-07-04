@@ -5,6 +5,7 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:source_parser/page/local_server_page/controller/debugging_controller.dart';
 import 'package:source_parser/page/local_server_page/controller/source_controller.dart';
 import 'package:source_parser/page/local_server_page/controller/static_controller.dart';
 import 'package:source_parser/page/local_server_page/helper/decompressor.dart';
@@ -49,10 +50,14 @@ class LocalSourceViewModel {
     _router.post('/api/source', sourceController.store);
     _router.put('/api/source/<id>', sourceController.update);
     _router.delete('/api/source/<id>', sourceController.destroy);
+    var debuggingController = LocalServerDebuggingController.instance;
+    _router.post('/api/debugging', debuggingController.debug);
 
     var staticController = LocalServerStaticController.instance;
     var route = '/<ignored|.*>';
     _router.get(route, (request) => staticController.handle(request, site));
+
+    // response all options request for cors
     _router.options(route, (request) => Response.ok(''));
   }
 }
