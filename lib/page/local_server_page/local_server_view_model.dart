@@ -11,6 +11,7 @@ import 'package:source_parser/page/local_server_page/helper/decompressor.dart';
 import 'package:source_parser/page/local_server_page/middleware/cors_middleware.dart';
 import 'package:source_parser/page/local_server_page/middleware/log_middleware.dart';
 import 'package:source_parser/util/logger.dart';
+import 'package:source_parser/util/message.dart';
 
 class LocalSourceViewModel {
   static const int _port = 8080;
@@ -22,7 +23,11 @@ class LocalSourceViewModel {
   }
 
   Future<HttpServer> serving() async {
-    site = await LocalServerDecompressor().decompress();
+    try {
+      site = await LocalServerDecompressor().decompress();
+    } catch (e) {
+      Message.snackBar('解压失败');
+    }
     var address = await NetworkInfo().getWifiIP() ?? 'localhost';
     var server = await serve(_handler().call, address, _port);
     logger.d('Serving at http://${server.address.host}:${server.port}');
