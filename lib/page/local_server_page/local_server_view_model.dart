@@ -53,5 +53,6 @@ class LocalSourceViewModel {
     var staticController = LocalServerStaticController.instance;
     var route = '/<ignored|.*>';
     _router.get(route, (request) => staticController.handle(request, site));
+    _router.options(route, (request) => Response.ok(''));
   }
 }
