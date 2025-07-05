@@ -10,6 +10,7 @@ import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/page/local_server_page/controller/controller.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
+import 'package:source_parser/util/logger.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 
@@ -24,8 +25,8 @@ class LocalServerDebuggingController with LocalServerController {
   Future<Response> debug(Request request) async {
     final body = await request.readAsString();
     final json = jsonDecode(body) as Map<String, dynamic>;
-    var source =
-        await SourceService().getBookSource(int.parse(json['source_id']));
+    var id = json['source_id'];
+    var source = await SourceService().getBookSource(id);
     return switch (json['type']) {
       'search' => await _search(source),
       'detail' => await _detail(source, json['url']),
@@ -51,7 +52,7 @@ class LocalServerDebuggingController with LocalServerController {
         receiver.close();
       }
     }
-    return response(results);
+    return response(results.first);
   }
 
   Future<Response> _content(SourceEntity source, String url) async {
@@ -70,7 +71,7 @@ class LocalServerDebuggingController with LocalServerController {
         receiver.close();
       }
     }
-    return response(results);
+    return response(results.first);
   }
 
   Future<Response> _detail(SourceEntity source, String url) async {
@@ -89,7 +90,7 @@ class LocalServerDebuggingController with LocalServerController {
         receiver.close();
       }
     }
-    return response(results);
+    return response(results.first);
   }
 
   Future<CachedNetwork> _getCacheNetwork(String? prefix) async {
@@ -114,6 +115,7 @@ class LocalServerDebuggingController with LocalServerController {
     (await sender.first as SendPort).send(messages);
     List<DebugResultEntity> results = [];
     await for (var item in receiver) {
+      logger.d(item);
       if (item is DebugResultEntity) {
         results.add(item);
       } else {
@@ -121,7 +123,7 @@ class LocalServerDebuggingController with LocalServerController {
         receiver.close();
       }
     }
-    return response(results);
+    return response(results.first);
   }
 
   static void _chapterInIsolate(SendPort message) {
@@ -145,6 +147,7 @@ class LocalServerDebuggingController with LocalServerController {
         var jsonList = chapters.map((chapter) => chapter.toJson()).toList();
         result.json = jsonEncode(jsonList);
         sender.send(result);
+        sender.send('completed');
       } catch (error, stackTrace) {
         result.html = error.toString();
         final map = {
@@ -216,6 +219,7 @@ class LocalServerDebuggingController with LocalServerController {
         var book = await helper.getBook(result.html, url: url);
         result.json = jsonEncode(book.toJson());
         sender.send(result);
+        sender.send('completed');
       } catch (error, stackTrace) {
         result.html = error.toString();
         final map = {
@@ -254,6 +258,7 @@ class LocalServerDebuggingController with LocalServerController {
         final jsonList = books.map((book) => book.toJson()).toList();
         result.json = jsonEncode(jsonList);
         sender.send(result);
+        sender.send('completed');
       } catch (error, stackTrace) {
         result.html = error.toString();
         final map = {

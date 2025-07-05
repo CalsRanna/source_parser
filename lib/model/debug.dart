@@ -32,4 +32,12 @@ class DebugResultEntity {
   String title;
   String html;
   String json;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'html': html,
+      'json': json,
+    };
+  }
 }
