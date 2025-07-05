@@ -14,18 +14,19 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
+import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/color_extension.dart';
 import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
+import 'package:source_parser/util/logger.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/semaphore.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 import 'package:source_parser/util/splitter.dart';
 import 'package:source_parser/util/volume_util.dart';
-import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 
 class ReaderViewModel {
   final BookEntity book;
@@ -138,7 +139,7 @@ class ReaderViewModel {
     chapters.value = await _initChapters();
     availableSources.value = await _initAvailableSources();
     source.value = await SourceService().getBookSource(book.sourceId);
-    battery.value = await Battery().batteryLevel;
+    await _getBattery();
     if (chapters.value.isEmpty) {
       error.value = '没有找到章节';
       return;
@@ -237,7 +238,7 @@ class ReaderViewModel {
       duration: Durations.medium1,
       curve: Curves.easeInOut,
     );
-    battery.value = await Battery().batteryLevel;
+    await _getBattery();
   }
 
   void previousChapter() {
@@ -273,7 +274,7 @@ class ReaderViewModel {
       duration: Durations.medium1,
       curve: Curves.easeInOut,
     );
-    battery.value = await Battery().batteryLevel;
+    await _getBattery();
   }
 
   void showUiOverlays() {
@@ -373,6 +374,14 @@ class ReaderViewModel {
       downloadFailed.value++;
     } finally {
       semaphore.release();
+    }
+  }
+
+  Future<void> _getBattery() async {
+    try {
+      battery.value = await Battery().batteryLevel;
+    } on Exception catch (e) {
+      logger.e(e);
     }
   }
 
