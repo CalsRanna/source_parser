@@ -11,7 +11,7 @@ import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 
 class CatalogueViewModel {
-  final book = signal<BookEntity>(BookEntity());
+  final book = signal(BookEntity());
   final chapters = signal(<ChapterEntity>[]);
 
   Future<bool> checkChapter(int index) async {
