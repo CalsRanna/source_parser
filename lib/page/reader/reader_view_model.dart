@@ -47,8 +47,8 @@ class ReaderViewModel {
   final downloadSucceed = signal(0);
   final downloadFailed = signal(0);
   final battery = signal(100);
-  final size = Signal(Size.zero);
-  final source = Signal(SourceEntity());
+  final size = signal(Size.zero);
+  final source = signal(SourceEntity());
   final error = signal('');
   final eInkMode = signal(false);
   final turningMode = signal(0);
