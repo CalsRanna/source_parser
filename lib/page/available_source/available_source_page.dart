@@ -31,7 +31,10 @@ class _AvailableSourcePageState extends State<AvailableSourcePage> {
   @override
   void initState() {
     super.initState();
-    viewModel.initSignals(widget.book);
+    viewModel.initSignals(
+      availableSources: widget.availableSources ?? [],
+      book: widget.book,
+    );
   }
 
   @override

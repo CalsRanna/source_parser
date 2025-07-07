@@ -8,18 +8,22 @@ import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/parser_util.dart';
 
 class AvailableSourceViewModel {
-  var availableSources = signal(<AvailableSourceEntity>[]);
-  final _book = signal(BookEntity());
+  final availableSources = signal(<AvailableSourceEntity>[]);
+  final book = signal(BookEntity());
 
   bool checkIsActive(int index) {
-    return availableSources.value[index].sourceId == _book.value.sourceId;
+    return availableSources.value[index].sourceId == book.value.sourceId;
   }
 
-  Future<void> initSignals(BookEntity book) async {
-    _book.value = book;
-    availableSources.value = await AvailableSourceService().getAvailableSources(
-      _book.value.id,
-    );
+  Future<void> initSignals({
+    required List<AvailableSourceEntity> availableSources,
+    required BookEntity book,
+  }) async {
+    this.availableSources.value = availableSources;
+    this.book.value = book;
+    if (availableSources.isEmpty) {
+      refreshAvailableSources();
+    }
   }
 
   Future<void> navigateAvailableSourceFormPage(BuildContext context) async {
@@ -29,13 +33,13 @@ class AvailableSourceViewModel {
   }
 
   Future<void> refreshAvailableSources() async {
-    var isInShelf = await BookService().checkIsInShelf(_book.value.id);
-    var stream = ParserUtil.instance.getAvailableSources(_book.value);
+    var isInShelf = await BookService().checkIsInShelf(book.value.id);
+    var stream = ParserUtil.instance.getAvailableSources(book.value);
     var updatedSources = List<AvailableSourceEntity>.from(
       availableSources.value,
     );
     await for (var item in stream) {
-      item.bookId = _book.value.id;
+      item.bookId = book.value.id;
       var existingIndex = updatedSources.indexWhere(
         (source) => source.url == item.url,
       );
