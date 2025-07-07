@@ -39,8 +39,8 @@ class DI {
     instance.registerFactoryParam<ReaderViewModel, BookEntity, Object?>(
       (book, _) => ReaderViewModel(book: book),
     );
-    instance.registerFactoryParam<CoverSelectorViewModel, BookEntity, Object?>(
-      (book, _) => CoverSelectorViewModel(book: book),
+    instance.registerFactory<CoverSelectorViewModel>(
+      () => CoverSelectorViewModel(),
     );
     instance.registerFactory<SourceViewModel>(() => SourceViewModel());
     instance.registerLazySingleton<CloudReaderViewModel>(

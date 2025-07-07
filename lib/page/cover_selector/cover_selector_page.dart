@@ -17,14 +17,12 @@ class CoverSelectorPage extends StatefulWidget {
 }
 
 class _CoverSelectorPageState extends State<CoverSelectorPage> {
-  late final viewModel = GetIt.instance<CoverSelectorViewModel>(
-    param1: widget.book,
-  );
+  final viewModel = GetIt.instance<CoverSelectorViewModel>();
 
   @override
   void initState() {
     super.initState();
-    viewModel.initSignals();
+    viewModel.initSignals(widget.book);
   }
 
   @override
