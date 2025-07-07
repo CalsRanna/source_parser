@@ -29,9 +29,7 @@ class _CataloguePageState extends State<CataloguePage> {
   late ScrollController controller;
   GlobalKey globalKey = GlobalKey();
 
-  late final viewModel = GetIt.instance<CatalogueViewModel>(
-    param1: widget.book,
-  );
+  final viewModel = GetIt.instance<CatalogueViewModel>();
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +87,7 @@ class _CataloguePageState extends State<CataloguePage> {
   @override
   void initState() {
     super.initState();
-    viewModel.initSignals(chapters: widget.chapters);
+    viewModel.initSignals(book: widget.book, chapters: widget.chapters);
     controller = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final height = MediaQuery.of(context).size.height;

@@ -32,9 +32,7 @@ class DI {
     instance.registerFactory<InformationViewModel>(
       () => InformationViewModel(),
     );
-    instance.registerFactoryParam<CatalogueViewModel, BookEntity, Object?>(
-      (book, _) => CatalogueViewModel(book: book),
-    );
+    instance.registerFactory<CatalogueViewModel>(() => CatalogueViewModel());
     instance.registerFactory<AvailableSourceViewModel>(
       () => AvailableSourceViewModel(),
     );

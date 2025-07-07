@@ -11,29 +11,30 @@ import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 
 class CatalogueViewModel {
-  final BookEntity book;
-  var chapters = Signal(<ChapterEntity>[]);
-
-  CatalogueViewModel({required this.book});
+  final book = signal<BookEntity>(BookEntity());
+  final chapters = signal(<ChapterEntity>[]);
 
   Future<bool> checkChapter(int index) async {
     var chapter = chapters.value.elementAt(index);
-    return CachedNetwork(prefix: book.name).check(chapter.url);
+    return CachedNetwork(prefix: book.value.name).check(chapter.url);
   }
 
-  Future<void> initSignals({List<ChapterEntity>? chapters}) async {
+  Future<void> initSignals(
+      {required BookEntity book, List<ChapterEntity>? chapters}) async {
+    this.book.value = book;
     if (chapters != null) {
       this.chapters.value = chapters;
       return;
     }
-    var isInShelf = await BookService().checkIsInShelf(book.id);
+    var isInShelf = await BookService().checkIsInShelf(this.book.value.id);
     if (isInShelf) {
-      this.chapters.value = await ChapterService().getChapters(book.id);
+      this.chapters.value =
+          await ChapterService().getChapters(this.book.value.id);
     }
   }
 
   bool isActive(int index) {
-    return book.chapterIndex == index;
+    return book.value.chapterIndex == index;
   }
 
   void navigateReaderPage(BuildContext context, int index) {
@@ -41,13 +42,13 @@ class CatalogueViewModel {
   }
 
   Future<void> refreshChapters() async {
-    var bookSource = await SourceService().getBookSource(book.sourceId);
+    var bookSource = await SourceService().getBookSource(book.value.sourceId);
     var source = Source.fromJson(bookSource.toJson());
     final cacheDuration = await SharedPreferenceUtil.getCacheDuration();
     final timeout = await SharedPreferenceUtil.getTimeout();
     var stream = await Parser.getChapters(
-      book.name,
-      book.catalogueUrl,
+      book.value.name,
+      book.value.catalogueUrl,
       source,
       Duration(hours: cacheDuration),
       Duration(seconds: timeout),
