@@ -53,7 +53,7 @@ class _InformationPageState extends ConsumerState<InformationPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      viewModel.initSignals();
+      viewModel.initSignals(widget.information);
     });
   }
 

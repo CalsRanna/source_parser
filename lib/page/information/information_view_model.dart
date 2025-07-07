@@ -19,7 +19,6 @@ import 'package:source_parser/util/html_parser_plus.dart';
 import 'package:source_parser/util/parser_util.dart';
 
 class InformationViewModel {
-  final InformationEntity information;
   final availableSources = signal(<AvailableSourceEntity>[]);
   final book = signal(BookEntity());
   final chapters = signal(<ChapterEntity>[]);
@@ -28,7 +27,7 @@ class InformationViewModel {
   final isInShelf = signal(false);
   final isLoading = signal(false);
 
-  InformationViewModel({required this.information});
+  InformationViewModel();
 
   Future<void> changeIsInShelf(BookEntity book) async {
     isInShelf.value = !isInShelf.value;
@@ -56,7 +55,7 @@ class InformationViewModel {
     }
   }
 
-  Future<void> initSignals() async {
+  Future<void> initSignals(InformationEntity information) async {
     var bookId = information.book.id;
     isInShelf.value = await BookService().checkIsInShelf(bookId);
     if (isInShelf.value) {
@@ -91,20 +90,29 @@ class InformationViewModel {
   }
 
   Future<void> navigateAvailableSourcePage(BuildContext context) async {
-    var id = await AvailableSourceRoute(
+    var sourceId = await AvailableSourceRoute(
       availableSources: availableSources.value,
-      book: information.book,
+      book: book.value,
     ).push<int>(context);
-    await refreshAvailableSources();
-    if (id == null) return;
-    var sourceId =
-        availableSources.value.firstWhere((item) => item.id == id).sourceId;
+    if (sourceId == null) return;
     source.value = await SourceService().getBookSource(sourceId);
+    chapters.value = await _getRemoteChapters(book.value, source.value);
+    book.value = book.value.copyWith(
+      chapterCount: chapters.value.length,
+      sourceId: sourceId,
+    );
+    if (isInShelf.value) {
+      await BookService().updateBook(book.value);
+      await ChapterService().destroyChapters(book.value.id);
+      await ChapterService().addChapters(chapters.value);
+      var bookshelfViewModel = GetIt.instance<BookshelfViewModel>();
+      bookshelfViewModel.initSignals();
+    }
   }
 
   void navigateCataloguePage(BuildContext context) {
     CatalogueRoute(
-      book: information.book,
+      book: book.value,
       chapters: chapters.value,
     ).push(context);
   }
@@ -136,9 +144,9 @@ class InformationViewModel {
 
   Future<void> refreshAvailableSources() async {
     availableSources.value =
-        await AvailableSourceService().getAvailableSources(information.book.id);
+        await AvailableSourceService().getAvailableSources(book.value.id);
     if (availableSources.value.isNotEmpty) return;
-    var stream = ParserUtil.instance.getAvailableSources(information.book);
+    var stream = ParserUtil.instance.getAvailableSources(book.value);
     await for (var availableSource in stream) {
       availableSources.value = [...availableSources.value, availableSource];
     }

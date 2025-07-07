@@ -153,15 +153,13 @@ class ReaderViewModel {
 
   Future<void> navigateAvailableSourcePage(BuildContext context) async {
     var copiedBook = book.copyWith(sourceId: source.value.id);
-    var id = await AvailableSourceRoute(
+    var sourceId = await AvailableSourceRoute(
       availableSources: availableSources.value,
       book: copiedBook,
     ).push<int>(context);
-    if (id == null) return;
+    if (sourceId == null) return;
     DialogUtil.loading();
-    var availableSource = await AvailableSourceService().getAvailableSource(id);
-    source.value =
-        await SourceService().getBookSource(availableSource.sourceId);
+    source.value = await SourceService().getBookSource(sourceId);
     var updatedChapters = await _getRemoteChapters();
     if (updatedChapters.isEmpty) {
       DialogUtil.dismiss();
@@ -178,7 +176,7 @@ class ReaderViewModel {
     await ChapterService().destroyChapters(book.id);
     await ChapterService().addChapters(updatedChapters);
     var updatedBook = book.copyWith(
-      sourceId: id,
+      sourceId: sourceId,
       chapterCount: updatedChapters.length,
     );
     await BookService().updateBook(updatedBook);

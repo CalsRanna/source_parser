@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:source_parser/model/book_entity.dart';
-import 'package:source_parser/model/information_entity.dart';
 import 'package:source_parser/page/available_source/available_source_view_model.dart';
 import 'package:source_parser/page/catalogue/catalogue_view_model.dart';
 import 'package:source_parser/page/cloud_reader/cloud_reader_view_model.dart';
@@ -30,9 +29,8 @@ class DI {
     );
     instance.registerLazySingleton<ProfileViewModel>(() => ProfileViewModel());
     instance.registerFactory<SearchViewModel>(() => SearchViewModel());
-    instance
-        .registerFactoryParam<InformationViewModel, InformationEntity, Object?>(
-      (information, _) => InformationViewModel(information: information),
+    instance.registerFactory<InformationViewModel>(
+      () => InformationViewModel(),
     );
     instance.registerFactoryParam<CatalogueViewModel, BookEntity, Object?>(
       (book, _) => CatalogueViewModel(book: book),
