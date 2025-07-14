@@ -1,27 +1,24 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/page/home/search_button.dart';
-import 'package:source_parser/provider/book.dart';
-import 'package:source_parser/provider/setting.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
-class BookshelfView extends ConsumerStatefulWidget {
+class BookshelfView extends StatefulWidget {
   const BookshelfView({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _BookshelfViewState();
+  State<BookshelfView> createState() => _BookshelfViewState();
 }
 
-class _BookshelfViewState extends ConsumerState<BookshelfView>
+class _BookshelfViewState extends State<BookshelfView>
     with AutomaticKeepAliveClientMixin {
   final viewModel = GetIt.instance<BookshelfViewModel>();
 
@@ -31,14 +28,17 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    var appBar = AppBar(
-      actions: [SearchButton(), _ShelfModeSelector()],
-      centerTitle: true,
-      title: Text('书架'),
+    var modeSelector = Watch(
+      (_) => _ShelfModeSelector(
+        mode: viewModel.shelfMode.value,
+        onModeChanged: viewModel.updateShelfMode,
+      ),
     );
+    var actions = [SearchButton(), modeSelector];
+    var appBar = AppBar(actions: actions, centerTitle: true, title: Text('书架'));
     var easyRefresh = EasyRefresh(
       onRefresh: () => viewModel.refreshSignals(context),
-      child: Watch((_) => _buildView(ref)),
+      child: Watch((_) => _buildView()),
     );
     var scaffold = Scaffold(appBar: appBar, body: easyRefresh);
     return ScaffoldMessenger(child: scaffold);
@@ -50,19 +50,7 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
     viewModel.initSignals();
   }
 
-  Future<void> refresh(BuildContext context, WidgetRef ref) async {
-    final message = Message.of(context);
-    try {
-      final notifier = ref.read(booksProvider.notifier);
-      await notifier.refresh();
-    } catch (error) {
-      message.show(error.toString());
-    }
-  }
-
-  Widget _buildView(WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final mode = setting?.shelfMode ?? 'list';
+  Widget _buildView() {
     if (viewModel.books.value.isEmpty) return const Center(child: Text('空空如也'));
     var listView = _ListView(
       books: viewModel.books.value,
@@ -74,14 +62,14 @@ class _BookshelfViewState extends ConsumerState<BookshelfView>
       onLongPress: (book) => viewModel.openBookBottomSheet(context, book),
       onTap: (book) => viewModel.navigateReaderPage(context, book),
     );
-    return switch (mode) {
+    return switch (viewModel.shelfMode.value) {
       'list' => listView,
       _ => gridView,
     };
   }
 }
 
-class _GridTile extends ConsumerWidget {
+class _GridTile extends StatelessWidget {
   final BookEntity book;
   final double coverHeight;
   final double coverWidth;
@@ -97,7 +85,7 @@ class _GridTile extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final onSurface = colorScheme.onSurface;
@@ -186,7 +174,7 @@ class _GridView extends StatelessWidget {
   }
 }
 
-class _ListTile extends ConsumerWidget {
+class _ListTile extends StatelessWidget {
   final BookEntity book;
   final void Function()? onLongPress;
   final void Function()? onTap;
@@ -194,7 +182,7 @@ class _ListTile extends ConsumerWidget {
   const _ListTile({required this.book, this.onLongPress, this.onTap});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
@@ -288,10 +276,12 @@ class _ListView extends StatelessWidget {
   }
 }
 
-class _ShelfModeSelector extends ConsumerWidget {
-  const _ShelfModeSelector();
+class _ShelfModeSelector extends StatelessWidget {
+  final String mode;
+  final void Function(String)? onModeChanged;
+  const _ShelfModeSelector({required this.mode, this.onModeChanged});
 
-  Future<void> addBook(BuildContext context, WidgetRef ref) async {
+  Future<void> addBook(BuildContext context) async {
     var route = BookFormRoute();
     var url = await AutoRouter.of(context).push<String?>(route);
     if (url == null) return;
@@ -311,9 +301,9 @@ class _ShelfModeSelector extends ConsumerWidget {
     );
     messenger.showMaterialBanner(materialBanner);
     try {
-      var provider = booksProvider;
-      var notifier = ref.read(provider.notifier);
-      await notifier.addBook(url);
+      // var provider = booksProvider;
+      // var notifier = ref.read(provider.notifier);
+      // await notifier.addBook(url);
       messenger.hideCurrentMaterialBanner();
     } on Exception catch (e) {
       messenger.hideCurrentMaterialBanner();
@@ -322,11 +312,11 @@ class _ShelfModeSelector extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return MenuAnchor(
       alignmentOffset: Offset(-132, 12),
       builder: (_, controller, __) => _builder(controller),
-      menuChildren: _buildMenuChildren(context, ref),
+      menuChildren: _buildMenuChildren(context),
       style: MenuStyle(alignment: Alignment.bottomRight),
     );
   }
@@ -336,11 +326,6 @@ class _ShelfModeSelector extends ConsumerWidget {
     controller.open();
   }
 
-  void updateShelfMode(WidgetRef ref, String value) async {
-    final notifier = ref.read(settingNotifierProvider.notifier);
-    notifier.updateShelfMode(value);
-  }
-
   Widget _builder(MenuController controller) {
     return IconButton(
       onPressed: () => handleTap(controller),
@@ -348,22 +333,19 @@ class _ShelfModeSelector extends ConsumerWidget {
     );
   }
 
-  List<Widget> _buildMenuChildren(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    final shelfMode = setting?.shelfMode ?? 'list';
+  List<Widget> _buildMenuChildren(BuildContext context) {
     var modeIcon = Icon(HugeIcons.strokeRoundedMenuCircle);
-    if (shelfMode == 'grid') modeIcon = Icon(HugeIcons.strokeRoundedMenu01);
-    var mode = shelfMode == 'grid' ? 'list' : 'grid';
-    var text = Text(shelfMode == 'grid' ? '列表模式' : '网格模式');
+    if (mode == 'grid') modeIcon = Icon(HugeIcons.strokeRoundedMenu01);
+    var text = Text(mode == 'grid' ? '列表模式' : '网格模式');
     var modeButton = MenuItemButton(
       leadingIcon: modeIcon,
-      onPressed: () => updateShelfMode(ref, mode),
+      onPressed: () => onModeChanged?.call(mode == 'grid' ? 'list' : 'grid'),
       child: text,
     );
     var additionIcon = Icon(HugeIcons.strokeRoundedAdd01);
     var additionButton = MenuItemButton(
       leadingIcon: additionIcon,
-      onPressed: () => addBook(context, ref),
+      onPressed: () => addBook(context),
       child: Text('新增书籍'),
     );
     return [modeButton, additionButton];

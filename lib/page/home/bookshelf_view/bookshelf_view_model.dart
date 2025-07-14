@@ -4,23 +4,26 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:signals/signals.dart';
 import 'package:source_parser/database/book_service.dart';
-import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
+import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/model/information_entity.dart';
 import 'package:source_parser/model/source_entity.dart';
-import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_bottom_sheet.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
 import 'package:source_parser/util/logger.dart';
 import 'package:source_parser/util/message.dart';
+import 'package:source_parser/util/shared_preference_util.dart';
 
 class BookshelfViewModel {
   final books = signal(<BookEntity>[]);
+  final shelfMode = signal('list');
 
   Future<void> initSignals() async {
+    shelfMode.value = await SharedPreferenceUtil.getShelfMode();
     books.value = await BookService().getBooks();
     books.value.sort((a, b) {
       final pinyinA = PinyinHelper.getPinyin(a.name);
@@ -70,6 +73,11 @@ class BookshelfViewModel {
       if (!context.mounted) return;
       Message.of(context).show(error.toString());
     }
+  }
+
+  Future<void> updateShelfMode(String shelfMode) async {
+    this.shelfMode.value = shelfMode;
+    await SharedPreferenceUtil.setShelfMode(shelfMode);
   }
 
   Future<void> _archiveBook(BookEntity book) async {
