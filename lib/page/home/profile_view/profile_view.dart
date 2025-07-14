@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/page/home/profile_view/profile_dark_mode_switch.dart';
+import 'package:source_parser/page/home/profile_view/profile_setting_list_tile.dart';
 import 'package:source_parser/page/home/profile_view/profile_view_model.dart';
-import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
+import 'package:source_parser/router/router.gr.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -14,70 +16,55 @@ class ProfileView extends StatefulWidget {
   State<StatefulWidget> createState() => _ProfileViewState();
 }
 
-class _DarkModeToggler extends StatelessWidget {
-  final viewModel = GetIt.instance<SourceParserViewModel>();
-
-  _DarkModeToggler();
-
-  @override
-  Widget build(BuildContext context) {
-    return Watch(
-      (_) => IconButton(
-        icon: _buildIcon(viewModel.isDarkMode.value),
-        onPressed: viewModel.toggleDarkMode,
-      ),
-    );
-  }
-
-  Icon _buildIcon(bool darkMode) {
-    var icon = HugeIcons.strokeRoundedMoon02;
-    if (darkMode) icon = HugeIcons.strokeRoundedSun03;
-    return Icon(icon);
-  }
-}
-
 class _ProfileViewState extends State<ProfileView> {
   final viewModel = GetIt.instance.get<ProfileViewModel>();
+  final sourceParserViewModel = GetIt.instance.get<SourceParserViewModel>();
 
   @override
   Widget build(BuildContext context) {
+    var darkModeSwitch = Watch(
+      (_) => ProfileDarkModeSwitch(
+        darkMode: sourceParserViewModel.isDarkMode.value,
+        onModeChanged: sourceParserViewModel.toggleDarkMode,
+      ),
+    );
     var appBar = AppBar(
-      actions: [_DarkModeToggler()],
+      actions: [darkModeSwitch],
       centerTitle: true,
       title: Text('我的'),
     );
     var listView = Watch((_) {
-      var source = _SettingTile(
+      var source = ProfileSettingListTile(
         icon: HugeIcons.strokeRoundedSourceCodeCircle,
         onTap: () => handleTap(context, const SourceRoute()),
         title: '书源管理',
       );
-      var theme = _SettingTile(
+      var theme = ProfileSettingListTile(
         icon: HugeIcons.strokeRoundedTextFont,
         onTap: () => handleTap(context, const ReaderThemeRoute()),
         title: '阅读器主题',
       );
-      var layout = _SettingTile(
+      var layout = ProfileSettingListTile(
         icon: HugeIcons.strokeRoundedSmartPhone01,
         onTap: () => handleTap(context, const ReaderLayoutRoute()),
         title: '功能布局',
       );
-      var server = _SettingTile(
+      var server = ProfileSettingListTile(
         icon: HugeIcons.strokeRoundedCloudServer,
         onTap: () => handleTap(context, const LocalServerRoute()),
         title: '本地服务器',
       );
-      var setting = _SettingTile(
+      var setting = ProfileSettingListTile(
         icon: HugeIcons.strokeRoundedSettings01,
         onTap: () => handleTap(context, const SettingRoute()),
         title: '设置',
       );
-      var developer = _SettingTile(
+      var developer = ProfileSettingListTile(
         icon: HugeIcons.strokeRoundedDeveloper,
         onTap: () => viewModel.navigateDeveloperPage(context),
         title: '开发者页面',
       );
-      var about = _SettingTile(
+      var about = ProfileSettingListTile(
         icon: HugeIcons.strokeRoundedInformationCircle,
         onTap: () => viewModel.navigateAboutPage(context),
         title: '关于元夕',
@@ -109,28 +96,5 @@ class _ProfileViewState extends State<ProfileView> {
   Future<void> navigateDeveloperPage(BuildContext context) async {
     var enableDeveloperMode = await DeveloperRoute().push<bool>(context);
     if (enableDeveloperMode == false) {}
-  }
-}
-
-class _SettingTile extends StatelessWidget {
-  final IconData? icon;
-  final void Function()? onTap;
-  final String title;
-
-  const _SettingTile({this.icon, this.onTap, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final primary = colorScheme.primary;
-    final leading = icon != null ? Icon(icon, color: primary) : null;
-    final trailing = Icon(HugeIcons.strokeRoundedArrowRight01);
-    return ListTile(
-      leading: leading,
-      title: Text(title),
-      trailing: trailing,
-      onTap: onTap,
-    );
   }
 }
