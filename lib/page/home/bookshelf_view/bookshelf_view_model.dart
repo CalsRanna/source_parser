@@ -42,7 +42,7 @@ class BookshelfViewModel {
     var bottomSheet = BookshelfBottomSheet(
       book: book,
       onArchive: () => _archiveBook(book),
-      onClearCache: () => _clearCache(book),
+      onClearCache: () => _clearCache(context, book),
       onCoverSelect: () => _navigateCoverSelectorPage(context, book),
       onDestroyed: () => _destroyBook(book),
       onDetail: () => _navigateInformationPage(context, book),
@@ -92,12 +92,14 @@ class BookshelfViewModel {
     });
   }
 
-  void _clearCache(BookEntity book) {
-    CacheManager(prefix: book.name).clearCache();
+  Future<void> _clearCache(BuildContext context, BookEntity book) async {
+    await CacheManager(prefix: book.name).clearCache();
+    if (!context.mounted) return;
+    Message.of(context).show('缓存已清除');
   }
 
   Future<void> _destroyBook(BookEntity book) async {
-    _clearCache(book);
+    await CacheManager(prefix: book.name).clearCache();
     await BookService().destroyBook(book.id);
     books.value = await BookService().getBooks();
     books.value.sort((a, b) {
