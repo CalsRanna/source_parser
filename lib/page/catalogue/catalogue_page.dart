@@ -3,15 +3,12 @@ import 'dart:math';
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/catalogue/catalogue_view_model.dart';
-import 'package:source_parser/provider/book.dart';
-import 'package:source_parser/util/message.dart';
 
 @RoutePage()
 class CataloguePage extends StatefulWidget {
@@ -72,16 +69,6 @@ class _CataloguePageState extends State<CataloguePage> {
     setState(() {
       atTop = !atTop;
     });
-  }
-
-  Future<void> handleRefresh(WidgetRef ref) async {
-    final message = Message.of(context);
-    final notifier = ref.read(bookNotifierProvider.notifier);
-    try {
-      await notifier.refreshCatalogue();
-    } catch (error) {
-      message.show(error.toString());
-    }
   }
 
   @override

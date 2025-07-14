@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/information_entity.dart';
 import 'package:source_parser/router/router.gr.dart';
@@ -7,10 +6,10 @@ import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class ExploreListPage extends StatelessWidget {
-  const ExploreListPage({super.key, required this.books, required this.title});
-
   final List<Book> books;
+
   final String title;
+  const ExploreListPage({super.key, required this.books, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +42,9 @@ class ExploreListPage extends StatelessWidget {
 }
 
 class _ExploreTile extends StatelessWidget {
-  const _ExploreTile({required this.book});
-
   final Book book;
+
+  const _ExploreTile({required this.book});
 
   @override
   Widget build(BuildContext context) {
@@ -53,46 +52,44 @@ class _ExploreTile extends StatelessWidget {
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
     final bodySmall = textTheme.bodySmall;
-    return Consumer(builder: (context, ref, child) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => handleTap(context, ref),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            BookCover(height: 80, url: book.cover, width: 60),
-            const SizedBox(width: 16),
-            Expanded(
-              child: SizedBox(
-                height: 80,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      book.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: bodyMedium,
-                    ),
-                    Text(_buildSubtitle() ?? '', style: bodySmall),
-                    const Spacer(),
-                    Text(
-                      book.introduction.replaceAll(RegExp(r'\s'), ''),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: bodyMedium,
-                    ),
-                  ],
-                ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => handleTap(context),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BookCover(height: 80, url: book.cover, width: 60),
+          const SizedBox(width: 16),
+          Expanded(
+            child: SizedBox(
+              height: 80,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    book.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: bodyMedium,
+                  ),
+                  Text(_buildSubtitle() ?? '', style: bodySmall),
+                  const Spacer(),
+                  Text(
+                    book.introduction.replaceAll(RegExp(r'\s'), ''),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: bodyMedium,
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      );
-    });
+          ),
+        ],
+      ),
+    );
   }
 
-  void handleTap(BuildContext context, WidgetRef ref) {
+  void handleTap(BuildContext context) {
     var bookEntity = BookEntity.fromJson(book.toJson());
     var information = InformationEntity(
       book: bookEntity,
