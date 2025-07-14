@@ -42,6 +42,7 @@ class BookshelfViewModel {
     var bottomSheet = BookshelfBottomSheet(
       book: book,
       onArchive: () => _archiveBook(book),
+      onClearCache: () => _clearCache(book),
       onCoverSelect: () => _navigateCoverSelectorPage(context, book),
       onDestroyed: () => _destroyBook(book),
       onDetail: () => _navigateInformationPage(context, book),
@@ -91,7 +92,12 @@ class BookshelfViewModel {
     });
   }
 
+  void _clearCache(BookEntity book) {
+    CacheManager(prefix: book.name).clearCache();
+  }
+
   Future<void> _destroyBook(BookEntity book) async {
+    _clearCache(book);
     await BookService().destroyBook(book.id);
     books.value = await BookService().getBooks();
     books.value.sort((a, b) {
