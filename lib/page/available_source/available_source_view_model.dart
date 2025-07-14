@@ -33,7 +33,6 @@ class AvailableSourceViewModel {
   }
 
   Future<void> refreshAvailableSources() async {
-    var isInShelf = await BookService().checkIsInShelf(book.value.id);
     var stream = ParserUtil.instance.getAvailableSources(book.value);
     var updatedSources = List<AvailableSourceEntity>.from(
       availableSources.value,
@@ -52,6 +51,7 @@ class AvailableSourceViewModel {
       }
     }
     availableSources.value = [...updatedSources];
+    var isInShelf = await BookService().checkIsInShelf(book.value.id);
     if (!isInShelf) return;
     for (var availableSource in availableSources.value) {
       if (availableSource.id == 0) {
