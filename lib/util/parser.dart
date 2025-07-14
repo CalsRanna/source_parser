@@ -58,7 +58,7 @@ class Parser {
     }
   }
 
-  static Future<Stream<Chapter>> getChapters(
+  static Future<Stream<ChapterEntity>> getChapters(
     String name,
     String url,
     Source source,
@@ -71,7 +71,7 @@ class Parser {
       temporaryDirectory: temporaryDirectory,
       timeout: timeout,
     );
-    final controller = StreamController<Chapter>();
+    final controller = StreamController<ChapterEntity>();
     final sender = ReceivePort();
     final receiver = ReceivePort();
     final isolate = await Isolate.spawn(_getChaptersInIsolate, sender.sendPort);
@@ -79,7 +79,7 @@ class Parser {
       [network, duration, url, source, receiver.sendPort],
     );
     receiver.forEach((element) async {
-      if (element is Chapter) {
+      if (element is ChapterEntity) {
         controller.add(element);
       } else {
         isolate.kill();
@@ -539,7 +539,7 @@ class Parser {
               if (!url.startsWith('http')) {
                 url = '${source.url}$url';
               }
-              var chapter = Chapter();
+              var chapter = ChapterEntity();
               chapter.name = name;
               chapter.url = url;
               sender.send(chapter);

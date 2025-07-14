@@ -94,7 +94,9 @@ class BookshelfViewModel {
   }
 
   Future<List<ChapterEntity>> _getRemoteChapters(
-      BookEntity book, SourceEntity source) async {
+    BookEntity book,
+    SourceEntity source,
+  ) async {
     var network = CachedNetwork(prefix: book.name);
     var html = await network.request(book.catalogueUrl);
     final parser = HtmlParser();

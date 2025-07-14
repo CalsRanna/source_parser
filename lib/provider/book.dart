@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:isar/isar.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -138,26 +136,26 @@ class BookNotifier extends _$BookNotifier {
   }
 
   Future<void> refreshCatalogue() async {
-    final builder = isar.sources.filter();
-    final source = await builder.idEqualTo(state.sourceId).findFirst();
-    if (source == null) return;
-    final setting = await ref.read(settingNotifierProvider.future);
-    final duration = setting.cacheDuration;
-    final timeout = setting.timeout;
-    var stream = await Parser.getChapters(
-      state.name,
-      state.catalogueUrl,
-      source,
-      Duration(hours: duration.floor()),
-      Duration(milliseconds: timeout),
-    );
-    stream = stream.asBroadcastStream();
-    List<Chapter> chapters = [];
-    stream.listen((chapter) {
-      chapters.add(chapter);
-    });
-    await stream.last;
-    state = state.copyWith(chapters: chapters);
+    // final builder = isar.sources.filter();
+    // final source = await builder.idEqualTo(state.sourceId).findFirst();
+    // if (source == null) return;
+    // final setting = await ref.read(settingNotifierProvider.future);
+    // final duration = setting.cacheDuration;
+    // final timeout = setting.timeout;
+    // var stream = await Parser.getChapters(
+    //   state.name,
+    //   state.catalogueUrl,
+    //   source,
+    //   Duration(hours: duration.floor()),
+    //   Duration(milliseconds: timeout),
+    // );
+    // stream = stream.asBroadcastStream();
+    // List<Chapter> chapters = [];
+    // stream.listen((chapter) {
+    //   chapters.add(chapter);
+    // });
+    // await stream.last;
+    // state = state.copyWith(chapters: chapters);
   }
 
   Future<void> refreshCover(String cover) async {
@@ -185,73 +183,73 @@ class BookNotifier extends _$BookNotifier {
   }
 
   Future<void> refreshInformation() async {
-    final queryBuilder = isar.sources.filter();
-    final sourceId = state.sourceId;
-    final source = await queryBuilder.idEqualTo(sourceId).findFirst();
-    if (source == null) return;
-    final setting = await ref.read(settingNotifierProvider.future);
-    final duration = setting.cacheDuration;
-    final timeout = setting.timeout;
-    final information = await Parser.getInformation(
-      state.name,
-      state.url,
-      source,
-      Duration(hours: duration.floor()),
-      Duration(milliseconds: timeout),
-    );
-    String? updatedIntroduction;
-    if (information.introduction.length > state.introduction.length) {
-      updatedIntroduction = information.introduction;
-    }
-    var stream = await Parser.getChapters(
-      state.name,
-      information.catalogueUrl,
-      source,
-      Duration(hours: duration.floor()),
-      Duration(milliseconds: timeout),
-    );
-    stream = stream.asBroadcastStream();
-    List<Chapter> chapters = [];
-    stream.listen(
-      (chapter) {
-        chapters.add(chapter);
-      },
-    );
-    await stream.last;
-    String updatedCover = state.cover;
-    if (updatedCover.isEmpty) {
-      updatedCover = information.cover;
-    }
-    List<Chapter> updatedChapters = [];
-    if (chapters.length > state.chapters.length) {
-      final start = max(state.chapters.length - 1, 0);
-      final end = max(chapters.length - 1, 0);
-      updatedChapters = chapters.getRange(start, end).toList();
-    }
-    state = state.copyWith(
-      catalogueUrl: information.catalogueUrl,
-      category: information.category,
-      chapters: [...state.chapters, ...updatedChapters],
-      cover: updatedCover,
-      introduction: updatedIntroduction,
-      latestChapter: information.latestChapter,
-      words: information.words,
-    );
-    final builder = isar.books.filter();
-    final exist = await builder
-        .nameEqualTo(state.name)
-        .authorEqualTo(state.author)
-        .findFirst();
-    if (exist == null) return;
-    state = exist.copyWith(
-      catalogueUrl: state.catalogueUrl,
-      category: state.category,
-      chapters: state.chapters,
-      cover: state.cover,
-      introduction: state.introduction,
-      latestChapter: state.latestChapter,
-      words: state.words,
-    );
+    // final queryBuilder = isar.sources.filter();
+    // final sourceId = state.sourceId;
+    // final source = await queryBuilder.idEqualTo(sourceId).findFirst();
+    // if (source == null) return;
+    // final setting = await ref.read(settingNotifierProvider.future);
+    // final duration = setting.cacheDuration;
+    // final timeout = setting.timeout;
+    // final information = await Parser.getInformation(
+    //   state.name,
+    //   state.url,
+    //   source,
+    //   Duration(hours: duration.floor()),
+    //   Duration(milliseconds: timeout),
+    // );
+    // String? updatedIntroduction;
+    // if (information.introduction.length > state.introduction.length) {
+    //   updatedIntroduction = information.introduction;
+    // }
+    // var stream = await Parser.getChapters(
+    //   state.name,
+    //   information.catalogueUrl,
+    //   source,
+    //   Duration(hours: duration.floor()),
+    //   Duration(milliseconds: timeout),
+    // );
+    // stream = stream.asBroadcastStream();
+    // List<Chapter> chapters = [];
+    // stream.listen(
+    //   (chapter) {
+    //     chapters.add(chapter);
+    //   },
+    // );
+    // await stream.last;
+    // String updatedCover = state.cover;
+    // if (updatedCover.isEmpty) {
+    //   updatedCover = information.cover;
+    // }
+    // List<Chapter> updatedChapters = [];
+    // if (chapters.length > state.chapters.length) {
+    //   final start = max(state.chapters.length - 1, 0);
+    //   final end = max(chapters.length - 1, 0);
+    //   updatedChapters = chapters.getRange(start, end).toList();
+    // }
+    // state = state.copyWith(
+    //   catalogueUrl: information.catalogueUrl,
+    //   category: information.category,
+    //   chapters: [...state.chapters, ...updatedChapters],
+    //   cover: updatedCover,
+    //   introduction: updatedIntroduction,
+    //   latestChapter: information.latestChapter,
+    //   words: information.words,
+    // );
+    // final builder = isar.books.filter();
+    // final exist = await builder
+    //     .nameEqualTo(state.name)
+    //     .authorEqualTo(state.author)
+    //     .findFirst();
+    // if (exist == null) return;
+    // state = exist.copyWith(
+    //   catalogueUrl: state.catalogueUrl,
+    //   category: state.category,
+    //   chapters: state.chapters,
+    //   cover: state.cover,
+    //   introduction: state.introduction,
+    //   latestChapter: state.latestChapter,
+    //   words: state.words,
+    // );
   }
 
   Future<String> refreshSource(int index) async {
@@ -520,36 +518,36 @@ class Books extends _$Books {
   }
 
   Future<void> refresh() async {
-    final books = await future;
-    for (var book in books) {
-      if (book.archive) continue;
-      final builder = isar.sources.filter();
-      final source = await builder.idEqualTo(book.sourceId).findFirst();
-      if (source == null) continue;
-      final setting = await ref.read(settingNotifierProvider.future);
-      final duration = setting.cacheDuration;
-      var stream = await Parser.getChapters(
-        book.name,
-        book.catalogueUrl,
-        source,
-        Duration(hours: duration.floor()),
-        Duration(milliseconds: setting.timeout),
-      );
-      stream = stream.asBroadcastStream();
-      List<Chapter> chapters = [];
-      stream.listen(
-        (chapter) => chapters.add(chapter),
-        onDone: () async {
-          if (chapters.isEmpty) return;
-          book.chapters = chapters;
-          await isar.writeTxn(() async {
-            isar.books.put(book);
-          });
-        },
-      );
-      await stream.last;
-    }
-    ref.invalidateSelf();
+    // final books = await future;
+    // for (var book in books) {
+    //   if (book.archive) continue;
+    //   final builder = isar.sources.filter();
+    //   final source = await builder.idEqualTo(book.sourceId).findFirst();
+    //   if (source == null) continue;
+    //   final setting = await ref.read(settingNotifierProvider.future);
+    //   final duration = setting.cacheDuration;
+    //   var stream = await Parser.getChapters(
+    //     book.name,
+    //     book.catalogueUrl,
+    //     source,
+    //     Duration(hours: duration.floor()),
+    //     Duration(milliseconds: setting.timeout),
+    //   );
+    //   stream = stream.asBroadcastStream();
+    //   List<Chapter> chapters = [];
+    //   stream.listen(
+    //     (chapter) => chapters.add(chapter),
+    //     onDone: () async {
+    //       if (chapters.isEmpty) return;
+    //       book.chapters = chapters;
+    //       await isar.writeTxn(() async {
+    //         isar.books.put(book);
+    //       });
+    //     },
+    //   );
+    //   await stream.last;
+    // }
+    // ref.invalidateSelf();
   }
 }
 
