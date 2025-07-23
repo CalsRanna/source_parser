@@ -3,6 +3,7 @@ import 'package:openai_dart/openai_dart.dart';
 import 'package:signals/signals.dart';
 import 'package:signals/signals_flutter.dart' hide signal;
 import 'package:source_parser/config/config.dart';
+import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/database/service.dart';
 import 'package:source_parser/page/developer_page/analysis_bottom_sheet.dart';
@@ -34,7 +35,7 @@ class DeveloperViewModel {
     var books = await BookService().getBooks();
     var content = books.map((book) => book.toJson()).toList();
     try {
-      var prompt = '根据我网文书架的内容，分析我的读书喜好并生成报告。下面是我的书架数据：{content}';
+      var prompt = StringConfig.aiAnalyzePrompt;
       var client = OpenAIClient(apiKey: Config.apiKey, baseUrl: Config.baseUrl);
       var message = ChatCompletionMessage.user(
         content: ChatCompletionUserMessageContent.string(
@@ -68,7 +69,7 @@ class DeveloperViewModel {
     await laconic.table('available_sources').where('book_id', 0).delete();
     await laconic.table('available_sources').where('source_id', 0).delete();
     if (!context.mounted) return;
-    DialogUtil.snackBar('数据库清理完成');
+    DialogUtil.snackBar(StringConfig.databaseCleaned);
   }
 
   void disableDeveloperMode(BuildContext context) {

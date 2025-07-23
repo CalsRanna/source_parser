@@ -5,6 +5,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/information_entity.dart';
 import 'package:source_parser/model/explore.dart';
@@ -226,7 +227,7 @@ class _Grid extends StatelessWidget {
     final outlinedButton = OutlinedButton(
       style: buttonStyle,
       onPressed: () => handleTap(context),
-      child: const Text('更多'),
+      child: const Text(StringConfig.more),
     );
     final titleChildren = [
       Text(title, style: titleStyle),
@@ -402,7 +403,7 @@ class _List extends StatelessWidget {
     final outlinedButton = OutlinedButton(
       style: buttonStyle,
       onPressed: () => handleTap(context),
-      child: const Text('更多'),
+      child: const Text(StringConfig.more),
     );
     final rowChildren = [
       Text(title, style: titleStyle),

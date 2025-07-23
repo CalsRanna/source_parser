@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/provider/layout.dart';
 import 'package:source_parser/schema/layout.dart';
 
@@ -124,7 +125,7 @@ class _ButtonPositionBottomSheet extends StatelessWidget {
       LayoutSlot.darkMode => '夜间模式',
       LayoutSlot.forceRefresh => '强制刷新',
       LayoutSlot.information => '书籍信息',
-      LayoutSlot.more => '更多',
+      LayoutSlot.more => StringConfig.more,
       LayoutSlot.nextChapter => '下一章',
       LayoutSlot.previousChapter => '上一章',
       LayoutSlot.source => '切换书源',

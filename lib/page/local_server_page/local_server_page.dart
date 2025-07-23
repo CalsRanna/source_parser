@@ -5,6 +5,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/page/local_server_page/local_server_view_model.dart';
 import 'package:source_parser/util/dialog_util.dart';
 
@@ -25,7 +26,7 @@ class _SourceServerPageState extends ConsumerState<LocalServerPage> {
   Widget build(BuildContext context) {
     var appBar = AppBar(
       actions: [Switch(value: running, onChanged: toggleServer)],
-      title: const Text('本地服务器'),
+      title: const Text(StringConfig.localServer),
     );
     var padding = Padding(
       padding: const EdgeInsets.all(16.0),
