@@ -65,4 +65,15 @@ class DialogUtil {
       showDragHandle: true,
     );
   }
+
+  static void snackBar(String message) {
+    final messenger = ScaffoldMessenger.of(globalKey.currentContext!);
+    final snackBar = SnackBar(
+      behavior: SnackBarBehavior.floating,
+      content: Text(message),
+      duration: const Duration(seconds: 1),
+    );
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(snackBar);
+  }
 }

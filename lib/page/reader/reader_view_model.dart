@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/database/available_source_service.dart';
 import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
@@ -203,6 +204,7 @@ class ReaderViewModel {
   void nextChapter() {
     if (chapters.value.isEmpty) return;
     if (chapterIndex.value + 1 >= chapters.value.length) {
+      DialogUtil.snackBar(StringConfig.noMoreChapter);
       return;
     }
     chapterIndex.value++;
@@ -219,6 +221,7 @@ class ReaderViewModel {
     if (chapters.value.isEmpty) return;
     if (chapterIndex.value == chapters.value.length - 1 &&
         pageIndex.value + 1 >= currentChapterPages.value.length) {
+      DialogUtil.snackBar(StringConfig.noMoreChapter);
       return;
     }
     if (pageIndex.value + 1 >= currentChapterPages.value.length) {
@@ -241,7 +244,10 @@ class ReaderViewModel {
 
   void previousChapter() {
     if (chapters.value.isEmpty) return;
-    if (chapterIndex.value - 1 < 0) return;
+    if (chapterIndex.value - 1 < 0) {
+      DialogUtil.snackBar(StringConfig.noChapterBefore);
+      return;
+    }
     chapterIndex.value--;
     updatePageIndex(0);
     nextChapterContent.value = currentChapterContent.value;
@@ -255,6 +261,7 @@ class ReaderViewModel {
   Future<void> previousPage() async {
     if (chapters.value.isEmpty) return;
     if (chapterIndex.value == 0 && pageIndex.value == 0) {
+      DialogUtil.snackBar(StringConfig.noChapterBefore);
       return;
     }
     if (pageIndex.value - 1 < 0) {
