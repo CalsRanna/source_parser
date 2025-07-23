@@ -121,7 +121,7 @@ class _GridTile extends StatelessWidget {
 
   String? _buildSubtitle() {
     final spans = <String>[];
-    final chapters = book.chapterCount - book.chapterIndex + 1;
+    final chapters = book.chapterCount - (book.chapterIndex + 1);
     if (chapters > 0) {
       spans.add('$chapters章未读');
     } else if (chapters == 0) {
@@ -239,7 +239,7 @@ class _ListTile extends StatelessWidget {
 
   String? _buildSubtitle() {
     final spans = <String>[];
-    final chapters = book.chapterCount - book.chapterIndex + 1;
+    final chapters = book.chapterCount - (book.chapterIndex + 1);
     if (chapters > 0) {
       spans.add('$chapters章未读');
     } else if (chapters == 0) {
