@@ -5,7 +5,7 @@ class SettingMaxConcurrentBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(itemBuilder: _itemBuilder, itemCount: 4);
+    return ListView.builder(itemBuilder: _itemBuilder, itemCount: 8);
   }
 
   Widget _itemBuilder(BuildContext context, int index) {
