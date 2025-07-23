@@ -27,6 +27,7 @@ import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/semaphore.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 import 'package:source_parser/util/splitter.dart';
+import 'package:source_parser/util/string_extension.dart';
 import 'package:source_parser/util/volume_util.dart';
 
 class ReaderViewModel {
@@ -101,7 +102,10 @@ class ReaderViewModel {
     await Future.wait(futures);
     if (!context.mounted) return;
     final message = Message.of(context);
-    message.show('缓存完毕，$downloadSucceed章成功，$downloadFailed章失败');
+    message.show(StringConfig.cacheCompleted.format([
+      downloadSucceed.value,
+      downloadFailed.value,
+    ]));
     await Future.delayed(const Duration(seconds: 1));
     showCacheIndicator.value = false;
     downloadAmount.value = 0;
@@ -142,7 +146,7 @@ class ReaderViewModel {
     source.value = await SourceService().getBookSource(book.sourceId);
     await _getBattery();
     if (chapters.value.isEmpty) {
-      error.value = '没有找到章节';
+      error.value = StringConfig.chapterNotFound;
       return;
     }
     _loadCurrentChapter();
@@ -165,7 +169,7 @@ class ReaderViewModel {
     if (updatedChapters.isEmpty) {
       DialogUtil.dismiss();
       if (!context.mounted) return;
-      Message.of(context).show('没有找到章节');
+      Message.of(context).show(StringConfig.chapterNotFound);
       return;
     }
     chapters.value = updatedChapters;
@@ -409,7 +413,7 @@ class ReaderViewModel {
         document,
         source.value.contentPaginationValidation,
       );
-      while (validation.contains('下一页')) {
+      while (validation.contains(StringConfig.nextPage)) {
         var nextUrl = parser.query(document, source.value.contentPagination);
         if (!nextUrl.startsWith('http')) {
           nextUrl = '${source.value.url}$nextUrl';
