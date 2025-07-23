@@ -8,7 +8,6 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
 import 'package:source_parser/page/home/search_button.dart';
 import 'package:source_parser/router/router.gr.dart';
-import 'package:source_parser/util/message.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
 class BookshelfView extends StatefulWidget {
@@ -307,7 +306,12 @@ class _ShelfModeSelector extends StatelessWidget {
       messenger.hideCurrentMaterialBanner();
     } on Exception catch (e) {
       messenger.hideCurrentMaterialBanner();
-      messenger.showSnackBar(Message.snackBar(e.toString()));
+      var snackBar = SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(e.toString()),
+        duration: const Duration(seconds: 1),
+      );
+      messenger.showSnackBar(snackBar);
     }
   }
 

@@ -8,7 +8,7 @@ import 'package:source_parser/provider/theme.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/schema/theme.dart';
-import 'package:source_parser/util/message.dart';
+import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/string_extension.dart';
 
 @RoutePage()
@@ -70,7 +70,7 @@ class _Dialog extends ConsumerWidget {
       await ref.read(themesNotifierProvider.notifier).delete(theme);
     } catch (error) {
       if (!context.mounted) return;
-      Message.of(context).show(error.toString());
+      DialogUtil.snackBar(error.toString());
     }
   }
 }

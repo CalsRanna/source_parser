@@ -13,9 +13,9 @@ import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_bottom_sheet.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/cache_network.dart';
+import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
 import 'package:source_parser/util/logger.dart';
-import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 
 class BookshelfViewModel {
@@ -72,7 +72,7 @@ class BookshelfViewModel {
     } catch (error) {
       logger.e(error);
       if (!context.mounted) return;
-      Message.of(context).show(error.toString());
+      DialogUtil.snackBar(error.toString());
     }
   }
 
@@ -95,7 +95,7 @@ class BookshelfViewModel {
   Future<void> _clearCache(BuildContext context, BookEntity book) async {
     await CacheManager(prefix: book.name).clearCache();
     if (!context.mounted) return;
-    Message.of(context).show('缓存已清除');
+    DialogUtil.snackBar('缓存已清除');
   }
 
   Future<void> _destroyBook(BookEntity book) async {

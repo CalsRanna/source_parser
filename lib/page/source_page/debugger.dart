@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/provider/source.dart';
-import 'package:source_parser/util/message.dart';
+import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/string_extension.dart';
 import 'package:source_parser/page/source_page/component/rule_group_label.dart';
 
@@ -34,8 +34,7 @@ class _DebugButton extends ConsumerWidget {
       final notifier = ref.read(sourceDebuggerProvider.notifier);
       notifier.debug();
     } catch (e) {
-      final message = Message.of(context);
-      message.show(e.toString());
+      DialogUtil.snackBar(e.toString());
     }
   }
 }

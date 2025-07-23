@@ -11,9 +11,8 @@ import 'package:source_parser/page/local_server_page/controller/static_controlle
 import 'package:source_parser/page/local_server_page/helper/decompressor.dart';
 import 'package:source_parser/page/local_server_page/middleware/cors_middleware.dart';
 import 'package:source_parser/page/local_server_page/middleware/log_middleware.dart';
-import 'package:source_parser/router/router.dart';
+import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/logger.dart';
-import 'package:source_parser/util/message.dart';
 
 class LocalSourceViewModel {
   static const int _port = 8080;
@@ -34,7 +33,7 @@ class LocalSourceViewModel {
       return server;
     } catch (e) {
       logger.e(e);
-      Message.of(globalKey.currentContext!).show('解压失败');
+      DialogUtil.snackBar('解压失败');
       return null;
     }
   }

@@ -6,7 +6,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/page/local_server_page/local_server_view_model.dart';
-import 'package:source_parser/util/message.dart';
+import 'package:source_parser/util/dialog_util.dart';
 
 @RoutePage()
 class LocalServerPage extends ConsumerStatefulWidget {
@@ -41,7 +41,7 @@ class _SourceServerPageState extends ConsumerState<LocalServerPage> {
 
   void handlePop() {
     if (!running) return;
-    Message.of(context).show('请先关闭本地服务器');
+    DialogUtil.snackBar('请先关闭本地服务器');
   }
 
   @override

@@ -33,7 +33,7 @@ class AvailableSourceOptionBottomSheet extends StatelessWidget {
     // final notifier = ref.read(bookNotifierProvider.notifier);
     // final message = await notifier.refreshSource(index);
     // if (!context.mounted) return;
-    // Message.of(context).show(message);
+    // DialogUtil.snackBar(message);
     // Navigator.of(context).pop();
     // Navigator.of(context).pop();
     // var book = ref.read(bookNotifierProvider);

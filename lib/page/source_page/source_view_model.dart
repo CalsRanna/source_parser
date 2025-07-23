@@ -16,7 +16,7 @@ import 'package:source_parser/page/source_page/source_import_bottom_sheet.dart';
 import 'package:source_parser/page/source_page/source_import_loading_dialog.dart';
 import 'package:source_parser/page/source_page/source_validate_dialog.dart';
 import 'package:source_parser/router/router.gr.dart';
-import 'package:source_parser/util/message.dart';
+import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/parser.dart';
 
 class SourceViewModel {
@@ -92,7 +92,7 @@ class SourceViewModel {
       builder: (context) => SourceImportLoadingDialog(),
       context: context,
     );
-    final message = Message.of(context);
+
     try {
       final timeout = Duration(milliseconds: 30000);
       List<SourceEntity> sources = [];
@@ -136,7 +136,7 @@ class SourceViewModel {
       }
     } catch (error) {
       router.pop();
-      message.show(error.toString());
+      DialogUtil.snackBar(error.toString());
     }
   }
 

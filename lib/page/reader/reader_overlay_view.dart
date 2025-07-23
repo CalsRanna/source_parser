@@ -9,7 +9,7 @@ import 'package:source_parser/provider/layout.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/layout.dart';
-import 'package:source_parser/util/message.dart';
+import 'package:source_parser/util/dialog_util.dart';
 
 abstract class ReaderOverlayBaseSlot extends StatelessWidget {
   final BookEntity book;
@@ -97,7 +97,7 @@ abstract class ReaderOverlayBaseSlot extends StatelessWidget {
   }
 
   void _showMessage(BuildContext context) {
-    Message.of(context).show('开发中，但很有可能会移除该功能');
+    DialogUtil.snackBar('开发中，但很有可能会移除该功能');
   }
 }
 

@@ -23,7 +23,6 @@ import 'package:source_parser/util/color_extension.dart';
 import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
 import 'package:source_parser/util/logger.dart';
-import 'package:source_parser/util/message.dart';
 import 'package:source_parser/util/semaphore.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 import 'package:source_parser/util/splitter.dart';
@@ -101,8 +100,7 @@ class ReaderViewModel {
     }
     await Future.wait(futures);
     if (!context.mounted) return;
-    final message = Message.of(context);
-    message.show(StringConfig.cacheCompleted.format([
+    DialogUtil.snackBar(StringConfig.cacheCompleted.format([
       downloadSucceed.value,
       downloadFailed.value,
     ]));
@@ -169,7 +167,7 @@ class ReaderViewModel {
     if (updatedChapters.isEmpty) {
       DialogUtil.dismiss();
       if (!context.mounted) return;
-      Message.of(context).show(StringConfig.chapterNotFound);
+      DialogUtil.snackBar(StringConfig.chapterNotFound);
       return;
     }
     chapters.value = updatedChapters;

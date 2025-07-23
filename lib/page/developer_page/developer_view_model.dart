@@ -8,7 +8,7 @@ import 'package:source_parser/database/service.dart';
 import 'package:source_parser/page/developer_page/analysis_bottom_sheet.dart';
 import 'package:source_parser/page/theme/color_picker.dart';
 import 'package:source_parser/router/router.gr.dart';
-import 'package:source_parser/util/message.dart';
+import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 
 class DeveloperViewModel {
@@ -68,7 +68,7 @@ class DeveloperViewModel {
     await laconic.table('available_sources').where('book_id', 0).delete();
     await laconic.table('available_sources').where('source_id', 0).delete();
     if (!context.mounted) return;
-    Message.of(context).show('数据库清理完成');
+    DialogUtil.snackBar('数据库清理完成');
   }
 
   void disableDeveloperMode(BuildContext context) {
