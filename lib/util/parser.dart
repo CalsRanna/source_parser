@@ -32,9 +32,9 @@ class Parser {
     var duration = Duration(hours: hours);
     var seconds = await SharedPreferenceUtil.getTimeout();
     var timeout = Duration(seconds: seconds);
-    final directory = await getTemporaryDirectory();
+    final directory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
-      temporaryDirectory: directory,
+      cacheDirectory: directory,
       timeout: timeout,
     );
     final sender = ReceivePort();
@@ -65,10 +65,10 @@ class Parser {
     Duration duration,
     Duration timeout,
   ) async {
-    final temporaryDirectory = await getTemporaryDirectory();
+    final temporaryDirectory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
       prefix: name,
-      temporaryDirectory: temporaryDirectory,
+      cacheDirectory: temporaryDirectory,
       timeout: timeout,
     );
     final controller = StreamController<ChapterEntity>();
@@ -145,9 +145,9 @@ class Parser {
     Duration timeout,
     int maxConcurrent,
   ) async {
-    final temporaryDirectory = await getTemporaryDirectory();
+    final temporaryDirectory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
-      temporaryDirectory: temporaryDirectory,
+      cacheDirectory: temporaryDirectory,
       timeout: timeout,
     );
     final rules = jsonDecode(source.exploreJson);
@@ -191,10 +191,10 @@ class Parser {
     Duration duration,
     Duration timeout,
   ) async {
-    final temporaryDirectory = await getTemporaryDirectory();
+    final temporaryDirectory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
       prefix: name,
-      temporaryDirectory: temporaryDirectory,
+      cacheDirectory: temporaryDirectory,
       timeout: timeout,
     );
     final sender = ReceivePort();
@@ -260,9 +260,9 @@ class Parser {
     Duration timeout,
   ) async* {
     final sources = await isar.sources.filter().enabledEqualTo(true).findAll();
-    final directory = await getTemporaryDirectory();
+    final directory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
-      temporaryDirectory: directory,
+      cacheDirectory: directory,
       timeout: timeout,
     );
     final controller = StreamController<Book>();
@@ -332,9 +332,9 @@ class Parser {
     Duration timeout,
   ) async {
     final sources = await isar.sources.where().findAll();
-    final temporaryDirectory = await getTemporaryDirectory();
+    final temporaryDirectory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
-      temporaryDirectory: temporaryDirectory,
+      cacheDirectory: temporaryDirectory,
       timeout: timeout,
     );
     var closed = 0;

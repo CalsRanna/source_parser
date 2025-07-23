@@ -31,9 +31,9 @@ class SourceFormDebugViewModel {
     var duration = Duration(hours: hours);
     var seconds = await SharedPreferenceUtil.getTimeout();
     var timeout = Duration(seconds: seconds);
-    final directory = await getTemporaryDirectory();
+    final directory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
-      temporaryDirectory: directory,
+      cacheDirectory: directory,
       timeout: timeout,
     );
     final sender = ReceivePort();

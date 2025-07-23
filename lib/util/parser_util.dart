@@ -46,9 +46,9 @@ class ParserUtil {
     var timeout = Duration(seconds: storedTimeout);
     var maxConcurrent = await SharedPreferenceUtil.getMaxConcurrent();
     final bookSources = await SourceService().getEnabledBookSources();
-    final directory = await getTemporaryDirectory();
+    final directory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
-      temporaryDirectory: directory,
+      cacheDirectory: directory,
       timeout: timeout,
     );
     final controller = StreamController<ParserSearchResultEntity>();

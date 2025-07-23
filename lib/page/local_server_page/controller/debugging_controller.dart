@@ -98,10 +98,10 @@ class LocalServerDebuggingController with LocalServerController {
     // var duration = Duration(hours: hours);
     var seconds = await SharedPreferenceUtil.getTimeout();
     var timeout = Duration(seconds: seconds);
-    final directory = await getTemporaryDirectory();
+    final directory = await getApplicationCacheDirectory();
     return CachedNetwork(
       prefix: 'debugging',
-      temporaryDirectory: directory,
+      cacheDirectory: directory,
       timeout: timeout,
     );
   }

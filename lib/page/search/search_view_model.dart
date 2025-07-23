@@ -151,9 +151,9 @@ class SearchViewModel {
     Duration timeout,
   ) async* {
     final sources = await SourceService().getEnabledBookSources();
-    final directory = await getTemporaryDirectory();
+    final directory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
-      temporaryDirectory: directory,
+      cacheDirectory: directory,
       timeout: timeout,
     );
     final controller = StreamController<SearchResultEntity>();

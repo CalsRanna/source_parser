@@ -17,7 +17,7 @@ class _CacheViewState extends State<CacheView> {
   bool isRoot = true;
 
   Future<void> backward() async {
-    final cacheDirectory = await getTemporaryDirectory();
+    final cacheDirectory = await getApplicationCacheDirectory();
     final parent = directory.parent;
     setState(() {
       directory = directory.parent;
@@ -55,7 +55,7 @@ class _CacheViewState extends State<CacheView> {
   }
 
   void fetchFiles() async {
-    final cacheDirectory = await getTemporaryDirectory();
+    final cacheDirectory = await getApplicationCacheDirectory();
     setState(() {
       directory = cacheDirectory;
       files = cacheDirectory.listSync();
