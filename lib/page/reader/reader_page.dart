@@ -83,24 +83,38 @@ class _ReaderPageState extends State<ReaderPage> {
   }
 
   Widget _buildReaderView() {
+    ScrollPhysics? physics;
+    if (viewModel.eInkMode.value || viewModel.turningMode.value & 1 == 0) {
+      physics = const NeverScrollableScrollPhysics();
+    }
     if (viewModel.error.value.isNotEmpty) {
-      return GestureDetector(
+      var gestureDetector = GestureDetector(
         onTapUp: viewModel.turnPage,
         child: ReaderContentView.error(
           errorText: viewModel.error.value,
           theme: viewModel.theme.value,
         ),
       );
+      return PageView(
+        key: ValueKey(viewModel.theme.value),
+        controller: viewModel.controller,
+        onPageChanged: viewModel.updatePageIndex,
+        physics: physics,
+        children: [gestureDetector],
+      );
     }
     if (viewModel.currentChapterPages.value.isEmpty) {
-      return GestureDetector(
+      var gestureDetector = GestureDetector(
         onTapUp: viewModel.turnPage,
         child: ReaderContentView.loading(theme: viewModel.theme.value),
       );
-    }
-    ScrollPhysics? physics;
-    if (viewModel.eInkMode.value || viewModel.turningMode.value & 1 == 0) {
-      physics = const NeverScrollableScrollPhysics();
+      return PageView(
+        key: ValueKey(viewModel.theme.value),
+        controller: viewModel.controller,
+        onPageChanged: viewModel.updatePageIndex,
+        physics: physics,
+        children: [gestureDetector],
+      );
     }
     return PageView.builder(
       key: ValueKey(viewModel.theme.value),

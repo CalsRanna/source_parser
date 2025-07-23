@@ -11,4 +11,5 @@ class StringConfig {
   static const catalogue = '目录';
   static const toTop = '去顶部';
   static const toBottom = '去底部';
+  static const emptyContent = '没有解析到内容';
 }
