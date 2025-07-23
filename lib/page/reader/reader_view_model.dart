@@ -15,6 +15,7 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
+import 'package:source_parser/page/reader/reader_exception.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/theme.dart';
@@ -391,6 +392,7 @@ class ReaderViewModel {
   }
 
   Future<String> _getContent(int chapterIndex) async {
+    var chapterName = chapters.value.elementAt(chapterIndex).name;
     var seconds = await SharedPreferenceUtil.getTimeout();
     var timeout = Duration(seconds: seconds);
     final network = CachedNetwork(prefix: book.name, timeout: timeout);
@@ -404,7 +406,7 @@ class ReaderViewModel {
     var document = parser.parse(html);
     var content = parser.query(document, source.value.contentContent);
     if (content.isEmpty) {
-      throw Exception(StringConfig.emptyContent);
+      throw ReaderException('$chapterName\n\n${StringConfig.emptyContent}');
     }
     if (source.value.contentPagination.isNotEmpty) {
       var validation = parser.query(
@@ -431,7 +433,6 @@ class ReaderViewModel {
         );
       }
     }
-    var chapterName = chapters.value.elementAt(chapterIndex).name;
     return '$chapterName\n\n$content';
   }
 
@@ -497,8 +498,8 @@ class ReaderViewModel {
   Future<void> _loadCurrentChapter() async {
     try {
       currentChapterContent.value = await _getContent(book.chapterIndex);
-    } catch (e) {
-      currentChapterContent.value = e.toString();
+    } on ReaderException catch (e) {
+      currentChapterContent.value = e.message;
     }
     var splitter = Splitter(size: size.value, theme: theme.value);
     currentChapterPages.value = splitter.split(currentChapterContent.value);
@@ -512,8 +513,8 @@ class ReaderViewModel {
     }
     try {
       nextChapterContent.value = await _getContent(chapterIndex.value + 1);
-    } catch (e) {
-      nextChapterContent.value = e.toString();
+    } on ReaderException catch (e) {
+      currentChapterContent.value = e.message;
     }
     var splitter = Splitter(size: size.value, theme: theme.value);
     nextChapterPages.value = splitter.split(nextChapterContent.value);
@@ -527,8 +528,8 @@ class ReaderViewModel {
     }
     try {
       previousChapterContent.value = await _getContent(chapterIndex.value - 1);
-    } catch (e) {
-      previousChapterContent.value = e.toString();
+    } on ReaderException catch (e) {
+      currentChapterContent.value = e.message;
     }
     var splitter = Splitter(size: size.value, theme: theme.value);
     previousChapterPages.value = splitter.split(previousChapterContent.value);
