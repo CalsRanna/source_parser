@@ -317,10 +317,10 @@ class ReaderViewModel {
       if (eInkMode.value || turningMode.value & 2 == 0) return;
       nextPage();
     } else if (horizontalTapArea >= 1 / 3 && horizontalTapArea <= 2 / 3) {
-      if (verticalTapArea > 3 / 4) {
+      if (verticalTapArea > 2 / 3) {
         if (eInkMode.value || turningMode.value & 2 == 0) return;
         nextPage();
-      } else if (verticalTapArea < 1 / 4) {
+      } else if (verticalTapArea < 1 / 3) {
         if (eInkMode.value || turningMode.value & 2 == 0) return;
         previousPage();
       } else {
