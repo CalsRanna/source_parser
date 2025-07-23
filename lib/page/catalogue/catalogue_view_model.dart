@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:signals/signals.dart';
+import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
 import 'package:source_parser/database/source_service.dart';
@@ -12,10 +15,38 @@ import 'package:source_parser/util/html_parser_plus.dart';
 class CatalogueViewModel {
   final book = signal(BookEntity());
   final chapters = signal(<ChapterEntity>[]);
+  final position = signal(StringConfig.toBottom);
+
+  var appBarKey = GlobalKey();
+  late ScrollController controller;
 
   Future<bool> checkChapter(int index) async {
     var chapter = chapters.value.elementAt(index);
     return CachedNetwork(prefix: book.value.name).check(chapter.url);
+  }
+
+  void dispose() {
+    controller.dispose();
+  }
+
+  void initController(BuildContext context) {
+    controller = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final height = MediaQuery.of(context).size.height;
+      final padding = MediaQuery.of(context).padding;
+      final maxScrollExtent = controller.position.maxScrollExtent;
+      final appBarContext = appBarKey.currentContext;
+      final appBarRenderBox = appBarContext!.findRenderObject() as RenderBox;
+      var listViewHeight = height - padding.vertical;
+      listViewHeight = listViewHeight - appBarRenderBox.size.height;
+      final halfHeight = listViewHeight / 2;
+      var offset = 56.0 * book.value.chapterIndex;
+      offset = max(0, (offset - halfHeight));
+      if (maxScrollExtent > 0) {
+        offset = offset.clamp(0, maxScrollExtent);
+      }
+      controller.jumpTo(offset);
+    });
   }
 
   Future<void> initSignals({
@@ -56,6 +87,21 @@ class CatalogueViewModel {
       await chapterServer.addChapters(chapters.value);
       await BookService().updateBook(book.value);
     }
+  }
+
+  void updatePosition() {
+    var offset = controller.position.maxScrollExtent;
+    if (position.value == StringConfig.toTop) {
+      offset = controller.position.minScrollExtent;
+    }
+    position.value = position.value == StringConfig.toTop
+        ? StringConfig.toBottom
+        : StringConfig.toTop;
+    controller.animateTo(
+      offset,
+      curve: Curves.linear,
+      duration: const Duration(milliseconds: 200),
+    );
   }
 
   Future<List<ChapterEntity>> _getRemoteChapters(

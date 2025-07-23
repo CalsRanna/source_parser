@@ -1,11 +1,9 @@
-import 'dart:math';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/page/catalogue/catalogue_view_model.dart';
@@ -22,29 +20,40 @@ class CataloguePage extends StatefulWidget {
 }
 
 class _CataloguePageState extends State<CataloguePage> {
-  bool atTop = true;
-  late ScrollController controller;
-  GlobalKey globalKey = GlobalKey();
-
   final viewModel = GetIt.instance<CatalogueViewModel>();
 
   @override
   Widget build(BuildContext context) {
-    final iconButton = IconButton(
-      icon: Icon(HugeIcons.strokeRoundedArrowDataTransferVertical),
-      onPressed: handlePressed,
+    final iconButton = Watch(
+      (_) => TextButton(
+        onPressed: viewModel.updatePosition,
+        child: Text(viewModel.position.value),
+      ),
     );
     final appBar = AppBar(
-      key: globalKey,
-      title: const Text('目录'),
+      key: viewModel.appBarKey,
       actions: [iconButton],
+      title: const Text(StringConfig.catalogue),
     );
     return Scaffold(appBar: appBar, body: Watch(_buildBody));
   }
 
+  @override
+  void dispose() {
+    viewModel.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    viewModel.initSignals(book: widget.book, chapters: widget.chapters);
+    viewModel.initController(context);
+  }
+
   Widget _buildBody(BuildContext context) {
     final listView = ListView.builder(
-      controller: controller,
+      controller: viewModel.controller,
       itemBuilder: (_, index) => _itemBuilder(index),
       itemCount: viewModel.chapters.value.length,
       itemExtent: 56,
@@ -53,45 +62,7 @@ class _CataloguePageState extends State<CataloguePage> {
       onRefresh: () => viewModel.refreshChapters(),
       child: listView,
     );
-    return Scrollbar(controller: controller, child: easyRefresh);
-  }
-
-  void handlePressed() {
-    var position = controller.position.maxScrollExtent;
-    if (!atTop) {
-      position = controller.position.minScrollExtent;
-    }
-    controller.animateTo(
-      position,
-      curve: Curves.linear,
-      duration: const Duration(milliseconds: 200),
-    );
-    setState(() {
-      atTop = !atTop;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    viewModel.initSignals(book: widget.book, chapters: widget.chapters);
-    controller = ScrollController();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      final height = MediaQuery.of(context).size.height;
-      final padding = MediaQuery.of(context).padding;
-      final maxScrollExtent = controller.position.maxScrollExtent;
-      final appBarContext = globalKey.currentContext;
-      final appBarRenderBox = appBarContext!.findRenderObject() as RenderBox;
-      var listViewHeight = height - padding.vertical;
-      listViewHeight = listViewHeight - appBarRenderBox.size.height;
-      final halfHeight = listViewHeight / 2;
-      var offset = 56.0 * widget.book.chapterIndex;
-      offset = max(0, (offset - halfHeight));
-      if (maxScrollExtent > 0) {
-        offset = offset.clamp(0, maxScrollExtent);
-      }
-      controller.jumpTo(offset);
-    });
+    return Scrollbar(controller: viewModel.controller, child: easyRefresh);
   }
 
   Widget _itemBuilder(int index) {

@@ -8,4 +8,7 @@ class StringConfig {
   static const aiAnalyzePrompt = '根据我网文书架的内容，分析我的读书喜好并生成报告。下面是我的书架数据：{content}';
   static const more = '更多';
   static const localServer = '本地服务器';
+  static const catalogue = '目录';
+  static const toTop = '去顶部';
+  static const toBottom = '去底部';
 }
