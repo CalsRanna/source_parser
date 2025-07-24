@@ -413,7 +413,7 @@ class ReaderViewModel {
     }
   }
 
-  Future<String> _getContent(int chapterIndex) async {
+  Future<String> _getContent(int chapterIndex, {bool reacquire = false}) async {
     var chapterName = chapters.value.elementAt(chapterIndex).name;
     var seconds = await SharedPreferenceUtil.getTimeout();
     var timeout = Duration(seconds: seconds);
@@ -423,6 +423,7 @@ class ReaderViewModel {
       url,
       charset: source.value.charset,
       method: source.value.contentMethod.toUpperCase(),
+      reacquire: reacquire,
     );
     final parser = HtmlParser();
     var document = parser.parse(html);
@@ -531,9 +532,18 @@ class ReaderViewModel {
     return _assembleTheme(defaultTheme);
   }
 
-  Future<void> _loadCurrentChapter() async {
+  Future<void> forceRefresh() async {
+    currentChapterPages.value = [];
+    updatePageIndex(0);
+    _loadCurrentChapter(reacquire: true);
+  }
+
+  Future<void> _loadCurrentChapter({bool reacquire = false}) async {
     try {
-      currentChapterContent.value = await _getContent(chapterIndex.value);
+      currentChapterContent.value = await _getContent(
+        chapterIndex.value,
+        reacquire: reacquire,
+      );
     } on ReaderException catch (e) {
       currentChapterContent.value = e.message;
     }

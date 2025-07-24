@@ -188,7 +188,7 @@ class ReaderOverlayView extends ConsumerWidget {
     if (slot == LayoutSlot.more.name) {
       return _OverlayMoreSlot(
         book: book,
-        onTap: ({int? count}) => handleTap(slot, count: count),
+        onTap: (slot, {int? count}) => handleTap(slot, count: count),
         slot: slot,
       );
     }
@@ -228,7 +228,7 @@ class ReaderOverlayView extends ConsumerWidget {
 
 class _OverlayMoreSlot extends ConsumerWidget {
   final BookEntity book;
-  final void Function({int? count})? onTap;
+  final void Function(String slot, {int? count})? onTap;
   final String slot;
   const _OverlayMoreSlot({required this.book, this.onTap, required this.slot});
 
@@ -267,7 +267,11 @@ class _OverlayMoreSlot extends ConsumerWidget {
     };
     var remainingValues = values.toSet().difference(usedValues);
     return remainingValues.map((value) {
-      return _OverlayMoreSlotItem(book: book, onTap: onTap, slot: value);
+      return _OverlayMoreSlotItem(
+        book: book,
+        onTap: ({int? count}) => onTap?.call(value, count: count),
+        slot: value,
+      );
     }).toList();
   }
 
