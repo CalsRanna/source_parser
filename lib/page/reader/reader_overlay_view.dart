@@ -98,7 +98,7 @@ abstract class ReaderOverlayBaseSlot extends StatelessWidget {
   }
 
   void _showMessage(BuildContext context) {
-    DialogUtil.snackBar('开发中，但很有可能会移除该功能');
+    DialogUtil.snackBar(StringConfig.developing);
   }
 }
 
