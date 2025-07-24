@@ -211,8 +211,9 @@ class ReaderViewModel {
     updatePageIndex(0);
     _preloadPreviousChapter();
     _loadCurrentChapter();
-    controller.jumpToPage(pageIndex.value);
     _preloadNextChapter();
+    if (!controller.hasClients) return;
+    controller.jumpToPage(pageIndex.value);
   }
 
   void nextChapter() {
@@ -227,8 +228,9 @@ class ReaderViewModel {
     previousChapterPages.value = currentChapterPages.value;
     currentChapterContent.value = nextChapterContent.value;
     currentChapterPages.value = nextChapterPages.value;
-    controller.jumpToPage(pageIndex.value);
     _preloadNextChapter();
+    if (!controller.hasClients) return;
+    controller.jumpToPage(pageIndex.value);
   }
 
   Future<void> nextPage() async {
@@ -245,15 +247,17 @@ class ReaderViewModel {
       previousChapterPages.value = currentChapterPages.value;
       currentChapterContent.value = nextChapterContent.value;
       currentChapterPages.value = nextChapterPages.value;
-      controller.jumpToPage(pageIndex.value);
       _preloadNextChapter();
+      if (!controller.hasClients) return;
+      controller.jumpToPage(pageIndex.value);
       return;
     }
+    await _getBattery();
+    if (!controller.hasClients) return;
     controller.nextPage(
       duration: Durations.medium1,
       curve: Curves.easeInOut,
     );
-    await _getBattery();
   }
 
   void previousChapter() {
@@ -268,8 +272,9 @@ class ReaderViewModel {
     nextChapterPages.value = currentChapterPages.value;
     currentChapterContent.value = previousChapterContent.value;
     currentChapterPages.value = previousChapterPages.value;
-    controller.jumpToPage(pageIndex.value);
     _preloadPreviousChapter();
+    if (!controller.hasClients) return;
+    controller.jumpToPage(pageIndex.value);
   }
 
   Future<void> previousPage() async {
@@ -285,15 +290,17 @@ class ReaderViewModel {
       nextChapterPages.value = currentChapterPages.value;
       currentChapterContent.value = previousChapterContent.value;
       currentChapterPages.value = previousChapterPages.value;
-      controller.jumpToPage(pageIndex.value);
       _preloadPreviousChapter();
+      if (!controller.hasClients) return;
+      controller.jumpToPage(pageIndex.value);
       return;
     }
+    await _getBattery();
+    if (!controller.hasClients) return;
     controller.previousPage(
       duration: Durations.medium1,
       curve: Curves.easeInOut,
     );
-    await _getBattery();
   }
 
   void showUiOverlays() {
@@ -312,6 +319,7 @@ class ReaderViewModel {
     GetIt.instance.get<SourceParserViewModel>().toggleDarkMode();
     theme.value = _assembleTheme(theme.value);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!controller.hasClients) return;
       controller.jumpToPage(pageIndex.value);
     });
   }
