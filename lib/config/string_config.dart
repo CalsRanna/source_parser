@@ -17,4 +17,6 @@ class StringConfig {
   static const edit = '编辑';
   static const destroy = '删除';
   static const destroyAvailableSource = '确定删除这个可用书源吗？';
+  static const loadingFailed = '加载失败';
+  static const loading = '加载中';
 }

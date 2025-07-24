@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
 import 'package:source_parser/util/merger.dart';
 import 'package:source_parser/util/string_extension.dart';
@@ -29,7 +30,7 @@ class ReaderContentView extends StatelessWidget {
     required this.theme,
   })  : battery = null,
         contentText = '',
-        headerText = '加载中',
+        headerText = StringConfig.loading,
         pageProgressText = '',
         isLoading = true,
         isFirstPage = false,
@@ -41,7 +42,7 @@ class ReaderContentView extends StatelessWidget {
     required this.errorText,
   })  : battery = null,
         contentText = '',
-        headerText = '加载失败',
+        headerText = StringConfig.loadingFailed,
         pageProgressText = '',
         isLoading = false,
         isFirstPage = false;
@@ -177,7 +178,7 @@ class _Content extends StatelessWidget {
         fontSize: theme.contentFontSize,
       );
       var text = Text(
-        errorMessage!.isEmpty ? '加载失败' : errorMessage!,
+        errorMessage!.isEmpty ? StringConfig.loadingFailed : errorMessage!,
         style: textStyle,
       );
       return Center(child: text);
