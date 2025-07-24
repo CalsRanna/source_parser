@@ -88,32 +88,18 @@ class _ReaderPageState extends State<ReaderPage> {
       physics = const NeverScrollableScrollPhysics();
     }
     if (viewModel.error.value.isNotEmpty) {
-      var gestureDetector = GestureDetector(
+      return GestureDetector(
         onTapUp: viewModel.turnPage,
         child: ReaderContentView.error(
           errorText: viewModel.error.value,
           theme: viewModel.theme.value,
         ),
       );
-      return PageView(
-        key: ValueKey(viewModel.theme.value),
-        controller: viewModel.controller,
-        onPageChanged: viewModel.updatePageIndex,
-        physics: physics,
-        children: [gestureDetector],
-      );
     }
     if (viewModel.currentChapterPages.value.isEmpty) {
-      var gestureDetector = GestureDetector(
+      return GestureDetector(
         onTapUp: viewModel.turnPage,
         child: ReaderContentView.loading(theme: viewModel.theme.value),
-      );
-      return PageView(
-        key: ValueKey(viewModel.theme.value),
-        controller: viewModel.controller,
-        onPageChanged: viewModel.updatePageIndex,
-        physics: physics,
-        children: [gestureDetector],
       );
     }
     return PageView.builder(
