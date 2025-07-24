@@ -39,13 +39,11 @@ class AvailableSourceViewModel {
     );
     await for (var item in stream) {
       item.bookId = book.value.id;
-      var existingIndex = updatedSources.indexWhere(
-        (source) => source.url == item.url,
-      );
-      if (existingIndex != -1) {
-        var existingId = updatedSources[existingIndex].id;
-        updatedSources[existingIndex] = item;
-        updatedSources[existingIndex].id = existingId;
+      var index = updatedSources.indexWhere((source) => source.url == item.url);
+      if (index != -1) {
+        var existingId = updatedSources[index].id;
+        updatedSources[index] = item;
+        updatedSources[index].id = existingId;
       } else {
         updatedSources.add(item);
       }
