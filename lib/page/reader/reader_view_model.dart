@@ -32,9 +32,9 @@ import 'package:source_parser/util/volume_util.dart';
 
 class ReaderViewModel {
   final BookEntity book;
+  final catalogueUrl = signal('');
   final chapters = signal<List<ChapterEntity>>([]);
   final availableSources = signal(<AvailableSourceEntity>[]);
-  final catalogueUrl = signal('');
   final previousChapterContent = signal('');
   final previousChapterPages = signal<List<String>>([]);
   final currentChapterContent = signal('');
@@ -142,9 +142,9 @@ class ReaderViewModel {
     size.value = _initSize(theme.value);
     chapterIndex.value = book.chapterIndex;
     pageIndex.value = book.pageIndex;
+    catalogueUrl.value = book.catalogueUrl;
     chapters.value = await _initChapters();
     availableSources.value = await _initAvailableSources();
-    catalogueUrl.value = book.catalogueUrl;
     source.value = await SourceService().getBookSource(book.sourceId);
     await _getBattery();
     if (chapters.value.isEmpty) {
@@ -169,7 +169,9 @@ class ReaderViewModel {
     DialogUtil.loading();
     var sourceId = availableSource.sourceId;
     source.value = await SourceService().getBookSource(sourceId);
-    catalogueUrl.value = availableSource.url;
+    var url = availableSource.url;
+    var updatedCatalogueUrl = await _getRemoteCatalogueUrl(url);
+    catalogueUrl.value = updatedCatalogueUrl;
     var updatedChapters = await _getRemoteChapters();
     if (updatedChapters.isEmpty) {
       DialogUtil.dismiss();
@@ -194,6 +196,8 @@ class ReaderViewModel {
     );
     await BookService().updateBook(updatedBook);
     DialogUtil.dismiss();
+    var bookshelfViewModel = GetIt.instance.get<BookshelfViewModel>();
+    bookshelfViewModel.initSignals();
   }
 
   Future<void> navigateCataloguePage(BuildContext context) async {
@@ -445,6 +449,19 @@ class ReaderViewModel {
     return '$chapterName\n\n$content';
   }
 
+  Future<String> _getRemoteCatalogueUrl(String url) async {
+    var network = CachedNetwork(prefix: book.name);
+    var html = await network.request(url);
+    final parser = HtmlParser();
+    var document = parser.parse(html);
+    var catalogueUrl =
+        parser.query(document, source.value.informationCatalogueUrl);
+    if (!catalogueUrl.startsWith('http')) {
+      catalogueUrl = '${source.value.url}$catalogueUrl';
+    }
+    return catalogueUrl;
+  }
+
   Future<List<ChapterEntity>> _getRemoteChapters() async {
     var network = CachedNetwork(prefix: book.name);
     var html = await network.request(catalogueUrl.value);
@@ -462,6 +479,7 @@ class ReaderViewModel {
       final chapter = ChapterEntity();
       chapter.name = name;
       chapter.url = url;
+      chapter.bookId = book.id;
       chapters.add(chapter);
     }
     return chapters;
