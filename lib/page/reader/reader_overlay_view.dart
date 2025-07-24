@@ -45,17 +45,17 @@ abstract class ReaderOverlayBaseSlot extends StatelessWidget {
     var values = LayoutSlot.values;
     var layoutSlot = values.firstWhere((value) => value.name == slot);
     return switch (layoutSlot) {
-      LayoutSlot.audio => '朗读',
-      LayoutSlot.cache => '缓存',
-      LayoutSlot.catalogue => '目录',
-      LayoutSlot.darkMode => '夜间模式',
-      LayoutSlot.forceRefresh => '强制刷新',
-      LayoutSlot.information => '书籍信息',
+      LayoutSlot.audio => StringConfig.readAloud,
+      LayoutSlot.cache => StringConfig.cache,
+      LayoutSlot.catalogue => StringConfig.catalogue,
+      LayoutSlot.darkMode => StringConfig.darkMode,
+      LayoutSlot.forceRefresh => StringConfig.forceRefresh,
+      LayoutSlot.information => StringConfig.information,
       LayoutSlot.more => StringConfig.more,
-      LayoutSlot.nextChapter => '下一章',
-      LayoutSlot.previousChapter => '上一章',
-      LayoutSlot.source => '切换书源',
-      LayoutSlot.theme => '主题',
+      LayoutSlot.nextChapter => StringConfig.nextChapter,
+      LayoutSlot.previousChapter => StringConfig.previousChapter,
+      LayoutSlot.source => StringConfig.changeSource,
+      LayoutSlot.theme => StringConfig.theme,
     };
   }
 

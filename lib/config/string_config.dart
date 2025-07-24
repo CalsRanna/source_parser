@@ -19,4 +19,13 @@ class StringConfig {
   static const destroyAvailableSource = '确定删除这个可用书源吗？';
   static const loadingFailed = '加载失败';
   static const loading = '加载中';
+  static const readAloud = '朗读';
+  static const cache = '缓存';
+  static const darkMode = '夜间模式';
+  static const forceRefresh = '强制刷新';
+  static const information = '书籍信息';
+  static const nextChapter = '下一章';
+  static const previousChapter = '上一章';
+  static const changeSource = '切换书源';
+  static const theme = '主题';
 }
