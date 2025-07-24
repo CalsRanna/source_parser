@@ -12,4 +12,9 @@ class StringConfig {
   static const toTop = '去顶部';
   static const toBottom = '去底部';
   static const emptyContent = '没有解析到内容';
+  static const availableSource = '可用书源';
+  static const change = '切换';
+  static const edit = '编辑';
+  static const destroy = '删除';
+  static const destroyAvailableSource = '确定删除这个可用书源吗？';
 }

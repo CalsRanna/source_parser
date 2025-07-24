@@ -10,7 +10,8 @@ class AvailableSourceService {
   }
 
   Future<void> addAvailableSources(
-      List<AvailableSourceEntity> availableSources) async {
+    List<AvailableSourceEntity> availableSources,
+  ) async {
     var laconic = DatabaseService.instance.laconic;
     var data = availableSources.map((source) {
       var json = source.toJson();
@@ -20,22 +21,16 @@ class AvailableSourceService {
     await laconic.table('available_sources').insert(data);
   }
 
+  Future<void> destroyAvailableSource(int id) async {
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.table('available_sources').where('id', id).delete();
+  }
+
   Future<bool> exist(String url) async {
     var laconic = DatabaseService.instance.laconic;
     var count =
         await laconic.table('available_sources').where('url', url).count();
     return count > 0;
-  }
-
-  Future<void> updateAvailableSource(
-      AvailableSourceEntity availableSource) async {
-    var laconic = DatabaseService.instance.laconic;
-    var json = availableSource.toJson();
-    json.remove('id');
-    await laconic
-        .table('available_sources')
-        .where('id', availableSource.id)
-        .update(json);
   }
 
   Future<AvailableSourceEntity> getAvailableSource(int id) async {
@@ -53,5 +48,17 @@ class AvailableSourceService {
         .map((availableSource) =>
             AvailableSourceEntity.fromJson(availableSource.toMap()))
         .toList();
+  }
+
+  Future<void> updateAvailableSource(
+    AvailableSourceEntity availableSource,
+  ) async {
+    var laconic = DatabaseService.instance.laconic;
+    var json = availableSource.toJson();
+    json.remove('id');
+    await laconic
+        .table('available_sources')
+        .where('id', availableSource.id)
+        .update(json);
   }
 }

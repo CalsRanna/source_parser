@@ -5,11 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/available_source/available_source_view_model.dart';
-import 'package:source_parser/page/available_source/component/option_bottom_sheet.dart';
-import 'package:source_parser/util/dialog_util.dart';
 
 @RoutePage()
 class AvailableSourcePage extends StatefulWidget {
@@ -43,8 +42,9 @@ class _AvailableSourcePageState extends State<AvailableSourcePage> {
       onPressed: () => viewModel.navigateAvailableSourceFormPage(context),
       icon: Icon(HugeIcons.strokeRoundedAdd01),
     );
+    const text = Text(StringConfig.availableSource);
     return Scaffold(
-      appBar: AppBar(actions: [button], title: const Text('可用书源')),
+      appBar: AppBar(actions: [button], title: text),
       body: Watch(_buildBody),
     );
   }
@@ -59,10 +59,6 @@ class _AvailableSourcePageState extends State<AvailableSourcePage> {
       onRefresh: viewModel.refreshAvailableSources,
       child: listView,
     );
-  }
-
-  void openBottomSheet() {
-    DialogUtil.openBottomSheet(AvailableSourceOptionBottomSheet());
   }
 
   void switchSource(BuildContext context, int index) async {
@@ -96,7 +92,7 @@ class _AvailableSourcePageState extends State<AvailableSourcePage> {
   Widget _itemBuilder(int index) {
     final active = viewModel.checkIsActive(index);
     return ListTile(
-      onLongPress: openBottomSheet,
+      onLongPress: () => viewModel.openBottomSheet(index),
       onTap: () => switchSource(context, index),
       subtitle: _buildSubtitle(index),
       title: _buildTitle(index),
@@ -114,30 +110,6 @@ class _AvailableSourcePageState extends State<AvailableSourcePage> {
 //       LoadingIndicator(),
 //       SizedBox(height: 16),
 //       Text('正在添加书源'),
-//     ];
-//     const column = Column(
-//       mainAxisAlignment: MainAxisAlignment.center,
-//       children: children,
-//     );
-//     const dialog = Dialog(
-//       insetPadding: EdgeInsets.zero,
-//       child: column,
-//     );
-//     return const UnconstrainedBox(
-//       child: SizedBox(height: 160, width: 160, child: dialog),
-//     );
-//   }
-// }
-
-// class _SwitchSourceDialog extends StatelessWidget {
-//   const _SwitchSourceDialog();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     const children = [
-//       LoadingIndicator(),
-//       SizedBox(height: 16),
-//       Text('正在切换书源'),
 //     ];
 //     const column = Column(
 //       mainAxisAlignment: MainAxisAlignment.center,

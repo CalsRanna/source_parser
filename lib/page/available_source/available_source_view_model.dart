@@ -4,7 +4,9 @@ import 'package:source_parser/database/available_source_service.dart';
 import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/page/available_source/available_source_bottom_sheet.dart';
 import 'package:source_parser/router/router.gr.dart';
+import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/parser_util.dart';
 
 class AvailableSourceViewModel {
@@ -30,6 +32,14 @@ class AvailableSourceViewModel {
     var result = await AvailableSourceFormRoute().push<String?>(context);
     if (result == null) return;
     if (result.isEmpty) return;
+  }
+
+  void openBottomSheet(int index) {
+    var availableSource = availableSources.value[index];
+    var bottomSheet = AvailableSourceBottomSheet(
+      onDestroy: () => _destroyAvailableSource(availableSource),
+    );
+    DialogUtil.openBottomSheet(bottomSheet);
   }
 
   Future<void> refreshAvailableSources() async {
@@ -63,5 +73,19 @@ class AvailableSourceViewModel {
   Future<void> updateAvailableSource(BuildContext context, int index) async {
     var availableSource = availableSources.value[index];
     Navigator.of(context).pop(availableSource);
+  }
+
+  Future<void> _destroyAvailableSource(
+    AvailableSourceEntity availableSource,
+  ) async {
+    var isInShelf = await BookService().checkIsInShelf(book.value.id);
+    if (!isInShelf) {
+      availableSources.value
+          .removeWhere((source) => source.id == availableSource.id);
+      return;
+    }
+    var service = AvailableSourceService();
+    await service.destroyAvailableSource(availableSource.id);
+    availableSources.value = await service.getAvailableSources(book.value.id);
   }
 }
