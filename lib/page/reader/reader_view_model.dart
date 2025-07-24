@@ -95,7 +95,8 @@ class ReaderViewModel {
       startIndex + downloadAmount.value,
       chapters.value.length,
     );
-    final semaphore = Semaphore(16);
+    var concurrent = await SharedPreferenceUtil.getMaxConcurrent();
+    final semaphore = Semaphore(concurrent);
     List<Future<void>> futures = [];
     for (var i = startIndex; i < endIndex; i++) {
       futures.add(_downloadChapter(source.value, i, semaphore));
