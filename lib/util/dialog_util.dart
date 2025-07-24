@@ -66,6 +66,14 @@ class DialogUtil {
     );
   }
 
+  static void openDialog(Widget child, {bool barrierDismissible = true}) {
+    showDialog(
+      barrierDismissible: barrierDismissible,
+      builder: (context) => child,
+      context: globalKey.currentContext!,
+    );
+  }
+
   static void snackBar(String message) {
     final messenger = ScaffoldMessenger.of(globalKey.currentContext!);
     final snackBar = SnackBar(

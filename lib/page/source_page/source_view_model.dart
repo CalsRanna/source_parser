@@ -8,6 +8,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:signals/signals.dart';
+import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/page/source_page/source_bottom_sheet.dart';
@@ -18,6 +19,7 @@ import 'package:source_parser/page/source_page/source_validate_dialog.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/parser.dart';
+import 'package:source_parser/util/string_extension.dart';
 
 class SourceViewModel {
   final sources = signal(<SourceEntity>[]);
@@ -99,7 +101,15 @@ class SourceViewModel {
       if (from == 'network') {
         sources = await Parser.importNetworkSource(value, timeout);
       } else {
-        sources = await Parser.importLocalSource(value);
+        final json = jsonDecode(value);
+        List<SourceEntity> sources = [];
+        if (json is List) {
+          for (var element in json) {
+            sources.add(SourceEntity.fromJson(element));
+          }
+        } else {
+          sources.add(SourceEntity.fromJson(json));
+        }
       }
       List<SourceEntity> newSources = [];
       List<SourceEntity> oldSources = [];
@@ -119,7 +129,7 @@ class SourceViewModel {
       router.pop();
       if (oldSources.isNotEmpty) {
         var sourceImportAlertDialog = SourceImportAlertDialog(
-          message: '发现${oldSources.length}个同名书源书源',
+          message: StringConfig.foundSameSource.format([oldSources.length]),
           onConfirm: (override) async {
             final router = Navigator.of(context);
             await _importSources(override);
@@ -143,13 +153,28 @@ class SourceViewModel {
   void _importLocalSource(BuildContext context) async {
     final result = await FilePicker.platform.pickFiles();
     if (result != null) {
+      DialogUtil.openDialog(
+        SourceImportLoadingDialog(),
+        barrierDismissible: false,
+      );
       final file = File(result.files.single.path!);
       final content = await file.readAsString();
-      if (!context.mounted) return;
-      _getSourceContent(context, content, from: 'local');
+      _parseContent(content);
+      DialogUtil.dismiss();
+      if (oldSources.value.isNotEmpty) {
+        DialogUtil.openDialog(
+          SourceImportAlertDialog(
+            message:
+                StringConfig.foundSameSource.format([oldSources.value.length]),
+            onConfirm: (override) async {
+              DialogUtil.dismiss();
+              await _importSources(override);
+            },
+          ),
+          barrierDismissible: false,
+        );
+      }
     }
-    if (!context.mounted) return;
-    Navigator.of(context).pop();
   }
 
   void _importNetworkSource(BuildContext context) async {
@@ -166,15 +191,42 @@ class SourceViewModel {
   }
 
   Future<void> _importSources(bool override) async {
+    var service = SourceService();
     if (override) {
       for (var oldSource in oldSources.value) {
-        var source = await SourceService()
-            .getSourceByNameAndUrl(oldSource.name, oldSource.url);
-        await SourceService().updateSource(oldSource.copyWith(id: source.id));
+        await service.updateSource(oldSource);
       }
     }
-    await SourceService().addSources(newSources.value);
+    await service.addSources(newSources.value);
     initSignals();
+  }
+
+  void _parseContent(String content) {
+    final json = jsonDecode(content);
+    List<SourceEntity> parsedSources = [];
+    if (json is List) {
+      for (var element in json) {
+        parsedSources.add(SourceEntity.fromJson(element));
+      }
+    } else {
+      parsedSources.add(SourceEntity.fromJson(json));
+    }
+    List<SourceEntity> newSources = [];
+    List<SourceEntity> updatedSources = [];
+    for (var source in parsedSources) {
+      var index = sources.value.indexWhere((item) {
+        final hasSameName = item.name == source.name;
+        final hasSameUrl = item.url == source.url;
+        return hasSameName && hasSameUrl;
+      });
+      if (index != -1) {
+        updatedSources.add(source.copyWith(id: sources.value[index].id));
+      } else {
+        newSources.add(source);
+      }
+    }
+    this.newSources.value = [...newSources];
+    oldSources.value = [...updatedSources];
   }
 
   Future<Stream<int>> _validate() async {
