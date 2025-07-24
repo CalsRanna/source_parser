@@ -34,6 +34,7 @@ class ReaderViewModel {
   final BookEntity book;
   final chapters = signal<List<ChapterEntity>>([]);
   final availableSources = signal(<AvailableSourceEntity>[]);
+  final catalogueUrl = signal('');
   final previousChapterContent = signal('');
   final previousChapterPages = signal<List<String>>([]);
   final currentChapterContent = signal('');
@@ -142,6 +143,7 @@ class ReaderViewModel {
     pageIndex.value = book.pageIndex;
     chapters.value = await _initChapters();
     availableSources.value = await _initAvailableSources();
+    catalogueUrl.value = book.catalogueUrl;
     source.value = await SourceService().getBookSource(book.sourceId);
     await _getBattery();
     if (chapters.value.isEmpty) {
@@ -157,13 +159,16 @@ class ReaderViewModel {
 
   Future<void> navigateAvailableSourcePage(BuildContext context) async {
     var copiedBook = book.copyWith(sourceId: source.value.id);
-    var sourceId = await AvailableSourceRoute(
+    var availableSource = await AvailableSourceRoute(
       availableSources: availableSources.value,
       book: copiedBook,
-    ).push<int>(context);
-    if (sourceId == null) return;
+    ).push<AvailableSourceEntity>(context);
+    availableSources.value = await _initAvailableSources();
+    if (availableSource == null) return;
     DialogUtil.loading();
+    var sourceId = availableSource.sourceId;
     source.value = await SourceService().getBookSource(sourceId);
+    catalogueUrl.value = availableSource.url;
     var updatedChapters = await _getRemoteChapters();
     if (updatedChapters.isEmpty) {
       DialogUtil.dismiss();
@@ -180,8 +185,9 @@ class ReaderViewModel {
     await ChapterService().destroyChapters(book.id);
     await ChapterService().addChapters(updatedChapters);
     var updatedBook = book.copyWith(
-      sourceId: sourceId,
+      catalogueUrl: catalogueUrl.value,
       chapterCount: updatedChapters.length,
+      sourceId: sourceId,
     );
     await BookService().updateBook(updatedBook);
     DialogUtil.dismiss();
@@ -438,7 +444,7 @@ class ReaderViewModel {
 
   Future<List<ChapterEntity>> _getRemoteChapters() async {
     var network = CachedNetwork(prefix: book.name);
-    var html = await network.request(book.catalogueUrl);
+    var html = await network.request(catalogueUrl.value);
     final parser = HtmlParser();
     var document = parser.parse(html);
     var preset = parser.query(document, source.value.cataloguePreset);

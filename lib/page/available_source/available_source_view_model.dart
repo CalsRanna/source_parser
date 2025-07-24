@@ -64,6 +64,6 @@ class AvailableSourceViewModel {
 
   Future<void> updateAvailableSource(BuildContext context, int index) async {
     var availableSource = availableSources.value[index];
-    Navigator.of(context).pop(availableSource.sourceId);
+    Navigator.of(context).pop(availableSource);
   }
 }
