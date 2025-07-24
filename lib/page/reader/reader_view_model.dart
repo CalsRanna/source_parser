@@ -146,16 +146,17 @@ class ReaderViewModel {
     chapters.value = await _initChapters();
     availableSources.value = await _initAvailableSources();
     source.value = await SourceService().getBookSource(book.sourceId);
+    eInkMode.value = await SharedPreferenceUtil.getEInkMode();
+    turningMode.value = await SharedPreferenceUtil.getTurningMode();
     await _getBattery();
     if (chapters.value.isEmpty) {
       error.value = StringConfig.chapterNotFound;
       return;
     }
+    await Future.delayed(const Duration(milliseconds: 300));
     _loadCurrentChapter();
     _preloadPreviousChapter();
     _preloadNextChapter();
-    eInkMode.value = await SharedPreferenceUtil.getEInkMode();
-    turningMode.value = await SharedPreferenceUtil.getTurningMode();
   }
 
   Future<void> navigateAvailableSourcePage(BuildContext context) async {
