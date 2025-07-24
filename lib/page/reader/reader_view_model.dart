@@ -178,6 +178,8 @@ class ReaderViewModel {
       return;
     }
     chapters.value = updatedChapters;
+    chapterIndex.value = min(chapterIndex.value, updatedChapters.length - 1);
+    pageIndex.value = 0;
     currentChapterContent.value = '';
     currentChapterPages.value = [];
     _loadCurrentChapter();
@@ -504,7 +506,7 @@ class ReaderViewModel {
 
   Future<void> _loadCurrentChapter() async {
     try {
-      currentChapterContent.value = await _getContent(book.chapterIndex);
+      currentChapterContent.value = await _getContent(chapterIndex.value);
     } on ReaderException catch (e) {
       currentChapterContent.value = e.message;
     }
