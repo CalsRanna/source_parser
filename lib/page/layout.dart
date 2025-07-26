@@ -5,6 +5,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/provider/layout.dart';
 import 'package:source_parser/schema/layout.dart';
+import 'package:source_parser/widget/loading.dart';
 
 @RoutePage()
 class ReaderLayoutPage extends ConsumerWidget {
@@ -13,7 +14,7 @@ class ReaderLayoutPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final layout = ref.watch(readerLayoutNotifierProviderProvider).valueOrNull;
-    if (layout == null) return const Center(child: CircularProgressIndicator());
+    if (layout == null) return const Center(child: LoadingIndicator());
     return Scaffold(
       appBar: AppBar(
         actions: _buildTopSlots(context, layout),

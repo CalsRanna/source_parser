@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:source_parser/router/router.dart';
+import 'package:source_parser/widget/loading.dart';
 
 /// A utility class for displaying various UI components such as dialogs, bottom sheets, and snack bars.
 ///
@@ -49,7 +50,7 @@ class DialogUtil {
     showDialog(
       context: globalKey.currentContext!,
       builder: (context) => const Center(
-        child: CircularProgressIndicator(),
+        child: LoadingIndicator(),
       ),
     );
   }

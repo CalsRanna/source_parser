@@ -3,6 +3,7 @@ import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
 import 'package:source_parser/util/merger.dart';
 import 'package:source_parser/util/string_extension.dart';
+import 'package:source_parser/widget/loading.dart';
 
 class ReaderContentView extends StatelessWidget {
   final int? battery;
@@ -169,7 +170,7 @@ class _Content extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: LoadingIndicator());
     }
 
     if (errorMessage != null) {

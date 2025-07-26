@@ -18,6 +18,7 @@ import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/widget/book_cover.dart';
+import 'package:source_parser/widget/loading.dart';
 
 class ExploreView extends ConsumerStatefulWidget {
   const ExploreView({super.key});
@@ -176,7 +177,7 @@ class _ExploreViewState extends ConsumerState<ExploreView>
     return Center(child: Text(error.toString()));
   }
 
-  Widget _buildLoading() => const Center(child: CircularProgressIndicator());
+  Widget _buildLoading() => const Center(child: LoadingIndicator());
 
   Widget _itemBuilder(ExploreResult result) {
     final layout = result.layout;

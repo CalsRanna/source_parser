@@ -6,6 +6,7 @@ import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/cover_selector/cover_selector_view_model.dart';
 import 'package:source_parser/widget/book_cover.dart';
+import 'package:source_parser/widget/loading.dart';
 
 @RoutePage()
 class CoverSelectorPage extends StatefulWidget {
@@ -39,7 +40,7 @@ class _CoverSelectorPageState extends State<CoverSelectorPage> {
 
   Widget _buildBody(BuildContext context) {
     if (viewModel.isLoading.value) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: LoadingIndicator());
     }
     if (viewModel.covers.value.isEmpty) {
       return Center(

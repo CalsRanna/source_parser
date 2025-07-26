@@ -9,6 +9,7 @@ import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart
 import 'package:source_parser/page/home/search_button.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/widget/book_cover.dart';
+import 'package:source_parser/widget/loading.dart';
 
 class BookshelfView extends StatefulWidget {
   const BookshelfView({super.key});
@@ -291,7 +292,7 @@ class _ShelfModeSelector extends StatelessWidget {
     var sizedBox = SizedBox(
       height: 16,
       width: 16,
-      child: CircularProgressIndicator(strokeWidth: 1),
+      child: LoadingIndicator(),
     );
     var materialBanner = MaterialBanner(
       actions: [TextButton(onPressed: null, child: Text('取消'))],
