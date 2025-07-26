@@ -124,6 +124,48 @@ class Theme {
 
   Theme();
 
+  Theme.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    backgroundColor = json['background_color'];
+    backgroundImage = json['background_image'];
+    chapterFontSize = json['chapter_font_size'];
+    chapterFontWeight = json['chapter_font_weight'];
+    chapterHeight = json['chapter_height'];
+    chapterLetterSpacing = json['chapter_letter_spacing'];
+    chapterWordSpacing = json['chapter_word_spacing'];
+    contentColor = json['content_color'];
+    contentFontSize = json['content_font_size'];
+    contentFontWeight = json['content_font_weight'];
+    contentHeight = json['content_height'];
+    contentLetterSpacing = json['content_letter_spacing'];
+    contentWordSpacing = json['content_word_spacing'];
+    contentPaddingBottom = json['content_padding_bottom'];
+    contentPaddingLeft = json['content_padding_left'];
+    contentPaddingRight = json['content_padding_right'];
+    contentPaddingTop = json['content_padding_top'];
+    footerColor = json['footer_color'];
+    footerFontSize = json['footer_font_size'];
+    footerFontWeight = json['footer_font_weight'];
+    footerHeight = json['footer_height'];
+    footerLetterSpacing = json['footer_letter_spacing'];
+    footerWordSpacing = json['footer_word_spacing'];
+    footerPaddingBottom = json['footer_padding_bottom'];
+    footerPaddingLeft = json['footer_padding_left'];
+    footerPaddingRight = json['footer_padding_right'];
+    footerPaddingTop = json['footer_padding_top'];
+    headerColor = json['header_color'];
+    headerFontSize = json['header_font_size'];
+    headerFontWeight = json['header_font_weight'];
+    headerHeight = json['header_height'];
+    headerLetterSpacing = json['header_letter_spacing'];
+    headerWordSpacing = json['header_word_spacing'];
+    headerPaddingBottom = json['header_padding_bottom'];
+    headerPaddingLeft = json['header_padding_left'];
+    headerPaddingRight = json['header_padding_right'];
+    headerPaddingTop = json['header_padding_top'];
+    name = json['name'];
+  }
+
   Theme copyWith({
     String? backgroundColor,
     String? backgroundImage,

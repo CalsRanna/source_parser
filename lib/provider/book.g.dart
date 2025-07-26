@@ -173,7 +173,7 @@ class _BookCoversProviderElement
   Book get book => (origin as BookCoversProvider).book;
 }
 
-String _$bookNotifierHash() => r'0ba414c46dc0f8c5a74678c73f10112d04d10af9';
+String _$bookNotifierHash() => r'94c3e06db95550b5dcef8c32428c0b9effb186a6';
 
 /// See also [BookNotifier].
 @ProviderFor(BookNotifier)
@@ -187,7 +187,7 @@ final bookNotifierProvider = NotifierProvider<BookNotifier, Book>.internal(
 );
 
 typedef _$BookNotifier = Notifier<Book>;
-String _$booksHash() => r'c5bd02155b2ce40901ecb2fa3cc1ffa123df570c';
+String _$booksHash() => r'0d0e291c86c7411da04ebe06e04f8ee77839d4bf';
 
 /// See also [Books].
 @ProviderFor(Books)

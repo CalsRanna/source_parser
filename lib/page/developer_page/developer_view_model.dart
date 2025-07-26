@@ -7,7 +7,6 @@ import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/database/service.dart';
 import 'package:source_parser/page/developer_page/analysis_bottom_sheet.dart';
-import 'package:source_parser/page/theme/color_picker.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
@@ -83,7 +82,7 @@ class DeveloperViewModel {
   }
 
   void navigateColor(BuildContext context) {
-    ColorPicker.pick(context);
+    ReaderThemeEditorColorPickerRoute().push(context);
   }
 
   void navigateDatabasePage(BuildContext context) {

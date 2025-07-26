@@ -1,146 +1,15 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:source_parser/util/color_extension.dart';
 import 'package:source_parser/util/string_extension.dart';
 
-class ColorPicker {
-  static Future<Color?> pick(BuildContext context) async {
-    final page = _ColorPicker();
-    final route = MaterialPageRoute(builder: (_) => page);
-    final color = await Navigator.of(context).push(route);
-    return color;
-  }
-}
-
-class _ColorPicker extends StatefulWidget {
-  const _ColorPicker();
+@RoutePage()
+class ReaderThemeEditorColorPickerPage extends StatefulWidget {
+  const ReaderThemeEditorColorPickerPage({super.key});
 
   @override
-  State<_ColorPicker> createState() => _ColorPickerState();
-}
-
-class _ColorPickerState extends State<_ColorPicker> {
-  final hexController = TextEditingController();
-  double hue = 180;
-  final redController = TextEditingController();
-  final greenController = TextEditingController();
-  final blueController = TextEditingController();
-  double saturation = 0.5;
-  double value = 0.5;
-  var alpha = 1.0;
-
-  @override
-  Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final saturationValuePicker = _SaturationValuePicker(
-      hue: hue,
-      saturation: saturation,
-      value: value,
-      width: mediaQuery.size.width - 32,
-      onChanged: handleSaturationValueChanged,
-    );
-    final hueSlider = _HueSlider(
-      hue: hue,
-      onChanged: handleHueChanged,
-      width: mediaQuery.size.width - 32,
-    );
-    final column = Column(children: [saturationValuePicker, hueSlider]);
-    final clipRRect = ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: column,
-    );
-    final hexColor = _HexColor(
-      controller: hexController,
-      hue: hue,
-      onColorChanged: handleColorChanged,
-      saturation: saturation,
-      value: value,
-    );
-    final rgbColor = _RgbColor(
-      blueController: blueController,
-      greenController: greenController,
-      hue: hue,
-      onColorChanged: handleColorChanged,
-      redController: redController,
-      saturation: saturation,
-      value: value,
-    );
-    final children = [
-      const Spacer(),
-      hexColor,
-      const SizedBox(width: 16),
-      rgbColor,
-    ];
-    final inputs = Row(children: children);
-    final child = Column(
-      children: [
-        clipRRect,
-        SizedBox(height: 16),
-        _AlphaSlider(
-          alpha: alpha,
-          color: HSVColor.fromAHSV(1, hue, saturation, value).toColor(),
-        ),
-        SizedBox(height: 16),
-        inputs,
-      ],
-    );
-    return Scaffold(
-      appBar: AppBar(title: Text('Color Picker')),
-      body: Padding(padding: EdgeInsets.all(16), child: child),
-    );
-  }
-
-  @override
-  void dispose() {
-    hexController.dispose();
-    redController.dispose();
-    greenController.dispose();
-    blueController.dispose();
-    super.dispose();
-  }
-
-  void handleColorChanged(Color color) {
-    final hsv = HSVColor.fromColor(color);
-    setState(() {
-      hue = hsv.hue;
-      saturation = hsv.saturation;
-      value = hsv.value;
-    });
-    _calculateColor();
-  }
-
-  void handleHueChanged(double hue) {
-    setState(() {
-      this.hue = hue;
-    });
-    _calculateColor();
-  }
-
-  void handleSaturationValueChanged(double saturation, double value) {
-    setState(() {
-      this.saturation = saturation;
-      this.value = value;
-    });
-    _calculateColor();
-  }
-
-  @override
-  void initState() {
-    _calculateColor();
-    super.initState();
-  }
-
-  void _calculateColor() {
-    final hsv = HSVColor.fromAHSV(alpha, hue, saturation, value);
-    final color = hsv.toColor();
-    var hex = color.toHex()!;
-    var red = int.tryParse(hex.substring(3, 5), radix: 16) ?? 255;
-    var green = int.tryParse(hex.substring(5, 7), radix: 16) ?? 255;
-    var blue = int.tryParse(hex.substring(7, 9), radix: 16) ?? 255;
-    hexController.text = hex;
-    redController.text = red.toString();
-    greenController.text = green.toString();
-    blueController.text = blue.toString();
-  }
+  State<ReaderThemeEditorColorPickerPage> createState() =>
+      _ReaderThemeEditorColorPickerPageState();
 }
 
 class _AlphaSlider extends StatelessWidget {
@@ -181,23 +50,6 @@ class _AlphaSlider extends StatelessWidget {
     );
   }
 
-  Widget _buildCells() {
-    return LayoutBuilder(
-      builder: (_, constraint) => _layoutBuilder(constraint),
-    );
-  }
-
-  Widget _layoutBuilder(BoxConstraints constraints) {
-    List<Widget> children = [];
-    for (var i = 0; i < 4; i++) {
-      children.add(_buildCellList(i.isEven));
-    }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(32),
-      child: Column(children: children),
-    );
-  }
-
   Widget _buildCellList(bool hideEvenCell) {
     var cell = Container(
       width: 8,
@@ -216,6 +68,23 @@ class _AlphaSlider extends StatelessWidget {
       physics: NeverScrollableScrollPhysics(),
     );
     return SizedBox(height: 8, child: listView);
+  }
+
+  Widget _buildCells() {
+    return LayoutBuilder(
+      builder: (_, constraint) => _layoutBuilder(constraint),
+    );
+  }
+
+  Widget _layoutBuilder(BoxConstraints constraints) {
+    List<Widget> children = [];
+    for (var i = 0; i < 4; i++) {
+      children.add(_buildCellList(i.isEven));
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(32),
+      child: Column(children: children),
+    );
   }
 }
 
@@ -515,5 +384,131 @@ class _SaturationValuePicker extends StatelessWidget {
     final saturation = (localPosition.dx / box.size.width).clamp(0.0, 1.0);
     final value = 1 - (localPosition.dy / box.size.height).clamp(0.0, 1.0);
     onChanged(saturation, value);
+  }
+}
+
+class _ReaderThemeEditorColorPickerPageState
+    extends State<ReaderThemeEditorColorPickerPage> {
+  final hexController = TextEditingController();
+  double hue = 180;
+  final redController = TextEditingController();
+  final greenController = TextEditingController();
+  final blueController = TextEditingController();
+  double saturation = 0.5;
+  double value = 0.5;
+  var alpha = 1.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final saturationValuePicker = _SaturationValuePicker(
+      hue: hue,
+      saturation: saturation,
+      value: value,
+      width: mediaQuery.size.width - 32,
+      onChanged: handleSaturationValueChanged,
+    );
+    final hueSlider = _HueSlider(
+      hue: hue,
+      onChanged: handleHueChanged,
+      width: mediaQuery.size.width - 32,
+    );
+    final column = Column(children: [saturationValuePicker, hueSlider]);
+    final clipRRect = ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: column,
+    );
+    final hexColor = _HexColor(
+      controller: hexController,
+      hue: hue,
+      onColorChanged: handleColorChanged,
+      saturation: saturation,
+      value: value,
+    );
+    final rgbColor = _RgbColor(
+      blueController: blueController,
+      greenController: greenController,
+      hue: hue,
+      onColorChanged: handleColorChanged,
+      redController: redController,
+      saturation: saturation,
+      value: value,
+    );
+    final children = [
+      const Spacer(),
+      hexColor,
+      const SizedBox(width: 16),
+      rgbColor,
+    ];
+    final inputs = Row(children: children);
+    final child = Column(
+      children: [
+        clipRRect,
+        SizedBox(height: 16),
+        _AlphaSlider(
+          alpha: alpha,
+          color: HSVColor.fromAHSV(1, hue, saturation, value).toColor(),
+        ),
+        SizedBox(height: 16),
+        inputs,
+      ],
+    );
+    return Scaffold(
+      appBar: AppBar(title: Text('Color Picker')),
+      body: Padding(padding: EdgeInsets.all(16), child: child),
+    );
+  }
+
+  @override
+  void dispose() {
+    hexController.dispose();
+    redController.dispose();
+    greenController.dispose();
+    blueController.dispose();
+    super.dispose();
+  }
+
+  void handleColorChanged(Color color) {
+    final hsv = HSVColor.fromColor(color);
+    setState(() {
+      hue = hsv.hue;
+      saturation = hsv.saturation;
+      value = hsv.value;
+    });
+    _calculateColor();
+  }
+
+  void handleHueChanged(double hue) {
+    setState(() {
+      this.hue = hue;
+    });
+    _calculateColor();
+  }
+
+  void handleSaturationValueChanged(double saturation, double value) {
+    setState(() {
+      this.saturation = saturation;
+      this.value = value;
+    });
+    _calculateColor();
+  }
+
+  @override
+  void initState() {
+    _calculateColor();
+    super.initState();
+  }
+
+  void _calculateColor() {
+    final hsv = HSVColor.fromAHSV(alpha, hue, saturation, value);
+    final color = hsv.toColor();
+    var hex = color.toHex()!;
+    var red = int.tryParse(hex.substring(3, 5), radix: 16) ?? 255;
+    var green = int.tryParse(hex.substring(5, 7), radix: 16) ?? 255;
+    var blue = int.tryParse(hex.substring(7, 9), radix: 16) ?? 255;
+    hexController.text = hex;
+    redController.text = red.toString();
+    greenController.text = green.toString();
+    blueController.text = blue.toString();
   }
 }

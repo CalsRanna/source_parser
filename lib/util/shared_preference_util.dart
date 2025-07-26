@@ -41,6 +41,11 @@ class SharedPreferenceUtil {
     return instance.getString('shelf_mode') ?? 'list';
   }
 
+  static Future<int> getThemeId() async {
+    var instance = await SharedPreferences.getInstance();
+    return instance.getInt('theme_id') ?? 0;
+  }
+
   static Future<int> getTimeout() async {
     var instance = await SharedPreferences.getInstance();
     return instance.getInt('timeout') ?? 30;
@@ -89,6 +94,11 @@ class SharedPreferenceUtil {
   static Future<void> setShelfMode(String shelfMode) async {
     var instance = await SharedPreferences.getInstance();
     await instance.setString('shelf_mode', shelfMode);
+  }
+
+  static Future<void> setThemeId(int themeId) async {
+    var instance = await SharedPreferences.getInstance();
+    await instance.setInt('theme_id', themeId);
   }
 
   static Future<void> setTimeout(int timeout) async {

@@ -4,11 +4,15 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/page/reader/reader_content_view.dart';
-import 'package:source_parser/provider/theme.dart';
+import 'package:source_parser/page/reader_theme/reader_theme_editor_view_model.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
 import 'package:source_parser/util/splitter.dart';
+import 'package:source_parser/util/string_extension.dart';
 
 class LoremIpsum {
   static const int startCode = 0x4E00; // 中文汉字的起始码位
@@ -68,11 +72,13 @@ class LoremIpsum {
 }
 
 @RoutePage()
-class ThemeEditorPage extends ConsumerStatefulWidget {
-  const ThemeEditorPage({super.key});
+class ReaderThemeEditorPage extends ConsumerStatefulWidget {
+  final schema.Theme theme;
+  const ReaderThemeEditorPage({super.key, required this.theme});
 
   @override
-  ConsumerState<ThemeEditorPage> createState() => _ThemeEditorPageState();
+  ConsumerState<ReaderThemeEditorPage> createState() =>
+      _ReaderThemeEditorPageState();
 }
 
 class _FieldDialog extends StatefulWidget {
@@ -258,20 +264,23 @@ class _SliderTileState extends State<_SliderTile> {
   }
 }
 
-class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
+class _ReaderThemeEditorPageState extends ConsumerState<ReaderThemeEditorPage> {
   var text = '';
   var contentText = '';
-  var theme = schema.Theme();
   var size = Size.zero;
+
+  final viewModel = GetIt.instance.get<ReaderThemeEditorViewModel>();
 
   @override
   Widget build(BuildContext context) {
-    var readerView = ReaderContentView(
-      pageProgressText: '1/10 25.25%',
-      theme: theme,
-      headerText: '小说名称',
-      contentText: contentText,
-      isFirstPage: true,
+    var readerView = Watch(
+      (_) => ReaderContentView(
+        pageProgressText: '1/10 25.25%',
+        theme: viewModel.theme.value,
+        headerText: '小说名称',
+        contentText: contentText,
+        isFirstPage: true,
+      ),
     );
     var children = [
       readerView,
@@ -300,9 +309,9 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
   @override
   void initState() {
     super.initState();
+    viewModel.initSignals(widget.theme);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _assembleReaderTheme();
       text = LoremIpsum.content();
       _initContentText();
     });
@@ -320,244 +329,13 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
-      builder: (context) => builder(),
+      builder: (context) => Watch((_) => builder()),
     );
   }
 
-  void updateChapterFontSize(double value) {
-    setState(() {
-      theme = theme.copyWith(chapterFontSize: value);
-    });
-    _initContentText();
-  }
-
-  void updateChapterFontWeight(double value) {
-    setState(() {
-      theme = theme.copyWith(chapterFontWeight: value.toInt() - 1);
-    });
-    _initContentText();
-  }
-
-  void updateChapterHeight(double value) {
-    setState(() {
-      theme = theme.copyWith(chapterHeight: value);
-    });
-    _initContentText();
-  }
-
-  void updateChapterLetterSpacing(double value) {
-    setState(() {
-      theme = theme.copyWith(chapterLetterSpacing: value);
-    });
-    _initContentText();
-  }
-
-  void updateChapterWordSpacing(double value) {
-    setState(() {
-      theme = theme.copyWith(chapterWordSpacing: value);
-    });
-    _initContentText();
-  }
-
-  void updateContentFontSize(double value) {
-    setState(() {
-      theme = theme.copyWith(contentFontSize: value);
-    });
-    _initContentText();
-  }
-
-  void updateContentFontWeight(double value) {
-    setState(() {
-      theme = theme.copyWith(contentFontWeight: value.toInt() - 1);
-    });
-    _initContentText();
-  }
-
-  void updateContentHeight(double value) {
-    setState(() {
-      theme = theme.copyWith(contentHeight: value);
-    });
-    _initContentText();
-  }
-
-  void updateContentLetterSpacing(double value) {
-    setState(() {
-      theme = theme.copyWith(contentLetterSpacing: value);
-    });
-    _initContentText();
-  }
-
-  void updateContentPaddingBottom(double value) {
-    setState(() {
-      theme = theme.copyWith(contentPaddingBottom: value);
-    });
-    _initContentText();
-  }
-
-  void updateContentPaddingLeft(double value) {
-    setState(() {
-      theme = theme.copyWith(contentPaddingLeft: value);
-    });
-    _initContentText();
-  }
-
-  void updateContentPaddingRight(double value) {
-    setState(() {
-      theme = theme.copyWith(contentPaddingRight: value);
-    });
-    _initContentText();
-  }
-
-  void updateContentPaddingTop(double value) {
-    setState(() {
-      theme = theme.copyWith(contentPaddingTop: value);
-    });
-    _initContentText();
-  }
-
-  void updateContentWordSpacing(double value) {
-    setState(() {
-      theme = theme.copyWith(contentWordSpacing: value);
-    });
-    _initContentText();
-  }
-
-  void updateFooterFontSize(double value) {
-    setState(() {
-      theme = theme.copyWith(footerFontSize: value);
-    });
-    _initContentText();
-  }
-
-  void updateFooterFontWeight(double value) {
-    setState(() {
-      theme = theme.copyWith(footerFontWeight: value.toInt() - 1);
-    });
-    _initContentText();
-  }
-
-  void updateFooterHeight(double value) {
-    setState(() {
-      theme = theme.copyWith(footerHeight: value);
-    });
-    _initContentText();
-  }
-
-  void updateFooterLetterSpacing(double value) {
-    setState(() {
-      theme = theme.copyWith(footerLetterSpacing: value);
-    });
-    _initContentText();
-  }
-
-  void updateFooterPaddingBottom(double value) {
-    setState(() {
-      theme = theme.copyWith(footerPaddingBottom: value);
-    });
-    _initContentText();
-  }
-
-  void updateFooterPaddingLeft(double value) {
-    setState(() {
-      theme = theme.copyWith(footerPaddingLeft: value);
-    });
-    _initContentText();
-  }
-
-  void updateFooterPaddingRight(double value) {
-    setState(() {
-      theme = theme.copyWith(footerPaddingRight: value);
-    });
-    _initContentText();
-  }
-
-  void updateFooterPaddingTop(double value) {
-    setState(() {
-      theme = theme.copyWith(footerPaddingTop: value);
-    });
-    _initContentText();
-  }
-
-  void updateFooterWordSpacing(double value) {
-    setState(() {
-      theme = theme.copyWith(footerWordSpacing: value);
-    });
-    _initContentText();
-  }
-
-  void updateHeaderFontSize(double value) {
-    setState(() {
-      theme = theme.copyWith(headerFontSize: value);
-    });
-    _initContentText();
-  }
-
-  void updateHeaderFontWeight(double value) {
-    setState(() {
-      theme = theme.copyWith(headerFontWeight: value.toInt() - 1);
-    });
-    _initContentText();
-  }
-
-  void updateHeaderHeight(double value) {
-    setState(() {
-      theme = theme.copyWith(headerHeight: value);
-    });
-    _initContentText();
-  }
-
-  void updateHeaderLetterSpacing(double value) {
-    setState(() {
-      theme = theme.copyWith(headerLetterSpacing: value);
-    });
-    _initContentText();
-  }
-
-  void updateHeaderPaddingBottom(double value) {
-    setState(() {
-      theme = theme.copyWith(headerPaddingBottom: value);
-    });
-    _initContentText();
-  }
-
-  void updateHeaderPaddingLeft(double value) {
-    setState(() {
-      theme = theme.copyWith(headerPaddingLeft: value);
-    });
-    _initContentText();
-  }
-
-  void updateHeaderPaddingRight(double value) {
-    setState(() {
-      theme = theme.copyWith(headerPaddingRight: value);
-    });
-    _initContentText();
-  }
-
-  void updateHeaderPaddingTop(double value) {
-    setState(() {
-      theme = theme.copyWith(headerPaddingTop: value);
-    });
-    _initContentText();
-  }
-
-  void updateHeaderWordSpacing(double value) {
-    setState(() {
-      theme = theme.copyWith(headerWordSpacing: value);
-    });
-    _initContentText();
-  }
-
   void updateTheme() {
-    var provider = themeNotifierProvider;
-    var notifier = ref.read(provider.notifier);
-    notifier.updateTheme(theme);
+    viewModel.storeTheme();
     Navigator.of(context).pop();
-  }
-
-  Future<void> _assembleReaderTheme() async {
-    theme = await ref.read(themeNotifierProvider.future);
-    setState(() {});
   }
 
   Widget _buildChapterStyleSheet() {
@@ -565,35 +343,35 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SheetTitle('标题样式'),
       _SliderTile(
         label: '字体大小',
-        value: theme.chapterFontSize,
+        value: viewModel.theme.value.chapterFontSize,
         max: 48.0,
         min: 12.0,
-        onChanged: updateChapterFontSize,
+        onChanged: viewModel.updateChapterFontSize,
       ),
       _SliderTile(
         label: '字重',
-        value: theme.chapterFontWeight.toDouble(),
+        value: viewModel.theme.value.chapterFontWeight.toDouble(),
         max: 9.0,
         min: 1.0,
         fractionDigits: 0,
-        onChanged: updateChapterFontWeight,
+        onChanged: viewModel.updateChapterFontWeight,
       ),
       _SliderTile(
         label: '行高',
-        value: theme.chapterHeight,
+        value: viewModel.theme.value.chapterHeight,
         max: 4.0,
         min: 1.0,
-        onChanged: updateChapterHeight,
+        onChanged: viewModel.updateChapterHeight,
       ),
       _SliderTile(
         label: '字间距',
-        value: theme.chapterLetterSpacing,
-        onChanged: updateChapterLetterSpacing,
+        value: viewModel.theme.value.chapterLetterSpacing,
+        onChanged: viewModel.updateChapterLetterSpacing,
       ),
       _SliderTile(
         label: '词间距',
-        value: theme.chapterWordSpacing,
-        onChanged: updateChapterWordSpacing,
+        value: viewModel.theme.value.chapterWordSpacing,
+        onChanged: viewModel.updateChapterWordSpacing,
       ),
     ];
     return ListView(children: children);
@@ -604,31 +382,31 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SheetTitle('正文边距'),
       _SliderTile(
         label: '上边距',
-        value: theme.contentPaddingTop,
+        value: viewModel.theme.value.contentPaddingTop,
         max: 64.0,
         min: 0.0,
-        onChanged: updateContentPaddingTop,
+        onChanged: viewModel.updateContentPaddingTop,
       ),
       _SliderTile(
         label: '下边距',
-        value: theme.contentPaddingBottom,
+        value: viewModel.theme.value.contentPaddingBottom,
         max: 64.0,
         min: 0.0,
-        onChanged: updateContentPaddingBottom,
+        onChanged: viewModel.updateContentPaddingBottom,
       ),
       _SliderTile(
         label: '左边距',
-        value: theme.contentPaddingLeft,
+        value: viewModel.theme.value.contentPaddingLeft,
         max: 64.0,
         min: 0.0,
-        onChanged: updateContentPaddingLeft,
+        onChanged: viewModel.updateContentPaddingLeft,
       ),
       _SliderTile(
         label: '右边距',
-        value: theme.contentPaddingRight,
+        value: viewModel.theme.value.contentPaddingRight,
         max: 64.0,
         min: 0.0,
-        onChanged: (value) => updateContentPaddingRight(value),
+        onChanged: viewModel.updateContentPaddingRight,
       ),
     ];
     return ListView(children: children);
@@ -639,35 +417,35 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SheetTitle('正文样式'),
       _SliderTile(
         label: '字体大小',
-        value: theme.contentFontSize,
+        value: viewModel.theme.value.contentFontSize,
         max: 48.0,
         min: 12.0,
-        onChanged: updateContentFontSize,
+        onChanged: viewModel.updateContentFontSize,
       ),
       _SliderTile(
         label: '字重',
-        value: theme.contentFontWeight.toDouble(),
+        value: viewModel.theme.value.contentFontWeight.toDouble(),
         max: 9.0,
         min: 1.0,
         fractionDigits: 0,
-        onChanged: updateContentFontWeight,
+        onChanged: viewModel.updateContentFontWeight,
       ),
       _SliderTile(
         label: '行高',
-        value: theme.contentHeight,
+        value: viewModel.theme.value.contentHeight,
         max: 4.0,
         min: 1.0,
-        onChanged: updateContentHeight,
+        onChanged: viewModel.updateContentHeight,
       ),
       _SliderTile(
         label: '字间距',
-        value: theme.contentLetterSpacing,
-        onChanged: updateContentLetterSpacing,
+        value: viewModel.theme.value.contentLetterSpacing,
+        onChanged: viewModel.updateContentLetterSpacing,
       ),
       _SliderTile(
         label: '词间距',
-        value: theme.contentWordSpacing,
-        onChanged: updateContentWordSpacing,
+        value: viewModel.theme.value.contentWordSpacing,
+        onChanged: viewModel.updateContentWordSpacing,
       ),
     ];
     return ListView(children: children);
@@ -678,31 +456,31 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SheetTitle('页脚边距'),
       _SliderTile(
         label: '上边距',
-        value: theme.footerPaddingTop,
+        value: viewModel.theme.value.footerPaddingTop,
         max: 64.0,
         min: 0.0,
-        onChanged: (value) => updateFooterPaddingTop(value),
+        onChanged: viewModel.updateFooterPaddingTop,
       ),
       _SliderTile(
         label: '下边距',
-        value: theme.footerPaddingBottom,
+        value: viewModel.theme.value.footerPaddingBottom,
         max: 64.0,
         min: 0.0,
-        onChanged: (value) => updateFooterPaddingBottom(value),
+        onChanged: viewModel.updateFooterPaddingBottom,
       ),
       _SliderTile(
         label: '左边距',
-        value: theme.footerPaddingLeft,
+        value: viewModel.theme.value.footerPaddingLeft,
         max: 64.0,
         min: 0.0,
-        onChanged: (value) => updateFooterPaddingLeft(value),
+        onChanged: viewModel.updateFooterPaddingLeft,
       ),
       _SliderTile(
         label: '右边距',
-        value: theme.footerPaddingRight,
+        value: viewModel.theme.value.footerPaddingRight,
         max: 64.0,
         min: 0.0,
-        onChanged: (value) => updateFooterPaddingRight(value),
+        onChanged: viewModel.updateFooterPaddingRight,
       ),
     ];
     return ListView(children: children);
@@ -713,35 +491,35 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SheetTitle('页脚样式'),
       _SliderTile(
         label: '字体大小',
-        value: theme.footerFontSize,
+        value: viewModel.theme.value.footerFontSize,
         max: 24.0,
         min: 10.0,
-        onChanged: updateFooterFontSize,
+        onChanged: viewModel.updateFooterFontSize,
       ),
       _SliderTile(
         label: '字重',
-        value: theme.footerFontWeight.toDouble(),
+        value: viewModel.theme.value.footerFontWeight.toDouble(),
         max: 9.0,
         min: 1.0,
         fractionDigits: 0,
-        onChanged: updateFooterFontWeight,
+        onChanged: viewModel.updateFooterFontWeight,
       ),
       _SliderTile(
         label: '行高',
-        value: theme.footerHeight,
+        value: viewModel.theme.value.footerHeight,
         max: 4.0,
         min: 1.0,
-        onChanged: updateFooterHeight,
+        onChanged: viewModel.updateFooterHeight,
       ),
       _SliderTile(
         label: '字间距',
-        value: theme.footerLetterSpacing,
-        onChanged: updateFooterLetterSpacing,
+        value: viewModel.theme.value.footerLetterSpacing,
+        onChanged: viewModel.updateFooterLetterSpacing,
       ),
       _SliderTile(
         label: '词间距',
-        value: theme.footerWordSpacing,
-        onChanged: updateFooterWordSpacing,
+        value: viewModel.theme.value.footerWordSpacing,
+        onChanged: viewModel.updateFooterWordSpacing,
       ),
     ];
     return ListView(children: children);
@@ -752,31 +530,31 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SheetTitle('页头边距'),
       _SliderTile(
         label: '上边距',
-        value: theme.headerPaddingTop,
+        value: viewModel.theme.value.headerPaddingTop,
         max: 64.0,
         min: 0.0,
-        onChanged: updateHeaderPaddingTop,
+        onChanged: viewModel.updateHeaderPaddingTop,
       ),
       _SliderTile(
         label: '下边距',
-        value: theme.headerPaddingBottom,
+        value: viewModel.theme.value.headerPaddingBottom,
         max: 64.0,
         min: 0.0,
-        onChanged: updateHeaderPaddingBottom,
+        onChanged: viewModel.updateHeaderPaddingBottom,
       ),
       _SliderTile(
         label: '左边距',
-        value: theme.headerPaddingLeft,
+        value: viewModel.theme.value.headerPaddingLeft,
         max: 64.0,
         min: 0.0,
-        onChanged: updateHeaderPaddingLeft,
+        onChanged: viewModel.updateHeaderPaddingLeft,
       ),
       _SliderTile(
         label: '右边距',
-        value: theme.headerPaddingRight,
+        value: viewModel.theme.value.headerPaddingRight,
         max: 64.0,
         min: 0.0,
-        onChanged: updateHeaderPaddingRight,
+        onChanged: viewModel.updateHeaderPaddingRight,
       ),
     ];
     return ListView(children: children);
@@ -787,35 +565,35 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
       _SheetTitle('页头样式'),
       _SliderTile(
         label: '字体大小',
-        value: theme.headerFontSize,
+        value: viewModel.theme.value.headerFontSize,
         max: 24.0,
         min: 10.0,
-        onChanged: updateHeaderFontSize,
+        onChanged: viewModel.updateHeaderFontSize,
       ),
       _SliderTile(
         label: '字重',
-        value: theme.headerFontWeight.toDouble(),
+        value: viewModel.theme.value.headerFontWeight.toDouble(),
         max: 9.0,
         min: 1.0,
         fractionDigits: 0,
-        onChanged: updateHeaderFontWeight,
+        onChanged: viewModel.updateHeaderFontWeight,
       ),
       _SliderTile(
         label: '行高',
-        value: theme.headerHeight,
+        value: viewModel.theme.value.headerHeight,
         max: 4.0,
         min: 1.0,
-        onChanged: updateHeaderHeight,
+        onChanged: viewModel.updateHeaderHeight,
       ),
       _SliderTile(
         label: '字间距',
-        value: theme.headerLetterSpacing,
-        onChanged: updateHeaderLetterSpacing,
+        value: viewModel.theme.value.headerLetterSpacing,
+        onChanged: viewModel.updateHeaderLetterSpacing,
       ),
       _SliderTile(
         label: '词间距',
-        value: theme.headerWordSpacing,
-        onChanged: updateHeaderWordSpacing,
+        value: viewModel.theme.value.headerWordSpacing,
+        onChanged: viewModel.updateHeaderWordSpacing,
       ),
     ];
     return ListView(children: children);
@@ -847,6 +625,31 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
 
   Widget _buildSettingSheet() {
     var children = [
+      _SheetLabel('背景'),
+      ListTile(
+        onTap: () => ReaderThemeEditorColorPickerRoute().push(context),
+        title: Text('颜色'),
+        trailing: Container(
+          decoration: BoxDecoration(
+            color: viewModel.theme.value.backgroundColor.toColor(),
+            shape: BoxShape.circle,
+          ),
+          height: 32,
+          width: 32,
+        ),
+      ),
+      ListTile(
+        onTap: () => ReaderThemeEditorImageSelectorRoute().push(context),
+        title: Text('图片'),
+        trailing: ClipOval(
+          child: Image.asset(
+            'asset/image/kraft_paper.jpg',
+            fit: BoxFit.cover,
+            height: 32,
+            width: 32,
+          ),
+        ),
+      ),
       _SheetLabel('样式'),
       _ListTile(onTap: showHeaderSheet, title: '页头样式'),
       _ListTile(onTap: showContentSheet, title: '正文样式'),
@@ -862,24 +665,26 @@ class _ThemeEditorPageState extends ConsumerState<ThemeEditorPage> {
 
   Future<void> _initContentText() async {
     var mediaQueryData = MediaQuery.of(context);
-    var contentPaddingHorizontal =
-        theme.contentPaddingLeft + theme.contentPaddingRight;
+    var contentPaddingHorizontal = viewModel.theme.value.contentPaddingLeft +
+        viewModel.theme.value.contentPaddingRight;
     var width = mediaQueryData.size.width - contentPaddingHorizontal;
-    var contentPaddingVertical =
-        theme.contentPaddingTop + theme.contentPaddingBottom;
+    var contentPaddingVertical = viewModel.theme.value.contentPaddingTop +
+        viewModel.theme.value.contentPaddingBottom;
     var height = mediaQueryData.size.height - contentPaddingVertical;
-    var headerPaddingVertical =
-        theme.headerPaddingTop + theme.headerPaddingBottom;
-    height -=
-        (headerPaddingVertical + theme.headerHeight * theme.headerFontSize);
-    var footerPaddingVertical =
-        theme.footerPaddingTop + theme.footerPaddingBottom;
-    height -=
-        (footerPaddingVertical + theme.footerHeight * theme.footerFontSize);
+    var headerPaddingVertical = viewModel.theme.value.headerPaddingTop +
+        viewModel.theme.value.headerPaddingBottom;
+    height -= (headerPaddingVertical +
+        viewModel.theme.value.headerHeight *
+            viewModel.theme.value.headerFontSize);
+    var footerPaddingVertical = viewModel.theme.value.footerPaddingTop +
+        viewModel.theme.value.footerPaddingBottom;
+    height -= (footerPaddingVertical +
+        viewModel.theme.value.footerHeight *
+            viewModel.theme.value.footerFontSize);
     setState(() {
       size = Size(width, height);
     });
-    var pages = Splitter(size: size, theme: theme).split(text);
+    var pages = Splitter(size: size, theme: viewModel.theme.value).split(text);
     setState(() {
       contentText = pages.first;
     });

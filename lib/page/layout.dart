@@ -20,6 +20,12 @@ class ReaderLayoutPage extends ConsumerWidget {
         actions: _buildTopSlots(context, layout),
         title: const Text('布局'),
       ),
+      body: Image.asset(
+        'asset/image/kraft_paper.jpg',
+        fit: BoxFit.cover,
+        height: double.infinity,
+        width: double.infinity,
+      ),
       bottomNavigationBar: BottomAppBar(
         child: Row(children: _buildBottomSlots(context, layout)),
       ),

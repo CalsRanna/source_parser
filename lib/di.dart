@@ -16,6 +16,8 @@ import 'package:source_parser/page/setting/setting_view_model.dart';
 import 'package:source_parser/page/source_form_page.dart/source_form_view_model.dart';
 import 'package:source_parser/page/source_page/source_view_model.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
+import 'package:source_parser/page/reader_theme/reader_theme_editor_view_model.dart';
+import 'package:source_parser/page/reader_theme/reader_theme_view_model.dart';
 
 class DI {
   static void ensureInitialized() {
@@ -52,5 +54,9 @@ class DI {
     instance.registerFactory<DatabaseViewModel>(() => DatabaseViewModel());
     instance.registerLazySingleton<SettingViewModel>(() => SettingViewModel());
     instance.registerFactory<SourceFormViewModel>(() => SourceFormViewModel());
+    instance
+        .registerFactory<ReaderThemeViewModel>(() => ReaderThemeViewModel());
+    instance.registerFactory<ReaderThemeEditorViewModel>(
+        () => ReaderThemeEditorViewModel());
   }
 }
