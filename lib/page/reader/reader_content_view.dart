@@ -191,7 +191,6 @@ class _Content extends StatelessWidget {
 
     final merger = Merger(theme: theme);
     return Container(
-      color: theme.backgroundColor.toColor(),
       padding: _getPadding(),
       width: double.infinity,
       child: RichText(text: merger.merge(content, isFirstPage: isFirstPage)),
