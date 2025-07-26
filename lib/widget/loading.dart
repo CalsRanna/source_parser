@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/provider/setting.dart';
+import 'package:get_it/get_it.dart';
+import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/config/string_config.dart';
+import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 
-class LoadingIndicator extends ConsumerWidget {
+class LoadingIndicator extends StatefulWidget {
   const LoadingIndicator({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingNotifierProvider).valueOrNull;
-    if (setting == null) return const CircularProgressIndicator();
-    final eInkMode = setting.eInkMode;
-    return eInkMode ? const Text('正在加载') : const CircularProgressIndicator();
+  State<LoadingIndicator> createState() => _LoadingIndicatorState();
+}
+
+class _LoadingIndicatorState extends State<LoadingIndicator> {
+  final viewModel = GetIt.instance.get<SourceParserViewModel>();
+
+  @override
+  Widget build(BuildContext context) {
+    const indicator = CircularProgressIndicator();
+    const text = Text(StringConfig.loading);
+    return Watch((_) => viewModel.isEInkMode.value ? text : indicator);
   }
 }
