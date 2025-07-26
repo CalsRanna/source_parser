@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/model/search_result_entity.dart';
 import 'package:source_parser/widget/book_cover.dart';
 
@@ -34,14 +33,14 @@ class SearchResultView extends StatelessWidget {
   }
 }
 
-class _Tile extends ConsumerWidget {
+class _Tile extends StatelessWidget {
   final SearchResultEntity result;
   final void Function()? onTap;
 
   const _Tile({required this.result, this.onTap});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
