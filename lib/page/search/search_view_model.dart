@@ -155,7 +155,6 @@ class SearchViewModel {
     Duration timeout,
   ) async* {
     final sources = await SourceService().getEnabledBookSources();
-    print(sources);
     final directory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
       cacheDirectory: directory,

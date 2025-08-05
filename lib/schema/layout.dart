@@ -63,4 +63,5 @@ enum LayoutSlot {
   nextChapter,
   source,
   theme,
+  replacement
 }

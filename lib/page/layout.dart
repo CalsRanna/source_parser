@@ -121,6 +121,7 @@ class _ButtonPositionBottomSheet extends StatelessWidget {
       LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
       LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
       LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
+      LayoutSlot.replacement => HugeIcons.strokeRoundedSearchReplace,
     };
   }
 
@@ -137,6 +138,7 @@ class _ButtonPositionBottomSheet extends StatelessWidget {
       LayoutSlot.previousChapter => '上一章',
       LayoutSlot.source => '切换书源',
       LayoutSlot.theme => '主题',
+      LayoutSlot.replacement => '替换',
     };
   }
 
@@ -177,6 +179,7 @@ class _LayoutSlot extends StatelessWidget {
       LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
       LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
       LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
+      LayoutSlot.replacement => HugeIcons.strokeRoundedSearchReplace,
     };
   }
 }

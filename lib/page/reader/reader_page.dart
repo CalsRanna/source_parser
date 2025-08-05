@@ -80,6 +80,7 @@ class _ReaderPageState extends State<ReaderPage> {
       onPrevious: viewModel.previousChapter,
       onAvailableSource: () => viewModel.navigateAvailableSourcePage(context),
       onRefresh: viewModel.forceRefresh,
+      onReplacement: () => viewModel.navigateReplacementPage(context),
     );
   }
 

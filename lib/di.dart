@@ -11,6 +11,8 @@ import 'package:source_parser/page/home/home_view_model.dart';
 import 'package:source_parser/page/home/profile_view/profile_view_model.dart';
 import 'package:source_parser/page/information/information_view_model.dart';
 import 'package:source_parser/page/reader/reader_view_model.dart';
+import 'package:source_parser/page/reader_replacement/reader_replacement_view_model.dart';
+import 'package:source_parser/page/reader_replacement_form_page/reader_replacement_form_view_model.dart';
 import 'package:source_parser/page/search/search_view_model.dart';
 import 'package:source_parser/page/setting/setting_view_model.dart';
 import 'package:source_parser/page/source_form_page.dart/source_form_debug_view_model.dart';
@@ -56,10 +58,19 @@ class DI {
     instance.registerLazySingleton<SettingViewModel>(() => SettingViewModel());
     instance.registerFactory<SourceFormViewModel>(() => SourceFormViewModel());
     instance.registerFactory<SourceFormDebugViewModel>(
-        () => SourceFormDebugViewModel());
-    instance
-        .registerFactory<ReaderThemeViewModel>(() => ReaderThemeViewModel());
+      () => SourceFormDebugViewModel(),
+    );
+    instance.registerCachedFactory<ReaderReplacementViewModel>(
+      () => ReaderReplacementViewModel(),
+    );
+    instance.registerFactory<ReaderReplacementFormViewModel>(
+      () => ReaderReplacementFormViewModel(),
+    );
+    instance.registerFactory<ReaderThemeViewModel>(
+      () => ReaderThemeViewModel(),
+    );
     instance.registerFactory<ReaderThemeEditorViewModel>(
-        () => ReaderThemeEditorViewModel());
+      () => ReaderThemeEditorViewModel(),
+    );
   }
 }

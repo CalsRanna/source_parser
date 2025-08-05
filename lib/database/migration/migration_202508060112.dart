@@ -5,8 +5,8 @@ class Migration202508060112 {
   static final createReplacementTableSql = '''
 CREATE TABLE $replacementTable (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  from_ TEXT NOT NULL DEFAULT '',
-  to_ TEXT NOT NULL DEFAULT '',
+  source TEXT NOT NULL DEFAULT '',
+  target TEXT NOT NULL DEFAULT '',
   book_id INTEGER NOT NULL DEFAULT 0
 );
 ''';

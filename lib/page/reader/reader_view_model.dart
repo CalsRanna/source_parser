@@ -9,6 +9,7 @@ import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/database/available_source_service.dart';
 import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
+import 'package:source_parser/database/replacement_service.dart';
 import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
@@ -112,6 +113,10 @@ class ReaderViewModel {
     downloadAmount.value = 0;
     downloadSucceed.value = 0;
     downloadFailed.value = 0;
+  }
+
+  void navigateReplacementPage(BuildContext context) {
+    ReaderReplacementRoute(book: book).push(context);
   }
 
   String getFooterText(int index) {
@@ -455,6 +460,11 @@ class ReaderViewModel {
           source.value.contentPaginationValidation,
         );
       }
+    }
+    var replacements =
+        await ReplacementService().getReplacementsByBookId(book.id);
+    for (var replacement in replacements) {
+      content = content.replaceAll(replacement.source, replacement.target);
     }
     return '$chapterName\n\n$content';
   }

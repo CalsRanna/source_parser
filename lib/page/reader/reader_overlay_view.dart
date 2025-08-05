@@ -35,6 +35,11 @@ abstract class ReaderOverlayBaseSlot extends StatelessWidget {
     if (slot == LayoutSlot.previousChapter.name) onTap?.call();
     if (slot == LayoutSlot.source.name) _navigateAvailableSource(context);
     if (slot == LayoutSlot.theme.name) _navigateReaderTheme(context);
+    if (slot == LayoutSlot.replacement.name) _navigateReplacementPage(context);
+  }
+
+  void _navigateReplacementPage(BuildContext context) {
+    ReaderReplacementRoute(book: book).push(context);
   }
 
   void _downloadChapter(int count) {
@@ -56,6 +61,7 @@ abstract class ReaderOverlayBaseSlot extends StatelessWidget {
       LayoutSlot.previousChapter => StringConfig.previousChapter,
       LayoutSlot.source => StringConfig.changeSource,
       LayoutSlot.theme => StringConfig.theme,
+      LayoutSlot.replacement => StringConfig.replacement,
     };
   }
 
@@ -74,6 +80,7 @@ abstract class ReaderOverlayBaseSlot extends StatelessWidget {
       LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
       LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
       LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
+      LayoutSlot.replacement => HugeIcons.strokeRoundedSearchReplace,
     };
   }
 
@@ -113,6 +120,7 @@ class ReaderOverlayView extends ConsumerWidget {
   final void Function()? onNext;
   final void Function()? onPrevious;
   final void Function()? onRefresh;
+  final void Function()? onReplacement;
   const ReaderOverlayView({
     super.key,
     required this.book,
@@ -125,6 +133,7 @@ class ReaderOverlayView extends ConsumerWidget {
     this.onNext,
     this.onPrevious,
     this.onRefresh,
+    this.onReplacement,
   });
 
   @override
@@ -222,6 +231,7 @@ class ReaderOverlayView extends ConsumerWidget {
       LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
       LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
       LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
+      LayoutSlot.replacement => HugeIcons.strokeRoundedSearchReplace,
     };
   }
 }
