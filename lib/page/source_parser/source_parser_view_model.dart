@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 import 'package:source_parser/util/string_extension.dart';
@@ -23,10 +24,14 @@ class SourceParserViewModel {
   var screenSize = signal(Size.zero);
 
   Computed<ThemeData> get themeData {
-    final pageTransitionsTheme = PageTransitionsTheme(
+    var actionIconThemeData = ActionIconThemeData(
+      backButtonIconBuilder: (_) => Icon(HugeIcons.strokeRoundedArrowLeft01),
+    );
+    var pageTransitionsTheme = PageTransitionsTheme(
       builders: {TargetPlatform.android: NoAnimationPageTransitionBuilder()},
     );
     var themeData = ThemeData(
+      actionIconTheme: actionIconThemeData,
       brightness: isDarkMode.value ? Brightness.dark : Brightness.light,
       colorSchemeSeed: colorSeed.value.toColor(),
       pageTransitionsTheme: isEInkMode.value ? pageTransitionsTheme : null,
