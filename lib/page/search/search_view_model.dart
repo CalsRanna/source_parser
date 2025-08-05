@@ -73,8 +73,12 @@ class SearchViewModel {
     var storedTimeout = await SharedPreferenceUtil.getTimeout();
     var timeout = Duration(seconds: storedTimeout);
     var maxConcurrent = await SharedPreferenceUtil.getMaxConcurrent();
-    var stream =
-        _searchBooks(credential, maxConcurrent, cacheDuration, timeout);
+    var stream = _searchBooks(
+      credential,
+      maxConcurrent,
+      cacheDuration,
+      timeout,
+    );
     stream.listen(_listenStream, onDone: () {
       isSearching.value = false;
       if (!context.mounted) return;
@@ -151,6 +155,7 @@ class SearchViewModel {
     Duration timeout,
   ) async* {
     final sources = await SourceService().getEnabledBookSources();
+    print(sources);
     final directory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
       cacheDirectory: directory,

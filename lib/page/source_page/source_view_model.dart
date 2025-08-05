@@ -114,7 +114,7 @@ class SourceViewModel {
       List<SourceEntity> newSources = [];
       List<SourceEntity> oldSources = [];
       for (var source in sources) {
-        if (sources.where((element) {
+        if (this.sources.value.where((element) {
           final hasSameName = element.name == source.name;
           final hasSameUrl = element.url == source.url;
           return hasSameName && hasSameUrl;
@@ -173,6 +173,8 @@ class SourceViewModel {
           ),
           barrierDismissible: false,
         );
+      } else {
+        await _importSources(false);
       }
     }
   }

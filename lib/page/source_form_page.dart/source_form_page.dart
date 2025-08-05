@@ -29,12 +29,13 @@ class _SourceFormPageState extends State<SourceFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    var appBar = AppBar(
+      actions: [_buildDebugButton(), _buildStoreButton()],
+      centerTitle: true,
+      title: Watch((_) => Text(viewModel.title.value)),
+    );
     return Scaffold(
-      appBar: AppBar(
-        actions: [_buildDebugButton(), _buildStoreButton()],
-        centerTitle: true,
-        title: Watch((_) => Text(viewModel.title.value)),
-      ),
+      appBar: appBar,
       body: Watch(
         (_) => ListView(
           children: [
@@ -65,6 +66,7 @@ class _SourceFormPageState extends State<SourceFormPage> {
 
   Widget _buildBasicGroup() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RuleGroupLabel('基本信息'),
         RuleTile(
@@ -92,6 +94,7 @@ class _SourceFormPageState extends State<SourceFormPage> {
 
   Widget _buildOtherGroup() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RuleGroupLabel('其他信息'),
         RuleTile(
@@ -105,6 +108,7 @@ class _SourceFormPageState extends State<SourceFormPage> {
 
   Widget _buildRuleGroup() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RuleGroupLabel('规则配置'),
         RuleTile(
