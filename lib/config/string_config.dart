@@ -35,4 +35,5 @@ class StringConfig {
   static const cancel = '取消';
   static const destroyTheme = '删除主题';
   static const confirmDeleteTheme = '确定要删除%s吗？';
+  static const confirmDeleteReplacement = '确定要删除这个替换规则吗？';
 }

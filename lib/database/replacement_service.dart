@@ -19,4 +19,9 @@ class ReplacementService {
     json.remove('id');
     await laconic.table(_table).insert([json]);
   }
+
+  Future<void> deleteReplacement(ReplacementEntity replacement) async {
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.table(_table).where('id', replacement.id).delete();
+  }
 }

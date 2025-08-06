@@ -27,12 +27,11 @@ class _ReaderReplacementPageState extends State<ReaderReplacementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('替换'),
-      ),
+      appBar: AppBar(title: const Text('替换')),
       body: Watch(
         (_) => ListView.builder(
           itemBuilder: (context, index) => ListTile(
+            onLongPress: () => viewModel.openBottomSheet(context, index),
             title: Text(
                 '${viewModel.replacements.value[index].source} -> ${viewModel.replacements.value[index].target}'),
           ),
