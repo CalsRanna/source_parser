@@ -600,22 +600,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.2"
-  isar:
-    dependency: "direct main"
-    description:
-      name: isar
-      sha256: e17a9555bc7f22ff26568b8c64d019b4ffa2dc6bd4cb1c8d9b269aefd32e53ad
-      url: "https://pub.isar-community.dev"
-    source: hosted
-    version: "3.1.8"
-  isar_flutter_libs:
-    dependency: "direct main"
-    description:
-      name: isar_flutter_libs
-      sha256: "78710781e658ce4bff59b3f38c5b2735e899e627f4e926e1221934e77b95231a"
-      url: "https://pub.isar-community.dev"
-    source: hosted
-    version: "3.1.8"
   js:
     dependency: transitive
     description:

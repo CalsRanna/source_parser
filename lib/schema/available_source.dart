@@ -1,16 +1,8 @@
-import 'package:isar/isar.dart';
-
-part 'available_source.g.dart';
-
-@collection
-@Name('available_sources')
 class AvailableSource {
-  Id id = Isar.autoIncrement;
-  @Name('latest_chapter')
+  int id = 0;
   String latestChapter = '';
   String name = '';
   String url = '';
-  @Name('book_id')
   int bookId = 0;
 
   AvailableSource();

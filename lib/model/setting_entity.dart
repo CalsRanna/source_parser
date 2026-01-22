@@ -1,4 +1,4 @@
-class Setting {
+class SettingEntity {
   int id = 1;
   double cacheDuration = 8.0;
   String colorSeed = '#FF63BBD0';
@@ -13,10 +13,10 @@ class Setting {
   int timeout = 30 * 1000;
   int turningMode = 3;
 
-  Setting();
+  SettingEntity();
 
-  factory Setting.fromJson(Map<String, dynamic> json) {
-    return Setting()
+  factory SettingEntity.fromJson(Map<String, dynamic> json) {
+    return SettingEntity()
       ..id = json['id'] as int? ?? 1
       ..cacheDuration = (json['cache_duration'] as num?)?.toDouble() ?? 8.0
       ..colorSeed = json['color_seed'] ?? '#FF63BBD0'
@@ -30,6 +30,37 @@ class Setting {
       ..themeId = json['theme_id'] as int? ?? 0
       ..timeout = json['timeout'] as int? ?? 30 * 1000
       ..turningMode = json['turning_mode'] as int? ?? 3;
+  }
+
+  SettingEntity copyWith({
+    int? id,
+    double? cacheDuration,
+    String? colorSeed,
+    bool? darkMode,
+    bool? debugMode,
+    bool? eInkMode,
+    int? exploreSource,
+    double? maxConcurrent,
+    bool? searchFilter,
+    String? shelfMode,
+    int? themeId,
+    int? timeout,
+    int? turningMode,
+  }) {
+    return SettingEntity()
+      ..id = id ?? this.id
+      ..cacheDuration = cacheDuration ?? this.cacheDuration
+      ..colorSeed = colorSeed ?? this.colorSeed
+      ..darkMode = darkMode ?? this.darkMode
+      ..debugMode = debugMode ?? this.debugMode
+      ..eInkMode = eInkMode ?? this.eInkMode
+      ..exploreSource = exploreSource ?? this.exploreSource
+      ..maxConcurrent = maxConcurrent ?? this.maxConcurrent
+      ..searchFilter = searchFilter ?? this.searchFilter
+      ..shelfMode = shelfMode ?? this.shelfMode
+      ..themeId = themeId ?? this.themeId
+      ..timeout = timeout ?? this.timeout
+      ..turningMode = turningMode ?? this.turningMode;
   }
 
   Map<String, dynamic> toJson() {

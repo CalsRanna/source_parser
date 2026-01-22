@@ -1,11 +1,5 @@
-import 'package:isar/isar.dart';
-
-part 'book.g.dart';
-
-@collection
-@Name('books')
 class Book {
-  Id id = Isar.autoIncrement;
+  int id = 0;
   String author = '';
   bool archive = false;
   String catalogueUrl = '';
@@ -16,18 +10,13 @@ class Book {
   int cursor = 0;
   int index = 0;
   String introduction = '';
-  @Name('latest_chapter')
   String latestChapter = '';
   String name = '';
-  @Name('source_id')
   int sourceId = 0;
-  @Name('sources')
   String status = '';
-  @Name('updated_at')
   String updatedAt = '';
   String url = '';
   String words = '';
-  @Name('available_source_id')
   int availableSourceId = 0;
 
   Book();
@@ -40,6 +29,7 @@ class Book {
       }).toList();
     }
     return Book()
+      ..id = json['id'] ?? 0
       ..author = json['author'] ?? ''
       ..archive = json['archive'] ?? false
       ..catalogueUrl = json['catalogue_url'] ?? ''
@@ -52,7 +42,7 @@ class Book {
       ..introduction = json['introduction'] ?? ''
       ..latestChapter = json['latest_chapter'] ?? ''
       ..name = json['name'] ?? ''
-      ..sourceId = json['source_id'] as int
+      ..sourceId = json['source_id'] as int? ?? 0
       ..status = json['status'] ?? ''
       ..updatedAt = json['updated_at'] ?? ''
       ..url = json['url'] ?? ''
@@ -85,7 +75,7 @@ class Book {
   }
 
   Book copyWith({
-    Id? id,
+    int? id,
     String? author,
     bool? archive,
     String? catalogueUrl,
@@ -133,8 +123,6 @@ class Book {
   }
 }
 
-@embedded
-@Name('chapters')
 class Chapter {
   String name = '';
   String url = '';

@@ -1,7 +1,6 @@
-import 'package:isar/isar.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:source_parser/schema/isar.dart';
-import 'package:source_parser/schema/setting.dart';
+import 'package:source_parser/database/setting_service.dart';
+import 'package:source_parser/database/theme_service.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/view_model/app_setting_view_model.dart';
 
@@ -10,6 +9,7 @@ class AppThemeViewModel {
   final themes = signal<List<Theme>>([]);
   final currentTheme = signal<Theme>(Theme());
   final loading = signal(false);
+  final _themeService = ThemeService();
 
   Future<void> initSignals() async {
     loading.value = true;
@@ -20,15 +20,13 @@ class AppThemeViewModel {
   }
 
   Future<void> _loadThemes() async {
-    final loadedThemes = await isar.themes.where().findAll();
+    final loadedThemes = await _themeService.getThemes();
     if (loadedThemes.isNotEmpty) {
       themes.value = loadedThemes;
     } else {
       final theme = Theme();
-      await isar.writeTxn(() async {
-        await isar.themes.put(theme);
-      });
-      themes.value = await isar.themes.where().findAll();
+      await _themeService.addTheme(theme);
+      themes.value = await _themeService.getThemes();
     }
   }
 
@@ -42,9 +40,7 @@ class AppThemeViewModel {
   }
 
   Future<void> updateTheme(Theme theme) async {
-    await isar.writeTxn(() async {
-      await isar.themes.put(theme);
-    });
+    await _themeService.updateTheme(theme);
     final index = themes.value.indexWhere((t) => t.id == theme.id);
     if (index != -1) {
       final updatedThemes = [...themes.value];
@@ -60,20 +56,17 @@ class AppThemeViewModel {
     if (themes.value.length <= 1) {
       throw Exception('不能删除最后一个主题');
     }
-    await isar.writeTxn(() async {
-      await isar.themes.delete(theme.id!);
-    });
+    await _themeService.destroyTheme(theme.id ?? 0);
     final updatedThemes = themes.value.where((t) => t.id != theme.id).toList();
     themes.value = updatedThemes;
     if (currentTheme.value.id == theme.id) {
       currentTheme.value = themes.value.first;
       final setting = settingViewModel.setting.value;
       if (setting != null) {
-        setting.themeId = currentTheme.value.id!;
-        await isar.writeTxn(() async {
-          await isar.settings.put(setting);
-        });
-        settingViewModel.setting.value = setting;
+        final updatedSetting = setting.copyWith(themeId: currentTheme.value.id ?? 0);
+        final settingService = SettingService();
+        await settingService.updateSetting(updatedSetting);
+        settingViewModel.setting.value = updatedSetting;
       }
     }
   }

@@ -1,9 +1,8 @@
 import 'dart:convert';
 
-import 'package:isar/isar.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/model/explore.dart';
-import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
 import 'package:source_parser/view_model/app_setting_view_model.dart';
@@ -12,6 +11,7 @@ class ExploreViewModel {
   final exploreBooks = signal<List<ExploreResult>>([]);
   final loading = signal(false);
   final settingViewModel = AppSettingViewModel();
+  final _sourceService = SourceService();
 
   Future<void> initSignals() async {
     loading.value = true;
@@ -27,11 +27,10 @@ class ExploreViewModel {
       return;
     }
 
-    final source = await isar.sources.filter().idEqualTo(sourceId).findFirst();
-    if (source == null) {
-      exploreBooks.value = [];
-      return;
-    }
+    final sourceEntity = await _sourceService.getBookSource(sourceId);
+
+    // Convert SourceEntity to Source
+    final source = Source.fromJson(sourceEntity.toJson());
 
     final exploreJsonString = source.exploreJson;
     if (exploreJsonString.isEmpty) {

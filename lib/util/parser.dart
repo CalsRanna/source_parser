@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:charset/charset.dart';
-import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:source_parser/database/service.dart';
 import 'package:source_parser/model/available_source_entity.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
@@ -12,7 +12,6 @@ import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/schema/book.dart';
-import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/html_parser_plus.dart';
@@ -259,7 +258,15 @@ class Parser {
     Duration duration,
     Duration timeout,
   ) async* {
-    final sources = await isar.sources.filter().enabledEqualTo(true).findAll();
+    // Get enabled sources from database
+    final sourceEntities = await DatabaseService.instance.laconic
+        .table('book_sources')
+        .where('enabled', 1)
+        .get();
+    final sources = sourceEntities
+        .map((e) => Source.fromJson(e.toMap()))
+        .toList();
+
     final directory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
       cacheDirectory: directory,
@@ -331,7 +338,14 @@ class Parser {
     Duration duration,
     Duration timeout,
   ) async {
-    final sources = await isar.sources.where().findAll();
+    // Get all sources from database
+    final sourceEntities = await DatabaseService.instance.laconic
+        .table('book_sources')
+        .get();
+    final sources = sourceEntities
+        .map((e) => Source.fromJson(e.toMap()))
+        .toList();
+
     final temporaryDirectory = await getApplicationCacheDirectory();
     final network = CachedNetwork(
       cacheDirectory: temporaryDirectory,

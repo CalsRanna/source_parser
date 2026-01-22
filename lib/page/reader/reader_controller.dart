@@ -1,9 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Theme;
-import 'package:isar/isar.dart';
+import 'package:source_parser/database/service.dart';
 import 'package:source_parser/schema/book.dart';
-import 'package:source_parser/schema/isar.dart';
 import 'package:source_parser/schema/setting.dart';
 import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/schema/theme.dart';
@@ -255,12 +254,17 @@ class ReaderController extends ChangeNotifier {
   }
 
   Future<Setting> _getSetting() async {
-    var setting = await isar.settings.where().findFirst();
-    return setting ?? Setting();
+    final settingJson =
+        await DatabaseService.instance.laconic.table('settings').first();
+    return Setting.fromJson(settingJson.toMap());
   }
 
   Future<Source?> _getSource() async {
-    return isar.sources.filter().idEqualTo(book.sourceId).findFirst();
+    final sourceJson = await DatabaseService.instance.laconic
+        .table('book_sources')
+        .where('id', book.sourceId)
+        .first();
+    return Source.fromJson(sourceJson.toMap());
   }
 
   void _updateContent() {

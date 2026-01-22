@@ -1,92 +1,52 @@
-import 'package:isar/isar.dart';
-
-part 'source.g.dart';
-
-@Collection()
-@Name('sources')
 class Source {
-  Id id = Isar.autoIncrement;
+  int id = 0;
   String name = '';
   String url = '';
   bool enabled = true;
-  @Name('explore_enabled')
   bool exploreEnabled = false;
   String type = 'book';
   String comment = '';
   String header = '';
   String charset = 'utf8';
-  @Name('search_url')
   String searchUrl = '';
-  @Name('search_method')
   String searchMethod = 'get';
-  @Name('search_books')
   String searchBooks = '';
-  @Name('search_name')
   String searchName = '';
-  @Name('search_author')
   String searchAuthor = '';
-  @Name('search_category')
   String searchCategory = '';
-  @Name('search_word_count')
   String searchWordCount = '';
-  @Name('search_introduction')
   String searchIntroduction = '';
-  @Name('search_cover')
   String searchCover = '';
-  @Name('search_information_url')
   String searchInformationUrl = '';
-  @Name('search_latest_chapter')
   String searchLatestChapter = '';
-  @Name('information_method')
   String informationMethod = 'get';
-  @Name('information_name')
   String informationName = '';
-  @Name('information_author')
   String informationAuthor = '';
-  @Name('information_category')
   String informationCategory = '';
-  @Name('information_word_count')
   String informationWordCount = '';
-  @Name('information_latest_chapter')
   String informationLatestChapter = '';
-  @Name('information_introduction')
   String informationIntroduction = '';
-  @Name('information_cover')
   String informationCover = '';
-  @Name('information_catalogue_url')
   String informationCatalogueUrl = '';
-  @Name('catalogue_method')
   String catalogueMethod = 'get';
-  @Name('catalogue_chapters')
   String catalogueChapters = '';
-  @Name('catalogue_name')
   String catalogueName = '';
-  @Name('catalogue_url')
   String catalogueUrl = '';
-  @Name('catalogue_updated_at')
   String catalogueUpdatedAt = '';
-  @Name('catalogue_pagination')
   String cataloguePagination = '';
-  @Name('catalogue_pagination_validation')
   String cataloguePaginationValidation = '';
-  @Name('catalogue_preset')
   String cataloguePreset = '';
-  @Name('content_method')
   String contentMethod = 'get';
-  @Name('content_content')
   String contentContent = '';
-  @Name('content_pagination')
   String contentPagination = '';
-  @Name('content_pagination_validation')
   String contentPaginationValidation = '';
-  @Name('explore_json')
   String exploreJson = '';
 
   Source();
 
   factory Source.fromJson(Map<String, dynamic> json) {
     return Source()
-      ..id = json['id'] ?? Isar.autoIncrement
+      ..id = json['id'] ?? 0
       ..name = json['name'] ?? ''
       ..url = json['url'] ?? ''
       ..enabled = json['enabled'] ?? true
@@ -121,14 +81,12 @@ class Source {
       ..catalogueUrl = json['catalogue_url'] ?? ''
       ..catalogueUpdatedAt = json['catalogue_updated_at'] ?? ''
       ..cataloguePagination = json['catalogue_pagination'] ?? ''
-      ..cataloguePaginationValidation =
-          json['catalogue_pagination_validation'] ?? ''
+      ..cataloguePaginationValidation = json['catalogue_pagination_validation'] ?? ''
       ..cataloguePreset = json['catalogue_preset'] ?? ''
       ..contentMethod = json['content_method'] ?? 'get'
       ..contentContent = json['content_content'] ?? ''
       ..contentPagination = json['content_pagination'] ?? ''
-      ..contentPaginationValidation =
-          json['content_pagination_validation'] ?? ''
+      ..contentPaginationValidation = json['content_pagination_validation'] ?? ''
       ..exploreJson = json['explore_json'] ?? '';
   }
 
@@ -202,27 +160,22 @@ class Source {
       ..informationAuthor = informationAuthor ?? this.informationAuthor
       ..informationCategory = informationCategory ?? this.informationCategory
       ..informationWordCount = informationWordCount ?? this.informationWordCount
-      ..informationLatestChapter =
-          informationLatestChapter ?? this.informationLatestChapter
-      ..informationIntroduction =
-          informationIntroduction ?? this.informationIntroduction
+      ..informationLatestChapter = informationLatestChapter ?? this.informationLatestChapter
+      ..informationIntroduction = informationIntroduction ?? this.informationIntroduction
       ..informationCover = informationCover ?? this.informationCover
-      ..informationCatalogueUrl =
-          informationCatalogueUrl ?? this.informationCatalogueUrl
+      ..informationCatalogueUrl = informationCatalogueUrl ?? this.informationCatalogueUrl
       ..catalogueMethod = catalogueMethod ?? this.catalogueMethod
       ..catalogueChapters = catalogueChapters ?? this.catalogueChapters
       ..catalogueName = catalogueName ?? this.catalogueName
       ..catalogueUrl = catalogueUrl ?? this.catalogueUrl
       ..catalogueUpdatedAt = catalogueUpdatedAt ?? this.catalogueUpdatedAt
       ..cataloguePagination = cataloguePagination ?? this.cataloguePagination
-      ..cataloguePaginationValidation =
-          cataloguePaginationValidation ?? this.cataloguePaginationValidation
+      ..cataloguePaginationValidation = cataloguePaginationValidation ?? this.cataloguePaginationValidation
       ..cataloguePreset = cataloguePreset ?? this.cataloguePreset
       ..contentMethod = contentMethod ?? this.contentMethod
       ..contentContent = contentContent ?? this.contentContent
       ..contentPagination = contentPagination ?? this.contentPagination
-      ..contentPaginationValidation =
-          contentPaginationValidation ?? this.contentPaginationValidation
+      ..contentPaginationValidation = contentPaginationValidation ?? this.contentPaginationValidation
       ..exploreJson = exploreJson ?? this.exploreJson;
   }
 

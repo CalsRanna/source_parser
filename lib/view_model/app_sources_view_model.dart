@@ -1,18 +1,16 @@
 import 'dart:async';
 
-import 'package:isar/isar.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/database/source_service.dart';
 import 'package:source_parser/model/source_entity.dart';
-import 'package:source_parser/schema/isar.dart';
-import 'package:source_parser/schema/setting.dart';
-import 'package:source_parser/schema/source.dart';
 import 'package:source_parser/util/parser.dart';
 
 class AppSourcesViewModel {
-  final sources = signal<List<Source>>([]);
+  final sources = signal<List<SourceEntity>>([]);
   final loading = signal(false);
   final validating = signal(false);
   final validSourceIds = signal<List<int>>([]);
+  final _sourceService = SourceService();
 
   Future<void> initSignals() async {
     loading.value = true;
@@ -21,7 +19,7 @@ class AppSourcesViewModel {
   }
 
   Future<void> _loadSources() async {
-    final loadedSources = await isar.sources.where().findAll();
+    final loadedSources = await _sourceService.getAllSources();
     loadedSources.sort((a, b) {
       final aWeight = a.enabled ? -9999 : 9999;
       final bWeight = b.enabled ? -9999 : 9999;
@@ -30,44 +28,54 @@ class AppSourcesViewModel {
     sources.value = loadedSources;
   }
 
-  Future<int> storeSource(Source source) async {
-    var id = 0;
-    await isar.writeTxn(() async {
-      id = await isar.sources.put(source);
-    });
+  Future<int> storeSource(SourceEntity source) async {
+    var id = source.id;
+    if (id == 0) {
+      // New source, need to get the ID after insert
+      var existing = await _sourceService.countSourceByNameAndUrl(
+        source.name,
+        source.url,
+      );
+      if (existing > 0) {
+        var existingSource = await _sourceService.getSourceByNameAndUrl(
+          source.name,
+          source.url,
+        );
+        id = existingSource.id;
+      }
+    }
+    await _sourceService.updateSource(source);
     await _loadSources();
     return id;
   }
 
   Future<void> deleteSource(int id) async {
-    await isar.writeTxn(() async {
-      await isar.sources.delete(id);
-    });
+    await _sourceService.destroySource(id);
     await _loadSources();
   }
 
   Future<void> confirmImport(
-    List<Source> newSources,
-    List<Source> oldSources, {
+    List<SourceEntity> newSources,
+    List<SourceEntity> oldSources, {
     bool override = false,
   }) async {
     if (override) {
-      final builder = isar.sources.filter();
       for (var oldSource in oldSources) {
-        final source = await builder
-            .nameEqualTo(oldSource.name)
-            .urlEqualTo(oldSource.url)
-            .findFirst();
-        if (source != null) {
-          await isar.writeTxn(() async {
-            await isar.sources.put(oldSource.copyWith(id: source.id));
-          });
+        final count = await _sourceService.countSourceByNameAndUrl(
+          oldSource.name,
+          oldSource.url,
+        );
+        if (count > 0) {
+          final existingSource = await _sourceService.getSourceByNameAndUrl(
+            oldSource.name,
+            oldSource.url,
+          );
+          final updatedSource = oldSource.copyWith(id: existingSource.id);
+          await _sourceService.updateSource(updatedSource);
         }
       }
     }
-    await isar.writeTxn(() async {
-      await isar.sources.putAll(newSources);
-    });
+    await _sourceService.addSources(newSources);
     await _loadSources();
   }
 
@@ -76,20 +84,19 @@ class AppSourcesViewModel {
     validSourceIds.value = [];
 
     final controller = StreamController<int>();
-    final currentSources = await isar.sources.where().findAll();
+    final currentSources = await _sourceService.getAllSources();
 
     for (var source in currentSources) {
-      await isar.writeTxn(() async {
-        await isar.sources.put(source.copyWith(enabled: false));
-      });
+      final updatedSource = source.copyWith(enabled: false);
+      await _sourceService.updateSource(updatedSource);
     }
 
     await _loadSources();
 
-    final setting = await isar.settings.where().findFirst();
-    final concurrent = setting?.maxConcurrent.floor() ?? 16;
-    final duration = Duration(seconds: setting?.cacheDuration.floor() ?? 4);
-    final timeout = Duration(milliseconds: setting?.timeout ?? 30000);
+    // TODO: Get these values from settings service
+    final concurrent = 16;
+    final duration = const Duration(seconds: 4);
+    final timeout = const Duration(milliseconds: 30000);
 
     final stream = await Parser.validate('都市', concurrent, duration, timeout);
     List<int> valid = [];
@@ -100,8 +107,14 @@ class AppSourcesViewModel {
         valid.add(id);
         controller.add(id);
         final source =
-            currentSources.where((element) => element.id == id).first;
-        storeSource(source.copyWith(enabled: true));
+            currentSources.where((element) => element.id == id).firstOrNull;
+        if (source != null) {
+          final updatedSource = source.copyWith(enabled: true);
+          // Note: This is async but we're not awaiting in the original
+          _sourceService.updateSource(updatedSource).then((_) {
+            _loadSources();
+          });
+        }
       },
       onDone: () {
         validating.value = false;
@@ -116,39 +129,34 @@ class AppSourcesViewModel {
     return controller.stream;
   }
 
-  Source? getSourceByNameAndUrl(String name, String url) {
+  SourceEntity? getSourceByNameAndUrl(String name, String url) {
     return sources.value
         .where((source) => source.name == name && source.url == url)
         .firstOrNull;
   }
 
-  Source? getSourceByName(String name) {
+  SourceEntity? getSourceByName(String name) {
     return sources.value.where((source) => source.name == name).firstOrNull;
   }
 
-  Source? getSource(int id) {
+  SourceEntity? getSource(int id) {
     return sources.value.where((source) => source.id == id).firstOrNull;
   }
 
-  List<Source> getEnabledSources() {
+  List<SourceEntity> getEnabledSources() {
     return sources.value.where((source) => source.enabled).toList();
   }
 
-  List<Source> getExploreSources() {
+  List<SourceEntity> getExploreSources() {
     return sources.value.where((source) => source.exploreEnabled).toList();
   }
 
-  Stream<String> debugSource(Source source) {
-    final sourceEntity = _convertToSourceEntity(source);
-    return Parser.debug(sourceEntity).map((result) {
+  Stream<String> debugSource(SourceEntity source) {
+    return Parser.debug(source).map((result) {
       if (result.title == '正文') {
         return '${result.title}\n${result.json}';
       }
       return '${result.title}\n${result.html}\n${result.json}';
     });
-  }
-
-  SourceEntity _convertToSourceEntity(Source source) {
-    return SourceEntity.fromJson(source.toJson());
   }
 }

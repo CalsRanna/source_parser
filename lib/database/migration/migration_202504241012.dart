@@ -1,11 +1,4 @@
-import 'package:isar/isar.dart';
 import 'package:source_parser/database/service.dart';
-import 'package:source_parser/schema/available_source.dart';
-import 'package:source_parser/schema/book.dart';
-import 'package:source_parser/schema/isar.dart';
-import 'package:source_parser/schema/layout.dart';
-import 'package:source_parser/schema/source.dart';
-import 'package:source_parser/schema/theme.dart';
 
 class Migration202504241012 {
   static final createBookSourceTableSql = '''
@@ -204,56 +197,12 @@ DROP TABLE IF EXISTS $themeTable;
     await laconic.statement(createCoverTableSql);
     await laconic.statement(createLayoutTableSql);
     await laconic.statement(createThemeTableSql);
-    var bookSources = await isar.sources.where().findAll();
-    laconic.transaction(() async {
-      for (var bookSource in bookSources) {
-        await laconic.table(bookSourceTable).insert([bookSource.toJson()]);
-      }
-    });
-    var availableSources = await isar.availableSources.where().findAll();
-    laconic.transaction(() async {
-      for (var availableSource in availableSources) {
-        await laconic
-            .table(availableSourceTable)
-            .insert([availableSource.toJson()]);
-      }
-    });
-    var books = await isar.books.where().findAll();
-    laconic.transaction(() async {
-      for (var book in books) {
-        var bookData = book.toJson();
-        bookData.remove('chapters');
-        bookData.remove('covers');
-        bookData.remove('cursor');
-        bookData.remove('index');
-        bookData['chapter_index'] = book.index;
-        bookData['page_index'] = book.cursor;
-        await laconic.table(bookTable).insert([bookData]);
-        var chapters = book.chapters;
-        for (var chapter in chapters) {
-          var chapterData = chapter.toJson();
-          chapterData['book_id'] = book.id;
-          await laconic.table(chapterTable).insert([chapterData]);
-        }
-        var covers = book.covers;
-        for (var cover in covers) {
-          var coverData = {'url': cover, 'book_id': book.id};
-          await laconic.table(coverTable).insert([coverData]);
-        }
-      }
-    });
-    var layouts = await isar.layouts.where().findAll();
-    laconic.transaction(() async {
-      for (var layout in layouts) {
-        await laconic.table(layoutTable).insert([layout.toJson()]);
-      }
-    });
-    var themes = await isar.themes.where().findAll();
-    laconic.transaction(() async {
-      for (var theme in themes) {
-        await laconic.table(themeTable).insert([theme.toJson()]);
-      }
-    });
+
+    // Note: Isar to SQLite data migration has been removed.
+    // This migration now only creates the tables.
+    // Users upgrading from older versions with Isar data should have
+    // already completed the migration through the previous version.
+
     await laconic.table('migrations').insert([
       {'name': 'migration_202504241012'}
     ]);

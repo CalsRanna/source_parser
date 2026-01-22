@@ -1,23 +1,23 @@
-import 'package:isar/isar.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:source_parser/schema/isar.dart';
-import 'package:source_parser/schema/setting.dart';
-import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/database/setting_service.dart';
+import 'package:source_parser/database/source_service.dart';
+import 'package:source_parser/model/setting_entity.dart';
+import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/schema/theme.dart';
 
 class AppSettingViewModel {
-  final setting = signal<Setting?>(null);
+  final setting = signal<SettingEntity?>(null);
   final loading = signal(false);
-  final sources = signal<List<Source>>([]);
+  final sources = signal<List<SourceEntity>>([]);
+  final _settingService = SettingService();
+  final _sourceService = SourceService();
 
   Future<void> initSignals() async {
     loading.value = true;
-    var currentSetting = await isar.settings.where().findFirst();
+    var currentSetting = await _settingService.getSetting();
     if (currentSetting == null) {
-      currentSetting = Setting();
-      await isar.writeTxn(() async {
-        await isar.settings.put(currentSetting!);
-      });
+      currentSetting = SettingEntity();
+      await _settingService.createSetting(currentSetting);
     }
     await migrate(currentSetting);
     setting.value = currentSetting;
@@ -26,133 +26,124 @@ class AppSettingViewModel {
   }
 
   Future<void> loadSources() async {
-    final loadedSources = await isar.sources.where().findAll();
+    final loadedSources = await _sourceService.getAllSources();
     sources.value = loadedSources;
   }
 
   Future<void> toggleDarkMode() async {
     final currentSetting = setting.value;
     if (currentSetting == null) return;
-    currentSetting.darkMode = !currentSetting.darkMode;
-    await isar.writeTxn(() async {
-      await isar.settings.put(currentSetting);
-    });
-    setting.value = currentSetting;
+    final updatedSetting = currentSetting.copyWith(darkMode: !currentSetting.darkMode);
+    await _settingService.updateSetting(updatedSetting);
+    setting.value = updatedSetting;
   }
 
   Future<void> updateEInkMode(bool value) async {
     final currentSetting = setting.value;
     if (currentSetting == null) return;
-    currentSetting.eInkMode = value;
-    await isar.writeTxn(() async {
-      await isar.settings.put(currentSetting);
-    });
-    setting.value = currentSetting;
+    final updatedSetting = currentSetting.copyWith(eInkMode: value);
+    await _settingService.updateSetting(updatedSetting);
+    setting.value = updatedSetting;
   }
 
   Future<void> updateTurningMode(int value) async {
     final currentSetting = setting.value;
     if (currentSetting == null) return;
+    int newMode;
     if (currentSetting.turningMode & value != 0) {
-      currentSetting.turningMode -= value;
+      newMode = currentSetting.turningMode - value;
     } else {
-      currentSetting.turningMode += value;
+      newMode = currentSetting.turningMode + value;
     }
-    await isar.writeTxn(() async {
-      await isar.settings.put(currentSetting);
-    });
-    setting.value = currentSetting;
+    final updatedSetting = currentSetting.copyWith(turningMode: newMode);
+    await _settingService.updateSetting(updatedSetting);
+    setting.value = updatedSetting;
   }
 
   Future<void> updateTimeout(int value) async {
     final currentSetting = setting.value;
     if (currentSetting == null) return;
-    currentSetting.timeout = value;
-    await isar.writeTxn(() async {
-      await isar.settings.put(currentSetting);
-    });
-    setting.value = currentSetting;
+    final updatedSetting = currentSetting.copyWith(timeout: value);
+    await _settingService.updateSetting(updatedSetting);
+    setting.value = updatedSetting;
   }
 
   Future<void> updateShelfMode(String mode) async {
     final currentSetting = setting.value;
     if (currentSetting == null) return;
-    currentSetting.shelfMode = mode;
-    await isar.writeTxn(() async {
-      await isar.settings.put(currentSetting);
-    });
-    setting.value = currentSetting;
+    final updatedSetting = currentSetting.copyWith(shelfMode: mode);
+    await _settingService.updateSetting(updatedSetting);
+    setting.value = updatedSetting;
   }
 
   Future<void> updateExploreSource(int source) async {
     final currentSetting = setting.value;
     if (currentSetting == null) return;
-    currentSetting.exploreSource = source;
-    await isar.writeTxn(() async {
-      await isar.settings.put(currentSetting);
-    });
-    setting.value = currentSetting;
+    final updatedSetting = currentSetting.copyWith(exploreSource: source);
+    await _settingService.updateSetting(updatedSetting);
+    setting.value = updatedSetting;
   }
 
   Future<void> updateMaxConcurrent(double concurrent) async {
     final currentSetting = setting.value;
     if (currentSetting == null) return;
-    currentSetting.maxConcurrent = concurrent;
-    await isar.writeTxn(() async {
-      await isar.settings.put(currentSetting);
-    });
-    setting.value = currentSetting;
+    final updatedSetting = currentSetting.copyWith(maxConcurrent: concurrent);
+    await _settingService.updateSetting(updatedSetting);
+    setting.value = updatedSetting;
   }
 
   Future<void> updateCacheDuration(double duration) async {
     final currentSetting = setting.value;
     if (currentSetting == null) return;
-    currentSetting.cacheDuration = duration;
-    await isar.writeTxn(() async {
-      await isar.settings.put(currentSetting);
-    });
-    setting.value = currentSetting;
+    final updatedSetting = currentSetting.copyWith(cacheDuration: duration);
+    await _settingService.updateSetting(updatedSetting);
+    setting.value = updatedSetting;
   }
 
   Future<void> updateSearchFilter(bool value) async {
     final currentSetting = setting.value;
     if (currentSetting == null) return;
-    currentSetting.searchFilter = value;
-    await isar.writeTxn(() async {
-      await isar.settings.put(currentSetting);
-    });
-    setting.value = currentSetting;
+    final updatedSetting = currentSetting.copyWith(searchFilter: value);
+    await _settingService.updateSetting(updatedSetting);
+    setting.value = updatedSetting;
   }
 
   Future<void> selectTheme(Theme theme) async {
     final currentSetting = setting.value;
     if (currentSetting == null) return;
-    if (currentSetting.themeId == theme.id) return;
-    currentSetting.themeId = theme.id!;
-    await isar.writeTxn(() async {
-      await isar.settings.put(currentSetting);
-    });
-    setting.value = currentSetting;
+    if (currentSetting.themeId == (theme.id ?? 0)) return;
+    final updatedSetting = currentSetting.copyWith(themeId: theme.id ?? 0);
+    await _settingService.updateSetting(updatedSetting);
+    setting.value = updatedSetting;
   }
 
-  Future<void> migrate(Setting currentSetting) async {
+  Future<void> migrate(SettingEntity currentSetting) async {
+    var needsUpdate = false;
+    var updatedSetting = currentSetting;
+
     if (currentSetting.cacheDuration.isNaN) {
-      currentSetting.cacheDuration = 4.0;
+      updatedSetting = updatedSetting.copyWith(cacheDuration: 4.0);
+      needsUpdate = true;
     }
     if (currentSetting.maxConcurrent.isNaN) {
-      currentSetting.maxConcurrent = 16.0;
+      updatedSetting = updatedSetting.copyWith(maxConcurrent: 16.0);
+      needsUpdate = true;
     }
     if (currentSetting.shelfMode.isEmpty) {
-      currentSetting.shelfMode = 'list';
+      updatedSetting = updatedSetting.copyWith(shelfMode: 'list');
+      needsUpdate = true;
     }
     if (currentSetting.timeout.isNegative) {
-      currentSetting.timeout = 30 * 1000;
+      updatedSetting = updatedSetting.copyWith(timeout: 30 * 1000);
+      needsUpdate = true;
     }
     if (currentSetting.turningMode.isNegative) {
-      currentSetting.turningMode = 3;
+      updatedSetting = updatedSetting.copyWith(turningMode: 3);
+      needsUpdate = true;
     }
-    await isar.writeTxn(() async {
-      await isar.settings.put(currentSetting);
-    });
+
+    if (needsUpdate) {
+      await _settingService.updateSetting(updatedSetting);
+    }
   }
 }

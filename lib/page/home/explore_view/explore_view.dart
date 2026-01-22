@@ -544,7 +544,10 @@ class _SourceSelectorState extends State<_SourceSelector> {
   Widget build(BuildContext context) {
     final settingViewModel = GetIt.I<AppSettingViewModel>();
     return Watch((context) {
-      final sources = settingViewModel.sources.value;
+      final sourceEntities = settingViewModel.sources.value;
+      final sources = sourceEntities
+          .map((e) => Source.fromJson(e.toJson()))
+          .toList();
       final id = settingViewModel.setting.value?.exploreSource ?? 0;
       return MenuAnchor(
         alignmentOffset: Offset(-132, 12),

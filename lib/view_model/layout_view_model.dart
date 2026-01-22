@@ -1,11 +1,11 @@
-import 'package:isar/isar.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:source_parser/schema/isar.dart';
+import 'package:source_parser/database/layout_service.dart';
 import 'package:source_parser/schema/layout.dart';
 
 class LayoutViewModel {
   final layout = signal<Layout>(Layout());
   final loading = signal(false);
+  final _layoutService = LayoutService();
 
   Future<void> initSignals() async {
     loading.value = true;
@@ -14,7 +14,7 @@ class LayoutViewModel {
   }
 
   Future<void> _loadLayout() async {
-    var currentLayout = await isar.layouts.where().findFirst();
+    var currentLayout = await _layoutService.getLayout();
     if (currentLayout == null) {
       currentLayout = Layout()
         ..slot0 = LayoutSlot.cache.name
@@ -25,9 +25,7 @@ class LayoutViewModel {
         ..slot5 = LayoutSlot.nextChapter.name
         ..slot6 = LayoutSlot.source.name;
 
-      await isar.writeTxn(() async {
-        await isar.layouts.put(currentLayout!);
-      });
+      await _layoutService.createLayout(currentLayout);
     }
     layout.value = currentLayout;
   }
@@ -43,9 +41,7 @@ class LayoutViewModel {
     if (index == 5) currentLayout.slot5 = slot.name;
     if (index == 6) currentLayout.slot6 = slot.name;
 
-    await isar.writeTxn(() async {
-      await isar.layouts.put(currentLayout);
-    });
+    await _layoutService.updateLayout(currentLayout);
     layout.value = currentLayout;
   }
 }
