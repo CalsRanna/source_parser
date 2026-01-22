@@ -64,3 +64,10 @@ dev_dependencies:
   auto_route_generator: ^9.0.0
   build_runner: ^2.4.0
   flutter_lints: ^5.0.0
+
+flutter:
+  assets:
+    - asset/
+    - asset/image/
+    - asset/json/
+  

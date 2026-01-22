@@ -44,8 +44,6 @@ PODS:
     - Flutter
   - icloud_storage_sync (0.0.2):
     - Flutter
-  - isar_flutter_libs (1.0.0):
-    - Flutter
   - network_info_plus (0.0.1):
     - Flutter
   - package_info_plus (0.4.5):
@@ -101,7 +99,6 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - icloud_storage_sync (from `.symlinks/plugins/icloud_storage_sync/ios`)
-  - isar_flutter_libs (from `.symlinks/plugins/isar_flutter_libs/ios`)
   - network_info_plus (from `.symlinks/plugins/network_info_plus/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -135,8 +132,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_native_splash/ios"
   icloud_storage_sync:
     :path: ".symlinks/plugins/icloud_storage_sync/ios"
-  isar_flutter_libs:
-    :path: ".symlinks/plugins/isar_flutter_libs/ios"
   network_info_plus:
     :path: ".symlinks/plugins/network_info_plus/ios"
   package_info_plus:
@@ -166,7 +161,6 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   icloud_storage_sync: 280709abe2f8966d1ae48ec3330d21f4fbf7331d
-  isar_flutter_libs: bc909e72c3d756c2759f14c8776c13b5b0556e26
   network_info_plus: cf61925ab5205dce05a4f0895989afdb6aade5fc
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
