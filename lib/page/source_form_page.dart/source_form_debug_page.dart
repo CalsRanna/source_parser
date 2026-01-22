@@ -2,14 +2,12 @@ import 'dart:convert';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/debug.dart';
 import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/page/source_form_page.dart/source_form_debug_view_model.dart';
 import 'package:source_parser/page/source_page/component/rule_group_label.dart';
-import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/util/string_extension.dart';
 
 @RoutePage()
@@ -147,51 +145,37 @@ class _SourceFormDebugPageState extends State<SourceFormDebugPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(actions: [_buildDebugButton()], title: const Text('书源调试')),
-      body: Consumer(builder: (context, ref, child) {
-        final state = ref.watch(sourceDebuggerProvider);
-        return StreamBuilder(
-          stream: state.value,
-          builder: (context, snapshot) {
-            Widget indicator = const LinearProgressIndicator();
-            if (snapshot.connectionState == ConnectionState.done) {
-              indicator = const SizedBox();
+      body: StreamBuilder(
+        stream: viewModel.debug(),
+        builder: (context, snapshot) {
+          Widget indicator = const LinearProgressIndicator();
+          if (snapshot.connectionState == ConnectionState.done) {
+            indicator = const SizedBox();
+          }
+          Widget list = const SizedBox();
+          if (!snapshot.hasData || snapshot.data == null) {
+            list = const SizedBox();
+          } else {
+            final entity = snapshot.data!;
+            final json = entity.json;
+            final jsonList = jsonDecode(json);
+            dynamic jsonMap;
+            if (jsonList is List) {
+              jsonMap = jsonList[0];
             }
-            Widget list = const SizedBox();
-            if (!state.isLoading && snapshot.data != null) {
-              final result = snapshot.data!;
-              list = ListView.builder(
-                itemBuilder: (context, index) {
-                  dynamic json = jsonDecode(result[index].json);
-                  switch (result[index].title) {
-                    case '搜索':
-                      for (var item in json) {
-                        _remove(item, [...keys, 'catalogue_url']);
-                      }
-                      break;
-                    case '详情':
-                      _remove(json, keys);
-                      break;
-                    case '目录':
-                      for (var item in json) {
-                        _remove(item, ['id']);
-                      }
-                      break;
-                    default:
-                      break;
-                  }
-                  return _Tile(
-                    response: result[index].html,
-                    result: json,
-                    title: result[index].title,
-                  );
-                },
-                itemCount: result.length,
+            if (jsonMap is Map) {
+              list = _Tile(
+                response: jsonMap.toString(),
+                result: jsonMap,
+                title: entity.title,
               );
+            } else {
+              list = const SizedBox();
             }
-            return Column(children: [indicator, Expanded(child: list)]);
-          },
-        );
-      }),
+          }
+          return Column(children: [indicator, Expanded(child: list)]);
+        },
+      ),
     );
   }
 
@@ -200,13 +184,6 @@ class _SourceFormDebugPageState extends State<SourceFormDebugPage> {
       icon: const Icon(HugeIcons.strokeRoundedCursorMagicSelection02),
       onPressed: viewModel.debug,
     );
-  }
-
-  Map<String, dynamic> _remove(Map<String, dynamic> map, List<String> keys) {
-    for (var key in keys) {
-      map.remove(key);
-    }
-    return map;
   }
 }
 

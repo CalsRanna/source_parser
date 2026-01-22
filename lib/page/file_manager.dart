@@ -3,30 +3,38 @@ import 'dart:io';
 import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:source_parser/provider/file.dart';
+import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/view_model/file_view_model.dart';
 
 @RoutePage()
-class FileManagerPage extends ConsumerStatefulWidget {
+class FileManagerPage extends StatefulWidget {
   const FileManagerPage({super.key});
 
   @override
-  ConsumerState<FileManagerPage> createState() => _FileManagerPageState();
+  State<FileManagerPage> createState() => _FileManagerPageState();
 }
 
-class _FileManagerPageState extends ConsumerState<FileManagerPage> {
+class _FileManagerPageState extends State<FileManagerPage> {
+  late FileViewModel fileViewModel;
   String? directory;
   List<String> paths = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fileViewModel = GetIt.I<FileViewModel>();
+  }
+
   @override
   Widget build(BuildContext context) {
-    var provider = filesProvider(directory);
-    var state = ref.watch(provider);
-    var body = switch (state) {
-      AsyncData(:final value) => _buildData(value),
-      AsyncError(:final error) => _buildError(error),
-      _ => const SizedBox(),
-    };
+    var body = Watch((context) {
+      var files = directory == null
+          ? _getRootFiles()
+          : Directory(directory!).listSync();
+      return _buildData(files);
+    });
     var title = '文件管理';
     if (directory != null) {
       title = directory!.split('/').last;
@@ -36,6 +44,17 @@ class _FileManagerPageState extends ConsumerState<FileManagerPage> {
       body: body,
       floatingActionButton: _buildFloatingActionButton(),
     );
+  }
+
+  List<FileSystemEntity> _getRootFiles() {
+    try {
+      if (fileViewModel.selectedFilePath.value != null) {
+        return Directory(fileViewModel.selectedFilePath.value!).listSync();
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
   }
 
   void enterDirectory(FileSystemEntity file) {
@@ -61,8 +80,8 @@ class _FileManagerPageState extends ConsumerState<FileManagerPage> {
   void openDialog(FileSystemEntity file) {
     HapticFeedback.heavyImpact();
     var actions = [
-      TextButton(onPressed: _handleCancel, child: Text('Cancel')),
-      TextButton(onPressed: () => _handleConfirm(file), child: Text('Delete'))
+      TextButton(onPressed: handleCancel, child: Text('Cancel')),
+      TextButton(onPressed: () => handleConfirm(file), child: Text('Delete'))
     ];
     var title = 'Delete File';
     if (file is Directory) title = 'Delete Directory';
@@ -72,6 +91,40 @@ class _FileManagerPageState extends ConsumerState<FileManagerPage> {
       title: Text(title),
     );
     showDialog(context: context, builder: (_) => alertDialog);
+  }
+
+  Widget _buildFloatingActionButton() {
+    if (paths.isNotEmpty) {
+      return FloatingActionButton(
+        onPressed: navigateUp,
+        child: Icon(HugeIcons.strokeRoundedArrowUp01),
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  String _formatSize(int size) {
+    String string;
+    if (size < 1024) {
+      string = '$size B';
+    } else if (size >= 1024 && size < 1024 * 1024) {
+      string = '${(size / 1024).toStringAsFixed(2)} KB';
+    } else {
+      string = '${(size / 1024 / 1024).toStringAsFixed(2)} MB';
+    }
+    return string;
+  }
+
+  void handleCancel() {
+    Navigator.pop(context);
+  }
+
+  void handleConfirm(FileSystemEntity file) {
+    file.deleteSync(recursive: true);
+    setState(() {
+      directory = null;
+    });
+    Navigator.pop(context);
   }
 
   Widget _buildData(List<FileSystemEntity> files) {
@@ -94,51 +147,6 @@ class _FileManagerPageState extends ConsumerState<FileManagerPage> {
       itemCount: files.length,
       padding: EdgeInsets.symmetric(horizontal: 16),
     );
-  }
-
-  Widget _buildError(Object error) {
-    var child = Padding(
-      padding: const EdgeInsets.all(16),
-      child: Text(error.toString()),
-    );
-    return Center(child: child);
-  }
-
-  Widget? _buildFloatingActionButton() {
-    Widget? floatingActionButton;
-    if (paths.isNotEmpty) {
-      floatingActionButton = FloatingActionButton(
-        onPressed: navigateUp,
-        child: Icon(HugeIcons.strokeRoundedArrowUp01),
-      );
-    }
-    return floatingActionButton;
-  }
-
-  String _formatSize(int size) {
-    String string;
-    if (size < 1024) {
-      string = '$size B';
-    } else if (size >= 1024 && size < 1024 * 1024) {
-      string = '${(size / 1024).toStringAsFixed(2)} KB';
-    } else {
-      string = '${(size / 1024 / 1024).toStringAsFixed(2)} MB';
-    }
-    return string;
-  }
-
-  void _handleCancel() {
-    Navigator.pop(context);
-  }
-
-  void _handleConfirm(FileSystemEntity file) {
-    file.deleteSync(recursive: true);
-    setState(() {
-      directory = null;
-    });
-    var provider = filesProvider(directory);
-    ref.invalidate(provider);
-    Navigator.pop(context);
   }
 
   Widget _itemBuilder(FileSystemEntity file) {

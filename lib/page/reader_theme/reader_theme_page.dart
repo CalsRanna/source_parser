@@ -1,14 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/page/reader_theme/reader_theme_bottom_sheet.dart';
 import 'package:source_parser/page/reader_theme/reader_theme_view_model.dart';
-import 'package:source_parser/provider/setting.dart';
-import 'package:source_parser/schema/setting.dart';
+import 'package:source_parser/view_model/app_setting_view_model.dart';
+import 'package:source_parser/view_model/app_theme_view_model.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/string_extension.dart';
@@ -23,6 +22,8 @@ class ReaderThemePage extends StatefulWidget {
 
 class _ReaderThemePageState extends State<ReaderThemePage> {
   final viewModel = GetIt.instance.get<ReaderThemeViewModel>();
+  final settingViewModel = GetIt.instance.get<AppSettingViewModel>();
+  final themeViewModel = GetIt.instance.get<AppThemeViewModel>();
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +35,8 @@ class _ReaderThemePageState extends State<ReaderThemePage> {
   void initState() {
     super.initState();
     viewModel.initSignal();
+    settingViewModel.initSignals();
+    themeViewModel.initSignals();
   }
 
   Widget _buildData() {
@@ -50,16 +53,16 @@ class _ReaderThemePageState extends State<ReaderThemePage> {
   }
 }
 
-class _ThemeCard extends ConsumerWidget {
+class _ThemeCard extends StatelessWidget {
   final Theme theme;
   final void Function()? onDelete;
   const _ThemeCard({required this.theme, this.onDelete});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var setting = ref.watch(settingNotifierProvider).valueOrNull;
-    setting ??= Setting();
-    var selected = setting.themeId == theme.id;
+  Widget build(BuildContext context) {
+    var currentTheme =
+        GetIt.instance.get<AppThemeViewModel>().currentTheme.value;
+    var selected = currentTheme.id == theme.id;
     var color = theme.contentColor.toColor();
     var icon = Icon(HugeIcons.strokeRoundedTick01, color: color);
     var style = TextStyle(color: color);
@@ -76,7 +79,7 @@ class _ThemeCard extends ConsumerWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onLongPress: () => handleLongPress(context),
-      onTap: () => handleTap(context, ref),
+      onTap: () => handleTap(context),
       child: clipRRect,
     );
   }
@@ -88,9 +91,8 @@ class _ThemeCard extends ConsumerWidget {
     );
   }
 
-  void handleTap(BuildContext context, WidgetRef ref) {
-    var provider = settingNotifierProvider;
-    var notifier = ref.read(provider.notifier);
-    notifier.selectTheme(theme);
+  void handleTap(BuildContext context) async {
+    final themeViewModel = GetIt.instance.get<AppThemeViewModel>();
+    await themeViewModel.selectTheme(theme);
   }
 }

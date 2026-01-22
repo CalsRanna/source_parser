@@ -1,7 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/provider/source.dart';
+import 'package:get_it/get_it.dart';
+import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/page/source_form_page.dart/source_form_view_model.dart';
 import 'package:source_parser/page/source_page/component/debug_button.dart';
 import 'package:source_parser/page/source_page/component/rule_group_label.dart';
 import 'package:source_parser/page/source_page/component/rule_tile.dart';
@@ -11,35 +12,36 @@ class SourceContentConfigurationPage extends StatelessWidget {
   const SourceContentConfigurationPage({super.key});
   @override
   Widget build(BuildContext context) {
+    final viewModel = GetIt.instance<SourceFormViewModel>();
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('正文配置')),
-      body: Consumer(builder: (context, ref, child) {
-        final source = ref.watch(formSourceProvider);
+      body: Watch((context) {
+        final source = viewModel.source.value;
         return ListView(
           children: [
             RuleGroupLabel('基本配置'),
             RuleTile(
               title: '请求方法',
               value: source.contentMethod,
-              onTap: () => selectMethod(context),
+              onTap: () => selectMethod(context, viewModel),
             ),
             RuleGroupLabel('正文规则'),
             RuleTile(
               title: '正文规则',
               value: source.contentContent,
-              onChange: (value) => updateContentContent(ref, value),
+              onChange: (value) => viewModel.updateContentContent(value),
             ),
             RuleGroupLabel('分页规则'),
             RuleTile(
               title: '下一页URL规则',
               value: source.contentPagination,
-              onChange: (value) => updateContentPagination(ref, value),
+              onChange: (value) => viewModel.updateContentPagination(value),
             ),
             RuleTile(
               title: '校验规则',
               value: source.contentPaginationValidation,
               onChange: (value) =>
-                  updateContentPaginationValidation(ref, value),
+                  viewModel.updateContentPaginationValidation(value),
             ),
           ],
         );
@@ -47,51 +49,24 @@ class SourceContentConfigurationPage extends StatelessWidget {
     );
   }
 
-  void selectMethod(BuildContext context) {
+  void selectMethod(BuildContext context, SourceFormViewModel viewModel) {
     const methods = ['get', 'post'];
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return ListView.builder(
           itemBuilder: (context, index) {
-            return Consumer(builder: (context, ref, child) {
-              return ListTile(
-                title: Text(methods[index]),
-                onTap: () => confirmSelect(context, ref, methods[index]),
-              );
-            });
+            return ListTile(
+              title: Text(methods[index]),
+              onTap: () {
+                viewModel.updateContentMethod(methods[index]);
+                Navigator.of(context).pop();
+              },
+            );
           },
           itemCount: methods.length,
         );
       },
     );
-  }
-
-  void confirmSelect(
-      BuildContext context, WidgetRef ref, String contentMethod) {
-    final source = ref.read(formSourceProvider);
-    final notifier = ref.read(formSourceProvider.notifier);
-    notifier.update(source.copyWith(contentMethod: contentMethod));
-    Navigator.of(context).pop();
-  }
-
-  void updateContentContent(WidgetRef ref, String contentContent) {
-    final source = ref.read(formSourceProvider);
-    final notifier = ref.read(formSourceProvider.notifier);
-    notifier.update(source.copyWith(contentContent: contentContent));
-  }
-
-  void updateContentPagination(WidgetRef ref, String contentPagination) {
-    final source = ref.read(formSourceProvider);
-    final notifier = ref.read(formSourceProvider.notifier);
-    notifier.update(source.copyWith(contentPagination: contentPagination));
-  }
-
-  void updateContentPaginationValidation(
-      WidgetRef ref, String contentPaginationValidation) {
-    final source = ref.read(formSourceProvider);
-    final notifier = ref.read(formSourceProvider.notifier);
-    notifier.update(source.copyWith(
-        contentPaginationValidation: contentPaginationValidation));
   }
 }

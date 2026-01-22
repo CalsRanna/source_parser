@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/model/information_entity.dart';
@@ -14,15 +13,15 @@ import 'package:source_parser/page/information/information_meta_data_view.dart';
 import 'package:source_parser/page/information/information_view_model.dart';
 
 @RoutePage()
-class InformationPage extends ConsumerStatefulWidget {
+class InformationPage extends StatefulWidget {
   final InformationEntity information;
   const InformationPage({super.key, required this.information});
 
   @override
-  ConsumerState<InformationPage> createState() => _InformationPageState();
+  State<InformationPage> createState() => _InformationPageState();
 }
 
-class _InformationPageState extends ConsumerState<InformationPage> {
+class _InformationPageState extends State<InformationPage> {
   late final viewModel = GetIt.instance<InformationViewModel>(
     param1: widget.information,
   );

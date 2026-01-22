@@ -27,17 +27,20 @@ class DebugResultEntity {
     this.title = '',
     this.html = '',
     this.json = '',
+    this.length = 0,
   });
 
   String title;
   String html;
   String json;
+  int length;
 
   Map<String, dynamic> toJson() {
     return {
       'title': title,
       'html': html,
       'json': json,
+      'length': length,
     };
   }
 }

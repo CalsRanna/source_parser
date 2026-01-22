@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
@@ -72,13 +71,12 @@ class LoremIpsum {
 }
 
 @RoutePage()
-class ReaderThemeEditorPage extends ConsumerStatefulWidget {
+class ReaderThemeEditorPage extends StatefulWidget {
   final schema.Theme theme;
   const ReaderThemeEditorPage({super.key, required this.theme});
 
   @override
-  ConsumerState<ReaderThemeEditorPage> createState() =>
-      _ReaderThemeEditorPageState();
+  State<ReaderThemeEditorPage> createState() => _ReaderThemeEditorPageState();
 }
 
 class _FieldDialog extends StatefulWidget {
@@ -264,7 +262,7 @@ class _SliderTileState extends State<_SliderTile> {
   }
 }
 
-class _ReaderThemeEditorPageState extends ConsumerState<ReaderThemeEditorPage> {
+class _ReaderThemeEditorPageState extends State<ReaderThemeEditorPage> {
   var text = '';
   var contentText = '';
   var size = Size.zero;

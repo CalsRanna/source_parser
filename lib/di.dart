@@ -21,6 +21,16 @@ import 'package:source_parser/page/source_page/source_view_model.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 import 'package:source_parser/page/reader_theme/reader_theme_editor_view_model.dart';
 import 'package:source_parser/page/reader_theme/reader_theme_view_model.dart';
+import 'package:source_parser/view_model/app_setting_view_model.dart';
+import 'package:source_parser/view_model/app_sources_view_model.dart';
+import 'package:source_parser/view_model/app_theme_view_model.dart';
+import 'package:source_parser/view_model/layout_view_model.dart';
+import 'package:source_parser/view_model/explore_view_model.dart';
+import 'package:source_parser/view_model/cache_view_model.dart';
+import 'package:source_parser/view_model/reader_helper_view_model.dart';
+import 'package:source_parser/view_model/file_view_model.dart';
+import 'package:source_parser/view_model/battery_view_model.dart';
+import 'package:source_parser/view_model/books_view_model.dart';
 
 class DI {
   static void ensureInitialized() {
@@ -41,8 +51,8 @@ class DI {
     instance.registerFactory<AvailableSourceViewModel>(
       () => AvailableSourceViewModel(),
     );
-    instance.registerFactoryParam<ReaderViewModel, BookEntity, Object?>(
-      (book, _) => ReaderViewModel(book: book),
+    instance.registerFactory<ReaderViewModel>(
+      () => ReaderViewModel(book: BookEntity()),
     );
     instance.registerFactory<CoverSelectorViewModel>(
       () => CoverSelectorViewModel(),
@@ -72,5 +82,21 @@ class DI {
     instance.registerFactory<ReaderThemeEditorViewModel>(
       () => ReaderThemeEditorViewModel(),
     );
+    // New ViewModels to replace Riverpod Providers
+    instance
+        .registerLazySingleton<AppBooksViewModel>(() => AppBooksViewModel());
+    instance.registerLazySingleton<AppSourcesViewModel>(
+        () => AppSourcesViewModel());
+    instance
+        .registerLazySingleton<AppThemeViewModel>(() => AppThemeViewModel());
+    instance.registerLazySingleton<AppSettingViewModel>(
+        () => AppSettingViewModel());
+    instance.registerLazySingleton<LayoutViewModel>(() => LayoutViewModel());
+    instance.registerLazySingleton<ExploreViewModel>(() => ExploreViewModel());
+    instance.registerLazySingleton<CacheViewModel>(() => CacheViewModel());
+    instance.registerLazySingleton<ReaderHelperViewModel>(
+        () => ReaderHelperViewModel());
+    instance.registerLazySingleton<FileViewModel>(() => FileViewModel());
+    instance.registerLazySingleton<BatteryViewModel>(() => BatteryViewModel());
   }
 }

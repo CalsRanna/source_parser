@@ -1,8 +1,6 @@
 name: source_parser
 description: A parser use to do everything you want to.
-
 publish_to: none
-
 version: 1.3.0+610
 
 environment:
@@ -27,7 +25,7 @@ dependencies:
   flutter_colorpicker: ^1.0.3
   flutter_native_splash: ^2.3.2
   flutter_riverpod: ^2.4.9
-  # flutter_tts: ^4.0.2
+  # flutter_tsc: ^4.0.2
   get_it: ^8.0.3
   gpt_markdown: ^1.0.20
   html: ^0.15.0
@@ -38,27 +36,26 @@ dependencies:
     version: ^3.0.5
     hosted: https://pub.isar-community.dev/
   isar_flutter_libs:
-    version: ^3.0.5
-    hosted: https://pub.isar-community.dev/
+      version: ^3.0.5
+      hosted: https://pub.isar-community.dev/
   json_path: ^0.7.4
-  json_view: ^0.4.2
   laconic:
     git: git@github.com:CalsRanna/laconic.git
   logger: ^2.0.2+1
   lottie: ^3.3.1
   lpinyin: ^2.0.3
-  network_info_plus: ^6.1.2
+  network_info_plus: ^6.1.1
   openai_dart: ^0.5.2
   package_info_plus: ^8.0.2
   path: ^1.8.3
   path_provider: ^2.0.14
   riverpod_annotation: ^2.3.3
+  share_plus: ^10.1.0
   shared_preferences: ^2.5.3
-  share_plus: ^10.0.2
   shelf: ^1.4.2
-  shelf_router: ^1.1.4
   shelf_static: ^1.1.2
   signals: ^6.0.2
+  shelf_router: ^1.1.4
   sqlite3_flutter_libs: ^0.5.32
   turn_page_transition: ^0.4.0
   url_launcher: ^6.1.14
@@ -71,18 +68,5 @@ dev_dependencies:
     sdk: flutter
 
   auto_route_generator: ^9.0.0
-  build_runner: ^2.1.11
+  build_runner: ^2.4.0
   flutter_lints: ^5.0.0
-  flutter_launcher_icons: ^0.14.1
-  go_router_builder: ^2.4.1
-  isar_generator:
-    version: ^3.0.5
-    hosted: https://pub.isar-community.dev/
-  riverpod_generator: ^2.3.9
-
-flutter:
-  uses-material-design: true
-  assets:
-    - asset/
-    - asset/image/
-    - asset/json/

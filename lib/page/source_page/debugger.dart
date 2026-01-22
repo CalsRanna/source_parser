@@ -2,10 +2,8 @@ import 'dart:convert';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:source_parser/model/debug.dart';
-import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/string_extension.dart';
 import 'package:source_parser/page/source_page/component/rule_group_label.dart';
@@ -18,24 +16,17 @@ class SourceDebuggerPage extends StatefulWidget {
   State<StatefulWidget> createState() => _SourceDebuggerPageState();
 }
 
-class _DebugButton extends ConsumerWidget {
-  const _DebugButton();
+class _DebugButton extends StatelessWidget {
+  const _DebugButton({required this.onPressed});
+
+  final VoidCallback onPressed;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return IconButton(
       icon: const Icon(HugeIcons.strokeRoundedCursorMagicSelection02),
-      onPressed: () => debug(context, ref),
+      onPressed: onPressed,
     );
-  }
-
-  void debug(BuildContext context, WidgetRef ref) async {
-    try {
-      final notifier = ref.read(sourceDebuggerProvider.notifier);
-      notifier.debug();
-    } catch (e) {
-      DialogUtil.snackBar(e.toString());
-    }
   }
 }
 
@@ -146,7 +137,6 @@ class _RawDataPage extends StatelessWidget {
 }
 
 class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
-  String defaultCredential = '都市';
   final keys = [
     'archive',
     'chapters',
@@ -157,59 +147,78 @@ class _SourceDebuggerPageState extends State<SourceDebuggerPage> {
     'sources',
   ];
   bool loading = false;
-  DebugResult result = DebugResult();
   List<DebugResultEntity> results = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(actions: [_DebugButton()], title: const Text('书源调试')),
-      body: Consumer(builder: (context, ref, child) {
-        final state = ref.watch(sourceDebuggerProvider);
-        return StreamBuilder(
-          stream: state.value,
-          builder: (context, snapshot) {
-            Widget indicator = const LinearProgressIndicator();
-            if (snapshot.connectionState == ConnectionState.done) {
-              indicator = const SizedBox();
-            }
-            Widget list = const SizedBox();
-            if (!state.isLoading && snapshot.data != null) {
-              final result = snapshot.data!;
-              list = ListView.builder(
-                itemBuilder: (context, index) {
-                  dynamic json = jsonDecode(result[index].json);
-                  switch (result[index].title) {
-                    case '搜索':
-                      for (var item in json) {
-                        _remove(item, [...keys, 'catalogue_url']);
-                      }
-                      break;
-                    case '详情':
-                      _remove(json, keys);
-                      break;
-                    case '目录':
-                      for (var item in json) {
-                        _remove(item, ['id']);
-                      }
-                      break;
-                    default:
-                      break;
-                  }
-                  return _Tile(
-                    response: result[index].html,
-                    result: json,
-                    title: result[index].title,
-                  );
-                },
-                itemCount: result.length,
-              );
-            }
-            return Column(children: [indicator, Expanded(child: list)]);
-          },
-        );
-      }),
+      appBar: AppBar(
+          actions: [_DebugButton(onPressed: handleDebug)],
+          title: const Text('书源调试')),
+      body: Column(children: [
+        if (loading) const LinearProgressIndicator() else const SizedBox(),
+        Expanded(
+          child: results.isEmpty
+              ? const Center(child: Text('点击右上角图标开始调试'))
+              : ListView.builder(
+                  itemBuilder: (context, index) {
+                    dynamic json = jsonDecode(results[index].json);
+                    switch (results[index].title) {
+                      case '搜索':
+                        if (json is List) {
+                          for (var item in json) {
+                            if (item is Map<String, dynamic>) {
+                              _remove(item, [...keys, 'catalogue_url']);
+                            }
+                          }
+                        }
+                        break;
+                      case '详情':
+                        if (json is Map<String, dynamic>) {
+                          _remove(json, keys);
+                        }
+                        break;
+                      case '目录':
+                        if (json is List) {
+                          for (var item in json) {
+                            if (item is Map<String, dynamic>) {
+                              _remove(item, ['id']);
+                            }
+                          }
+                        }
+                        break;
+                      default:
+                        break;
+                    }
+                    return _Tile(
+                      response: results[index].html,
+                      result: json,
+                      title: results[index].title,
+                    );
+                  },
+                  itemCount: results.length,
+                ),
+        ),
+      ]),
     );
+  }
+
+  void handleDebug() async {
+    try {
+      setState(() {
+        loading = true;
+        results = [];
+      });
+      DialogUtil.snackBar('调试功能暂未实现');
+      setState(() {
+        loading = false;
+      });
+    } catch (e) {
+      DialogUtil.snackBar(e.toString());
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   Map<String, dynamic> _remove(Map<String, dynamic> map, List<String> keys) {

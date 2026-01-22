@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/reader/reader_cache_sheet_view.dart';
 import 'package:source_parser/page/reader/reader_overlay_cache_slot.dart';
 import 'package:source_parser/page/reader/reader_overlay_dark_mode_slot.dart';
-import 'package:source_parser/provider/layout.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/layout.dart';
 import 'package:source_parser/util/dialog_util.dart';
+import 'package:source_parser/view_model/layout_view_model.dart';
 
 abstract class ReaderOverlayBaseSlot extends StatelessWidget {
   final BookEntity book;
@@ -109,7 +110,7 @@ abstract class ReaderOverlayBaseSlot extends StatelessWidget {
   }
 }
 
-class ReaderOverlayView extends ConsumerWidget {
+class ReaderOverlayView extends StatelessWidget {
   final BookEntity book;
   final bool isDarkMode;
   final void Function()? onAvailableSource;
@@ -137,22 +138,25 @@ class ReaderOverlayView extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final layout = ref.watch(readerLayoutNotifierProviderProvider).valueOrNull;
-    if (layout == null) return const SizedBox();
-    var barrier = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onBarrierTap,
-      child: SizedBox(height: double.infinity, width: double.infinity),
-    );
-    return Scaffold(
-      appBar: _buildAppBar(layout),
-      backgroundColor: Colors.transparent,
-      body: barrier,
-      bottomNavigationBar: _buildBottomBar(layout),
-      floatingActionButton: _buildFloatingButton(layout),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
-    );
+  Widget build(BuildContext context) {
+    final layoutViewModel = GetIt.I<LayoutViewModel>();
+    return Watch((context) {
+      final layout = layoutViewModel.layout.value;
+      if (layout.slot0.isEmpty) return const SizedBox();
+      var barrier = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onBarrierTap,
+        child: SizedBox(height: double.infinity, width: double.infinity),
+      );
+      return Scaffold(
+        appBar: _buildAppBar(layout),
+        backgroundColor: Colors.transparent,
+        body: barrier,
+        bottomNavigationBar: _buildBottomBar(layout),
+        floatingActionButton: _buildFloatingButton(layout),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
+      );
+    });
   }
 
   void handleTap(String slot, {int? count}) {
@@ -236,22 +240,24 @@ class ReaderOverlayView extends ConsumerWidget {
   }
 }
 
-class _OverlayMoreSlot extends ConsumerWidget {
+class _OverlayMoreSlot extends StatelessWidget {
   final BookEntity book;
   final void Function(String slot, {int? count})? onTap;
   final String slot;
   const _OverlayMoreSlot({required this.book, this.onTap, required this.slot});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var provider = readerLayoutNotifierProviderProvider;
-    var layout = ref.watch(provider).valueOrNull;
-    return MenuAnchor(
-      alignmentOffset: Offset(0, 28),
-      builder: (_, controller, __) => _builder(controller),
-      menuChildren: _buildMenuChildren(layout),
-      style: MenuStyle(alignment: Alignment.topLeft),
-    );
+  Widget build(BuildContext context) {
+    final layoutViewModel = GetIt.I<LayoutViewModel>();
+    return Watch((context) {
+      var layout = layoutViewModel.layout.value;
+      return MenuAnchor(
+        alignmentOffset: Offset(0, 28),
+        builder: (_, controller, __) => _builder(controller),
+        menuChildren: _buildMenuChildren(layout),
+        style: MenuStyle(alignment: Alignment.topLeft),
+      );
+    });
   }
 
   Widget _builder(MenuController controller) {

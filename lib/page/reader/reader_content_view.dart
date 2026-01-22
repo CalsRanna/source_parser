@@ -193,7 +193,8 @@ class _Content extends StatelessWidget {
     return Container(
       padding: _getPadding(),
       width: double.infinity,
-      child: RichText(text: merger.merge(content, isFirstPage: isFirstPage)),
+      child:
+          SelectableText.rich(merger.merge(content, isFirstPage: isFirstPage)),
     );
   }
 

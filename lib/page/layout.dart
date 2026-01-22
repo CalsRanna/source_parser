@@ -1,37 +1,51 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/config/string_config.dart';
-import 'package:source_parser/provider/layout.dart';
 import 'package:source_parser/schema/layout.dart';
-import 'package:source_parser/widget/loading.dart';
+import 'package:source_parser/view_model/layout_view_model.dart';
 
 @RoutePage()
-class ReaderLayoutPage extends ConsumerWidget {
+class ReaderLayoutPage extends StatefulWidget {
   const ReaderLayoutPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final layout = ref.watch(readerLayoutNotifierProviderProvider).valueOrNull;
-    if (layout == null) return const Center(child: LoadingIndicator());
-    return Scaffold(
-      appBar: AppBar(
-        actions: _buildTopSlots(context, layout),
-        title: const Text('布局'),
-      ),
-      body: Image.asset(
-        'asset/image/kraft_paper.jpg',
-        fit: BoxFit.cover,
-        height: double.infinity,
-        width: double.infinity,
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(children: _buildBottomSlots(context, layout)),
-      ),
-      floatingActionButton: _buildFloatingSlot(context, layout),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
-    );
+  State<ReaderLayoutPage> createState() => _ReaderLayoutPageState();
+}
+
+class _ReaderLayoutPageState extends State<ReaderLayoutPage> {
+  final viewModel = GetIt.instance.get<LayoutViewModel>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Watch((_) {
+      final layout = viewModel.layout.value;
+      return Scaffold(
+        appBar: AppBar(
+          actions: _buildTopSlots(context, layout),
+          title: const Text('布局'),
+        ),
+        body: Image.asset(
+          'asset/image/kraft_paper.jpg',
+          fit: BoxFit.cover,
+          height: double.infinity,
+          width: double.infinity,
+        ),
+        bottomNavigationBar: BottomAppBar(
+          child: Row(children: _buildBottomSlots(context, layout)),
+        ),
+        floatingActionButton: _buildFloatingSlot(context, layout),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
+      );
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    viewModel.initSignals();
   }
 
   Future<void> showSlotSheet(BuildContext context, int index) async {
@@ -42,10 +56,7 @@ class ReaderLayoutPage extends ConsumerWidget {
     );
     if (position == null) return;
     if (!context.mounted) return;
-    var container = ProviderScope.containerOf(context);
-    var provider = readerLayoutNotifierProviderProvider;
-    var notifier = container.read(provider.notifier);
-    notifier.updateSlot(position, index: index);
+    await viewModel.updateSlot(position, index: index);
   }
 
   List<Widget> _buildBottomSlots(BuildContext context, Layout layout) {

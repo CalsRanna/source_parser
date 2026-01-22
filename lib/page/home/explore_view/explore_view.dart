@@ -3,28 +3,28 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/information_entity.dart';
 import 'package:source_parser/model/explore.dart';
 import 'package:source_parser/page/explore.dart';
 import 'package:source_parser/page/home/search_button.dart';
-import 'package:source_parser/provider/explore.dart';
-import 'package:source_parser/provider/setting.dart';
-import 'package:source_parser/provider/source.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/source.dart';
+import 'package:source_parser/view_model/explore_view_model.dart';
+import 'package:source_parser/view_model/app_setting_view_model.dart';
 import 'package:source_parser/widget/book_cover.dart';
 import 'package:source_parser/widget/loading.dart';
 
-class ExploreView extends ConsumerStatefulWidget {
+class ExploreView extends StatefulWidget {
   const ExploreView({super.key});
 
   @override
-  ConsumerState<ExploreView> createState() => _ExploreViewState();
+  State<ExploreView> createState() => _ExploreViewState();
 }
 
 class _Banner extends StatefulWidget {
@@ -56,7 +56,7 @@ class _BannerState extends State<_Banner> {
     super.dispose();
   }
 
-  void handleTap(BuildContext context, WidgetRef ref, int index) {
+  void handleTap(BuildContext context, int index) {
     var bookEntity = BookEntity.fromJson(books[index].toJson());
     var information = InformationEntity(
       book: bookEntity,
@@ -88,12 +88,12 @@ class _BannerState extends State<_Banner> {
   }
 }
 
-class _BannerTile extends ConsumerWidget {
+class _BannerTile extends StatelessWidget {
   final Book book;
   const _BannerTile(this.book);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final placeholder = Image.asset(
       'asset/image/default_cover.jpg',
       fit: BoxFit.cover,
@@ -110,12 +110,12 @@ class _BannerTile extends ConsumerWidget {
     );
     const edgeInsets = EdgeInsets.symmetric(horizontal: 16);
     return GestureDetector(
-      onTap: () => handleTap(context, ref),
+      onTap: () => handleTap(context),
       child: Padding(padding: edgeInsets, child: clip),
     );
   }
 
-  void handleTap(BuildContext context, WidgetRef ref) {
+  void handleTap(BuildContext context) {
     var bookEntity = BookEntity.fromJson(book.toJson());
     var information = InformationEntity(
       book: bookEntity,
@@ -127,8 +127,17 @@ class _BannerTile extends ConsumerWidget {
   }
 }
 
-class _ExploreViewState extends ConsumerState<ExploreView>
+class _ExploreViewState extends State<ExploreView>
     with AutomaticKeepAliveClientMixin {
+  late ExploreViewModel exploreViewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    exploreViewModel = GetIt.I<ExploreViewModel>();
+    exploreViewModel.initSignals();
+  }
+
   @override
   bool get wantKeepAlive => true;
 
@@ -140,24 +149,25 @@ class _ExploreViewState extends ConsumerState<ExploreView>
       centerTitle: true,
       title: Text('发现'),
     );
-    var provider = exploreBooksProvider;
-    var state = ref.watch(provider);
-    var child = switch (state) {
-      AsyncData(:final value) => _buildData(value),
-      AsyncError(:final error, :final stackTrace) =>
-        _buildError(error, stackTrace),
-      AsyncLoading() => _buildLoading(),
-      _ => const SizedBox(),
-    };
+    var body = Watch((context) {
+      final results = exploreViewModel.exploreBooks.value;
+      final loading = exploreViewModel.loading.value;
+      if (loading) {
+        return _buildLoading();
+      }
+      if (exploreViewModel.settingViewModel.setting.value?.exploreSource == 0) {
+        return _buildData([]);
+      }
+      return _buildData(results);
+    });
     return Scaffold(
       appBar: appBar,
-      body: child,
+      body: body,
     );
   }
 
-  Future<void> handleRefresh(WidgetRef ref) async {
-    final notifier = ref.read(exploreBooksProvider.notifier);
-    await notifier.refresh();
+  Future<void> handleRefresh() async {
+    await exploreViewModel.refresh();
   }
 
   Widget _buildData(List<ExploreResult> results) {
@@ -168,13 +178,9 @@ class _ExploreViewState extends ConsumerState<ExploreView>
       separatorBuilder: (context, index) => const SizedBox(height: 16),
     );
     return EasyRefresh(
-      onRefresh: () => handleRefresh(ref),
+      onRefresh: () => handleRefresh(),
       child: listView,
     );
-  }
-
-  Widget _buildError(Object error, StackTrace stackTrace) {
-    return Center(child: Text(error.toString()));
   }
 
   Widget _buildLoading() => const Center(child: LoadingIndicator());
@@ -280,13 +286,13 @@ class _Grid extends StatelessWidget {
   }
 }
 
-class _GridTile extends ConsumerWidget {
+class _GridTile extends StatelessWidget {
   final Book book;
 
   const _GridTile({required this.book});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final mediaQueryData = MediaQuery.of(context);
     final width = mediaQueryData.size.width;
     final widthPerBookCover = ((width - 16 * 4 - 8 * 3) / 4);
@@ -339,12 +345,12 @@ class _GridTile extends ConsumerWidget {
     );
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => handleTap(context, ref),
+      onTap: () => handleTap(context),
       child: column,
     );
   }
 
-  void handleTap(BuildContext context, WidgetRef ref) {
+  void handleTap(BuildContext context) {
     var bookEntity = BookEntity.fromJson(book.toJson());
     var information = InformationEntity(
       book: bookEntity,
@@ -441,13 +447,13 @@ class _List extends StatelessWidget {
   }
 }
 
-class _ListTile extends ConsumerWidget {
+class _ListTile extends StatelessWidget {
   final Book book;
 
   const _ListTile({required this.book});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final bodyMedium = textTheme.bodyMedium;
@@ -492,12 +498,12 @@ class _ListTile extends ConsumerWidget {
     );
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => handleTap(context, ref),
+      onTap: () => handleTap(context),
       child: tile,
     );
   }
 
-  void handleTap(BuildContext context, WidgetRef ref) {
+  void handleTap(BuildContext context) {
     var bookEntity = BookEntity.fromJson(book.toJson());
     var information = InformationEntity(
       book: bookEntity,
@@ -526,23 +532,31 @@ class _ListTile extends ConsumerWidget {
   }
 }
 
-class _SourceSelector extends ConsumerWidget {
+class _SourceSelector extends StatefulWidget {
   const _SourceSelector();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return MenuAnchor(
-      alignmentOffset: Offset(-132, 12),
-      builder: (_, controller, __) => _builder(controller),
-      menuChildren: _buildMenuChildren(ref),
-      style: MenuStyle(alignment: Alignment.bottomRight),
-    );
+  State<_SourceSelector> createState() => _SourceSelectorState();
+}
+
+class _SourceSelectorState extends State<_SourceSelector> {
+  @override
+  Widget build(BuildContext context) {
+    final settingViewModel = GetIt.I<AppSettingViewModel>();
+    return Watch((context) {
+      final sources = settingViewModel.sources.value;
+      final id = settingViewModel.setting.value?.exploreSource ?? 0;
+      return MenuAnchor(
+        alignmentOffset: Offset(-132, 12),
+        builder: (_, controller, __) => _builder(controller),
+        menuChildren: _buildMenuChildren(sources, id),
+        style: MenuStyle(alignment: Alignment.bottomRight),
+      );
+    });
   }
 
-  void handleSelect(WidgetRef ref, Source source) {
-    var provider = exploreSourcesNotifierProvider;
-    var notifier = ref.read(provider.notifier);
-    notifier.select(source.id);
+  void handleSelect(Source source) async {
+    await GetIt.I<AppSettingViewModel>().updateExploreSource(source.id);
   }
 
   void handleTap(MenuController controller) {
@@ -557,24 +571,15 @@ class _SourceSelector extends ConsumerWidget {
     );
   }
 
-  List<Widget> _buildMenuChildren(WidgetRef ref) {
-    var sourceProvider = exploreSourcesNotifierProvider;
-    var sources = ref.watch(sourceProvider).valueOrNull;
-    if (sources == null) return const [SizedBox()];
-    if (sources.isEmpty) return const [Text('空空如也')];
-    var settingProvider = settingNotifierProvider;
-    final setting = ref.watch(settingProvider).valueOrNull;
-    final id = setting?.exploreSource ?? 0;
-    var children = sources.map((source) => _toElement(ref, source, id));
-    return children.toList();
-  }
-
-  Widget _toElement(WidgetRef ref, Source source, int id) {
-    var icon = Icon(HugeIcons.strokeRoundedTick02);
-    return MenuItemButton(
-      onPressed: () => handleSelect(ref, source),
-      trailingIcon: source.id == id ? icon : null,
-      child: Text(source.name),
-    );
+  List<Widget> _buildMenuChildren(List<Source> sources, int id) {
+    if (sources.isEmpty) return const [SizedBox()];
+    return sources.map((source) {
+      var icon = Icon(HugeIcons.strokeRoundedTick02);
+      return MenuItemButton(
+        onPressed: () => handleSelect(source),
+        trailingIcon: source.id == id ? icon : null,
+        child: Text(source.name),
+      );
+    }).toList();
   }
 }

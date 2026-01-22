@@ -4,20 +4,19 @@ import 'dart:io';
 import 'package:auto_route/auto_route.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/page/local_server_page/local_server_view_model.dart';
 import 'package:source_parser/util/dialog_util.dart';
 
 @RoutePage()
-class LocalServerPage extends ConsumerStatefulWidget {
+class LocalServerPage extends StatefulWidget {
   const LocalServerPage({super.key});
 
   @override
-  ConsumerState<LocalServerPage> createState() => _SourceServerPageState();
+  State<LocalServerPage> createState() => _SourceServerPageState();
 }
 
-class _SourceServerPageState extends ConsumerState<LocalServerPage> {
+class _SourceServerPageState extends State<LocalServerPage> {
   bool connected = false;
   bool running = false;
   HttpServer? server;

@@ -1,7 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:source_parser/provider/source.dart';
+import 'package:get_it/get_it.dart';
+import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/page/source_form_page.dart/source_form_view_model.dart';
 import 'package:source_parser/page/source_page/component/debug_button.dart';
 import 'package:source_parser/page/source_page/component/rule_tile.dart';
 
@@ -11,109 +12,78 @@ class SourceAdvancedConfigurationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = GetIt.instance<SourceFormViewModel>();
     return Scaffold(
       appBar: AppBar(
         actions: const [DebugButton()],
         title: const Text('高级配置'),
       ),
-      body: Consumer(
-        builder: (context, ref, child) {
-          final source = ref.watch(formSourceProvider);
-          return ListView(
-            children: [
-              RuleTile(
-                title: '启用',
-                trailing: SizedBox(
-                  height: 14,
-                  child: Switch(
-                    value: source.enabled,
-                    onChanged: (value) => triggerEnabled(ref),
-                  ),
+      body: Watch((context) {
+        final source = viewModel.source.value;
+        return ListView(
+          children: [
+            RuleTile(
+              title: '启用',
+              trailing: SizedBox(
+                height: 14,
+                child: Switch(
+                  value: source.enabled,
+                  onChanged: (_) => viewModel.toggleEnabled(),
                 ),
-                onTap: () => triggerEnabled(ref),
               ),
-              RuleTile(
-                bordered: false,
-                title: '发现',
-                trailing: SizedBox(
-                  height: 14,
-                  child: Switch(
-                    value: source.exploreEnabled,
-                    onChanged: (value) => triggerExploreEnabled(ref),
-                  ),
+              onTap: () => viewModel.toggleEnabled(),
+            ),
+            RuleTile(
+              bordered: false,
+              title: '发现',
+              trailing: SizedBox(
+                height: 14,
+                child: Switch(
+                  value: source.exploreEnabled,
+                  onChanged: (_) => viewModel.toggleExploreEnabled(),
                 ),
-                onTap: () => triggerExploreEnabled(ref),
               ),
-              RuleTile(
-                title: '备注',
-                value: source.comment,
-                onChange: (value) => updateComment(ref, value),
-              ),
-              RuleTile(
-                title: '请求头',
-                value: source.header,
-                onChange: (value) => updateHeader(ref, value),
-              ),
-              RuleTile(
-                title: '编码',
-                value: source.charset,
-                onTap: () => selectCharset(context),
-              ),
-            ],
-          );
-        },
-      ),
+              onTap: () => viewModel.toggleExploreEnabled(),
+            ),
+            RuleTile(
+              title: '备注',
+              value: source.comment,
+              onChange: (value) => viewModel.updateComment(value),
+            ),
+            RuleTile(
+              title: '请求头',
+              value: source.header,
+              onChange: (value) => viewModel.updateHeader(value),
+            ),
+            RuleTile(
+              title: '编码',
+              value: source.charset,
+              onTap: () => selectCharset(context, viewModel),
+            ),
+          ],
+        );
+      }),
     );
   }
 
-  void triggerEnabled(WidgetRef ref) async {
-    final source = ref.read(formSourceProvider);
-    final notifier = ref.read(formSourceProvider.notifier);
-    notifier.update(source.copyWith(enabled: !source.enabled));
-  }
-
-  void triggerExploreEnabled(WidgetRef ref) async {
-    final source = ref.read(formSourceProvider);
-    final notifier = ref.read(formSourceProvider.notifier);
-    notifier.update(source.copyWith(exploreEnabled: !source.exploreEnabled));
-  }
-
-  void updateComment(WidgetRef ref, String comment) async {
-    final source = ref.read(formSourceProvider);
-    final notifier = ref.read(formSourceProvider.notifier);
-    notifier.update(source.copyWith(comment: comment));
-  }
-
-  void updateHeader(WidgetRef ref, String header) async {
-    final source = ref.read(formSourceProvider);
-    final notifier = ref.read(formSourceProvider.notifier);
-    notifier.update(source.copyWith(header: header));
-  }
-
-  void selectCharset(BuildContext context) {
+  void selectCharset(BuildContext context, SourceFormViewModel viewModel) {
     const encodings = ['utf8', 'gbk'];
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return ListView.builder(
           itemBuilder: (context, index) {
-            return Consumer(builder: (context, ref, child) {
-              return ListTile(
-                title: Text(encodings[index]),
-                onTap: () => confirmSelect(context, ref, encodings[index]),
-              );
-            });
+            return ListTile(
+              title: Text(encodings[index]),
+              onTap: () {
+                viewModel.updateCharset(encodings[index]);
+                Navigator.of(context).pop();
+              },
+            );
           },
           itemCount: encodings.length,
         );
       },
     );
-  }
-
-  void confirmSelect(BuildContext context, WidgetRef ref, String charset) {
-    final source = ref.read(formSourceProvider);
-    final notifier = ref.read(formSourceProvider.notifier);
-    notifier.update(source.copyWith(charset: charset));
-    Navigator.of(context).pop();
   }
 }
