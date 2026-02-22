@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:laconic/laconic.dart';
+import 'package:laconic_sqlite/laconic_sqlite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:source_parser/database/migration/migration_202504241012.dart';
@@ -25,8 +26,8 @@ class DatabaseService {
     if (!exists) {
       await file.create(recursive: true);
     }
-    var config = SqliteConfig(path);
-    laconic = Laconic.sqlite(config, listen: (query) {
+    var driver = SqliteDriver(SqliteConfig(path));
+    laconic = Laconic(driver, listen: (query) {
       logger.d(query.rawSql);
     });
     await _migrate();
