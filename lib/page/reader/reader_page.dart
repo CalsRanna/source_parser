@@ -27,12 +27,18 @@ class _ReaderPageState extends State<ReaderPage> {
   @override
   Widget build(BuildContext context) {
     return Watch((context) {
+      var backgroundColor = sourceParserViewModel.isDarkMode.value
+          ? Colors.black
+          : Colors.white;
       var children = [
         _buildReaderView(),
         _buildReaderOverlay(),
         _buildReaderCacheIndicator(),
       ];
-      return Stack(children: children);
+      return ColoredBox(
+        color: backgroundColor,
+        child: Stack(children: children),
+      );
     });
   }
 
@@ -107,19 +113,22 @@ class _ReaderPageState extends State<ReaderPage> {
     return PageView.builder(
       key: ValueKey(viewModel.theme.value),
       controller: viewModel.controller,
-      itemBuilder: (context, index) => GestureDetector(
-        onTapUp: viewModel.turnPage,
-        child: ReaderContentView(
-          battery: viewModel.battery.value,
-          contentText: viewModel.currentChapterPages.value[index],
-          headerText: viewModel.getHeaderText(index),
-          pageProgressText: viewModel.getFooterText(index),
-          theme: viewModel.theme.value,
-          isFirstPage: index == 0,
-        ),
-      ),
-      itemCount: viewModel.currentChapterPages.value.length,
-      onPageChanged: viewModel.updatePageIndex,
+      itemBuilder: (context, index) {
+        var pageData = viewModel.getPageData(index);
+        return GestureDetector(
+          onTapUp: viewModel.turnPage,
+          child: ReaderContentView(
+            battery: viewModel.battery.value,
+            contentText: pageData.content,
+            headerText: pageData.header,
+            pageProgressText: pageData.footer,
+            theme: viewModel.theme.value,
+            isFirstPage: pageData.isFirstPage,
+          ),
+        );
+      },
+      itemCount: viewModel.allPages.value.length,
+      onPageChanged: viewModel.handlePageChanged,
       physics: physics,
     );
   }

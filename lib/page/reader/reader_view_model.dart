@@ -67,6 +67,18 @@ class ReaderViewModel {
     return sourceParserViewModel.isDarkMode.value;
   });
 
+  late final allPages = computed(() {
+    return [
+      ...previousChapterPages.value,
+      ...currentChapterPages.value,
+      ...nextChapterPages.value,
+    ];
+  });
+
+  late final currentChapterOffset = computed(() {
+    return previousChapterPages.value.length;
+  });
+
   late final controller = PageController(initialPage: book.pageIndex);
   late final subscription = VolumeUtil.stream.listen((event) {
     if (event == 'volume_up') {
@@ -137,6 +149,131 @@ class ReaderViewModel {
     return chapters.value.elementAt(chapterIndex.value).name;
   }
 
+  /// Returns page data for the given flat index across all cached pages.
+  ({
+    String content,
+    String header,
+    String footer,
+    bool isFirstPage,
+  }) getPageData(int flatIndex) {
+    var prevLen = previousChapterPages.value.length;
+    var currLen = currentChapterPages.value.length;
+
+    if (flatIndex < prevLen) {
+      // Previous chapter
+      var localIndex = flatIndex;
+      var prevChapterIdx = chapterIndex.value - 1;
+      return (
+        content: previousChapterPages.value[localIndex],
+        header: _getHeaderForChapter(prevChapterIdx, localIndex),
+        footer: _getFooterForChapter(
+          prevChapterIdx,
+          localIndex,
+          previousChapterPages.value.length,
+        ),
+        isFirstPage: localIndex == 0,
+      );
+    } else if (flatIndex < prevLen + currLen) {
+      // Current chapter
+      var localIndex = flatIndex - prevLen;
+      return (
+        content: currentChapterPages.value[localIndex],
+        header: getHeaderText(localIndex),
+        footer: getFooterText(localIndex),
+        isFirstPage: localIndex == 0,
+      );
+    } else {
+      // Next chapter
+      var localIndex = flatIndex - prevLen - currLen;
+      var nextChapterIdx = chapterIndex.value + 1;
+      return (
+        content: nextChapterPages.value[localIndex],
+        header: _getHeaderForChapter(nextChapterIdx, localIndex),
+        footer: _getFooterForChapter(
+          nextChapterIdx,
+          localIndex,
+          nextChapterPages.value.length,
+        ),
+        isFirstPage: localIndex == 0,
+      );
+    }
+  }
+
+  /// Called when PageView page changes. Detects when user slides into
+  /// adjacent chapter zone and triggers cache rotation.
+  void handlePageChanged(int flatIndex) {
+    var prevLen = previousChapterPages.value.length;
+    var currLen = currentChapterPages.value.length;
+
+    if (flatIndex < prevLen) {
+      // Slid into previous chapter area
+      var localPageIndex = flatIndex;
+      _rotateToPreviousChapter(localPageIndex);
+    } else if (flatIndex >= prevLen + currLen) {
+      // Slid into next chapter area
+      var localPageIndex = flatIndex - prevLen - currLen;
+      _rotateToNextChapter(localPageIndex);
+    } else {
+      // Still in current chapter
+      updatePageIndex(flatIndex - prevLen);
+    }
+  }
+
+  void _rotateToNextChapter(int localPageIndex) {
+    chapterIndex.value++;
+    updatePageIndex(localPageIndex);
+    previousChapterContent.value = currentChapterContent.value;
+    previousChapterPages.value = currentChapterPages.value;
+    currentChapterContent.value = nextChapterContent.value;
+    currentChapterPages.value = nextChapterPages.value;
+    nextChapterContent.value = '';
+    nextChapterPages.value = [];
+    _preloadNextChapter();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!controller.hasClients) return;
+      controller.jumpToPage(currentChapterOffset.value + localPageIndex);
+    });
+  }
+
+  void _rotateToPreviousChapter(int localPageIndex) {
+    chapterIndex.value--;
+    updatePageIndex(localPageIndex);
+    nextChapterContent.value = currentChapterContent.value;
+    nextChapterPages.value = currentChapterPages.value;
+    currentChapterContent.value = previousChapterContent.value;
+    currentChapterPages.value = previousChapterPages.value;
+    previousChapterContent.value = '';
+    previousChapterPages.value = [];
+    _preloadPreviousChapter();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!controller.hasClients) return;
+      controller.jumpToPage(currentChapterOffset.value + localPageIndex);
+    });
+  }
+
+  String _getHeaderForChapter(int chapterIdx, int localIndex) {
+    if (chapterIdx < 0 || chapterIdx >= chapters.value.length) return '';
+    if (localIndex == 0) return book.name;
+    return chapters.value.elementAt(chapterIdx).name;
+  }
+
+  String _getFooterForChapter(
+    int chapterIdx,
+    int localIndex,
+    int totalPagesInChapter,
+  ) {
+    var totalChapters = chapters.value.length;
+    if (totalChapters == 0 || totalPagesInChapter == 0) {
+      return '${localIndex + 1}/$totalPagesInChapter 0.00%';
+    }
+    var pageProgress = '${localIndex + 1}/$totalPagesInChapter';
+    var progressInChapter = (localIndex + 1) / totalPagesInChapter;
+    var progress =
+        (chapterIdx + progressInChapter) / totalChapters;
+    var percent = (progress.clamp(0.0, 1.0) * 100).toStringAsFixed(2);
+    return '$pageProgress $percent%';
+  }
+
   void hideUiOverlays() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     showOverlay.value = false;
@@ -162,6 +299,10 @@ class ReaderViewModel {
     _loadCurrentChapter();
     _preloadPreviousChapter();
     _preloadNextChapter();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!controller.hasClients) return;
+      controller.jumpToPage(currentChapterOffset.value + pageIndex.value);
+    });
   }
 
   Future<void> navigateAvailableSourcePage(BuildContext context) async {
@@ -218,8 +359,10 @@ class ReaderViewModel {
     _preloadPreviousChapter();
     _loadCurrentChapter();
     _preloadNextChapter();
-    if (!controller.hasClients) return;
-    controller.jumpToPage(pageIndex.value);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!controller.hasClients) return;
+      controller.jumpToPage(currentChapterOffset.value + pageIndex.value);
+    });
   }
 
   void nextChapter() {
@@ -234,28 +377,20 @@ class ReaderViewModel {
     previousChapterPages.value = currentChapterPages.value;
     currentChapterContent.value = nextChapterContent.value;
     currentChapterPages.value = nextChapterPages.value;
+    nextChapterContent.value = '';
+    nextChapterPages.value = [];
     _preloadNextChapter();
-    if (!controller.hasClients) return;
-    controller.jumpToPage(pageIndex.value);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!controller.hasClients) return;
+      controller.jumpToPage(currentChapterOffset.value + pageIndex.value);
+    });
   }
 
   Future<void> nextPage() async {
     if (chapters.value.isEmpty) return;
-    if (chapterIndex.value == chapters.value.length - 1 &&
-        pageIndex.value + 1 >= currentChapterPages.value.length) {
+    var flatIndex = controller.hasClients ? controller.page?.round() ?? 0 : 0;
+    if (flatIndex + 1 >= allPages.value.length) {
       DialogUtil.snackBar(StringConfig.noMoreChapter);
-      return;
-    }
-    if (pageIndex.value + 1 >= currentChapterPages.value.length) {
-      chapterIndex.value++;
-      updatePageIndex(0);
-      previousChapterContent.value = currentChapterContent.value;
-      previousChapterPages.value = currentChapterPages.value;
-      currentChapterContent.value = nextChapterContent.value;
-      currentChapterPages.value = nextChapterPages.value;
-      _preloadNextChapter();
-      if (!controller.hasClients) return;
-      controller.jumpToPage(pageIndex.value);
       return;
     }
     await _getBattery();
@@ -278,27 +413,20 @@ class ReaderViewModel {
     nextChapterPages.value = currentChapterPages.value;
     currentChapterContent.value = previousChapterContent.value;
     currentChapterPages.value = previousChapterPages.value;
+    previousChapterContent.value = '';
+    previousChapterPages.value = [];
     _preloadPreviousChapter();
-    if (!controller.hasClients) return;
-    controller.jumpToPage(pageIndex.value);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!controller.hasClients) return;
+      controller.jumpToPage(currentChapterOffset.value + pageIndex.value);
+    });
   }
 
   Future<void> previousPage() async {
     if (chapters.value.isEmpty) return;
-    if (chapterIndex.value == 0 && pageIndex.value == 0) {
+    var flatIndex = controller.hasClients ? controller.page?.round() ?? 0 : 0;
+    if (flatIndex <= 0) {
       DialogUtil.snackBar(StringConfig.noChapterBefore);
-      return;
-    }
-    if (pageIndex.value - 1 < 0) {
-      chapterIndex.value--;
-      updatePageIndex(previousChapterPages.value.length - 1);
-      nextChapterContent.value = currentChapterContent.value;
-      nextChapterPages.value = currentChapterPages.value;
-      currentChapterContent.value = previousChapterContent.value;
-      currentChapterPages.value = previousChapterPages.value;
-      _preloadPreviousChapter();
-      if (!controller.hasClients) return;
-      controller.jumpToPage(pageIndex.value);
       return;
     }
     await _getBattery();
@@ -326,7 +454,7 @@ class ReaderViewModel {
     theme.value = _assembleTheme(theme.value);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!controller.hasClients) return;
-      controller.jumpToPage(pageIndex.value);
+      controller.jumpToPage(currentChapterOffset.value + pageIndex.value);
     });
   }
 
@@ -546,6 +674,8 @@ class ReaderViewModel {
     currentChapterPages.value = [];
     updatePageIndex(0);
     _loadCurrentChapter(reacquire: true);
+    _preloadPreviousChapter();
+    _preloadNextChapter();
   }
 
   Future<void> _loadCurrentChapter({bool reacquire = false}) async {
