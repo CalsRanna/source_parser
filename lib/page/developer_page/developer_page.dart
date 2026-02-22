@@ -26,11 +26,6 @@ class _DeveloperPageState extends State<DeveloperPage> {
     var cloudReader = _Tile(
       icon: HugeIcons.strokeRoundedInternet,
       onTap: () => viewModel.navigateCloudReaderPage(context),
-      title: '云阅读（New）',
-    );
-    var simpleCloudReader = _Tile(
-      icon: HugeIcons.strokeRoundedInternet,
-      onTap: () => viewModel.navigateSimpleCloudReaderPage(context),
       title: '云阅读',
     );
     var localDatabase = _Tile(
@@ -57,7 +52,6 @@ class _DeveloperPageState extends State<DeveloperPage> {
       developer,
       fileManager,
       cloudReader,
-      simpleCloudReader,
       localDatabase,
       cleanDatabase,
       color,

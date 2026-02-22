@@ -93,7 +93,4 @@ class DeveloperViewModel {
     FileManagerRoute().push(context);
   }
 
-  void navigateSimpleCloudReaderPage(BuildContext context) {
-    SimpleCloudReaderRoute().push(context);
-  }
 }

@@ -33,8 +33,7 @@ dependencies:
   hugeicons: ^0.0.7
   icloud_storage_sync: ^0.0.1
   json_path: ^0.7.4
-  laconic:
-    git: git@github.com:CalsRanna/laconic.git
+  laconic: ^2.2.0
   logger: ^2.0.2+1
   lottie: ^3.3.1
   lpinyin: ^2.0.3
@@ -69,5 +68,4 @@ flutter:
   assets:
     - asset/
     - asset/image/
-    - asset/json/
   

@@ -97,14 +97,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
-  buffer:
-    dependency: transitive
-    description:
-      name: buffer
-      sha256: "389da2ec2c16283c8787e0adaede82b1842102f8c8aae2f49003a766c5c6b3d1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.3"
   build:
     dependency: transitive
     description:
@@ -627,12 +619,11 @@ packages:
   laconic:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "5f24844fe2a3ccbe8981877c1f70b96d50b5500f"
-      url: "git@github.com:CalsRanna/laconic.git"
-    source: git
-    version: "1.0.0+29"
+      name: laconic
+      sha256: "95c8f2bac5b0d9271b2d7afacd9df0500b0888dc0793acafe0317ce9b5beb406"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
   leak_tracker:
     dependency: transitive
     description:
@@ -737,14 +728,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  mysql_client:
-    dependency: transitive
-    description:
-      name: mysql_client
-      sha256: "6a0fdcbe3e0721c637f97ad24649be2f70dbce2b21ede8f962910e640f753fc2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.27"
   nested:
     dependency: transitive
     description:
@@ -1198,14 +1181,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.0"
-  sqlite3:
-    dependency: transitive
-    description:
-      name: sqlite3
-      sha256: c0503c69b44d5714e6abbf4c1f51a3c3cc42b75ce785f44404765e4635481d38
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.7.6"
   sqlite3_flutter_libs:
     dependency: "direct main"
     description:
