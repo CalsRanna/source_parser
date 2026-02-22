@@ -102,7 +102,6 @@ class SourceViewModel {
         sources = await Parser.importNetworkSource(value, timeout);
       } else {
         final json = jsonDecode(value);
-        List<SourceEntity> sources = [];
         if (json is List) {
           for (var element in json) {
             sources.add(SourceEntity.fromJson(element));
@@ -114,18 +113,22 @@ class SourceViewModel {
       List<SourceEntity> newSources = [];
       List<SourceEntity> oldSources = [];
       for (var source in sources) {
-        if (this.sources.value.where((element) {
+        var index = this.sources.value.indexWhere((element) {
           final hasSameName = element.name == source.name;
           final hasSameUrl = element.url == source.url;
           return hasSameName && hasSameUrl;
-        }).isNotEmpty) {
-          oldSources.add(source);
+        });
+        if (index != -1) {
+          oldSources.add(
+            source.copyWith(id: this.sources.value[index].id),
+          );
         } else {
           newSources.add(source);
         }
       }
       this.newSources.value = newSources;
       this.oldSources.value = oldSources;
+      if (!context.mounted) return;
       router.pop();
       if (oldSources.isNotEmpty) {
         var sourceImportAlertDialog = SourceImportAlertDialog(
@@ -145,36 +148,43 @@ class SourceViewModel {
         await _importSources(false);
       }
     } catch (error) {
+      if (!context.mounted) return;
       router.pop();
       DialogUtil.snackBar(error.toString());
     }
   }
 
   void _importLocalSource(BuildContext context) async {
+    Navigator.of(context).pop();
     final result = await FilePicker.platform.pickFiles();
     if (result != null) {
       DialogUtil.openDialog(
         SourceImportLoadingDialog(),
         barrierDismissible: false,
       );
-      final file = File(result.files.single.path!);
-      final content = await file.readAsString();
-      _parseContent(content);
-      DialogUtil.dismiss();
-      if (oldSources.value.isNotEmpty) {
-        DialogUtil.openDialog(
-          SourceImportAlertDialog(
-            message:
-                StringConfig.foundSameSource.format([oldSources.value.length]),
-            onConfirm: (override) async {
-              DialogUtil.dismiss();
-              await _importSources(override);
-            },
-          ),
-          barrierDismissible: false,
-        );
-      } else {
-        await _importSources(false);
+      try {
+        final file = File(result.files.single.path!);
+        final content = await file.readAsString();
+        _parseContent(content);
+        DialogUtil.dismiss();
+        if (oldSources.value.isNotEmpty) {
+          DialogUtil.openDialog(
+            SourceImportAlertDialog(
+              message: StringConfig.foundSameSource
+                  .format([oldSources.value.length]),
+              onConfirm: (override) async {
+                DialogUtil.dismiss();
+                await _importSources(override);
+              },
+            ),
+            barrierDismissible: false,
+          );
+        } else {
+          await _importSources(false);
+        }
+      } catch (error) {
+        DialogUtil.dismiss();
+        DialogUtil.snackBar(error.toString());
       }
     }
   }
@@ -199,7 +209,9 @@ class SourceViewModel {
         await service.updateSource(oldSource);
       }
     }
-    await service.addSources(newSources.value);
+    if (newSources.value.isNotEmpty) {
+      await service.addSources(newSources.value);
+    }
     initSignals();
   }
 
