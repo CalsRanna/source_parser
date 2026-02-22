@@ -1,4 +1,4 @@
-class CloudReaderBookEntity {
+class CloudBookEntity {
   String bookUrl = '';
   String tocUrl = '';
   String origin = '';
@@ -26,38 +26,38 @@ class CloudReaderBookEntity {
   bool useReplaceRule = false;
   bool isInShelf = false;
 
-  CloudReaderBookEntity();
+  CloudBookEntity();
 
-  CloudReaderBookEntity.fromJson(Map<String, dynamic> json) {
-    bookUrl = json['bookUrl'];
-    tocUrl = json['tocUrl'];
-    origin = json['origin'];
-    originName = json['originName'];
-    name = json['name'];
-    author = json['author'];
-    kind = json['kind'];
-    coverUrl = json['coverUrl'];
-    intro = json['intro'];
-    type = json['type'];
-    group = json['group'];
-    latestChapterTitle = json['latestChapterTitle'];
-    latestChapterTime = json['latestChapterTime'];
-    lastCheckTime = json['lastCheckTime'];
-    lastCheckCount = json['lastCheckCount'];
-    totalChapterNum = json['totalChapterNum'];
-    durChapterTitle = json['durChapterTitle'];
-    durChapterIndex = json['durChapterIndex'];
-    durChapterPos = json['durChapterPos'];
-    durChapterTime = json['durChapterTime'];
-    wordCount = json['wordCount'];
-    canUpdate = json['canUpdate'];
-    order = json['order'];
-    originOrder = json['originOrder'];
-    useReplaceRule = json['useReplaceRule'];
-    isInShelf = json['isInShelf'];
+  CloudBookEntity.fromJson(Map<String, dynamic> json) {
+    bookUrl = json['bookUrl'] ?? '';
+    tocUrl = json['tocUrl'] ?? '';
+    origin = json['origin'] ?? '';
+    originName = json['originName'] ?? '';
+    name = json['name'] ?? '';
+    author = json['author'] ?? '';
+    kind = json['kind'] ?? '';
+    coverUrl = json['coverUrl'] ?? '';
+    intro = json['intro'] ?? '';
+    type = json['type'] ?? 0;
+    group = json['group'] ?? 0;
+    latestChapterTitle = json['latestChapterTitle'] ?? '';
+    latestChapterTime = json['latestChapterTime'] ?? 0;
+    lastCheckTime = json['lastCheckTime'] ?? 0;
+    lastCheckCount = json['lastCheckCount'] ?? 0;
+    totalChapterNum = json['totalChapterNum'] ?? 0;
+    durChapterTitle = json['durChapterTitle'] ?? '';
+    durChapterIndex = json['durChapterIndex'] ?? 0;
+    durChapterPos = json['durChapterPos'] ?? 0;
+    durChapterTime = json['durChapterTime'] ?? 0;
+    wordCount = json['wordCount'] ?? '';
+    canUpdate = json['canUpdate'] ?? false;
+    order = json['order'] ?? 0;
+    originOrder = json['originOrder'] ?? 0;
+    useReplaceRule = json['useReplaceRule'] ?? false;
+    isInShelf = json['isInShelf'] ?? false;
   }
 
-  CloudReaderBookEntity copyWith({
+  CloudBookEntity copyWith({
     String? bookUrl,
     String? tocUrl,
     String? origin,
@@ -85,7 +85,7 @@ class CloudReaderBookEntity {
     bool? useReplaceRule,
     bool? isInShelf,
   }) {
-    return CloudReaderBookEntity()
+    return CloudBookEntity()
       ..bookUrl = bookUrl ?? this.bookUrl
       ..tocUrl = tocUrl ?? this.tocUrl
       ..origin = origin ?? this.origin

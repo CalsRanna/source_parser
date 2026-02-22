@@ -78,7 +78,7 @@ class DeveloperViewModel {
   }
 
   void navigateCloudReaderPage(BuildContext context) {
-    CloudReaderRoute().push(context);
+    CloudReaderBookshelfRoute().push(context);
   }
 
   void navigateColor(BuildContext context) {

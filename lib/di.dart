@@ -1,8 +1,14 @@
 import 'package:get_it/get_it.dart';
 import 'package:source_parser/model/book_entity.dart';
+import 'package:source_parser/model/cloud_book_entity.dart';
 import 'package:source_parser/page/available_source/available_source_view_model.dart';
 import 'package:source_parser/page/catalogue/catalogue_view_model.dart';
-import 'package:source_parser/page/cloud_reader/cloud_reader_view_model.dart';
+import 'package:source_parser/page/cloud_reader/cloud_reader_bookshelf_view_model.dart';
+import 'package:source_parser/page/cloud_reader/cloud_reader_catalogue_view_model.dart';
+import 'package:source_parser/page/cloud_reader/cloud_reader_reader_view_model.dart';
+import 'package:source_parser/page/cloud_reader/cloud_reader_search_view_model.dart';
+import 'package:source_parser/page/cloud_reader/cloud_reader_setting_view_model.dart';
+import 'package:source_parser/page/cloud_reader/cloud_reader_source_view_model.dart';
 import 'package:source_parser/page/cover_selector/cover_selector_view_model.dart';
 import 'package:source_parser/page/database_page/database_view_model.dart';
 import 'package:source_parser/page/developer_page/developer_view_model.dart';
@@ -58,8 +64,24 @@ class DI {
       () => CoverSelectorViewModel(),
     );
     instance.registerFactory<SourceViewModel>(() => SourceViewModel());
-    instance.registerLazySingleton<CloudReaderViewModel>(
-      () => CloudReaderViewModel(),
+    instance.registerLazySingleton<CloudReaderBookshelfViewModel>(
+      () => CloudReaderBookshelfViewModel(),
+    );
+    instance.registerFactory<CloudReaderSearchViewModel>(
+      () => CloudReaderSearchViewModel(),
+    );
+    instance.registerFactoryParam<CloudReaderReaderViewModel, CloudBookEntity,
+        void>(
+      (book, _) => CloudReaderReaderViewModel(book: book),
+    );
+    instance.registerFactory<CloudReaderCatalogueViewModel>(
+      () => CloudReaderCatalogueViewModel(),
+    );
+    instance.registerFactory<CloudReaderSourceViewModel>(
+      () => CloudReaderSourceViewModel(),
+    );
+    instance.registerFactory<CloudReaderSettingViewModel>(
+      () => CloudReaderSettingViewModel(),
     );
     instance.registerLazySingleton<DeveloperViewModel>(
       () => DeveloperViewModel(),

@@ -110,4 +110,45 @@ class SharedPreferenceUtil {
     var instance = await SharedPreferences.getInstance();
     await instance.setInt('turning_mode', turningMode);
   }
+
+  static Future<String> getCloudReaderServerUrl() async {
+    var instance = await SharedPreferences.getInstance();
+    return instance.getString('cloud_reader_server_url') ??
+        'http://43.139.61.244:4396';
+  }
+
+  static Future<void> setCloudReaderServerUrl(String url) async {
+    var instance = await SharedPreferences.getInstance();
+    await instance.setString('cloud_reader_server_url', url);
+  }
+
+  static Future<String> getCloudReaderAccessToken() async {
+    var instance = await SharedPreferences.getInstance();
+    return instance.getString('cloud_reader_access_token') ?? '';
+  }
+
+  static Future<void> setCloudReaderAccessToken(String token) async {
+    var instance = await SharedPreferences.getInstance();
+    await instance.setString('cloud_reader_access_token', token);
+  }
+
+  static Future<String> getCloudReaderUsername() async {
+    var instance = await SharedPreferences.getInstance();
+    return instance.getString('cloud_reader_username') ?? '';
+  }
+
+  static Future<void> setCloudReaderUsername(String username) async {
+    var instance = await SharedPreferences.getInstance();
+    await instance.setString('cloud_reader_username', username);
+  }
+
+  static Future<String> getCloudReaderPassword() async {
+    var instance = await SharedPreferences.getInstance();
+    return instance.getString('cloud_reader_password') ?? '';
+  }
+
+  static Future<void> setCloudReaderPassword(String password) async {
+    var instance = await SharedPreferences.getInstance();
+    await instance.setString('cloud_reader_password', password);
+  }
 }
