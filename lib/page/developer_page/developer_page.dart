@@ -23,11 +23,6 @@ class _DeveloperPageState extends State<DeveloperPage> {
       onTap: () => viewModel.navigateFileManagerPage(context),
       title: '文件管理',
     );
-    var cloudReader = _Tile(
-      icon: HugeIcons.strokeRoundedInternet,
-      onTap: () => viewModel.navigateCloudReaderPage(context),
-      title: '云阅读',
-    );
     var localDatabase = _Tile(
       icon: HugeIcons.strokeRoundedDatabase,
       onTap: () => viewModel.navigateDatabasePage(context),
@@ -43,19 +38,12 @@ class _DeveloperPageState extends State<DeveloperPage> {
       onTap: () => viewModel.navigateColor(context),
       title: '颜色选择器',
     );
-    var analysis = _Tile(
-      icon: HugeIcons.strokeRoundedColors,
-      onTap: () => viewModel.analyze(context),
-      title: '分析书架',
-    );
     var children = [
       developer,
       fileManager,
-      cloudReader,
       localDatabase,
       cleanDatabase,
       color,
-      analysis,
     ];
     return Scaffold(
       appBar: AppBar(title: Text('开发者页面')),

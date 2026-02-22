@@ -54,6 +54,16 @@ class _ProfileViewState extends State<ProfileView> {
         onTap: () => handleTap(context, const LocalServerRoute()),
         title: '本地服务器',
       );
+      var cloudReader = ProfileSettingListTile(
+        icon: HugeIcons.strokeRoundedLibrary,
+        onTap: () => handleTap(context, const CloudReaderBookshelfRoute()),
+        title: '云阅读',
+      );
+      var analysis = ProfileSettingListTile(
+        icon: HugeIcons.strokeRoundedAnalytics01,
+        onTap: () => viewModel.analyze(context),
+        title: '分析书架',
+      );
       var setting = ProfileSettingListTile(
         icon: HugeIcons.strokeRoundedSettings01,
         onTap: () => handleTap(context, const SettingRoute()),
@@ -74,6 +84,8 @@ class _ProfileViewState extends State<ProfileView> {
         theme,
         layout,
         server,
+        cloudReader,
+        analysis,
         setting,
         if (viewModel.enableDeveloperMode.value) developer,
         about,
