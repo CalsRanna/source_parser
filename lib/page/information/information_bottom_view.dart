@@ -54,38 +54,3 @@ class InformationBottomView extends StatelessWidget {
     );
   }
 }
-
-
-// class _ListenBook extends StatelessWidget {
-//   const _ListenBook();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final theme = Theme.of(context);
-//     final colorScheme = theme.colorScheme;
-//     final primaryContainer = colorScheme.primaryContainer;
-//     final onPrimaryContainer = colorScheme.onPrimaryContainer;
-//     return Consumer(builder: (context, ref, child) {
-//       return ElevatedButton(
-//         style: ButtonStyle(
-//           backgroundColor: WidgetStatePropertyAll(primaryContainer),
-//           foregroundColor: WidgetStatePropertyAll(onPrimaryContainer),
-//         ),
-//         onPressed: () => navigate(context, ref),
-//         child: const Text('听书'),
-//       );
-//     });
-//   }
-
-//   void navigate(BuildContext context, WidgetRef ref) async {
-//     final notifier = ref.read(bookNotifierProvider.notifier);
-//     await notifier.refreshCatalogue();
-//     final book = ref.read(bookNotifierProvider);
-//     if (!context.mounted) return;
-//     final navigator = Navigator.of(context);
-//     final route = MaterialPageRoute(builder: (context) {
-//       return ListenerPage(book: book);
-//     });
-//     navigator.push(route);
-//   }
-// }

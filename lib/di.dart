@@ -108,7 +108,7 @@ class DI {
     instance.registerFactory<ReaderThemeEditorViewModel>(
       () => ReaderThemeEditorViewModel(),
     );
-    // New ViewModels to replace Riverpod Providers
+    // Global ViewModels
     instance
         .registerLazySingleton<AppBooksViewModel>(() => AppBooksViewModel());
     instance.registerLazySingleton<AppSourcesViewModel>(
