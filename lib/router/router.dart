@@ -51,6 +51,7 @@ class AppRouter extends RootStackRouter {
       AutoRoute(page: CloudReaderExploreRoute.page),
       AutoRoute(page: CoverSelectorRoute.page),
       AutoRoute(page: DatabaseRoute.page),
+      AutoRoute(page: AiSettingRoute.page),
     ];
   }
 }

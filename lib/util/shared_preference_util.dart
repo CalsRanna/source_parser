@@ -121,6 +121,36 @@ class SharedPreferenceUtil {
     await instance.setString('cloud_reader_shelf_mode', shelfMode);
   }
 
+  static Future<String> getAiBaseUrl() async {
+    var instance = await SharedPreferences.getInstance();
+    return instance.getString('ai_base_url') ?? 'https://openrouter.ai/api/v1';
+  }
+
+  static Future<void> setAiBaseUrl(String url) async {
+    var instance = await SharedPreferences.getInstance();
+    await instance.setString('ai_base_url', url);
+  }
+
+  static Future<String> getAiApiKey() async {
+    var instance = await SharedPreferences.getInstance();
+    return instance.getString('ai_api_key') ?? '';
+  }
+
+  static Future<void> setAiApiKey(String key) async {
+    var instance = await SharedPreferences.getInstance();
+    await instance.setString('ai_api_key', key);
+  }
+
+  static Future<String> getAiModel() async {
+    var instance = await SharedPreferences.getInstance();
+    return instance.getString('ai_model') ?? 'google/gemini-2.5-pro';
+  }
+
+  static Future<void> setAiModel(String model) async {
+    var instance = await SharedPreferences.getInstance();
+    await instance.setString('ai_model', model);
+  }
+
   static Future<String> getCloudReaderServerUrl() async {
     var instance = await SharedPreferences.getInstance();
     return instance.getString('cloud_reader_server_url') ??

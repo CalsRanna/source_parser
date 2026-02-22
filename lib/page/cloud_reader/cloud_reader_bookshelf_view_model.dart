@@ -53,8 +53,4 @@ class CloudReaderBookshelfViewModel {
   void openSearch(BuildContext context) {
     CloudReaderSearchRoute().push(context);
   }
-
-  void openSetting(BuildContext context) {
-    CloudReaderSettingRoute().push(context);
-  }
 }

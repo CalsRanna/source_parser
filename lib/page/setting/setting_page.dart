@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/page/setting/setting_view_model.dart';
+import 'package:source_parser/router/router.gr.dart';
 
 @RoutePage()
 class SettingPage extends StatefulWidget {
@@ -40,6 +41,9 @@ class _SettingPageState extends State<SettingPage> {
       _buildCacheDuration(),
       _buildEInkMode(),
       _buildClearCache(),
+      const Divider(),
+      _buildCloudReaderSetting(),
+      _buildAiSetting(),
     ];
     return ListView(children: children);
   }
@@ -107,6 +111,22 @@ class _SettingPageState extends State<SettingPage> {
       title: const Text('翻页方式'),
       subtitle: const Text('阅读器的翻页方式'),
       trailing: Text(modes.join('，')),
+    );
+  }
+
+  Widget _buildCloudReaderSetting() {
+    return ListTile(
+      onTap: () => AutoRouter.of(context).push(const CloudReaderSettingRoute()),
+      title: const Text('云阅读'),
+      subtitle: const Text('服务器地址、账号管理'),
+    );
+  }
+
+  Widget _buildAiSetting() {
+    return ListTile(
+      onTap: () => AutoRouter.of(context).push(const AiSettingRoute()),
+      title: const Text('AI 设置'),
+      subtitle: const Text('配置 AI 服务的接口地址、密钥和模型'),
     );
   }
 }

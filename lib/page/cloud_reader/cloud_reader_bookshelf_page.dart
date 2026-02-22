@@ -48,7 +48,6 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
               (_) => _ShelfModeSelector(
                 mode: viewModel.shelfMode.value,
                 onModeChanged: viewModel.updateShelfMode,
-                onSetting: () => viewModel.openSetting(context),
               ),
             ),
           ],
@@ -155,12 +154,10 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
 class _ShelfModeSelector extends StatelessWidget {
   final String mode;
   final void Function(String)? onModeChanged;
-  final void Function()? onSetting;
 
   const _ShelfModeSelector({
     required this.mode,
     this.onModeChanged,
-    this.onSetting,
   });
 
   @override
@@ -193,12 +190,7 @@ class _ShelfModeSelector extends StatelessWidget {
       onPressed: () => onModeChanged?.call(mode == 'grid' ? 'list' : 'grid'),
       child: Text(mode == 'grid' ? '列表模式' : '网格模式'),
     );
-    var settingButton = MenuItemButton(
-      leadingIcon: Icon(HugeIcons.strokeRoundedSettings01),
-      onPressed: onSetting,
-      child: Text('设置'),
-    );
-    return [modeButton, settingButton];
+    return [modeButton];
   }
 }
 

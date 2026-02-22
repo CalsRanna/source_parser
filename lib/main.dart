@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:signals/signals.dart';
+import 'package:source_parser/config/config.dart';
 import 'package:source_parser/database/service.dart';
 import 'package:source_parser/di.dart';
 import 'package:source_parser/page/source_parser/source_parser.dart';
@@ -11,5 +12,6 @@ void main() async {
   SignalsObserver.instance = null;
   DI.ensureInitialized();
   await DatabaseService.instance.ensureInitialized();
+  await Config.load();
   runApp(SourceParser());
 }
