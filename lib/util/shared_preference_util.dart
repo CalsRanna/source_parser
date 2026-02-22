@@ -111,6 +111,16 @@ class SharedPreferenceUtil {
     await instance.setInt('turning_mode', turningMode);
   }
 
+  static Future<String> getCloudReaderShelfMode() async {
+    var instance = await SharedPreferences.getInstance();
+    return instance.getString('cloud_reader_shelf_mode') ?? 'list';
+  }
+
+  static Future<void> setCloudReaderShelfMode(String shelfMode) async {
+    var instance = await SharedPreferences.getInstance();
+    await instance.setString('cloud_reader_shelf_mode', shelfMode);
+  }
+
   static Future<String> getCloudReaderServerUrl() async {
     var instance = await SharedPreferences.getInstance();
     return instance.getString('cloud_reader_server_url') ??

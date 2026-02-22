@@ -1,12 +1,14 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/component/bookshelf_list_view.dart';
 import 'package:source_parser/page/cloud_reader/cloud_reader_bookshelf_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/service/cloud_reader_api_client.dart';
+import 'package:source_parser/widget/book_cover.dart';
 
 @RoutePage()
 class CloudReaderBookshelfPage extends StatefulWidget {
@@ -42,9 +44,12 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
               icon: const Icon(HugeIcons.strokeRoundedCompass),
               onPressed: () => _openExplore(context),
             ),
-            IconButton(
-              icon: const Icon(HugeIcons.strokeRoundedSettings01),
-              onPressed: () => viewModel.openSetting(context),
+            Watch(
+              (_) => _ShelfModeSelector(
+                mode: viewModel.shelfMode.value,
+                onModeChanged: viewModel.updateShelfMode,
+                onSetting: () => viewModel.openSetting(context),
+              ),
             ),
           ],
           leading: IconButton(
@@ -75,9 +80,27 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
           }
           return RefreshIndicator(
             onRefresh: viewModel.refreshBooks,
-            child: ListView.builder(
-              itemBuilder: (context, index) => _buildBookTile(context, index),
+            child: BookshelfListView(
               itemCount: viewModel.books.value.length,
+              mode: viewModel.shelfMode.value,
+              getName: (i) => viewModel.books.value[i].name,
+              getCover: (i) => CloudReaderApiClient()
+                  .getCoverUrl(viewModel.books.value[i].coverUrl),
+              getSubtitle: (i) {
+                var book = viewModel.books.value[i];
+                var chapters = book.totalChapterNum - (book.durChapterIndex + 1);
+                if (chapters > 0) return '$chapters章未读';
+                if (chapters == 0) return '已读完';
+                return '未找到章节';
+              },
+              getTrailing: (i) {
+                var time = viewModel.books.value[i].latestChapterTime;
+                if (time <= 0) return null;
+                var date = DateTime.fromMillisecondsSinceEpoch(time);
+                return '${date.month}-${date.day} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+              },
+              onTap: (i) => viewModel.openReader(context, i),
+              onLongPress: (i) => _showBottomSheet(context, i),
             ),
           );
         }),
@@ -89,58 +112,20 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
     CloudReaderExploreRoute().push(context);
   }
 
-  Widget _buildBookTile(BuildContext context, int index) {
+  void _showBottomSheet(BuildContext context, int index) {
+    HapticFeedback.heavyImpact();
     var book = viewModel.books.value[index];
     var coverUrl = CloudReaderApiClient().getCoverUrl(book.coverUrl);
-    Widget leading;
-    if (coverUrl.isNotEmpty) {
-      leading = ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: CachedNetworkImage(
-          imageUrl: coverUrl,
-          width: 40,
-          height: 56,
-          fit: BoxFit.cover,
-          errorWidget: (_, __, ___) => Container(
-            width: 40,
-            height: 56,
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: const Icon(HugeIcons.strokeRoundedBook02, size: 20),
-          ),
-        ),
-      );
-    } else {
-      leading = Container(
-        width: 40,
-        height: 56,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: const Icon(HugeIcons.strokeRoundedBook02, size: 20),
-      );
-    }
-    var progress = '';
-    if (book.totalChapterNum > 0) {
-      progress = '${book.durChapterIndex + 1}/${book.totalChapterNum}';
-    }
-    return ListTile(
-      leading: leading,
-      title: Text(book.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(
-        '${book.author}  $progress',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: Text(
-        book.durChapterTitle,
-        style: Theme.of(context).textTheme.bodySmall,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      onTap: () => viewModel.openReader(context, index),
-      onLongPress: () => _showDeleteDialog(context, index),
+    var bottomSheet = _CloudBookBottomSheet(
+      name: book.name,
+      author: book.author,
+      coverUrl: coverUrl,
+      onDelete: () {
+        Navigator.pop(context);
+        _showDeleteDialog(context, index);
+      },
     );
+    showModalBottomSheet(builder: (_) => bottomSheet, context: context);
   }
 
   void _showDeleteDialog(BuildContext context, int index) {
@@ -164,5 +149,152 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
         ],
       ),
     );
+  }
+}
+
+class _ShelfModeSelector extends StatelessWidget {
+  final String mode;
+  final void Function(String)? onModeChanged;
+  final void Function()? onSetting;
+
+  const _ShelfModeSelector({
+    required this.mode,
+    this.onModeChanged,
+    this.onSetting,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MenuAnchor(
+      alignmentOffset: Offset(-132, 12),
+      builder: (_, controller, __) => _builder(controller),
+      menuChildren: _buildMenuChildren(),
+      style: MenuStyle(alignment: Alignment.bottomRight),
+    );
+  }
+
+  void _handleTap(MenuController controller) {
+    if (controller.isOpen) return controller.close();
+    controller.open();
+  }
+
+  Widget _builder(MenuController controller) {
+    return IconButton(
+      onPressed: () => _handleTap(controller),
+      icon: const Icon(HugeIcons.strokeRoundedMoreVertical),
+    );
+  }
+
+  List<Widget> _buildMenuChildren() {
+    var modeIcon = Icon(HugeIcons.strokeRoundedMenuCircle);
+    if (mode == 'grid') modeIcon = Icon(HugeIcons.strokeRoundedMenu01);
+    var modeButton = MenuItemButton(
+      leadingIcon: modeIcon,
+      onPressed: () => onModeChanged?.call(mode == 'grid' ? 'list' : 'grid'),
+      child: Text(mode == 'grid' ? '列表模式' : '网格模式'),
+    );
+    var settingButton = MenuItemButton(
+      leadingIcon: Icon(HugeIcons.strokeRoundedSettings01),
+      onPressed: onSetting,
+      child: Text('设置'),
+    );
+    return [modeButton, settingButton];
+  }
+}
+
+class _CloudBookBottomSheet extends StatelessWidget {
+  final String name;
+  final String author;
+  final String coverUrl;
+  final void Function()? onDelete;
+
+  const _CloudBookBottomSheet({
+    required this.name,
+    required this.author,
+    required this.coverUrl,
+    this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final surface = colorScheme.surface;
+    final onSurface = colorScheme.onSurface;
+    var title = Text(
+      name,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontSize: 14, height: 1.2),
+    );
+    var authorStyle = TextStyle(
+      fontSize: 12,
+      height: 1.2,
+      color: onSurface.withValues(alpha: 0.5),
+    );
+    var authorWidget = Text(author, style: authorStyle);
+    var column = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [title, const SizedBox(height: 8), authorWidget],
+    );
+    var rowChildren = [
+      BookCover(height: 80, url: coverUrl, width: 60),
+      const SizedBox(width: 16),
+      Expanded(child: column),
+    ];
+    var deleteAction = _SheetAction(
+      icon: const Icon(HugeIcons.strokeRoundedDelete02),
+      text: '移出书架',
+      onTap: onDelete,
+    );
+    var actionChildren = [
+      deleteAction,
+      const Expanded(flex: 3, child: SizedBox()),
+    ];
+    var boxDecoration = BoxDecoration(
+      borderRadius: BorderRadius.circular(8),
+      color: surface,
+    );
+    var container = Container(
+      decoration: boxDecoration,
+      child: Row(children: actionChildren),
+    );
+    var listChildren = [
+      Row(children: rowChildren),
+      const SizedBox(height: 16),
+      container,
+    ];
+    return ListView(padding: const EdgeInsets.all(16), children: listChildren);
+  }
+}
+
+class _SheetAction extends StatelessWidget {
+  final Icon icon;
+  final String text;
+  final void Function()? onTap;
+
+  const _SheetAction({required this.icon, required this.text, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    var children = [
+      icon,
+      const SizedBox(height: 8),
+      Text(text, maxLines: 1, overflow: TextOverflow.ellipsis),
+    ];
+    var column = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: children,
+    );
+    var padding = Padding(
+      padding: const EdgeInsets.all(16),
+      child: column,
+    );
+    var gestureDetector = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: padding,
+    );
+    return Expanded(child: gestureDetector);
   }
 }
