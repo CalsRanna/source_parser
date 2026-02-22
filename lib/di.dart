@@ -5,6 +5,7 @@ import 'package:source_parser/page/available_source/available_source_view_model.
 import 'package:source_parser/page/catalogue/catalogue_view_model.dart';
 import 'package:source_parser/page/cloud_reader/cloud_reader_bookshelf_view_model.dart';
 import 'package:source_parser/page/cloud_reader/cloud_reader_catalogue_view_model.dart';
+import 'package:source_parser/page/cloud_reader/cloud_reader_explore_view_model.dart';
 import 'package:source_parser/page/cloud_reader/cloud_reader_reader_view_model.dart';
 import 'package:source_parser/page/cloud_reader/cloud_reader_search_view_model.dart';
 import 'package:source_parser/page/cloud_reader/cloud_reader_setting_view_model.dart';
@@ -82,6 +83,9 @@ class DI {
     );
     instance.registerFactory<CloudReaderSettingViewModel>(
       () => CloudReaderSettingViewModel(),
+    );
+    instance.registerFactory<CloudReaderExploreViewModel>(
+      () => CloudReaderExploreViewModel(),
     );
     instance.registerLazySingleton<DeveloperViewModel>(
       () => DeveloperViewModel(),

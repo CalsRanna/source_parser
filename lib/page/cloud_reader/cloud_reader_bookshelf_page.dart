@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:source_parser/page/cloud_reader/cloud_reader_bookshelf_view_model.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/service/cloud_reader_api_client.dart';
 
 @RoutePage()
@@ -36,6 +37,10 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
             IconButton(
               icon: const Icon(HugeIcons.strokeRoundedSearch01),
               onPressed: () => viewModel.openSearch(context),
+            ),
+            IconButton(
+              icon: const Icon(HugeIcons.strokeRoundedCompass),
+              onPressed: () => _openExplore(context),
             ),
             IconButton(
               icon: const Icon(HugeIcons.strokeRoundedSettings01),
@@ -78,6 +83,10 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
         }),
       ),
     );
+  }
+
+  void _openExplore(BuildContext context) {
+    CloudReaderExploreRoute().push(context);
   }
 
   Widget _buildBookTile(BuildContext context, int index) {

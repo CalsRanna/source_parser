@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:source_parser/model/cloud_book_entity.dart';
 import 'package:source_parser/model/cloud_chapter_entity.dart';
+import 'package:source_parser/model/cloud_explore_entity.dart';
 import 'package:source_parser/model/cloud_search_book_entity.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 
@@ -232,5 +233,37 @@ class CloudReaderApiClient {
     }
     var uri = _buildUri('/reader3/cover', {'path': coverUrl});
     return uri.toString();
+  }
+
+  // Explore
+  Future<List<CloudExploreSource>> getExploreSources() async {
+    var uri = _buildUri('/reader3/getBookSources');
+    var response = await http.get(uri);
+    var body = await _parseResponse(response);
+    var data = body['data'] as List;
+    var sources = data
+        .map((json) => CloudExploreSource.fromJson(json))
+        .where((s) => s.exploreCategories.isNotEmpty)
+        .toList();
+    return sources;
+  }
+
+  Future<List<CloudExploreBook>> exploreBook(
+    String bookSourceUrl,
+    String exploreUrl, {
+    int page = 1,
+  }) async {
+    var uri = _buildUri('/reader3/exploreBook', {
+      'bookSourceUrl': bookSourceUrl,
+      'exploreUrl': exploreUrl,
+      'page': page.toString(),
+    });
+    var response = await http.get(uri);
+    var body = await _parseResponse(response);
+    var data = body['data'];
+    if (data is List) {
+      return data.map((json) => CloudExploreBook.fromJson(json)).toList();
+    }
+    return [];
   }
 }
