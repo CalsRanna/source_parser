@@ -3,11 +3,15 @@ import 'package:flutter/material.dart' hide Theme;
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/model/cloud_book_entity.dart';
 import 'package:source_parser/page/cloud_reader/cloud_reader_reader_view_model.dart';
 import 'package:source_parser/page/reader/reader_content_view.dart';
+import 'package:source_parser/page/reader/reader_overlay_dark_mode_slot.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
+import 'package:source_parser/schema/layout.dart';
+import 'package:source_parser/view_model/layout_view_model.dart';
 
 @RoutePage()
 class CloudReaderReaderPage extends StatefulWidget {
@@ -23,6 +27,7 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
     param1: widget.book,
   );
   final sourceParserViewModel = GetIt.instance.get<SourceParserViewModel>();
+  final layoutViewModel = GetIt.instance.get<LayoutViewModel>();
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +57,7 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      layoutViewModel.initSignals();
       viewModel.initSignals();
       viewModel.hideUiOverlays();
     });
@@ -109,7 +115,7 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
   Widget _buildOverlay() {
     if (!viewModel.showOverlay.value) return const SizedBox();
     return _CloudReaderOverlayView(
-      bookName: widget.book.name,
+      book: widget.book,
       isDarkMode: viewModel.isDarkMode.value,
       onBarrierTap: viewModel.hideUiOverlays,
       onCatalogue: () => viewModel.navigateCataloguePage(context),
@@ -118,13 +124,12 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
       onPrevious: viewModel.previousChapter,
       onSource: () => viewModel.navigateSourcePage(context),
       onRefresh: viewModel.forceRefresh,
-      onTheme: () => ReaderThemeRoute().push(context),
     );
   }
 }
 
 class _CloudReaderOverlayView extends StatelessWidget {
-  final String bookName;
+  final CloudBookEntity book;
   final bool isDarkMode;
   final VoidCallback? onBarrierTap;
   final VoidCallback? onCatalogue;
@@ -133,10 +138,9 @@ class _CloudReaderOverlayView extends StatelessWidget {
   final VoidCallback? onPrevious;
   final VoidCallback? onSource;
   final VoidCallback? onRefresh;
-  final VoidCallback? onTheme;
 
   const _CloudReaderOverlayView({
-    required this.bookName,
+    required this.book,
     required this.isDarkMode,
     this.onBarrierTap,
     this.onCatalogue,
@@ -145,56 +149,111 @@ class _CloudReaderOverlayView extends StatelessWidget {
     this.onPrevious,
     this.onSource,
     this.onRefresh,
-    this.onTheme,
   });
 
   @override
   Widget build(BuildContext context) {
-    var barrier = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onBarrierTap,
-      child: const SizedBox(height: double.infinity, width: double.infinity),
-    );
-    return Scaffold(
-      appBar: AppBar(title: Text(bookName)),
-      backgroundColor: Colors.transparent,
-      body: barrier,
-      bottomNavigationBar: _buildBottomBar(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: onRefresh,
-        child: const Icon(HugeIcons.strokeRoundedRefresh),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
+    final layoutViewModel = GetIt.I<LayoutViewModel>();
+    return Watch((context) {
+      final layout = layoutViewModel.layout.value;
+      if (layout.slot0.isEmpty) return const SizedBox();
+      var barrier = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onBarrierTap,
+        child: SizedBox(height: double.infinity, width: double.infinity),
+      );
+      return Scaffold(
+        appBar: _buildAppBar(layout),
+        backgroundColor: Colors.transparent,
+        body: barrier,
+        bottomNavigationBar: _buildBottomBar(layout),
+        floatingActionButton: _buildFloatingButton(layout),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
+      );
+    });
+  }
+
+  void handleTap(String slot) {
+    if (slot == LayoutSlot.catalogue.name) return onCatalogue?.call();
+    if (slot == LayoutSlot.forceRefresh.name) return onRefresh?.call();
+    if (slot == LayoutSlot.nextChapter.name) return onNext?.call();
+    if (slot == LayoutSlot.previousChapter.name) return onPrevious?.call();
+    if (slot == LayoutSlot.source.name) return onSource?.call();
+    if (slot == LayoutSlot.darkMode.name) return onDarkMode?.call();
+  }
+
+  AppBar _buildAppBar(Layout layout) {
+    return AppBar(
+      actions: [_buildSlot(layout.slot0), _buildSlot(layout.slot1)],
+      title: Text(book.name),
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildBottomBar(Layout layout) {
     var children = [
-      IconButton(
-        onPressed: onCatalogue,
-        icon: const Icon(HugeIcons.strokeRoundedMenu01),
-        tooltip: '目录',
-      ),
-      IconButton(
-        onPressed: onSource,
-        icon: const Icon(HugeIcons.strokeRoundedExchange01),
-        tooltip: '换源',
-      ),
-      IconButton(
-        onPressed: onDarkMode,
-        icon: Icon(
-          isDarkMode
-              ? HugeIcons.strokeRoundedSun01
-              : HugeIcons.strokeRoundedMoon02,
-        ),
-        tooltip: '夜间模式',
-      ),
-      IconButton(
-        onPressed: onTheme,
-        icon: const Icon(HugeIcons.strokeRoundedTextFont),
-        tooltip: '主题',
-      ),
+      _buildSlot(layout.slot2),
+      _buildSlot(layout.slot3),
+      _buildSlot(layout.slot4),
+      _buildSlot(layout.slot5),
     ];
     return BottomAppBar(child: Row(children: children));
+  }
+
+  Widget _buildFloatingButton(Layout layout) {
+    return FloatingActionButton(
+      onPressed: () => handleTap(layout.slot6),
+      child: Icon(_getIconData(layout.slot6)),
+    );
+  }
+
+  Widget _buildSlot(String slot) {
+    if (slot.isEmpty) return const SizedBox();
+    if (slot == LayoutSlot.darkMode.name) {
+      return ReaderOverlayDarkModeSlot(
+        isDarkMode: isDarkMode,
+        onTap: onDarkMode,
+      );
+    }
+    if (slot == LayoutSlot.theme.name) {
+      return Builder(builder: (context) {
+        return IconButton(
+          onPressed: () => ReaderThemeRoute().push(context),
+          icon: Icon(_getIconData(slot)),
+        );
+      });
+    }
+    if (slot == LayoutSlot.source.name) {
+      return IconButton(
+        onPressed: onSource,
+        icon: Icon(_getIconData(slot)),
+        tooltip: StringConfig.changeSource,
+      );
+    }
+    return IconButton(
+      onPressed: () => handleTap(slot),
+      icon: Icon(_getIconData(slot)),
+    );
+  }
+
+  IconData _getIconData(String slot) {
+    var values = LayoutSlot.values;
+    var layoutSlot = values.firstWhere(
+      (value) => value.name == slot,
+      orElse: () => LayoutSlot.more,
+    );
+    return switch (layoutSlot) {
+      LayoutSlot.audio => HugeIcons.strokeRoundedHeadphones,
+      LayoutSlot.cache => HugeIcons.strokeRoundedDownload04,
+      LayoutSlot.catalogue => HugeIcons.strokeRoundedMenu01,
+      LayoutSlot.darkMode => HugeIcons.strokeRoundedMoon02,
+      LayoutSlot.forceRefresh => HugeIcons.strokeRoundedRefresh,
+      LayoutSlot.information => HugeIcons.strokeRoundedBook01,
+      LayoutSlot.more => HugeIcons.strokeRoundedMoreVertical,
+      LayoutSlot.nextChapter => HugeIcons.strokeRoundedNext,
+      LayoutSlot.previousChapter => HugeIcons.strokeRoundedPrevious,
+      LayoutSlot.source => HugeIcons.strokeRoundedExchange01,
+      LayoutSlot.theme => HugeIcons.strokeRoundedTextFont,
+      LayoutSlot.replacement => HugeIcons.strokeRoundedSearchReplace,
+    };
   }
 }
