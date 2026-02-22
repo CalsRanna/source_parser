@@ -388,17 +388,36 @@ class ReaderViewModel {
 
   Future<void> nextPage() async {
     if (chapters.value.isEmpty) return;
-    var flatIndex = controller.hasClients ? controller.page?.round() ?? 0 : 0;
-    if (flatIndex + 1 >= allPages.value.length) {
+    if (chapterIndex.value == chapters.value.length - 1 &&
+        pageIndex.value + 1 >= currentChapterPages.value.length) {
       DialogUtil.snackBar(StringConfig.noMoreChapter);
       return;
     }
     await _getBattery();
     if (!controller.hasClients) return;
-    controller.nextPage(
-      duration: Durations.medium1,
-      curve: Curves.easeInOut,
-    );
+    var flatIndex = controller.page?.round() ?? 0;
+    if (flatIndex + 1 < allPages.value.length) {
+      controller.nextPage(
+        duration: Durations.medium1,
+        curve: Curves.easeInOut,
+      );
+      return;
+    }
+    // At end of flat list but not last chapter — next chapter not cached yet
+    chapterIndex.value++;
+    updatePageIndex(0);
+    previousChapterContent.value = currentChapterContent.value;
+    previousChapterPages.value = currentChapterPages.value;
+    currentChapterContent.value = nextChapterContent.value;
+    currentChapterPages.value = nextChapterPages.value;
+    nextChapterContent.value = '';
+    nextChapterPages.value = [];
+    if (currentChapterPages.value.isEmpty) _loadCurrentChapter();
+    _preloadNextChapter();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!controller.hasClients) return;
+      controller.jumpToPage(currentChapterOffset.value + pageIndex.value);
+    });
   }
 
   void previousChapter() {
@@ -424,17 +443,37 @@ class ReaderViewModel {
 
   Future<void> previousPage() async {
     if (chapters.value.isEmpty) return;
-    var flatIndex = controller.hasClients ? controller.page?.round() ?? 0 : 0;
-    if (flatIndex <= 0) {
+    if (chapterIndex.value == 0 && pageIndex.value == 0) {
       DialogUtil.snackBar(StringConfig.noChapterBefore);
       return;
     }
     await _getBattery();
     if (!controller.hasClients) return;
-    controller.previousPage(
-      duration: Durations.medium1,
-      curve: Curves.easeInOut,
-    );
+    var flatIndex = controller.page?.round() ?? 0;
+    if (flatIndex > 0) {
+      controller.previousPage(
+        duration: Durations.medium1,
+        curve: Curves.easeInOut,
+      );
+      return;
+    }
+    // At beginning of flat list but not first chapter — previous not cached yet
+    chapterIndex.value--;
+    var prevPages = previousChapterPages.value;
+    var lastPage = prevPages.isNotEmpty ? prevPages.length - 1 : 0;
+    updatePageIndex(lastPage);
+    nextChapterContent.value = currentChapterContent.value;
+    nextChapterPages.value = currentChapterPages.value;
+    currentChapterContent.value = previousChapterContent.value;
+    currentChapterPages.value = previousChapterPages.value;
+    previousChapterContent.value = '';
+    previousChapterPages.value = [];
+    if (currentChapterPages.value.isEmpty) _loadCurrentChapter();
+    _preloadPreviousChapter();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!controller.hasClients) return;
+      controller.jumpToPage(currentChapterOffset.value + pageIndex.value);
+    });
   }
 
   void showUiOverlays() {
@@ -689,6 +728,10 @@ class ReaderViewModel {
     }
     var splitter = Splitter(size: size.value, theme: theme.value);
     currentChapterPages.value = splitter.split(currentChapterContent.value);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!controller.hasClients) return;
+      controller.jumpToPage(currentChapterOffset.value + pageIndex.value);
+    });
   }
 
   Future<void> _preloadNextChapter() async {
@@ -700,7 +743,7 @@ class ReaderViewModel {
     try {
       nextChapterContent.value = await _getContent(chapterIndex.value + 1);
     } on ReaderException catch (e) {
-      currentChapterContent.value = e.message;
+      nextChapterContent.value = e.message;
     }
     var splitter = Splitter(size: size.value, theme: theme.value);
     nextChapterPages.value = splitter.split(nextChapterContent.value);
@@ -715,9 +758,14 @@ class ReaderViewModel {
     try {
       previousChapterContent.value = await _getContent(chapterIndex.value - 1);
     } on ReaderException catch (e) {
-      currentChapterContent.value = e.message;
+      previousChapterContent.value = e.message;
     }
     var splitter = Splitter(size: size.value, theme: theme.value);
     previousChapterPages.value = splitter.split(previousChapterContent.value);
+    // Prepending pages shifts all indices, so reposition controller.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!controller.hasClients) return;
+      controller.jumpToPage(currentChapterOffset.value + pageIndex.value);
+    });
   }
 }
