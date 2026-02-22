@@ -57,7 +57,6 @@ class CloudReaderSourceViewModel {
       );
       return true;
     } catch (e) {
-      print('switchSource error: $e');
       error.value = e.toString();
       return false;
     }

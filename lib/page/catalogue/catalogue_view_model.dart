@@ -1,7 +1,6 @@
-import 'dart:math';
-
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:signals/signals.dart';
+import 'package:source_parser/component/catalogue_list_view.dart';
 import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/database/book_service.dart';
 import 'package:source_parser/database/chapter_service.dart';
@@ -16,37 +15,11 @@ class CatalogueViewModel {
   final book = signal(BookEntity());
   final chapters = signal(<ChapterEntity>[]);
   final position = signal(StringConfig.toBottom);
-
-  var appBarKey = GlobalKey();
-  late ScrollController controller;
+  final listKey = GlobalKey<CatalogueListViewState>();
 
   Future<bool> checkChapter(int index) async {
     var chapter = chapters.value.elementAt(index);
     return CachedNetwork(prefix: book.value.name).check(chapter.url);
-  }
-
-  void dispose() {
-    controller.dispose();
-  }
-
-  void initController(BuildContext context) {
-    controller = ScrollController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final height = MediaQuery.of(context).size.height;
-      final padding = MediaQuery.of(context).padding;
-      final maxScrollExtent = controller.position.maxScrollExtent;
-      final appBarContext = appBarKey.currentContext;
-      final appBarRenderBox = appBarContext!.findRenderObject() as RenderBox;
-      var listViewHeight = height - padding.vertical;
-      listViewHeight = listViewHeight - appBarRenderBox.size.height;
-      final halfHeight = listViewHeight / 2;
-      var offset = 56.0 * book.value.chapterIndex;
-      offset = max(0, (offset - halfHeight));
-      if (maxScrollExtent > 0) {
-        offset = offset.clamp(0, maxScrollExtent);
-      }
-      controller.jumpTo(offset);
-    });
   }
 
   Future<void> initSignals({
@@ -64,10 +37,6 @@ class CatalogueViewModel {
         this.book.value.id,
       );
     }
-  }
-
-  bool isActive(int index) {
-    return book.value.chapterIndex == index;
   }
 
   void navigateReaderPage(BuildContext context, int index) {
@@ -90,18 +59,13 @@ class CatalogueViewModel {
   }
 
   void updatePosition() {
-    var offset = controller.position.maxScrollExtent;
-    if (position.value == StringConfig.toTop) {
-      offset = controller.position.minScrollExtent;
-    }
-    position.value = position.value == StringConfig.toTop
+    var position = this.position.value == StringConfig.toTop
+        ? CatalogueScrollPosition.top
+        : CatalogueScrollPosition.center;
+    listKey.currentState?.scrollToPosition(position);
+    this.position.value = this.position.value == StringConfig.toTop
         ? StringConfig.toBottom
         : StringConfig.toTop;
-    controller.animateTo(
-      offset,
-      curve: Curves.linear,
-      duration: const Duration(milliseconds: 200),
-    );
   }
 
   Future<List<ChapterEntity>> _getRemoteChapters(
