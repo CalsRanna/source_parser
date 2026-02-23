@@ -233,15 +233,37 @@ class ReaderViewModel {
 
     if (flatIndex < offset) {
       if (previousChapterPages.value.isNotEmpty) {
-        _rotateToPreviousChapter();
+        _deferUntilSettled(() => _rotateToPreviousChapter());
       }
     } else if (flatIndex >= offset + currLen) {
       if (nextChapterPages.value.isNotEmpty) {
-        _rotateToNextChapter();
+        _deferUntilSettled(() => _rotateToNextChapter());
       }
     } else {
       updatePageIndex(flatIndex - offset);
     }
+  }
+
+  /// 等待 PageView 滚动动画完全结束后再执行 [callback]。
+  /// 如果当前没有在滚动，则立即执行。
+  void _deferUntilSettled(VoidCallback callback) {
+    if (!controller.hasClients) {
+      callback();
+      return;
+    }
+    final position = controller.position;
+    if (!position.isScrollingNotifier.value) {
+      callback();
+      return;
+    }
+    _isRotating = true;
+    void listener() {
+      if (!position.isScrollingNotifier.value) {
+        position.isScrollingNotifier.removeListener(listener);
+        callback();
+      }
+    }
+    position.isScrollingNotifier.addListener(listener);
   }
 
   void _rotateToNextChapter({int? targetPage}) {
