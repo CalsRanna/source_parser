@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals.dart';
+import 'package:source_parser/database/cloud_available_source_service.dart';
 import 'package:source_parser/database/cloud_book_service.dart';
 import 'package:source_parser/database/cloud_chapter_service.dart';
 import 'package:source_parser/model/cloud_book_entity.dart';
@@ -53,6 +54,7 @@ class CloudReaderBookshelfViewModel {
           var localBook = localBooks.firstWhere((b) => b.bookUrl == localUrl);
           await CloudBookService().deleteBook(localUrl);
           await CloudChapterService().deleteChapters(localUrl);
+          await CloudAvailableSourceService().deleteSources(localUrl);
           await CacheManager(prefix: localBook.name).clearCache();
         }
       }
@@ -82,6 +84,7 @@ class CloudReaderBookshelfViewModel {
       await CloudReaderApiClient().deleteBook(book);
       await CloudBookService().deleteBook(book.bookUrl);
       await CloudChapterService().deleteChapters(book.bookUrl);
+      await CloudAvailableSourceService().deleteSources(book.bookUrl);
       await CacheManager(prefix: book.name).clearCache();
       books.value = List.from(books.value)..removeAt(index);
     } catch (e) {

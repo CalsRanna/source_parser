@@ -1,4 +1,6 @@
 import 'package:signals/signals.dart';
+import 'package:source_parser/database/cloud_available_source_service.dart';
+import 'package:source_parser/model/cloud_available_source_entity.dart';
 import 'package:source_parser/model/cloud_search_book_entity.dart';
 import 'package:source_parser/service/cloud_reader_api_client.dart';
 
@@ -10,18 +12,34 @@ class CloudReaderSourceViewModel {
   final error = signal('');
 
   int _lastIndex = 0;
+  String _currentBookUrl = '';
 
   Future<void> searchSources(String bookUrl) async {
     isSearching.value = true;
     error.value = '';
     _lastIndex = 0;
+    _currentBookUrl = bookUrl;
+
+    // Load from local cache first
+    try {
+      var cached = await CloudAvailableSourceService().getSources(bookUrl);
+      if (cached.isNotEmpty) {
+        sources.value = cached.map((e) => e.toSearchEntity()).toList();
+      }
+    } catch (_) {}
+
+    // Then fetch from API
     try {
       var result = await CloudReaderApiClient().searchBookSource(bookUrl);
       sources.value = result.list;
       _lastIndex = result.lastIndex;
       hasMore.value = result.list.isNotEmpty && result.lastIndex > 0;
+      await _persistSources(bookUrl);
     } catch (e) {
-      error.value = e.toString();
+      // Keep cached data on API failure; only set error if no cache
+      if (sources.value.isEmpty) {
+        error.value = e.toString();
+      }
     } finally {
       isSearching.value = false;
     }
@@ -38,6 +56,7 @@ class CloudReaderSourceViewModel {
       sources.value = [...sources.value, ...result.list];
       _lastIndex = result.lastIndex;
       hasMore.value = result.list.isNotEmpty && result.lastIndex > 0;
+      await _persistSources(bookUrl);
     } catch (e) {
       error.value = e.toString();
     } finally {
@@ -60,5 +79,12 @@ class CloudReaderSourceViewModel {
       error.value = e.toString();
       return false;
     }
+  }
+
+  Future<void> _persistSources(String bookUrl) async {
+    var entities = sources.value
+        .map((e) => CloudAvailableSourceEntity.fromSearchEntity(bookUrl, e))
+        .toList();
+    await CloudAvailableSourceService().replaceSources(bookUrl, entities);
   }
 }

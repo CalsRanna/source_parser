@@ -38,6 +38,17 @@ class _CloudReaderSourcePageState extends State<CloudReaderSourcePage> {
         title: const Text('换源'),
         actions: [
           Watch((context) {
+            if (viewModel.isSearching.value &&
+                viewModel.sources.value.isNotEmpty) {
+              return const Padding(
+                padding: EdgeInsets.all(12),
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              );
+            }
             if (viewModel.isLoadingMore.value) {
               return const Padding(
                 padding: EdgeInsets.all(12),

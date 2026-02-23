@@ -5,8 +5,10 @@ import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/database/cloud_available_source_service.dart';
 import 'package:source_parser/database/cloud_book_service.dart';
 import 'package:source_parser/database/cloud_chapter_service.dart';
+import 'package:source_parser/model/cloud_available_source_entity.dart';
 import 'package:source_parser/model/cloud_book_entity.dart';
 import 'package:source_parser/model/cloud_chapter_entity.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
@@ -26,6 +28,7 @@ import 'package:source_parser/view_model/app_theme_view_model.dart';
 class CloudReaderReaderViewModel {
   final CloudBookEntity book;
   final chapters = signal<List<CloudChapterEntity>>([]);
+  final availableSources = signal<List<CloudAvailableSourceEntity>>([]);
   final previousChapterContent = signal('');
   final previousChapterPages = signal<List<String>>([]);
   final currentChapterContent = signal('');
@@ -81,6 +84,7 @@ class CloudReaderReaderViewModel {
     chapterIndex.value = book.durChapterIndex;
     pageIndex.value = book.durChapterPos;
     await _loadChapterList();
+    await _loadAvailableSources();
     eInkMode.value = await SharedPreferenceUtil.getEInkMode();
     turningMode.value = await SharedPreferenceUtil.getTurningMode();
     await _getBattery();
@@ -110,6 +114,13 @@ class CloudReaderReaderViewModel {
     } catch (e) {
       error.value = '${StringConfig.loadingFailed}: $e';
     }
+  }
+
+  Future<void> _loadAvailableSources() async {
+    try {
+      availableSources.value =
+          await CloudAvailableSourceService().getSources(book.bookUrl);
+    } catch (_) {}
   }
 
   ({
@@ -508,12 +519,14 @@ class CloudReaderReaderViewModel {
     var oldBookUrl = book.bookUrl;
     book.bookUrl = newBookUrl;
     await CloudChapterService().deleteChapters(oldBookUrl);
+    await CloudAvailableSourceService().deleteSources(oldBookUrl);
     await _loadChapterList(forceRemote: true);
     chapterIndex.value = 0;
     updatePageIndex(0);
     await _loadCurrentChapter();
     _preloadPreviousChapter();
     _preloadNextChapter();
+    await _loadAvailableSources();
     DialogUtil.dismiss();
   }
 
