@@ -1,11 +1,9 @@
 import 'package:signals/signals_flutter.dart';
-import 'package:source_parser/database/setting_service.dart';
 import 'package:source_parser/database/theme_service.dart';
 import 'package:source_parser/schema/theme.dart';
-import 'package:source_parser/view_model/app_setting_view_model.dart';
+import 'package:source_parser/util/shared_preference_util.dart';
 
 class AppThemeViewModel {
-  final settingViewModel = AppSettingViewModel();
   final themes = signal<List<Theme>>([]);
   final currentTheme = signal<Theme>(Theme());
   final loading = signal(false);
@@ -16,7 +14,6 @@ class AppThemeViewModel {
   Future<void> initSignals() async {
     if (_initialized) return;
     loading.value = true;
-    await settingViewModel.initSignals();
     await _loadThemes();
     await _loadCurrentTheme();
     loading.value = false;
@@ -40,9 +37,7 @@ class AppThemeViewModel {
   }
 
   Future<void> _loadCurrentTheme() async {
-    final setting = settingViewModel.setting.value;
-    if (setting == null) return;
-    final themeId = setting.themeId;
+    final themeId = await SharedPreferenceUtil.getThemeId();
     final theme =
         themes.value.where((theme) => theme.id == themeId).firstOrNull;
     currentTheme.value = theme ?? Theme();
@@ -70,19 +65,13 @@ class AppThemeViewModel {
     themes.value = updatedThemes;
     if (currentTheme.value.id == theme.id) {
       currentTheme.value = themes.value.first;
-      final setting = settingViewModel.setting.value;
-      if (setting != null) {
-        final updatedSetting = setting.copyWith(themeId: currentTheme.value.id ?? 0);
-        final settingService = SettingService();
-        await settingService.updateSetting(updatedSetting);
-        settingViewModel.setting.value = updatedSetting;
-      }
+      await SharedPreferenceUtil.setThemeId(currentTheme.value.id ?? 0);
     }
   }
 
   Future<void> selectTheme(Theme theme) async {
     if (currentTheme.value.id == theme.id) return;
-    await settingViewModel.selectTheme(theme);
+    await SharedPreferenceUtil.setThemeId(theme.id ?? 0);
     currentTheme.value = theme;
   }
 }
