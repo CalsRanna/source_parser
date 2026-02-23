@@ -22,7 +22,6 @@ class SourceParserViewModel {
   var isEInkMode = signal(false);
   var colorSeed = signal('#FF63BBD0');
   var screenSize = signal(Size.zero);
-  var viewPadding = signal(EdgeInsets.zero);
 
   Computed<ThemeData> get themeData {
     var actionIconThemeData = ActionIconThemeData(
@@ -56,9 +55,5 @@ class SourceParserViewModel {
 
   void updateScreenSize(Size size) {
     screenSize.value = size;
-  }
-
-  void updateViewPadding(EdgeInsets padding) {
-    viewPadding.value = padding;
   }
 }

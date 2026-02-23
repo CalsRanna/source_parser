@@ -656,14 +656,8 @@ class CloudReaderReaderViewModel {
 
   Theme _initTheme() {
     var appThemeViewModel = GetIt.instance.get<AppThemeViewModel>();
-    var viewPadding =
-        GetIt.instance.get<SourceParserViewModel>().viewPadding.value;
     var savedTheme = appThemeViewModel.currentTheme.value;
-    var baseTheme = savedTheme.copyWith(
-      footerPaddingBottom: viewPadding.bottom + savedTheme.footerPaddingBottom,
-      headerPaddingTop: viewPadding.top + savedTheme.headerPaddingTop,
-    );
-    return _assembleTheme(baseTheme);
+    return _assembleTheme(savedTheme);
   }
 
   Size _initSize(Theme theme) {
