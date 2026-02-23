@@ -58,6 +58,7 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
               icon: const Icon(HugeIcons.strokeRoundedCancel01)),
         ),
         body: Watch((context) {
+          var isSyncing = viewModel.isSyncing.value;
           if (viewModel.isLoading.value && viewModel.books.value.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -77,30 +78,38 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
               ),
             );
           }
-          return RefreshIndicator(
-            onRefresh: viewModel.refreshBooks,
-            child: BookshelfListView(
-              itemCount: viewModel.books.value.length,
-              mode: viewModel.shelfMode.value,
-              getName: (i) => viewModel.books.value[i].name,
-              getCover: (i) => CloudReaderApiClient()
-                  .getCoverUrl(viewModel.books.value[i].coverUrl),
-              getSubtitle: (i) {
-                var book = viewModel.books.value[i];
-                var chapters = book.totalChapterNum - (book.durChapterIndex + 1);
-                if (chapters > 0) return '$chapters章未读';
-                if (chapters == 0) return '已读完';
-                return '未找到章节';
-              },
-              getTrailing: (i) {
-                var time = viewModel.books.value[i].latestChapterTime;
-                if (time <= 0) return null;
-                var date = DateTime.fromMillisecondsSinceEpoch(time);
-                return '${date.month}-${date.day} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-              },
-              onTap: (i) => viewModel.openReader(context, i),
-              onLongPress: (i) => _showBottomSheet(context, i),
-            ),
+          return Column(
+            children: [
+              if (isSyncing) const LinearProgressIndicator(),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: viewModel.refreshBooks,
+                  child: BookshelfListView(
+                    itemCount: viewModel.books.value.length,
+                    mode: viewModel.shelfMode.value,
+                    getName: (i) => viewModel.books.value[i].name,
+                    getCover: (i) => CloudReaderApiClient()
+                        .getCoverUrl(viewModel.books.value[i].coverUrl),
+                    getSubtitle: (i) {
+                      var book = viewModel.books.value[i];
+                      var chapters =
+                          book.totalChapterNum - (book.durChapterIndex + 1);
+                      if (chapters > 0) return '$chapters章未读';
+                      if (chapters == 0) return '已读完';
+                      return '未找到章节';
+                    },
+                    getTrailing: (i) {
+                      var time = viewModel.books.value[i].latestChapterTime;
+                      if (time <= 0) return null;
+                      var date = DateTime.fromMillisecondsSinceEpoch(time);
+                      return '${date.month}-${date.day} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+                    },
+                    onTap: (i) => viewModel.openReader(context, i),
+                    onLongPress: (i) => _showBottomSheet(context, i),
+                  ),
+                ),
+              ),
+            ],
           );
         }),
       ),

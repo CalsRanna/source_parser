@@ -28,6 +28,66 @@ class CloudBookEntity {
 
   CloudBookEntity();
 
+  CloudBookEntity.fromDb(Map<String, dynamic> map) {
+    bookUrl = map['book_url'] ?? '';
+    tocUrl = map['toc_url'] ?? '';
+    origin = map['origin'] ?? '';
+    originName = map['origin_name'] ?? '';
+    name = map['name'] ?? '';
+    author = map['author'] ?? '';
+    kind = map['kind'] ?? '';
+    coverUrl = map['cover_url'] ?? '';
+    intro = map['intro'] ?? '';
+    type = map['type'] ?? 0;
+    group = map['group_id'] ?? 0;
+    latestChapterTitle = map['latest_chapter_title'] ?? '';
+    latestChapterTime = map['latest_chapter_time'] ?? 0;
+    lastCheckTime = map['last_check_time'] ?? 0;
+    lastCheckCount = map['last_check_count'] ?? 0;
+    totalChapterNum = map['total_chapter_num'] ?? 0;
+    durChapterTitle = map['dur_chapter_title'] ?? '';
+    durChapterIndex = map['dur_chapter_index'] ?? 0;
+    durChapterPos = map['dur_chapter_pos'] ?? 0;
+    durChapterTime = map['dur_chapter_time'] ?? 0;
+    wordCount = map['word_count'] ?? '';
+    canUpdate = (map['can_update'] ?? 0) == 1;
+    order = map['sort_order'] ?? 0;
+    originOrder = map['origin_order'] ?? 0;
+    useReplaceRule = (map['use_replace_rule'] ?? 0) == 1;
+    isInShelf = (map['is_in_shelf'] ?? 0) == 1;
+  }
+
+  Map<String, dynamic> toDb() {
+    return {
+      'book_url': bookUrl,
+      'toc_url': tocUrl,
+      'origin': origin,
+      'origin_name': originName,
+      'name': name,
+      'author': author,
+      'kind': kind,
+      'cover_url': coverUrl,
+      'intro': intro,
+      'type': type,
+      'group_id': group,
+      'latest_chapter_title': latestChapterTitle,
+      'latest_chapter_time': latestChapterTime,
+      'last_check_time': lastCheckTime,
+      'last_check_count': lastCheckCount,
+      'total_chapter_num': totalChapterNum,
+      'dur_chapter_title': durChapterTitle,
+      'dur_chapter_index': durChapterIndex,
+      'dur_chapter_pos': durChapterPos,
+      'dur_chapter_time': durChapterTime,
+      'word_count': wordCount,
+      'can_update': canUpdate ? 1 : 0,
+      'sort_order': order,
+      'origin_order': originOrder,
+      'use_replace_rule': useReplaceRule ? 1 : 0,
+      'is_in_shelf': isInShelf ? 1 : 0,
+    };
+  }
+
   CloudBookEntity.fromJson(Map<String, dynamic> json) {
     bookUrl = json['bookUrl'] ?? '';
     tocUrl = json['tocUrl'] ?? '';

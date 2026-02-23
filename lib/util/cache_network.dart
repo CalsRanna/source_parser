@@ -119,6 +119,21 @@ class CachedNetwork {
     }
   }
 
+  /// Write content to cache by key (for API-fetched content).
+  Future<void> cache(String key, String content) async {
+    final file = await _generate(key);
+    await file.create(recursive: true);
+    await file.writeAsString(content);
+  }
+
+  /// Read content from cache, return null if not cached or expired.
+  Future<String?> read(String key, {Duration? duration}) async {
+    final valid = await _valid(key, duration: duration);
+    if (!valid) return null;
+    final file = await _generate(key);
+    return file.readAsString();
+  }
+
   /// Use to cache data.
   ///
   /// Write content to file

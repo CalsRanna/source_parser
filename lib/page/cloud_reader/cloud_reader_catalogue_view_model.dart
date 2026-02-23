@@ -1,4 +1,5 @@
 import 'package:signals/signals.dart';
+import 'package:source_parser/database/cloud_chapter_service.dart';
 import 'package:source_parser/model/cloud_chapter_entity.dart';
 import 'package:source_parser/service/cloud_reader_api_client.dart';
 
@@ -11,7 +12,12 @@ class CloudReaderCatalogueViewModel {
     currentIndex.value = current;
     isLoading.value = true;
     try {
-      chapters.value = await CloudReaderApiClient().getChapterList(bookUrl);
+      var local = await CloudChapterService().getChapters(bookUrl);
+      if (local.isNotEmpty) {
+        chapters.value = local;
+      } else {
+        chapters.value = await CloudReaderApiClient().getChapterList(bookUrl);
+      }
     } catch (_) {}
     isLoading.value = false;
   }

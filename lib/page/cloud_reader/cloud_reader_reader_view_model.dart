@@ -5,12 +5,15 @@ import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/database/cloud_book_service.dart';
+import 'package:source_parser/database/cloud_chapter_service.dart';
 import 'package:source_parser/model/cloud_book_entity.dart';
 import 'package:source_parser/model/cloud_chapter_entity.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/service/cloud_reader_api_client.dart';
+import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/color_extension.dart';
 import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/logger.dart';
@@ -75,7 +78,7 @@ class CloudReaderReaderViewModel {
     theme.value = _initTheme();
     size.value = _initSize(theme.value);
     chapterIndex.value = book.durChapterIndex;
-    pageIndex.value = 0;
+    pageIndex.value = book.durChapterPos;
     eInkMode.value = await SharedPreferenceUtil.getEInkMode();
     turningMode.value = await SharedPreferenceUtil.getTurningMode();
     await _getBattery();
@@ -89,10 +92,19 @@ class CloudReaderReaderViewModel {
     _preloadNextChapter();
   }
 
-  Future<void> _loadChapterList() async {
+  Future<void> _loadChapterList({bool forceRemote = false}) async {
     try {
-      chapters.value =
+      if (!forceRemote) {
+        var local = await CloudChapterService().getChapters(book.bookUrl);
+        if (local.isNotEmpty) {
+          chapters.value = local;
+          return;
+        }
+      }
+      var remote =
           await CloudReaderApiClient().getChapterList(book.bookUrl);
+      chapters.value = remote;
+      await CloudChapterService().replaceChapters(book.bookUrl, remote);
     } catch (e) {
       error.value = '加载章节列表失败: $e';
     }
@@ -390,6 +402,16 @@ class CloudReaderReaderViewModel {
 
   void updatePageIndex(int index) {
     pageIndex.value = index;
+    var title = '';
+    if (chapterIndex.value < chapters.value.length) {
+      title = chapters.value[chapterIndex.value].title;
+    }
+    CloudBookService().updateProgress(
+      book.bookUrl,
+      chapterIndex.value,
+      title,
+      index,
+    );
     _debounceSyncProgress();
   }
 
@@ -401,6 +423,16 @@ class CloudReaderReaderViewModel {
   }
 
   Future<void> syncProgress() async {
+    var title = '';
+    if (chapterIndex.value < chapters.value.length) {
+      title = chapters.value[chapterIndex.value].title;
+    }
+    await CloudBookService().updateProgress(
+      book.bookUrl,
+      chapterIndex.value,
+      title,
+      pageIndex.value,
+    );
     try {
       await CloudReaderApiClient().saveBookProgress(
         book.bookUrl,
@@ -448,8 +480,10 @@ class CloudReaderReaderViewModel {
     nextChapterPages.value = [];
     nextChapterLoading.value = false;
     error.value = '';
+    var oldBookUrl = book.bookUrl;
     book.bookUrl = newBookUrl;
-    await _loadChapterList();
+    await CloudChapterService().deleteChapters(oldBookUrl);
+    await _loadChapterList(forceRemote: true);
     chapterIndex.value = 0;
     updatePageIndex(0);
     await _loadCurrentChapter();
@@ -462,7 +496,7 @@ class CloudReaderReaderViewModel {
     _isRotating = true;
     currentChapterPages.value = [];
     updatePageIndex(0);
-    await _loadCurrentChapter();
+    await _loadCurrentChapter(reacquire: true);
     _preloadPreviousChapter();
     _preloadNextChapter();
   }
@@ -477,10 +511,18 @@ class CloudReaderReaderViewModel {
     }
   }
 
-  Future<String> _getContent(int index) async {
+  Future<String> _getContent(int index, {bool reacquire = false}) async {
     var chapterTitle =
         index < chapters.value.length ? chapters.value[index].title : '';
     try {
+      var network = CachedNetwork(prefix: book.name);
+      var url = chapters.value[index].url;
+      if (!reacquire) {
+        var cached = await network.read(url);
+        if (cached != null) {
+          return '$chapterTitle\n\n$cached';
+        }
+      }
       var content = await CloudReaderApiClient().getBookContent(
         book.bookUrl,
         index,
@@ -488,14 +530,16 @@ class CloudReaderReaderViewModel {
       if (content.isEmpty) {
         return '$chapterTitle\n\n没有解析到内容';
       }
+      await network.cache(url, content);
       return '$chapterTitle\n\n$content';
     } catch (e) {
       return '$chapterTitle\n\n加载失败: $e';
     }
   }
 
-  Future<void> _loadCurrentChapter() async {
-    currentChapterContent.value = await _getContent(chapterIndex.value);
+  Future<void> _loadCurrentChapter({bool reacquire = false}) async {
+    currentChapterContent.value =
+        await _getContent(chapterIndex.value, reacquire: reacquire);
     var splitter = Splitter(size: size.value, theme: theme.value);
     _isRotating = true;
     currentChapterPages.value = splitter.split(currentChapterContent.value);
