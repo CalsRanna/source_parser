@@ -53,7 +53,7 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
           ],
           leading: IconButton(
               onPressed: () {
-                context.router.maybePop();
+                context.router.popForced();
               },
               icon: const Icon(HugeIcons.strokeRoundedCancel01)),
         ),
