@@ -738,10 +738,12 @@ class ReaderViewModel {
 
   Theme _initTheme() {
     var appThemeViewModel = GetIt.instance.get<AppThemeViewModel>();
+    var viewPadding =
+        GetIt.instance.get<SourceParserViewModel>().viewPadding.value;
     var savedTheme = appThemeViewModel.currentTheme.value;
     var baseTheme = savedTheme.copyWith(
-      footerPaddingBottom: 24,
-      headerPaddingTop: 48,
+      footerPaddingBottom: viewPadding.bottom + savedTheme.footerPaddingBottom,
+      headerPaddingTop: viewPadding.top + savedTheme.headerPaddingTop,
     );
     return _assembleTheme(baseTheme);
   }
