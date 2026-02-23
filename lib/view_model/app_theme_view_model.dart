@@ -11,12 +11,21 @@ class AppThemeViewModel {
   final loading = signal(false);
   final _themeService = ThemeService();
 
+  bool _initialized = false;
+
   Future<void> initSignals() async {
+    if (_initialized) return;
     loading.value = true;
     await settingViewModel.initSignals();
     await _loadThemes();
     await _loadCurrentTheme();
     loading.value = false;
+    _initialized = true;
+  }
+
+  Future<void> refresh() async {
+    _initialized = false;
+    await initSignals();
   }
 
   Future<void> _loadThemes() async {

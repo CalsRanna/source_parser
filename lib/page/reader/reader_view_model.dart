@@ -17,7 +17,9 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/chapter_entity.dart';
 import 'package:source_parser/model/source_entity.dart';
 import 'package:source_parser/page/home/bookshelf_view/bookshelf_view_model.dart';
+import 'package:source_parser/page/reader/page_turn/page_turn_controller.dart';
 import 'package:source_parser/page/reader/reader_exception.dart';
+import 'package:source_parser/page/reader/reader_turning_mode.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/theme.dart';
@@ -57,7 +59,7 @@ class ReaderViewModel {
   final source = signal(SourceEntity());
   final error = signal('');
   final eInkMode = signal(false);
-  final turningMode = signal(0);
+  final pageTurnMode = signal(PageTurnMode.slide);
   final previousChapterLoading = signal(false);
   final nextChapterLoading = signal(false);
 
@@ -83,7 +85,9 @@ class ReaderViewModel {
     return chapterIndex.value > 0 ? 1 : 0;
   });
 
-  late final controller = PageController(initialPage: book.pageIndex);
+  late final pageTurnController = PageTurnController(
+    initialIndex: book.pageIndex,
+  );
   late final subscription = VolumeUtil.stream.listen((event) {
     if (event == 'volume_up') {
       previousPage();
@@ -238,37 +242,15 @@ class ReaderViewModel {
 
     if (flatIndex < offset) {
       if (previousChapterPages.value.isNotEmpty) {
-        _deferUntilSettled(() => _rotateToPreviousChapter());
+        _rotateToPreviousChapter();
       }
     } else if (flatIndex >= offset + currLen) {
       if (nextChapterPages.value.isNotEmpty) {
-        _deferUntilSettled(() => _rotateToNextChapter());
+        _rotateToNextChapter();
       }
     } else {
       updatePageIndex(flatIndex - offset);
     }
-  }
-
-  /// 等待 PageView 滚动动画完全结束后再执行 [callback]。
-  /// 如果当前没有在滚动，则立即执行。
-  void _deferUntilSettled(VoidCallback callback) {
-    if (!controller.hasClients) {
-      callback();
-      return;
-    }
-    final position = controller.position;
-    if (!position.isScrollingNotifier.value) {
-      callback();
-      return;
-    }
-    _isRotating = true;
-    void listener() {
-      if (!position.isScrollingNotifier.value) {
-        position.isScrollingNotifier.removeListener(listener);
-        callback();
-      }
-    }
-    position.isScrollingNotifier.addListener(listener);
   }
 
   void _rotateToNextChapter({int? targetPage}) {
@@ -289,9 +271,7 @@ class ReaderViewModel {
       _loadCurrentChapter();
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (controller.hasClients) {
-          controller.jumpToPage(currentChapterOffset.value + page);
-        }
+        pageTurnController.jumpToPage(currentChapterOffset.value + page);
         _isRotating = false;
       });
     }
@@ -318,9 +298,7 @@ class ReaderViewModel {
       _loadCurrentChapter();
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (controller.hasClients) {
-          controller.jumpToPage(currentChapterOffset.value + page);
-        }
+        pageTurnController.jumpToPage(currentChapterOffset.value + page);
         _isRotating = false;
       });
     }
@@ -355,6 +333,7 @@ class ReaderViewModel {
   }
 
   Future<void> initSignals() async {
+    await GetIt.instance.get<AppThemeViewModel>().initSignals();
     theme.value = _initTheme();
     size.value = _initSize(theme.value);
     chapterIndex.value = book.chapterIndex;
@@ -364,7 +343,9 @@ class ReaderViewModel {
     availableSources.value = await _initAvailableSources();
     source.value = await SourceService().getBookSource(book.sourceId);
     eInkMode.value = await SharedPreferenceUtil.getEInkMode();
-    turningMode.value = await SharedPreferenceUtil.getTurningMode();
+    var modeStr = await SharedPreferenceUtil.getPageTurnMode();
+    pageTurnMode.value = PageTurnMode.fromString(modeStr);
+    pageTurnController.onPageChanged = handlePageChanged;
     await _getBattery();
     if (chapters.value.isEmpty) {
       error.value = StringConfig.chapterNotFound;
@@ -457,23 +438,17 @@ class ReaderViewModel {
     if (nextChapterPages.value.isNotEmpty) {
       _rotateToNextChapter();
     } else {
-      if (!controller.hasClients) return;
       var nextPlaceholderIndex =
           currentChapterOffset.value + currentChapterPages.value.length;
-      controller.jumpToPage(nextPlaceholderIndex);
+      pageTurnController.jumpToPage(nextPlaceholderIndex);
     }
   }
 
   Future<void> nextPage() async {
     if (chapters.value.isEmpty) return;
     await _getBattery();
-    if (!controller.hasClients) return;
-    var flatIndex = controller.page?.round() ?? 0;
-    if (flatIndex + 1 < pageCount.value) {
-      controller.nextPage(
-        duration: Durations.medium1,
-        curve: Curves.easeInOut,
-      );
+    if (pageTurnController.currentIndex + 1 < pageCount.value) {
+      pageTurnController.animateToNext();
     } else {
       DialogUtil.snackBar(StringConfig.noMoreChapter);
     }
@@ -488,21 +463,15 @@ class ReaderViewModel {
     if (previousChapterPages.value.isNotEmpty) {
       _rotateToPreviousChapter(targetPage: 0);
     } else {
-      if (!controller.hasClients) return;
-      controller.jumpToPage(0);
+      pageTurnController.jumpToPage(0);
     }
   }
 
   Future<void> previousPage() async {
     if (chapters.value.isEmpty) return;
     await _getBattery();
-    if (!controller.hasClients) return;
-    var flatIndex = controller.page?.round() ?? 0;
-    if (flatIndex > 0) {
-      controller.previousPage(
-        duration: Durations.medium1,
-        curve: Curves.easeInOut,
-      );
+    if (pageTurnController.currentIndex > 0) {
+      pageTurnController.animateToPrevious();
     } else {
       DialogUtil.snackBar(StringConfig.noChapterBefore);
     }
@@ -530,17 +499,13 @@ class ReaderViewModel {
     final horizontalTapArea = details.globalPosition.dx / size.width;
     final verticalTapArea = details.globalPosition.dy / size.height;
     if (horizontalTapArea < 1 / 3) {
-      if (eInkMode.value || turningMode.value & 2 == 0) return;
       previousPage();
     } else if (horizontalTapArea > 2 / 3) {
-      if (eInkMode.value || turningMode.value & 2 == 0) return;
       nextPage();
     } else if (horizontalTapArea >= 1 / 3 && horizontalTapArea <= 2 / 3) {
       if (verticalTapArea > 2 / 3) {
-        if (eInkMode.value || turningMode.value & 2 == 0) return;
         nextPage();
       } else if (verticalTapArea < 1 / 3) {
-        if (eInkMode.value || turningMode.value & 2 == 0) return;
         previousPage();
       } else {
         showUiOverlays();
@@ -764,9 +729,7 @@ class ReaderViewModel {
     _isRotating = true;
     currentChapterPages.value = splitter.split(currentChapterContent.value);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (controller.hasClients) {
-        controller.jumpToPage(currentChapterOffset.value + pageIndex.value);
-      }
+      pageTurnController.jumpToPage(currentChapterOffset.value + pageIndex.value);
       _isRotating = false;
     });
   }
@@ -788,8 +751,8 @@ class ReaderViewModel {
     nextChapterPages.value = splitter.split(nextChapterContent.value);
     nextChapterLoading.value = false;
     // Auto-rotate if user is already on the next placeholder
-    if (controller.hasClients && !_isRotating) {
-      var flatIndex = controller.page?.round() ?? 0;
+    if (!_isRotating) {
+      var flatIndex = pageTurnController.currentIndex;
       var offset = currentChapterOffset.value;
       var currLen = currentChapterPages.value.length;
       if (flatIndex >= offset + currLen) {
@@ -815,8 +778,8 @@ class ReaderViewModel {
     previousChapterPages.value = splitter.split(previousChapterContent.value);
     previousChapterLoading.value = false;
     // Auto-rotate if user is already on the previous placeholder
-    if (controller.hasClients && !_isRotating) {
-      var flatIndex = controller.page?.round() ?? 0;
+    if (!_isRotating) {
+      var flatIndex = pageTurnController.currentIndex;
       if (flatIndex < currentChapterOffset.value) {
         _rotateToPreviousChapter();
       }
