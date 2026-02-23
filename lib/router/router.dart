@@ -52,6 +52,10 @@ class AppRouter extends RootStackRouter {
       AutoRoute(page: CoverSelectorRoute.page),
       AutoRoute(page: DatabaseRoute.page),
       AutoRoute(page: AiSettingRoute.page),
+      AutoRoute(page: RuleInputRoute.page),
+      AutoRoute(page: ExploreListRoute.page),
+      AutoRoute(page: JsonDataRoute.page),
+      AutoRoute(page: RawDataRoute.page),
     ];
   }
 }

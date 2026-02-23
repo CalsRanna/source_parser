@@ -116,7 +116,7 @@ class _SettingPageState extends State<SettingPage> {
 
   Widget _buildCloudReaderSetting() {
     return ListTile(
-      onTap: () => AutoRouter.of(context).push(const CloudReaderSettingRoute()),
+      onTap: () => const CloudReaderSettingRoute().push(context),
       title: const Text('云阅读'),
       subtitle: const Text('服务器地址、账号管理'),
     );
@@ -124,7 +124,7 @@ class _SettingPageState extends State<SettingPage> {
 
   Widget _buildAiSetting() {
     return ListTile(
-      onTap: () => AutoRouter.of(context).push(const AiSettingRoute()),
+      onTap: () => const AiSettingRoute().push(context),
       title: const Text('AI 设置'),
       subtitle: const Text('配置 AI 服务的接口地址、密钥和模型'),
     );

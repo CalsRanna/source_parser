@@ -110,7 +110,7 @@ class _CloudReaderSourcePageState extends State<CloudReaderSourcePage> {
     DialogUtil.dismiss();
     if (!mounted) return;
     if (success) {
-      Navigator.pop(context, source.bookUrl);
+      Navigator.of(context).pop(source.bookUrl);
     } else {
       DialogUtil.snackBar('换源失败');
     }

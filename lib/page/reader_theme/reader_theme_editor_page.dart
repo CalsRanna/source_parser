@@ -127,11 +127,11 @@ class _FieldDialogState extends State<_FieldDialog> {
   }
 
   void handleCancel() {
-    Navigator.pop(context);
+    Navigator.of(context).pop();
   }
 
   void handleSubmit(String value) {
-    Navigator.pop(context, double.tryParse(value));
+    Navigator.of(context).pop(double.tryParse(value));
   }
 
   @override
@@ -333,7 +333,7 @@ class _ReaderThemeEditorPageState extends State<ReaderThemeEditorPage> {
 
   void updateTheme() {
     viewModel.storeTheme();
-    Navigator.of(context).pop();
+    context.router.maybePop();
   }
 
   Widget _buildChapterStyleSheet() {

@@ -116,7 +116,7 @@ class _FileManagerPageState extends State<FileManagerPage> {
   }
 
   void handleCancel() {
-    Navigator.pop(context);
+    Navigator.of(context).pop();
   }
 
   void handleConfirm(FileSystemEntity file) {
@@ -124,7 +124,7 @@ class _FileManagerPageState extends State<FileManagerPage> {
     setState(() {
       directory = null;
     });
-    Navigator.pop(context);
+    Navigator.of(context).pop();
   }
 
   Widget _buildData(List<FileSystemEntity> files) {

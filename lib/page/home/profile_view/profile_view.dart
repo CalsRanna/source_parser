@@ -96,7 +96,7 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   void handleTap(BuildContext context, PageRouteInfo route) {
-    AutoRouter.of(context).push(route);
+    route.push(context);
   }
 
   @override

@@ -108,7 +108,7 @@ class _CloudReaderExplorePageState extends State<CloudReaderExplorePage> {
                           ? const Icon(HugeIcons.strokeRoundedTick02)
                           : null,
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.of(context).pop();
                         viewModel.selectSource(source);
                       },
                     );

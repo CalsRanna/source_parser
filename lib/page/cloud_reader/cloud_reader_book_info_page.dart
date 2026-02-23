@@ -72,7 +72,7 @@ class CloudReaderBookInfoPage extends StatelessWidget {
     if (!context.mounted) return;
     if (success) {
       DialogUtil.snackBar('已加入书架');
-      Navigator.pop(context, true);
+      Navigator.of(context).pop(true);
     } else {
       DialogUtil.snackBar('加入书架失败');
     }

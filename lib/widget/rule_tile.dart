@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/util/string_extension.dart';
-import 'package:source_parser/page/source_page/rule_input.dart';
 
 class RuleTile extends StatelessWidget {
   final bool? bordered;
@@ -45,13 +45,11 @@ class RuleTile extends StatelessWidget {
 
   void handleTap(BuildContext context) async {
     if (onTap != null) return onTap!.call();
-    final page = RuleInputPage(
-      placeholder: placeholder,
+    RuleInputRoute(
       title: title,
       text: value,
+      placeholder: placeholder,
       onChange: onChange,
-    );
-    final route = MaterialPageRoute(builder: (context) => page);
-    Navigator.of(context).push(route);
+    ).push(context);
   }
 }

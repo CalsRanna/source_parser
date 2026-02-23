@@ -53,7 +53,7 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
           ],
           leading: IconButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                context.router.maybePop();
               },
               icon: const Icon(HugeIcons.strokeRoundedCancel01)),
         ),
@@ -130,7 +130,7 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
       author: book.author,
       coverUrl: coverUrl,
       onDelete: () {
-        Navigator.pop(context);
+        Navigator.of(context).pop();
         _showDeleteDialog(context, index);
       },
     );
@@ -145,12 +145,12 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
         content: Text('确定要从书架中删除《${viewModel.books.value[index].name}》吗？'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.of(context).pop(),
             child: const Text('取消'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.of(context).pop();
               viewModel.deleteBook(index);
             },
             child: const Text('确定'),

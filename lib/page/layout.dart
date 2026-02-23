@@ -116,7 +116,7 @@ class _ButtonPositionBottomSheet extends StatelessWidget {
   }
 
   void selectButtonPosition(BuildContext context, LayoutSlot position) {
-    Navigator.pop(context, position);
+    Navigator.of(context).pop(position);
   }
 
   IconData _getButtonIcon(LayoutSlot position) {

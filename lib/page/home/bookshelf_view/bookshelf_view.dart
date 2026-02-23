@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -84,7 +83,7 @@ class _ShelfModeSelector extends StatelessWidget {
 
   Future<void> addBook(BuildContext context) async {
     var route = BookFormRoute();
-    var url = await AutoRouter.of(context).push<String?>(route);
+    var url = await route.push<String?>(context);
     if (url == null) return;
     if (url.isEmpty) return;
     if (!context.mounted) return;

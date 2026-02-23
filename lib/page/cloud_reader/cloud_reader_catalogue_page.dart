@@ -42,7 +42,7 @@ class _CloudReaderCataloguePageState extends State<CloudReaderCataloguePage> {
           itemCount: viewModel.chapters.value.length,
           initialIndex: viewModel.currentIndex.value,
           getTitle: (index) => viewModel.chapters.value[index].title,
-          onTap: (index) => Navigator.pop(context, index),
+          onTap: (index) => Navigator.of(context).pop(index),
         );
       }),
     );

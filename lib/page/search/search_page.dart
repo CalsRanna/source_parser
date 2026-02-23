@@ -155,7 +155,7 @@ class _SearchPageState extends State<SearchPage> {
 
   void pop(BuildContext context) {
     viewModel.removeCurrentMaterialBanner(context);
-    Navigator.of(context).pop();
+    context.router.maybePop();
   }
 
   Widget _buildBody(BuildContext context) {

@@ -38,7 +38,7 @@ class _AboutPageState extends State<AboutPage> {
         behavior: HitTestBehavior.opaque,
         onLongPress: () {
           HapticFeedback.heavyImpact();
-          Navigator.of(context).pop(true);
+          context.router.maybePop(true);
         },
         child: Image.asset('asset/image/name.jpg', height: 80, width: 80),
       ),

@@ -10,7 +10,6 @@ import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/model/information_entity.dart';
 import 'package:source_parser/model/explore.dart';
-import 'package:source_parser/page/explore.dart';
 import 'package:source_parser/page/home/search_button.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/book.dart';
@@ -280,9 +279,7 @@ class _Grid extends StatelessWidget {
   }
 
   void handleTap(BuildContext context) {
-    final page = ExploreListPage(books: books, title: title);
-    final route = MaterialPageRoute(builder: (_) => page);
-    Navigator.of(context).push(route);
+    ExploreListRoute(books: books, title: title).push(context);
   }
 }
 
@@ -441,9 +438,7 @@ class _List extends StatelessWidget {
   }
 
   void handleTap(BuildContext context) {
-    final page = ExploreListPage(books: books, title: title);
-    final route = MaterialPageRoute(builder: (_) => page);
-    Navigator.of(context).push(route);
+    ExploreListRoute(books: books, title: title).push(context);
   }
 }
 

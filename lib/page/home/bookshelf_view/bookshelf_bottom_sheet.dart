@@ -160,12 +160,12 @@ class _BookBottomSheet extends State<BookshelfBottomSheet> {
   }
 
   void _cache() async {
-    Navigator.pop(context);
+    Navigator.of(context).pop();
     widget.onCache?.call();
   }
 
   void _clearCache() async {
-    Navigator.pop(context);
+    Navigator.of(context).pop();
     widget.onClearCache?.call();
   }
 
