@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:battery_plus/battery_plus.dart';
@@ -92,6 +93,7 @@ class ReaderViewModel {
   });
 
   bool _isRotating = false;
+  Timer? _progressDebounce;
 
   ReaderViewModel({required this.book});
 
@@ -151,7 +153,10 @@ class ReaderViewModel {
 
   String getHeaderText(int index) {
     if (index == 0) return book.name;
-    return chapters.value.elementAt(chapterIndex.value).name;
+    if (chapterIndex.value < chapters.value.length) {
+      return chapters.value.elementAt(chapterIndex.value).name;
+    }
+    return book.name;
   }
 
   ({
@@ -545,12 +550,19 @@ class ReaderViewModel {
 
   void updatePageIndex(int index) {
     pageIndex.value = index;
-    var copiedBook = book.copyWith(
-      chapterIndex: chapterIndex.value,
-      pageIndex: pageIndex.value,
-      sourceId: source.value.id,
-    );
-    BookService().updateBook(copiedBook);
+    _debouncePersistProgress();
+  }
+
+  void _debouncePersistProgress() {
+    _progressDebounce?.cancel();
+    _progressDebounce = Timer(const Duration(seconds: 1), () {
+      var copiedBook = book.copyWith(
+        chapterIndex: chapterIndex.value,
+        pageIndex: pageIndex.value,
+        sourceId: source.value.id,
+      );
+      BookService().updateBook(copiedBook);
+    });
   }
 
   Theme _assembleTheme(Theme theme) {

@@ -12,6 +12,7 @@ import 'package:source_parser/model/cloud_chapter_entity.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/theme.dart';
+import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/service/cloud_reader_api_client.dart';
 import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/color_extension.dart';
@@ -39,7 +40,7 @@ class CloudReaderReaderViewModel {
   final size = signal(Size.zero);
   final error = signal('');
   final eInkMode = signal(false);
-  final turningMode = signal(3);
+  final turningMode = signal(0);
   final previousChapterLoading = signal(false);
   final nextChapterLoading = signal(false);
 
@@ -60,7 +61,7 @@ class CloudReaderReaderViewModel {
     return chapterIndex.value > 0 ? 1 : 0;
   });
 
-  late final controller = PageController();
+  late final controller = PageController(initialPage: book.durChapterPos);
   late final subscription = VolumeUtil.stream.listen((event) {
     if (event == 'volume_up') {
       previousPage();
@@ -84,9 +85,10 @@ class CloudReaderReaderViewModel {
     await _getBattery();
     await _loadChapterList();
     if (chapters.value.isEmpty) {
-      error.value = '没有找到章节';
+      error.value = StringConfig.chapterNotFound;
       return;
     }
+    await Future.delayed(const Duration(milliseconds: 300));
     await _loadCurrentChapter();
     _preloadPreviousChapter();
     _preloadNextChapter();
@@ -106,7 +108,7 @@ class CloudReaderReaderViewModel {
       chapters.value = remote;
       await CloudChapterService().replaceChapters(book.bookUrl, remote);
     } catch (e) {
-      error.value = '加载章节列表失败: $e';
+      error.value = '${StringConfig.loadingFailed}: $e';
     }
   }
 
@@ -365,7 +367,7 @@ class CloudReaderReaderViewModel {
   void nextChapter() {
     if (chapters.value.isEmpty) return;
     if (chapterIndex.value + 1 >= chapters.value.length) {
-      DialogUtil.snackBar('后续没有任何章节');
+      DialogUtil.snackBar(StringConfig.noMoreChapter);
       return;
     }
     if (nextChapterPages.value.isNotEmpty) {
@@ -389,14 +391,14 @@ class CloudReaderReaderViewModel {
         curve: Curves.easeInOut,
       );
     } else {
-      DialogUtil.snackBar('后续没有任何章节');
+      DialogUtil.snackBar(StringConfig.noMoreChapter);
     }
   }
 
   void previousChapter() {
     if (chapters.value.isEmpty) return;
     if (chapterIndex.value - 1 < 0) {
-      DialogUtil.snackBar('当前已是第一章');
+      DialogUtil.snackBar(StringConfig.noChapterBefore);
       return;
     }
     if (previousChapterPages.value.isNotEmpty) {
@@ -418,7 +420,7 @@ class CloudReaderReaderViewModel {
         curve: Curves.easeInOut,
       );
     } else {
-      DialogUtil.snackBar('当前已是第一章');
+      DialogUtil.snackBar(StringConfig.noChapterBefore);
     }
   }
 
@@ -550,12 +552,12 @@ class CloudReaderReaderViewModel {
         index,
       );
       if (content.isEmpty) {
-        return '$chapterTitle\n\n没有解析到内容';
+        return '$chapterTitle\n\n${StringConfig.emptyContent}';
       }
       await network.cache(url, content);
       return '$chapterTitle\n\n$content';
     } catch (e) {
-      return '$chapterTitle\n\n加载失败: $e';
+      return '$chapterTitle\n\n${StringConfig.loadingFailed}: $e';
     }
   }
 
