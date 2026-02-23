@@ -12,13 +12,11 @@ class CloudReaderSourceViewModel {
   final error = signal('');
 
   int _lastIndex = 0;
-  String _currentBookUrl = '';
 
   Future<void> searchSources(String bookUrl) async {
     isSearching.value = true;
     error.value = '';
     _lastIndex = 0;
-    _currentBookUrl = bookUrl;
 
     // Load from local cache first
     try {

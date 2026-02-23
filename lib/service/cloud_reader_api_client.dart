@@ -5,12 +5,15 @@ import 'package:source_parser/model/cloud_book_entity.dart';
 import 'package:source_parser/model/cloud_chapter_entity.dart';
 import 'package:source_parser/model/cloud_explore_entity.dart';
 import 'package:source_parser/model/cloud_search_book_entity.dart';
+import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 
 class CloudReaderApiClient {
   static final CloudReaderApiClient _instance = CloudReaderApiClient._();
   factory CloudReaderApiClient() => _instance;
   CloudReaderApiClient._();
+
+  final CachedNetwork _network = CachedNetwork(prefix: 'cloud_reader');
 
   String _baseUrl = 'http://43.139.61.244:4396';
   String _accessToken = '';
@@ -45,6 +48,29 @@ class CloudReaderApiClient {
       return body;
     }
     throw Exception(body['errorMsg'] ?? '请求失败');
+  }
+
+  Future<Duration> _getCacheDuration() async {
+    var hours = await SharedPreferenceUtil.getCacheDuration();
+    return Duration(hours: hours);
+  }
+
+  Future<Map<String, dynamic>> _cachedGet(
+    Uri uri, {
+    Duration? duration,
+    bool reacquire = false,
+  }) async {
+    var url = uri.toString();
+    if (!reacquire) {
+      var cached = await _network.read(url, duration: duration);
+      if (cached != null) {
+        return jsonDecode(cached) as Map<String, dynamic>;
+      }
+    }
+    var response = await http.get(uri);
+    var body = await _parseResponse(response);
+    await _network.cache(url, response.body);
+    return body;
   }
 
   // Auth
@@ -103,14 +129,15 @@ class CloudReaderApiClient {
     String key, {
     int lastIndex = 0,
     int page = 1,
+    bool reacquire = false,
   }) async {
     var uri = _buildUri('/reader3/searchBookMulti', {
       'key': key,
       'lastIndex': lastIndex.toString(),
       'page': page.toString(),
     });
-    var response = await http.get(uri);
-    var body = await _parseResponse(response);
+    var duration = await _getCacheDuration();
+    var body = await _cachedGet(uri, duration: duration, reacquire: reacquire);
     var data = body['data'];
     if (data is List) {
       return (
@@ -131,43 +158,56 @@ class CloudReaderApiClient {
   }
 
   // Book info
-  Future<CloudBookEntity> getBookInfo(String bookUrl) async {
+  Future<CloudBookEntity> getBookInfo(
+    String bookUrl, {
+    bool reacquire = false,
+  }) async {
     var uri = _buildUri('/reader3/getBookInfo', {'url': bookUrl});
-    var response = await http.get(uri);
-    var body = await _parseResponse(response);
+    var duration = await _getCacheDuration();
+    var body = await _cachedGet(uri, duration: duration, reacquire: reacquire);
     return CloudBookEntity.fromJson(body['data']);
   }
 
   // Chapters
-  Future<List<CloudChapterEntity>> getChapterList(String bookUrl) async {
+  Future<List<CloudChapterEntity>> getChapterList(
+    String bookUrl, {
+    bool reacquire = false,
+  }) async {
     var uri = _buildUri('/reader3/getChapterList', {'url': bookUrl});
-    var response = await http.get(uri);
-    var body = await _parseResponse(response);
+    var duration = await _getCacheDuration();
+    var body = await _cachedGet(uri, duration: duration, reacquire: reacquire);
     var data = body['data'] as List;
     return data.map((json) => CloudChapterEntity.fromJson(json)).toList();
   }
 
   // Content
-  Future<String> getBookContent(String bookUrl, int index) async {
+  Future<String> getBookContent(
+    String bookUrl,
+    int index, {
+    bool reacquire = false,
+  }) async {
     var uri = _buildUri('/reader3/getBookContent', {
       'url': bookUrl,
       'index': index.toString(),
     });
-    var response = await http.get(uri);
-    var body = await _parseResponse(response);
+    var body = await _cachedGet(uri, reacquire: reacquire);
     return body['data']?.toString() ?? '';
   }
 
   // Source switching
   Future<({List<CloudSearchBookEntity> list, int lastIndex})>
-      searchBookSource(String bookUrl, {int lastIndex = 0}) async {
+      searchBookSource(
+    String bookUrl, {
+    int lastIndex = 0,
+    bool reacquire = false,
+  }) async {
     var params = {'url': bookUrl};
     if (lastIndex > 0) {
       params['lastIndex'] = lastIndex.toString();
     }
     var uri = _buildUri('/reader3/searchBookSource', params);
-    var response = await http.get(uri);
-    var body = await _parseResponse(response);
+    var duration = await _getCacheDuration();
+    var body = await _cachedGet(uri, duration: duration, reacquire: reacquire);
     var data = body['data'];
     if (data is List) {
       return (
@@ -236,10 +276,12 @@ class CloudReaderApiClient {
   }
 
   // Explore
-  Future<List<CloudExploreSource>> getExploreSources() async {
+  Future<List<CloudExploreSource>> getExploreSources({
+    bool reacquire = false,
+  }) async {
     var uri = _buildUri('/reader3/getBookSources');
-    var response = await http.get(uri);
-    var body = await _parseResponse(response);
+    var duration = await _getCacheDuration();
+    var body = await _cachedGet(uri, duration: duration, reacquire: reacquire);
     var data = body['data'] as List;
     var sources = data
         .map((json) => CloudExploreSource.fromJson(json))
@@ -252,14 +294,15 @@ class CloudReaderApiClient {
     String bookSourceUrl,
     String exploreUrl, {
     int page = 1,
+    bool reacquire = false,
   }) async {
     var uri = _buildUri('/reader3/exploreBook', {
       'bookSourceUrl': bookSourceUrl,
       'exploreUrl': exploreUrl,
       'page': page.toString(),
     });
-    var response = await http.get(uri);
-    var body = await _parseResponse(response);
+    var duration = await _getCacheDuration();
+    var body = await _cachedGet(uri, duration: duration, reacquire: reacquire);
     var data = body['data'];
     if (data is List) {
       return data.map((json) => CloudExploreBook.fromJson(json)).toList();
