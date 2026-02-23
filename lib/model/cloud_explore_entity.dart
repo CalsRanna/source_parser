@@ -1,5 +1,17 @@
 import 'package:source_parser/model/cloud_search_book_entity.dart';
 
+class CloudExploreResult {
+  final String layout;
+  final String title;
+  final List<CloudExploreBook> books;
+
+  CloudExploreResult({
+    required this.layout,
+    required this.title,
+    required this.books,
+  });
+}
+
 class CloudExploreCategory {
   String title;
   String url;

@@ -98,7 +98,8 @@ class CloudReaderBookshelfViewModel {
     books.value = await CloudBookService().getBooks();
   }
 
-  void openSearch(BuildContext context) {
-    CloudReaderSearchRoute().push(context);
+  Future<void> openSearch(BuildContext context) async {
+    await CloudReaderSearchRoute().push(context);
+    await refreshBooks();
   }
 }

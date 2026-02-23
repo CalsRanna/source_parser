@@ -116,8 +116,9 @@ class _CloudReaderBookshelfPageState extends State<CloudReaderBookshelfPage> {
     );
   }
 
-  void _openExplore(BuildContext context) {
-    CloudReaderExploreRoute().push(context);
+  void _openExplore(BuildContext context) async {
+    await CloudReaderExploreRoute().push(context);
+    await viewModel.refreshBooks();
   }
 
   void _showBottomSheet(BuildContext context, int index) {
