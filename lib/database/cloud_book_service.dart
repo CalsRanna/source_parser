@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:source_parser/database/service.dart';
 import 'package:source_parser/model/cloud_book_entity.dart';
 
@@ -34,23 +36,9 @@ class CloudBookService {
 
   Future<void> upsertBooks(List<CloudBookEntity> entities) async {
     if (entities.isEmpty) return;
-    var laconic = DatabaseService.instance.laconic;
-    await laconic.transaction(() async {
-      for (var entity in entities) {
-        var count = await laconic
-            .table('cloud_books')
-            .where('book_url', entity.bookUrl)
-            .count();
-        if (count > 0) {
-          await laconic
-              .table('cloud_books')
-              .where('book_url', entity.bookUrl)
-              .update(entity.toDb());
-        } else {
-          await laconic.table('cloud_books').insert([entity.toDb()]);
-        }
-      }
-    });
+    var dbPath = DatabaseService.instance.dbPath;
+    var data = entities.map((e) => e.toDb()).toList();
+    await Isolate.run(() => _upsertBooksInIsolate(dbPath, data));
   }
 
   Future<void> deleteBook(String bookUrl) async {
@@ -60,12 +48,8 @@ class CloudBookService {
 
   Future<void> deleteBooks(List<String> bookUrls) async {
     if (bookUrls.isEmpty) return;
-    var laconic = DatabaseService.instance.laconic;
-    await laconic.transaction(() async {
-      for (var bookUrl in bookUrls) {
-        await laconic.table('cloud_books').where('book_url', bookUrl).delete();
-      }
-    });
+    var dbPath = DatabaseService.instance.dbPath;
+    await Isolate.run(() => _deleteBooksInIsolate(dbPath, bookUrls));
   }
 
   Future<void> updateProgress(
@@ -82,4 +66,40 @@ class CloudBookService {
       'dur_chapter_time': DateTime.now().millisecondsSinceEpoch,
     });
   }
+}
+
+Future<void> _upsertBooksInIsolate(
+  String dbPath,
+  List<Map<String, dynamic>> books,
+) async {
+  var laconic = openLaconic(dbPath);
+  await laconic.transaction(() async {
+    for (var book in books) {
+      var bookUrl = book['book_url'] as String;
+      var count = await laconic
+          .table('cloud_books')
+          .where('book_url', bookUrl)
+          .count();
+      if (count > 0) {
+        await laconic
+            .table('cloud_books')
+            .where('book_url', bookUrl)
+            .update(book);
+      } else {
+        await laconic.table('cloud_books').insert([book]);
+      }
+    }
+  });
+}
+
+Future<void> _deleteBooksInIsolate(
+  String dbPath,
+  List<String> bookUrls,
+) async {
+  var laconic = openLaconic(dbPath);
+  await laconic.transaction(() async {
+    for (var bookUrl in bookUrls) {
+      await laconic.table('cloud_books').where('book_url', bookUrl).delete();
+    }
+  });
 }

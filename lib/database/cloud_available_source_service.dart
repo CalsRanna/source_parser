@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:source_parser/database/service.dart';
 import 'package:source_parser/model/cloud_available_source_entity.dart';
 
@@ -41,14 +43,22 @@ class CloudAvailableSourceService {
 
   Future<void> deleteMultipleSources(List<String> bookUrls) async {
     if (bookUrls.isEmpty) return;
-    var laconic = DatabaseService.instance.laconic;
-    await laconic.transaction(() async {
-      for (var bookUrl in bookUrls) {
-        await laconic
-            .table('cloud_available_sources')
-            .where('book_url', bookUrl)
-            .delete();
-      }
-    });
+    var dbPath = DatabaseService.instance.dbPath;
+    await Isolate.run(() => _deleteSourcesInIsolate(dbPath, bookUrls));
   }
+}
+
+Future<void> _deleteSourcesInIsolate(
+  String dbPath,
+  List<String> bookUrls,
+) async {
+  var laconic = openLaconic(dbPath);
+  await laconic.transaction(() async {
+    for (var bookUrl in bookUrls) {
+      await laconic
+          .table('cloud_available_sources')
+          .where('book_url', bookUrl)
+          .delete();
+    }
+  });
 }

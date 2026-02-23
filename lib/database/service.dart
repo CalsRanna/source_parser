@@ -16,19 +16,20 @@ class DatabaseService {
   static final DatabaseService instance = DatabaseService._internal();
 
   late Laconic laconic;
+  late String dbPath;
 
   DatabaseService._internal();
 
   Future<void> ensureInitialized() async {
     var directory = await getApplicationSupportDirectory();
-    var path = join(directory.path, 'source_parser.db');
-    var file = File(path);
-    logger.i('sqlite path: $path');
+    dbPath = join(directory.path, 'source_parser.db');
+    var file = File(dbPath);
+    logger.i('sqlite path: $dbPath');
     var exists = await file.exists();
     if (!exists) {
       await file.create(recursive: true);
     }
-    var driver = SqliteDriver(SqliteConfig(path));
+    var driver = SqliteDriver(SqliteConfig(dbPath));
     laconic = Laconic(driver, listen: (query) {
       logger.d(query.rawSql);
     });
@@ -57,4 +58,10 @@ CREATE TABLE migrations(
   final checkMigrationExistSql = '''
 SELECT name FROM sqlite_master WHERE type='table' AND name='migrations';
 ''';
+}
+
+/// Open a short-lived Laconic connection for use inside an isolate.
+Laconic openLaconic(String dbPath) {
+  var driver = SqliteDriver(SqliteConfig(dbPath));
+  return Laconic(driver);
 }
