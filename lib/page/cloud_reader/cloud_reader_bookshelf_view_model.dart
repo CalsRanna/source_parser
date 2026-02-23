@@ -37,15 +37,13 @@ class CloudReaderBookshelfViewModel {
       var remoteUrls = remoteBooks.map((b) => b.bookUrl).toSet();
       var localBooks = await CloudBookService().getBooks();
       var localUrls = localBooks.map((b) => b.bookUrl).toSet();
-      // Upsert remote books, preserve local progress
+      // Upsert remote books, use server progress but keep local page position
       for (var remote in remoteBooks) {
         var local = localBooks.where((b) => b.bookUrl == remote.bookUrl);
         if (local.isNotEmpty) {
-          var existing = local.first;
-          remote.durChapterIndex = existing.durChapterIndex;
-          remote.durChapterPos = existing.durChapterPos;
-          remote.durChapterTitle = existing.durChapterTitle;
-          remote.durChapterTime = existing.durChapterTime;
+          remote.durChapterPos = local.first.durChapterPos;
+        } else {
+          remote.durChapterPos = 0;
         }
         await CloudBookService().upsertBook(remote);
       }
