@@ -92,22 +92,29 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
     return PageView.builder(
       key: ValueKey(viewModel.theme.value),
       controller: viewModel.controller,
-      itemBuilder: (context, index) => GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapUp: viewModel.turnPage,
-        child: IgnorePointer(
-          child: ReaderContentView(
+      itemBuilder: (context, index) {
+        var pageData = viewModel.getPageData(index);
+        Widget child;
+        if (pageData.isLoading) {
+          child = ReaderContentView.loading(theme: viewModel.theme.value);
+        } else {
+          child = ReaderContentView(
             battery: viewModel.battery.value,
-            contentText: viewModel.currentChapterPages.value[index],
-            headerText: viewModel.getHeaderText(index),
-            pageProgressText: viewModel.getFooterText(index),
+            contentText: pageData.content,
+            headerText: pageData.header,
+            pageProgressText: pageData.footer,
             theme: viewModel.theme.value,
-            isFirstPage: index == 0,
-          ),
-        ),
-      ),
-      itemCount: viewModel.currentChapterPages.value.length,
-      onPageChanged: viewModel.updatePageIndex,
+            isFirstPage: pageData.isFirstPage,
+          );
+        }
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapUp: viewModel.turnPage,
+          child: IgnorePointer(child: child),
+        );
+      },
+      itemCount: viewModel.pageCount.value,
+      onPageChanged: viewModel.handlePageChanged,
       physics: physics,
     );
   }

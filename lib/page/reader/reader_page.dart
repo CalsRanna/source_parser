@@ -115,19 +115,25 @@ class _ReaderPageState extends State<ReaderPage> {
       controller: viewModel.controller,
       itemBuilder: (context, index) {
         var pageData = viewModel.getPageData(index);
-        return GestureDetector(
-          onTapUp: viewModel.turnPage,
-          child: ReaderContentView(
+        Widget child;
+        if (pageData.isLoading) {
+          child = ReaderContentView.loading(theme: viewModel.theme.value);
+        } else {
+          child = ReaderContentView(
             battery: viewModel.battery.value,
             contentText: pageData.content,
             headerText: pageData.header,
             pageProgressText: pageData.footer,
             theme: viewModel.theme.value,
             isFirstPage: pageData.isFirstPage,
-          ),
+          );
+        }
+        return GestureDetector(
+          onTapUp: viewModel.turnPage,
+          child: child,
         );
       },
-      itemCount: viewModel.allPages.value.length,
+      itemCount: viewModel.pageCount.value,
       onPageChanged: viewModel.handlePageChanged,
       physics: physics,
     );
