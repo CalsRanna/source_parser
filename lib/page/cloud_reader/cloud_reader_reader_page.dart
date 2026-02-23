@@ -3,11 +3,11 @@ import 'package:flutter/material.dart' hide Theme;
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/component/reader/reader_overlay_dark_mode_slot.dart';
+import 'package:source_parser/component/reader/reader_view.dart';
 import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/model/cloud_book_entity.dart';
 import 'package:source_parser/page/cloud_reader/cloud_reader_reader_view_model.dart';
-import 'package:source_parser/page/reader/reader_content_view.dart';
-import 'package:source_parser/page/reader/reader_overlay_dark_mode_slot.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/layout.dart';
@@ -49,7 +49,7 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
 
   @override
   void dispose() {
-    viewModel.controller.dispose();
+    viewModel.pageTurnController.dispose();
     super.dispose();
   }
 
@@ -61,61 +61,6 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
       viewModel.initSignals();
       viewModel.hideUiOverlays();
     });
-  }
-
-  Widget _buildReaderView() {
-    ScrollPhysics? physics;
-    if (viewModel.eInkMode.value || viewModel.turningMode.value & 1 == 0) {
-      physics = const NeverScrollableScrollPhysics();
-    }
-    if (viewModel.error.value.isNotEmpty) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapUp: viewModel.turnPage,
-        child: IgnorePointer(
-          child: ReaderContentView.error(
-            errorText: viewModel.error.value,
-            theme: viewModel.theme.value,
-          ),
-        ),
-      );
-    }
-    if (viewModel.currentChapterPages.value.isEmpty) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapUp: viewModel.turnPage,
-        child: IgnorePointer(
-          child: ReaderContentView.loading(theme: viewModel.theme.value),
-        ),
-      );
-    }
-    return PageView.builder(
-      controller: viewModel.controller,
-      itemBuilder: (context, index) {
-        var pageData = viewModel.getPageData(index);
-        Widget child;
-        if (pageData.isLoading) {
-          child = ReaderContentView.loading(theme: viewModel.theme.value);
-        } else {
-          child = ReaderContentView(
-            battery: viewModel.battery.value,
-            contentText: pageData.content,
-            headerText: pageData.header,
-            pageProgressText: pageData.footer,
-            theme: viewModel.theme.value,
-            isFirstPage: pageData.isFirstPage,
-          );
-        }
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapUp: viewModel.turnPage,
-          child: IgnorePointer(child: child),
-        );
-      },
-      itemCount: viewModel.pageCount.value,
-      onPageChanged: viewModel.handlePageChanged,
-      physics: physics,
-    );
   }
 
   Widget _buildOverlay() {
@@ -130,6 +75,22 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
       onPrevious: viewModel.previousChapter,
       onSource: () => viewModel.navigateSourcePage(context),
       onRefresh: viewModel.forceRefresh,
+    );
+  }
+
+  Widget _buildReaderView() {
+    var error = viewModel.error.value;
+    return ReaderView(
+      errorText: error.isNotEmpty ? error : null,
+      isLoading: viewModel.currentChapterPages.value.isEmpty,
+      theme: viewModel.theme.value,
+      battery: viewModel.battery.value,
+      eInkMode: viewModel.eInkMode.value,
+      pageTurnMode: viewModel.pageTurnMode.value,
+      pageCount: viewModel.pageCount.value,
+      controller: viewModel.pageTurnController,
+      onTapUp: viewModel.turnPage,
+      getPageData: viewModel.getPageData,
     );
   }
 }

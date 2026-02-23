@@ -31,7 +31,7 @@ class DatabaseService {
     }
     var driver = SqliteDriver(SqliteConfig(dbPath));
     laconic = Laconic(driver, listen: (query) {
-      logger.d(query.rawSql);
+      // logger.d(query.rawSql);
     });
     await _migrate();
   }

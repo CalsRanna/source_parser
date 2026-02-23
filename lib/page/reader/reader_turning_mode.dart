@@ -1,1 +1,0 @@
-enum ReaderViewTurningMode { drag, tap }

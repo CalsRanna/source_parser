@@ -6,7 +6,7 @@ import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/reader/reader_cache_sheet_view.dart';
 import 'package:source_parser/page/reader/reader_overlay_cache_slot.dart';
-import 'package:source_parser/page/reader/reader_overlay_dark_mode_slot.dart';
+import 'package:source_parser/component/reader/reader_overlay_dark_mode_slot.dart';
 import 'package:source_parser/router/router.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/layout.dart';

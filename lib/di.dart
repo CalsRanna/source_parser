@@ -58,8 +58,8 @@ class DI {
     instance.registerFactory<AvailableSourceViewModel>(
       () => AvailableSourceViewModel(),
     );
-    instance.registerFactory<ReaderViewModel>(
-      () => ReaderViewModel(book: BookEntity()),
+    instance.registerFactoryParam<ReaderViewModel, BookEntity, void>(
+      (book, _) => ReaderViewModel(book: book),
     );
     instance.registerFactory<CoverSelectorViewModel>(
       () => CoverSelectorViewModel(),

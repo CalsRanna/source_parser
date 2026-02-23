@@ -2,9 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart' hide Theme;
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/component/reader/reader_view.dart';
 import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/reader/reader_cache_indicator_view.dart';
-import 'package:source_parser/page/reader/reader_content_view.dart';
 import 'package:source_parser/page/reader/reader_overlay_view.dart';
 import 'package:source_parser/page/reader/reader_view_model.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
@@ -27,18 +27,12 @@ class _ReaderPageState extends State<ReaderPage> {
   @override
   Widget build(BuildContext context) {
     return Watch((context) {
-      var backgroundColor = sourceParserViewModel.isDarkMode.value
-          ? Colors.black
-          : Colors.white;
       var children = [
         _buildReaderView(),
         _buildReaderOverlay(),
         _buildReaderCacheIndicator(),
       ];
-      return ColoredBox(
-        color: backgroundColor,
-        child: Stack(children: children),
-      );
+      return Stack(children: children);
     });
   }
 
@@ -51,7 +45,7 @@ class _ReaderPageState extends State<ReaderPage> {
 
   @override
   void dispose() {
-    viewModel.controller.dispose();
+    viewModel.pageTurnController.dispose();
     super.dispose();
   }
 
@@ -91,50 +85,18 @@ class _ReaderPageState extends State<ReaderPage> {
   }
 
   Widget _buildReaderView() {
-    ScrollPhysics? physics;
-    if (viewModel.eInkMode.value || viewModel.turningMode.value & 1 == 0) {
-      physics = const NeverScrollableScrollPhysics();
-    }
-    if (viewModel.error.value.isNotEmpty) {
-      return GestureDetector(
-        onTapUp: viewModel.turnPage,
-        child: ReaderContentView.error(
-          errorText: viewModel.error.value,
-          theme: viewModel.theme.value,
-        ),
-      );
-    }
-    if (viewModel.currentChapterPages.value.isEmpty) {
-      return GestureDetector(
-        onTapUp: viewModel.turnPage,
-        child: ReaderContentView.loading(theme: viewModel.theme.value),
-      );
-    }
-    return PageView.builder(
-      controller: viewModel.controller,
-      itemBuilder: (context, index) {
-        var pageData = viewModel.getPageData(index);
-        Widget child;
-        if (pageData.isLoading) {
-          child = ReaderContentView.loading(theme: viewModel.theme.value);
-        } else {
-          child = ReaderContentView(
-            battery: viewModel.battery.value,
-            contentText: pageData.content,
-            headerText: pageData.header,
-            pageProgressText: pageData.footer,
-            theme: viewModel.theme.value,
-            isFirstPage: pageData.isFirstPage,
-          );
-        }
-        return GestureDetector(
-          onTapUp: viewModel.turnPage,
-          child: child,
-        );
-      },
-      itemCount: viewModel.pageCount.value,
-      onPageChanged: viewModel.handlePageChanged,
-      physics: physics,
+    var error = viewModel.error.value;
+    return ReaderView(
+      errorText: error.isNotEmpty ? error : null,
+      isLoading: viewModel.currentChapterPages.value.isEmpty,
+      theme: viewModel.theme.value,
+      battery: viewModel.battery.value,
+      eInkMode: viewModel.eInkMode.value,
+      pageTurnMode: viewModel.pageTurnMode.value,
+      pageCount: viewModel.pageCount.value,
+      controller: viewModel.pageTurnController,
+      onTapUp: viewModel.turnPage,
+      getPageData: viewModel.getPageData,
     );
   }
 }

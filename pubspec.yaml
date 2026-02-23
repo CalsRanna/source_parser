@@ -65,7 +65,12 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  
+
+  shaders:
+    - shader/page_slide.frag
+    - shader/page_cover.frag
+    - shader/page_curl.frag
+
   assets:
     - asset/
     - asset/image/

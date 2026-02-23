@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:signals/signals.dart';
 import 'package:signals/signals_flutter.dart' hide signal;
+import 'package:source_parser/component/reader/reader_turning_mode.dart';
 import 'package:source_parser/page/setting/setting_cache_duration_bottom_sheet.dart';
 import 'package:source_parser/page/setting/setting_clear_cache_dialog.dart';
 import 'package:source_parser/page/setting/setting_max_concurrent_bottom_sheet.dart';
@@ -10,7 +11,7 @@ import 'package:source_parser/util/cache_network.dart';
 import 'package:source_parser/util/shared_preference_util.dart';
 
 class SettingViewModel {
-  final turningMode = signal(0);
+  final pageTurnMode = signal(PageTurnMode.slide);
   final searchFilter = signal(false);
   final timeout = signal(30);
   final maxConcurrent = signal(16);
@@ -19,7 +20,8 @@ class SettingViewModel {
   final cacheSize = signal('');
 
   Future<void> initSignals() async {
-    turningMode.value = await SharedPreferenceUtil.getTurningMode();
+    var modeStr = await SharedPreferenceUtil.getPageTurnMode();
+    pageTurnMode.value = PageTurnMode.fromString(modeStr);
     searchFilter.value = await SharedPreferenceUtil.getSearchFilter();
     timeout.value = await SharedPreferenceUtil.getTimeout();
     maxConcurrent.value = await SharedPreferenceUtil.getMaxConcurrent();
@@ -74,8 +76,8 @@ class SettingViewModel {
   Future<void> openTurningModeBottomSheet(BuildContext context) async {
     var sheet = Watch(
       (_) => SettingTurningModeBottomSheet(
-        mode: turningMode.value,
-        onSelected: _updateTurningMode,
+        mode: pageTurnMode.value,
+        onSelected: _updatePageTurnMode,
       ),
     );
     await showModalBottomSheet(
@@ -108,12 +110,8 @@ class SettingViewModel {
     return string;
   }
 
-  void _updateTurningMode(int value) async {
-    if (turningMode.value & value != 0) {
-      turningMode.value -= value;
-    } else {
-      turningMode.value += value;
-    }
-    await SharedPreferenceUtil.setTurningMode(turningMode.value);
+  void _updatePageTurnMode(PageTurnMode mode) async {
+    pageTurnMode.value = mode;
+    await SharedPreferenceUtil.setPageTurnMode(mode.name);
   }
 }

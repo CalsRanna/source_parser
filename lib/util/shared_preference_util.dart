@@ -51,9 +51,17 @@ class SharedPreferenceUtil {
     return instance.getInt('timeout') ?? 30;
   }
 
-  static Future<int> getTurningMode() async {
+  static Future<String> getPageTurnMode() async {
     var instance = await SharedPreferences.getInstance();
-    return instance.getInt('turning_mode') ?? 3;
+    var mode = instance.getString('page_turn_mode');
+    if (mode != null) return mode;
+    // 迁移旧 key
+    var oldMode = instance.getInt('turning_mode');
+    if (oldMode != null) {
+      await instance.setString('page_turn_mode', 'slide');
+      return 'slide';
+    }
+    return 'slide';
   }
 
   static Future<void> setCacheDuration(int duration) async {
@@ -106,9 +114,9 @@ class SharedPreferenceUtil {
     await instance.setInt('timeout', timeout);
   }
 
-  static Future<void> setTurningMode(int turningMode) async {
+  static Future<void> setPageTurnMode(String mode) async {
     var instance = await SharedPreferences.getInstance();
-    await instance.setInt('turning_mode', turningMode);
+    await instance.setString('page_turn_mode', mode);
   }
 
   static Future<String> getCloudReaderShelfMode() async {

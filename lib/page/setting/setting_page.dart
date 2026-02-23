@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/component/reader/reader_turning_mode.dart';
 import 'package:source_parser/page/setting/setting_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 
@@ -103,14 +104,17 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Widget _buildTurningMode() {
-    List<String> modes = [];
-    if (viewModel.turningMode.value & 1 == 1) modes.add('滑动翻页');
-    if (viewModel.turningMode.value & 2 == 2) modes.add('点击翻页');
+    final modeName = switch (viewModel.pageTurnMode.value) {
+      PageTurnMode.slide => '滑动翻页',
+      PageTurnMode.cover => '覆盖翻页',
+      PageTurnMode.curl => '仿真翻页',
+      PageTurnMode.none => '无动画',
+    };
     return ListTile(
       onTap: () => viewModel.openTurningModeBottomSheet(context),
       title: const Text('翻页方式'),
       subtitle: const Text('阅读器的翻页方式'),
-      trailing: Text(modes.join('，')),
+      trailing: Text(modeName),
     );
   }
 

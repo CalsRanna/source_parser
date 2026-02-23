@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
-import 'package:source_parser/page/reader/reader_content_view.dart';
+import 'package:source_parser/component/reader/reader_content_view.dart';
 import 'package:source_parser/page/reader_theme/reader_theme_editor_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
