@@ -38,4 +38,17 @@ class CloudAvailableSourceService {
         .where('book_url', bookUrl)
         .delete();
   }
+
+  Future<void> deleteMultipleSources(List<String> bookUrls) async {
+    if (bookUrls.isEmpty) return;
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.transaction(() async {
+      for (var bookUrl in bookUrls) {
+        await laconic
+            .table('cloud_available_sources')
+            .where('book_url', bookUrl)
+            .delete();
+      }
+    });
+  }
 }

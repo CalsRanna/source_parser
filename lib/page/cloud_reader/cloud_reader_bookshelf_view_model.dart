@@ -4,6 +4,7 @@ import 'package:source_parser/database/cloud_available_source_service.dart';
 import 'package:source_parser/database/cloud_book_service.dart';
 import 'package:source_parser/database/cloud_chapter_service.dart';
 import 'package:source_parser/model/cloud_book_entity.dart';
+import 'package:source_parser/model/cloud_chapter_entity.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/service/cloud_reader_api_client.dart';
 import 'package:source_parser/util/cache_network.dart';
@@ -33,29 +34,57 @@ class CloudReaderBookshelfViewModel {
   Future<void> _syncFromServer() async {
     isSyncing.value = true;
     try {
-      await CloudReaderApiClient().loadConfig();
-      var remoteBooks = await CloudReaderApiClient().getBookshelf();
+      var client = CloudReaderApiClient();
+      await client.loadConfig();
+      var remoteBooks = await client.getBookshelf();
       var remoteUrls = remoteBooks.map((b) => b.bookUrl).toSet();
       var localBooks = await CloudBookService().getBooks();
       var localUrls = localBooks.map((b) => b.bookUrl).toSet();
-      // Upsert remote books, use server progress but keep local page position
+      var localMap = {for (var b in localBooks) b.bookUrl: b};
+      // Preserve local page position
       for (var remote in remoteBooks) {
-        var local = localBooks.where((b) => b.bookUrl == remote.bookUrl);
-        if (local.isNotEmpty) {
-          remote.durChapterPos = local.first.durChapterPos;
-        } else {
-          remote.durChapterPos = 0;
-        }
-        await CloudBookService().upsertBook(remote);
+        remote.durChapterPos = localMap[remote.bookUrl]?.durChapterPos ?? 0;
       }
-      // Delete local books not on server
-      for (var localUrl in localUrls) {
-        if (!remoteUrls.contains(localUrl)) {
-          var localBook = localBooks.firstWhere((b) => b.bookUrl == localUrl);
-          await CloudBookService().deleteBook(localUrl);
-          await CloudChapterService().deleteChapters(localUrl);
-          await CloudAvailableSourceService().deleteSources(localUrl);
-          await CacheManager(prefix: localBook.name).clearCache();
+      // Batch upsert remote books
+      await CloudBookService().upsertBooks(remoteBooks);
+      // Fetch book info and chapter list concurrently
+      var futures = remoteBooks.map((remote) async {
+        try {
+          var results = await Future.wait([
+            client.getBookInfo(remote.bookUrl, reacquire: true),
+            client.getChapterList(remote.bookUrl, reacquire: true),
+          ]);
+          var info = results[0] as CloudBookEntity;
+          info.durChapterPos = remote.durChapterPos;
+          var chapters = results[1] as List<CloudChapterEntity>;
+          return (bookUrl: remote.bookUrl, info: info, chapters: chapters);
+        } catch (e) {
+          logger.e('刷新书籍详情失败: ${remote.name}, $e');
+          return null;
+        }
+      });
+      var results = await Future.wait(futures);
+      var infosToUpsert = <CloudBookEntity>[];
+      var chaptersMap = <String, List<CloudChapterEntity>>{};
+      for (var result in results) {
+        if (result == null) continue;
+        infosToUpsert.add(result.info);
+        chaptersMap[result.bookUrl] = result.chapters;
+      }
+      // Batch write book info and chapters
+      await CloudBookService().upsertBooks(infosToUpsert);
+      await CloudChapterService().replaceMultipleChapters(chaptersMap);
+      // Batch delete local books not on server
+      var removedUrls = localUrls.difference(remoteUrls).toList();
+      if (removedUrls.isNotEmpty) {
+        await CloudBookService().deleteBooks(removedUrls);
+        await CloudChapterService().deleteMultipleChapters(removedUrls);
+        await CloudAvailableSourceService().deleteMultipleSources(removedUrls);
+        for (var url in removedUrls) {
+          var localBook = localMap[url];
+          if (localBook != null) {
+            await CacheManager(prefix: localBook.name).clearCache();
+          }
         }
       }
       books.value = await CloudBookService().getBooks();

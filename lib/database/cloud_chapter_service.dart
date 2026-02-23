@@ -19,14 +19,50 @@ class CloudChapterService {
     List<CloudChapterEntity> chapters,
   ) async {
     var laconic = DatabaseService.instance.laconic;
-    await laconic.table('cloud_chapters').where('book_url', bookUrl).delete();
-    if (chapters.isEmpty) return;
-    var data = chapters.map((chapter) => chapter.toDb()).toList();
-    await laconic.table('cloud_chapters').insert(data);
+    await laconic.transaction(() async {
+      await laconic
+          .table('cloud_chapters')
+          .where('book_url', bookUrl)
+          .delete();
+      if (chapters.isEmpty) return;
+      var data = chapters.map((chapter) => chapter.toDb()).toList();
+      await laconic.table('cloud_chapters').insert(data);
+    });
+  }
+
+  Future<void> replaceMultipleChapters(
+    Map<String, List<CloudChapterEntity>> chaptersMap,
+  ) async {
+    if (chaptersMap.isEmpty) return;
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.transaction(() async {
+      for (var entry in chaptersMap.entries) {
+        await laconic
+            .table('cloud_chapters')
+            .where('book_url', entry.key)
+            .delete();
+        if (entry.value.isEmpty) continue;
+        var data = entry.value.map((chapter) => chapter.toDb()).toList();
+        await laconic.table('cloud_chapters').insert(data);
+      }
+    });
   }
 
   Future<void> deleteChapters(String bookUrl) async {
     var laconic = DatabaseService.instance.laconic;
     await laconic.table('cloud_chapters').where('book_url', bookUrl).delete();
+  }
+
+  Future<void> deleteMultipleChapters(List<String> bookUrls) async {
+    if (bookUrls.isEmpty) return;
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.transaction(() async {
+      for (var bookUrl in bookUrls) {
+        await laconic
+            .table('cloud_chapters')
+            .where('book_url', bookUrl)
+            .delete();
+      }
+    });
   }
 }

@@ -32,9 +32,40 @@ class CloudBookService {
     }
   }
 
+  Future<void> upsertBooks(List<CloudBookEntity> entities) async {
+    if (entities.isEmpty) return;
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.transaction(() async {
+      for (var entity in entities) {
+        var count = await laconic
+            .table('cloud_books')
+            .where('book_url', entity.bookUrl)
+            .count();
+        if (count > 0) {
+          await laconic
+              .table('cloud_books')
+              .where('book_url', entity.bookUrl)
+              .update(entity.toDb());
+        } else {
+          await laconic.table('cloud_books').insert([entity.toDb()]);
+        }
+      }
+    });
+  }
+
   Future<void> deleteBook(String bookUrl) async {
     var laconic = DatabaseService.instance.laconic;
     await laconic.table('cloud_books').where('book_url', bookUrl).delete();
+  }
+
+  Future<void> deleteBooks(List<String> bookUrls) async {
+    if (bookUrls.isEmpty) return;
+    var laconic = DatabaseService.instance.laconic;
+    await laconic.transaction(() async {
+      for (var bookUrl in bookUrls) {
+        await laconic.table('cloud_books').where('book_url', bookUrl).delete();
+      }
+    });
   }
 
   Future<void> updateProgress(
