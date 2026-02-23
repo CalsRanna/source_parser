@@ -189,11 +189,19 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
   void _onAnimationStatus(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
       final targetIndex = _targetIndex;
-      _cleanUpAnimation();
       if (targetIndex != null) {
         widget.controller.confirmPageChange(targetIndex);
       }
-      setState(() {});
+      // 延迟清理：章节切换时 rotateTo*Chapter 会在 PostFrameCallback 中
+      // 调用 jumpToPage，如果在此处立即清理动画状态并 setState，会在
+      // jumpToPage 之前显示一帧中间状态（错误的 currentIndex），导致闪烁。
+      // 推迟到下一帧清理，让 jumpToPage 先执行。在此期间 shader 继续
+      // 显示动画最后一帧（progress=1.0），视觉上无影响。
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _cleanUpAnimation();
+        setState(() {});
+      });
     } else if (status == AnimationStatus.dismissed) {
       _cleanUpAnimation();
       setState(() {});
