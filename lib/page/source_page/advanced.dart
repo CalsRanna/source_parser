@@ -12,7 +12,7 @@ class SourceAdvancedConfigurationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = GetIt.instance<SourceFormViewModel>();
+    final viewModel = GetIt.instance.get<SourceFormViewModel>();
     return Scaffold(
       appBar: AppBar(
         actions: const [DebugButton()],

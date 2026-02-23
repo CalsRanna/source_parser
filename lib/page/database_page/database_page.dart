@@ -14,7 +14,7 @@ class DatabasePage extends StatefulWidget {
 }
 
 class _DatabasePageState extends State<DatabasePage> {
-  final viewModel = GetIt.instance<DatabaseViewModel>();
+  final viewModel = GetIt.instance.get<DatabaseViewModel>();
 
   @override
   Widget build(BuildContext context) {

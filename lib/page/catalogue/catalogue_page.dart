@@ -20,7 +20,7 @@ class CataloguePage extends StatefulWidget {
 }
 
 class _CataloguePageState extends State<CataloguePage> {
-  final viewModel = GetIt.instance<CatalogueViewModel>();
+  final viewModel = GetIt.instance.get<CatalogueViewModel>();
 
   @override
   Widget build(BuildContext context) {

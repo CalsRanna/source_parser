@@ -24,7 +24,7 @@ class _FileManagerPageState extends State<FileManagerPage> {
   @override
   void initState() {
     super.initState();
-    fileViewModel = GetIt.I<FileViewModel>();
+    fileViewModel = GetIt.instance.get<FileViewModel>();
   }
 
   @override

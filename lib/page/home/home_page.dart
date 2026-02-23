@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final viewModel = GetIt.instance<HomeViewModel>();
+  final viewModel = GetIt.instance.get<HomeViewModel>();
 
   @override
   void initState() {

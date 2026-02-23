@@ -22,7 +22,7 @@ class InformationPage extends StatefulWidget {
 }
 
 class _InformationPageState extends State<InformationPage> {
-  late final viewModel = GetIt.instance<InformationViewModel>(
+  late final viewModel = GetIt.instance.get<InformationViewModel>(
     param1: widget.information,
   );
 

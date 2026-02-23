@@ -31,7 +31,7 @@ class InformationViewModel {
 
   Future<void> changeIsInShelf(BookEntity book) async {
     isInShelf.value = !isInShelf.value;
-    var bookshelfViewModel = GetIt.instance<BookshelfViewModel>();
+    var bookshelfViewModel = GetIt.instance.get<BookshelfViewModel>();
     if (isInShelf.value) {
       bookshelfViewModel.books.value.add(book);
       await BookService().addBook(book);
@@ -105,7 +105,7 @@ class InformationViewModel {
       await BookService().updateBook(book.value);
       await ChapterService().destroyChapters(book.value.id);
       await ChapterService().addChapters(chapters.value);
-      var bookshelfViewModel = GetIt.instance<BookshelfViewModel>();
+      var bookshelfViewModel = GetIt.instance.get<BookshelfViewModel>();
       bookshelfViewModel.initSignals();
     }
   }
@@ -156,7 +156,7 @@ class InformationViewModel {
     book.value = book.value.copyWith(archive: !book.value.archive);
     if (isInShelf.value) {
       BookService().updateBook(book.value);
-      var bookshelfViewModel = GetIt.instance<BookshelfViewModel>();
+      var bookshelfViewModel = GetIt.instance.get<BookshelfViewModel>();
       bookshelfViewModel.initSignals();
     }
   }

@@ -139,7 +139,7 @@ class ReaderOverlayView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final layoutViewModel = GetIt.I<LayoutViewModel>();
+    final layoutViewModel = GetIt.instance.get<LayoutViewModel>();
     return Watch((context) {
       final layout = layoutViewModel.layout.value;
       if (layout.slot0.isEmpty) return const SizedBox();
@@ -248,7 +248,7 @@ class _OverlayMoreSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final layoutViewModel = GetIt.I<LayoutViewModel>();
+    final layoutViewModel = GetIt.instance.get<LayoutViewModel>();
     return Watch((context) {
       var layout = layoutViewModel.layout.value;
       return MenuAnchor(

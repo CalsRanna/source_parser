@@ -134,7 +134,7 @@ class _ExploreViewState extends State<ExploreView>
   @override
   void initState() {
     super.initState();
-    exploreViewModel = GetIt.I<ExploreViewModel>();
+    exploreViewModel = GetIt.instance.get<ExploreViewModel>();
     exploreViewModel.initSignals();
   }
 
@@ -542,7 +542,7 @@ class _SourceSelector extends StatefulWidget {
 class _SourceSelectorState extends State<_SourceSelector> {
   @override
   Widget build(BuildContext context) {
-    final settingViewModel = GetIt.I<AppSettingViewModel>();
+    final settingViewModel = GetIt.instance.get<AppSettingViewModel>();
     return Watch((context) {
       final sourceEntities = settingViewModel.sources.value;
       final sources = sourceEntities
@@ -559,7 +559,7 @@ class _SourceSelectorState extends State<_SourceSelector> {
   }
 
   void handleSelect(Source source) async {
-    await GetIt.I<AppSettingViewModel>().updateExploreSource(source.id);
+    await GetIt.instance.get<AppSettingViewModel>().updateExploreSource(source.id);
   }
 
   void handleTap(MenuController controller) {

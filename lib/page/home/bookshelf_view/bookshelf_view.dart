@@ -20,7 +20,7 @@ class BookshelfView extends StatefulWidget {
 
 class _BookshelfViewState extends State<BookshelfView>
     with AutomaticKeepAliveClientMixin {
-  final viewModel = GetIt.instance<BookshelfViewModel>();
+  final viewModel = GetIt.instance.get<BookshelfViewModel>();
 
   @override
   bool get wantKeepAlive => true;

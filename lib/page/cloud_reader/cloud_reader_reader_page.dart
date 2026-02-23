@@ -159,7 +159,7 @@ class _CloudReaderOverlayView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final layoutViewModel = GetIt.I<LayoutViewModel>();
+    final layoutViewModel = GetIt.instance.get<LayoutViewModel>();
     return Watch((context) {
       final layout = layoutViewModel.layout.value;
       if (layout.slot0.isEmpty) return const SizedBox();

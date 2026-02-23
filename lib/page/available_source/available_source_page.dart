@@ -25,7 +25,7 @@ class AvailableSourcePage extends StatefulWidget {
 }
 
 class _AvailableSourcePageState extends State<AvailableSourcePage> {
-  final viewModel = GetIt.instance<AvailableSourceViewModel>();
+  final viewModel = GetIt.instance.get<AvailableSourceViewModel>();
 
   @override
   void initState() {

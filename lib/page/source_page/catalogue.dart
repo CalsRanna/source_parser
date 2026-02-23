@@ -12,7 +12,7 @@ class SourceCatalogueConfigurationPage extends StatelessWidget {
   const SourceCatalogueConfigurationPage({super.key});
   @override
   Widget build(BuildContext context) {
-    final viewModel = GetIt.instance<SourceFormViewModel>();
+    final viewModel = GetIt.instance.get<SourceFormViewModel>();
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('目录配置')),
       body: Watch((context) {

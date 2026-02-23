@@ -4,10 +4,9 @@ import 'package:source_parser/util/string_extension.dart';
 
 /// A utility class that splits text content into pages for rendering in a book reader.
 ///
-/// The [Splitter] uses a binary search algorithm to find optimal page breaks while
-/// ensuring that each page:
-/// - Fits within the specified size constraints
-/// - Is properly filled with newlines when it's the last page
+/// The [Splitter] uses a two-phase algorithm to find optimal page breaks:
+/// 1. Estimate an upper bound using characters-per-page heuristic
+/// 2. Binary search within the narrowed range for the exact break point
 class Splitter {
   /// The size constraints for each page.
   final Size size;
@@ -22,6 +21,9 @@ class Splitter {
   ///
   /// This is reused across layout operations for better performance.
   late final TextPainter _painter;
+
+  /// Estimated maximum characters that can fit on a single page.
+  late final int _estimatedCharsPerPage;
 
   /// Creates a new [Splitter] instance.
   ///
@@ -46,7 +48,13 @@ class Splitter {
           letterSpacing: theme.contentLetterSpacing,
           wordSpacing: theme.contentWordSpacing,
         ),
-        _painter = TextPainter(textDirection: TextDirection.ltr);
+        _painter = TextPainter(textDirection: TextDirection.ltr) {
+    // Estimate chars per page: (width / fontSize) * (height / lineHeight)
+    var lineHeight = theme.contentFontSize * theme.contentHeight;
+    var charsPerLine = (size.width / theme.contentFontSize).floor();
+    var linesPerPage = (size.height / lineHeight).floor();
+    _estimatedCharsPerPage = (charsPerLine * linesPerPage * 1.2).ceil();
+  }
 
   /// Splits the given [content] into pages.
   ///
@@ -103,20 +111,51 @@ class Splitter {
     return TextSpan(children: children);
   }
 
+  /// Measures whether [text] fits within the page height.
+  bool _fits(String text, bool isFirstPage) {
+    _painter.text = _buildTextSpan(text, isFirstPage: isFirstPage);
+    _painter.layout(maxWidth: size.width);
+    return _painter.height <= size.height;
+  }
+
   /// Finds the end index for a page starting from [start].
   ///
-  /// Uses binary search to find the maximum amount of text that can fit on a page
-  /// while respecting the size constraints.
+  /// Uses a two-phase approach:
+  /// 1. Estimate upper bound using chars-per-page heuristic
+  /// 2. Binary search within the narrowed range
   int _findEnd(String content, int start, bool isFirstPage) {
-    int low = start;
-    int high = content.length;
-    int lastGoodEnd = start;
+    // If the remaining content fits in one page, return it all
+    if (_fits(content.substring(start), isFirstPage)) {
+      return content.length;
+    }
+
+    // Phase 1: Narrow search range using estimate
+    var estimate = start + _estimatedCharsPerPage;
+    int low, high;
+    if (estimate >= content.length) {
+      low = start;
+      high = content.length;
+    } else if (_fits(content.substring(start, estimate), isFirstPage)) {
+      // Estimate fits — double until overflow, then binary search the gap
+      low = estimate;
+      high = estimate;
+      var step = _estimatedCharsPerPage ~/ 2;
+      while (high < content.length &&
+          _fits(content.substring(start, high), isFirstPage)) {
+        low = high;
+        high = (high + step).clamp(0, content.length);
+      }
+    } else {
+      // Estimate doesn't fit — real end is between start and estimate
+      low = start;
+      high = estimate;
+    }
+
+    // Phase 2: Binary search in narrowed range
+    int lastGoodEnd = low > start ? low : start;
     while (low < high) {
       int mid = low + ((high - low) >> 1);
-      String text = content.substring(start, mid);
-      _painter.text = _buildTextSpan(text, isFirstPage: isFirstPage);
-      _painter.layout(maxWidth: size.width);
-      if (_painter.height <= size.height) {
+      if (_fits(content.substring(start, mid), isFirstPage)) {
         lastGoodEnd = mid;
         low = mid + 1;
       } else {

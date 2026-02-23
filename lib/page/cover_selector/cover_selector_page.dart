@@ -18,7 +18,7 @@ class CoverSelectorPage extends StatefulWidget {
 }
 
 class _CoverSelectorPageState extends State<CoverSelectorPage> {
-  final viewModel = GetIt.instance<CoverSelectorViewModel>();
+  final viewModel = GetIt.instance.get<CoverSelectorViewModel>();
 
   @override
   void initState() {

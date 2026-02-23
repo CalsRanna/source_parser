@@ -12,7 +12,7 @@ class SourceParser extends StatefulWidget {
 }
 
 class _SourceParserState extends State<SourceParser> {
-  final viewModel = GetIt.instance<SourceParserViewModel>();
+  final viewModel = GetIt.instance.get<SourceParserViewModel>();
 
   @override
   Widget build(BuildContext context) {

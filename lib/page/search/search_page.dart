@@ -102,7 +102,7 @@ class _Input extends StatelessWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final viewModel = GetIt.instance<SearchViewModel>();
+  final viewModel = GetIt.instance.get<SearchViewModel>();
 
   @override
   Widget build(BuildContext context) {

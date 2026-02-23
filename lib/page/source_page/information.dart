@@ -12,7 +12,7 @@ class SourceInformationConfigurationPage extends StatelessWidget {
   const SourceInformationConfigurationPage({super.key});
   @override
   Widget build(BuildContext context) {
-    final viewModel = GetIt.instance<SourceFormViewModel>();
+    final viewModel = GetIt.instance.get<SourceFormViewModel>();
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('详情配置')),
       body: Watch((context) {

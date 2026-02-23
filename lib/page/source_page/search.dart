@@ -13,7 +13,7 @@ class SourceSearchConfigurationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = GetIt.instance<SourceFormViewModel>();
+    final viewModel = GetIt.instance.get<SourceFormViewModel>();
     return Scaffold(
       appBar: AppBar(actions: const [DebugButton()], title: const Text('搜索配置')),
       body: Watch((context) {
