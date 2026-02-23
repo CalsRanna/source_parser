@@ -145,7 +145,12 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
       debugPrint('[ShaderPTView] _startAnimation PFC: _isAnimating=$_isAnimating, _targetIndex=$_targetIndex');
       _tryCaptureImagesSync();
       if (_currentImage != null && _targetImage != null) {
+        // 临时移除 status listener：直接设置 value=0.0 会使 status
+        // 从 completed 变为 dismissed，误触 _onAnimationStatus(dismissed)
+        // 导致 _cleanUpAnimation() 清理掉刚刚捕获的图片。
+        _animationController.removeStatusListener(_onAnimationStatus);
         _animationController.value = 0.0;
+        _animationController.addStatusListener(_onAnimationStatus);
         _animationController.forward();
         setState(() {});
       } else {
