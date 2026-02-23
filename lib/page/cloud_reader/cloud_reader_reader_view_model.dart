@@ -80,10 +80,10 @@ class CloudReaderReaderViewModel {
     size.value = _initSize(theme.value);
     chapterIndex.value = book.durChapterIndex;
     pageIndex.value = book.durChapterPos;
+    await _loadChapterList();
     eInkMode.value = await SharedPreferenceUtil.getEInkMode();
     turningMode.value = await SharedPreferenceUtil.getTurningMode();
     await _getBattery();
-    await _loadChapterList();
     if (chapters.value.isEmpty) {
       error.value = StringConfig.chapterNotFound;
       return;
@@ -496,6 +496,7 @@ class CloudReaderReaderViewModel {
     if (newBookUrl == null) return;
     DialogUtil.loading();
     _isRotating = true;
+    currentChapterContent.value = '';
     currentChapterPages.value = [];
     previousChapterContent.value = '';
     previousChapterPages.value = [];
@@ -535,12 +536,12 @@ class CloudReaderReaderViewModel {
     }
   }
 
-  Future<String> _getContent(int index, {bool reacquire = false}) async {
+  Future<String> _getContent(int chapterIndex, {bool reacquire = false}) async {
     var chapterTitle =
-        index < chapters.value.length ? chapters.value[index].title : '';
+        chapterIndex < chapters.value.length ? chapters.value[chapterIndex].title : '';
     try {
       var network = CachedNetwork(prefix: book.name);
-      var url = chapters.value[index].url;
+      var url = chapters.value[chapterIndex].url;
       if (!reacquire) {
         var cached = await network.read(url);
         if (cached != null) {
@@ -549,7 +550,7 @@ class CloudReaderReaderViewModel {
       }
       var content = await CloudReaderApiClient().getBookContent(
         book.bookUrl,
-        index,
+        chapterIndex,
       );
       if (content.isEmpty) {
         return '$chapterTitle\n\n${StringConfig.emptyContent}';
