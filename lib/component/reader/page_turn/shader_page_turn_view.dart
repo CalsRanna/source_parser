@@ -114,6 +114,7 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
   // --- Controller callbacks ---
 
   void _handleAnimateRequest(bool forward) {
+    debugPrint('[ShaderPTView] _handleAnimateRequest: forward=$forward, _isAnimating=$_isAnimating, currentIndex=$currentIndex, pageCount=${widget.controller.pageCount}');
     if (_isAnimating) return;
     final targetIndex = forward ? currentIndex + 1 : currentIndex - 1;
     if (targetIndex < 0 || targetIndex >= widget.controller.pageCount) return;
@@ -121,6 +122,7 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
   }
 
   void _handleJumpRequest(int index) {
+    debugPrint('[ShaderPTView] _handleJumpRequest: index=$index, _isAnimating=$_isAnimating');
     if (_isAnimating) {
       _animationController.stop();
       _cleanUpAnimation();
@@ -135,17 +137,19 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
     _isAnimating = true;
     _progress = 0.0;
 
-    // 先 setState 渲染 target 到 Offstage，下一帧同步捕获并启动动画
+    // 先 setState 渲染 target，下一帧同步捕获并启动动画
     setState(() {});
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      debugPrint('[ShaderPTView] _startAnimation PFC: _isAnimating=$_isAnimating, _targetIndex=$_targetIndex');
       _tryCaptureImagesSync();
       if (_currentImage != null && _targetImage != null) {
         _animationController.value = 0.0;
         _animationController.forward();
         setState(() {});
       } else {
+        debugPrint('[ShaderPTView] _startAnimation PFC: capture FAILED, falling back to jump');
         // shader 或截图不可用，直接跳转
         final target = _targetIndex;
         _cleanUpAnimation();
@@ -162,8 +166,10 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
   void _tryCaptureImagesSync() {
     _currentImage?.dispose();
     _targetImage?.dispose();
+    debugPrint('[ShaderPTView] capture: currentKey.ctx=${_currentPageKey.currentContext != null}, targetKey.ctx=${_targetPageKey.currentContext != null}');
     _currentImage = _captureBoundarySync(_currentPageKey);
     _targetImage = _captureBoundarySync(_targetPageKey);
+    debugPrint('[ShaderPTView] capture result: current=${_currentImage != null}, target=${_targetImage != null}');
   }
 
   ui.Image? _captureBoundarySync(GlobalKey key) {
