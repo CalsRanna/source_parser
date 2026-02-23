@@ -495,14 +495,7 @@ class ReaderViewModel {
 
   void toggleDarkMode() {
     GetIt.instance.get<SourceParserViewModel>().toggleDarkMode();
-    theme.value = _assembleTheme(theme.value);
-    _isRotating = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (controller.hasClients) {
-        controller.jumpToPage(currentChapterOffset.value + pageIndex.value);
-      }
-      _isRotating = false;
-    });
+    theme.value = _initTheme();
   }
 
   void turnPage(TapUpDetails details) {

@@ -90,7 +90,6 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
       );
     }
     return PageView.builder(
-      key: ValueKey(viewModel.theme.value),
       controller: viewModel.controller,
       itemBuilder: (context, index) {
         var pageData = viewModel.getPageData(index);

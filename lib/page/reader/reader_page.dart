@@ -111,7 +111,6 @@ class _ReaderPageState extends State<ReaderPage> {
       );
     }
     return PageView.builder(
-      key: ValueKey(viewModel.theme.value),
       controller: viewModel.controller,
       itemBuilder: (context, index) {
         var pageData = viewModel.getPageData(index);
