@@ -3,12 +3,16 @@ import 'package:source_parser/component/reader/page_turn/page_turn_controller.da
 
 class NonePageTurnView extends StatefulWidget {
   final PageTurnController controller;
+  final bool gesturesEnabled;
+  final VoidCallback onLongPress;
   final Widget Function(int) pageBuilder;
   final void Function(TapUpDetails) onTapUp;
 
   const NonePageTurnView({
     super.key,
     required this.controller,
+    required this.gesturesEnabled,
+    required this.onLongPress,
     required this.pageBuilder,
     required this.onTapUp,
   });
@@ -67,8 +71,12 @@ class _NonePageTurnViewState extends State<NonePageTurnView> {
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.gesturesEnabled) {
+      return widget.pageBuilder(widget.controller.currentIndex);
+    }
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
+      onLongPress: widget.onLongPress,
       onTapUp: widget.onTapUp,
       child: widget.pageBuilder(widget.controller.currentIndex),
     );

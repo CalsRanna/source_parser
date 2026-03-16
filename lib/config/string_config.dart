@@ -29,6 +29,8 @@ class StringConfig {
   static const changeSource = '切换书源';
   static const theme = '主题';
   static const replacement = '替换';
+  static const exitSelection = '完成选择';
+  static const enterSelection = '选择文本';
   static const developing = '开发中，但很有可能会移除该功能';
   static const foundSameSource = '发现%s个同名书源书源';
   static const backgroundImage = '背景图片';

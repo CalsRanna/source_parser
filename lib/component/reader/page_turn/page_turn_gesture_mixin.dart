@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 mixin PageTurnGestureMixin {
@@ -28,7 +27,6 @@ mixin PageTurnGestureMixin {
   void onDragCancel(bool isForward);
 
   void handleDragStart(DragStartDetails details) {
-    debugPrint('[GestureMixin] dragStart');
     _dragDistance = 0.0;
     _isDragging = false;
   }
@@ -53,14 +51,12 @@ mixin PageTurnGestureMixin {
   }
 
   void handleDragEnd(DragEndDetails details) {
-    debugPrint('[GestureMixin] dragEnd: isDragging=$_isDragging, distance=$_dragDistance');
     if (!_isDragging) return;
     _isDragging = false;
 
     final dragPercentage = _dragDistance.abs() / screenWidth;
     final velocity = (details.primaryVelocity ?? 0).abs();
     final shouldCommit = dragPercentage > 1 / 3 || velocity > 800;
-    debugPrint('[GestureMixin] dragEnd: pct=$dragPercentage, vel=$velocity, commit=$shouldCommit, forward=$_isForward');
 
     if (shouldCommit) {
       onDragCommit(_isForward);

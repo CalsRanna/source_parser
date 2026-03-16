@@ -14,7 +14,7 @@ void main() async {
   SignalsObserver.instance = null;
   DI.ensureInitialized();
   await DatabaseService.instance.ensureInitialized();
-  await Config.load();
+  // await Config.load();
   await GetIt.instance.get<AppThemeViewModel>().initSignals();
   runApp(SourceParser());
 }

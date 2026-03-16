@@ -5,8 +5,13 @@ import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals.dart';
+import 'package:source_parser/component/reader/layout/chapter_layout_result.dart';
+import 'package:source_parser/component/reader/layout/reader_layout_cache_key.dart';
+import 'package:source_parser/component/reader/layout/reader_layout_config.dart';
+import 'package:source_parser/component/reader/layout/reader_render_config.dart';
 import 'package:source_parser/component/reader/page_turn/page_turn_controller.dart';
 import 'package:source_parser/component/reader/reader_turning_mode.dart';
+import 'package:source_parser/component/reader/reader_viewport.dart';
 import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 import 'package:source_parser/schema/theme.dart';
@@ -20,15 +25,16 @@ import 'package:source_parser/view_model/app_theme_view_model.dart';
 mixin ReaderViewModelMixin {
   // --- Shared Signals ---
   final previousChapterContent = signal('');
-  final previousChapterPages = signal<List<String>>([]);
+  final previousChapterLayout = signal(ChapterLayoutResult.empty());
   final currentChapterContent = signal('');
-  final currentChapterPages = signal<List<String>>([]);
+  final currentChapterLayout = signal(ChapterLayoutResult.empty());
   final nextChapterContent = signal('');
-  final nextChapterPages = signal<List<String>>([]);
+  final nextChapterLayout = signal(ChapterLayoutResult.empty());
   final chapterIndex = signal(0);
   final pageIndex = signal(0);
   final theme = signal(Theme());
   final showOverlay = signal(false);
+  final isSelectionMode = signal(false);
   final battery = signal(100);
   final size = signal(Size.zero);
   final error = signal('');
@@ -36,6 +42,7 @@ mixin ReaderViewModelMixin {
   final pageTurnMode = signal(PageTurnMode.slide);
   final previousChapterLoading = signal(false);
   final nextChapterLoading = signal(false);
+  final layoutConfig = signal(const ReaderLayoutConfig());
 
   late final isDarkMode = computed(() {
     var sourceParserViewModel = GetIt.instance.get<SourceParserViewModel>();
@@ -59,6 +66,9 @@ mixin ReaderViewModelMixin {
   });
 
   bool isRotating = false;
+  Size _pageSize = Size.zero;
+  final _layoutCache = <ReaderLayoutCacheKey, ChapterLayoutResult>{};
+  static const _maxLayoutCacheEntries = 12;
 
   // --- Abstract members that subclasses must implement ---
   String get bookName;
@@ -69,12 +79,17 @@ mixin ReaderViewModelMixin {
   Future<String> fetchContent(int chapterIndex, {bool reacquire = false});
   void onPageIndexUpdated(int chapterIndex, int pageIndex);
 
+  ReaderRenderConfig get renderConfig {
+    return ReaderRenderConfig(theme: theme.value, layout: layoutConfig.value);
+  }
+
   // --- Shared Computed helpers ---
   int computePageCount() {
     var prev = chapterIndex.value > 0 ? 1 : 0;
     var hasChapters = totalChapterCount > 0;
-    var next = hasChapters && chapterIndex.value < totalChapterCount - 1 ? 1 : 0;
-    return prev + currentChapterPages.value.length + next;
+    var next =
+        hasChapters && chapterIndex.value < totalChapterCount - 1 ? 1 : 0;
+    return prev + currentChapterLayout.value.pageCount + next;
   }
 
   int computeCurrentChapterOffset() {
@@ -86,14 +101,14 @@ mixin ReaderViewModelMixin {
   void handlePageChanged(int flatIndex) {
     if (isRotating) return;
     var offset = currentChapterOffset.value;
-    var currLen = currentChapterPages.value.length;
+    var currLen = currentChapterLayout.value.pageCount;
 
     if (flatIndex < offset) {
-      if (previousChapterPages.value.isNotEmpty) {
+      if (previousChapterLayout.value.isNotEmpty) {
         rotateToPreviousChapter();
       }
     } else if (flatIndex >= offset + currLen) {
-      if (nextChapterPages.value.isNotEmpty) {
+      if (nextChapterLayout.value.isNotEmpty) {
         rotateToNextChapter();
       }
     } else {
@@ -105,51 +120,49 @@ mixin ReaderViewModelMixin {
     isRotating = true;
     chapterIndex.value++;
     previousChapterContent.value = currentChapterContent.value;
-    previousChapterPages.value = currentChapterPages.value;
+    previousChapterLayout.value = currentChapterLayout.value;
     previousChapterLoading.value = false;
     currentChapterContent.value = nextChapterContent.value;
-    currentChapterPages.value = nextChapterPages.value;
+    currentChapterLayout.value = nextChapterLayout.value;
     nextChapterContent.value = '';
-    nextChapterPages.value = [];
+    nextChapterLayout.value = ChapterLayoutResult.empty();
     nextChapterLoading.value = false;
     var page = targetPage ?? 0;
     updatePageIndex(page);
-    preloadNextChapter();
-    if (currentChapterPages.value.isEmpty) {
+    if (currentChapterLayout.value.isEmpty) {
       loadCurrentChapter();
     } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        pageTurnController.jumpToPage(currentChapterOffset.value + page);
-        isRotating = false;
-      });
+      pageTurnController.updatePageCount(pageCount.value);
+      pageTurnController.confirmJump(currentChapterOffset.value + page);
+      isRotating = false;
     }
+    preloadNextChapter();
   }
 
   void rotateToPreviousChapter({int? targetPage}) {
     isRotating = true;
     chapterIndex.value--;
     nextChapterContent.value = currentChapterContent.value;
-    nextChapterPages.value = currentChapterPages.value;
+    nextChapterLayout.value = currentChapterLayout.value;
     nextChapterLoading.value = false;
     currentChapterContent.value = previousChapterContent.value;
-    currentChapterPages.value = previousChapterPages.value;
+    currentChapterLayout.value = previousChapterLayout.value;
     previousChapterContent.value = '';
-    previousChapterPages.value = [];
+    previousChapterLayout.value = ChapterLayoutResult.empty();
     previousChapterLoading.value = false;
     var page = targetPage ??
-        (currentChapterPages.value.isNotEmpty
-            ? currentChapterPages.value.length - 1
+        (currentChapterLayout.value.isNotEmpty
+            ? currentChapterLayout.value.pageCount - 1
             : 0);
     updatePageIndex(page);
-    preloadPreviousChapter();
-    if (currentChapterPages.value.isEmpty) {
+    if (currentChapterLayout.value.isEmpty) {
       loadCurrentChapter();
     } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        pageTurnController.jumpToPage(currentChapterOffset.value + page);
-        isRotating = false;
-      });
+      pageTurnController.updatePageCount(pageCount.value);
+      pageTurnController.confirmJump(currentChapterOffset.value + page);
+      isRotating = false;
     }
+    preloadPreviousChapter();
   }
 
   ({
@@ -160,22 +173,23 @@ mixin ReaderViewModelMixin {
     bool isLoading,
   }) getPageData(int flatIndex) {
     var offset = currentChapterOffset.value;
-    var currLen = currentChapterPages.value.length;
+    var currLen = currentChapterLayout.value.pageCount;
 
     // Previous chapter placeholder
     if (flatIndex < offset) {
-      if (previousChapterPages.value.isNotEmpty) {
-        var lastIndex = previousChapterPages.value.length - 1;
+      if (previousChapterLayout.value.isNotEmpty) {
+        var lastIndex = previousChapterLayout.value.pageCount - 1;
         var prevChapterIdx = chapterIndex.value - 1;
         return (
-          content: previousChapterPages.value[lastIndex],
+          content: previousChapterLayout.value.pageTextAt(lastIndex),
           header: getHeaderForChapter(prevChapterIdx, lastIndex),
           footer: getFooterForChapter(
             prevChapterIdx,
             lastIndex,
-            previousChapterPages.value.length,
+            previousChapterLayout.value.pageCount,
           ),
-          isFirstPage: false,
+          isFirstPage:
+              previousChapterLayout.value.pageRangeAt(lastIndex).isFirstPage,
           isLoading: false,
         );
       }
@@ -190,17 +204,17 @@ mixin ReaderViewModelMixin {
 
     // Next chapter placeholder
     if (flatIndex >= offset + currLen) {
-      if (nextChapterPages.value.isNotEmpty) {
+      if (nextChapterLayout.value.isNotEmpty) {
         var nextChapterIdx = chapterIndex.value + 1;
         return (
-          content: nextChapterPages.value[0],
+          content: nextChapterLayout.value.pageTextAt(0),
           header: getHeaderForChapter(nextChapterIdx, 0),
           footer: getFooterForChapter(
             nextChapterIdx,
             0,
-            nextChapterPages.value.length,
+            nextChapterLayout.value.pageCount,
           ),
-          isFirstPage: true,
+          isFirstPage: nextChapterLayout.value.pageRangeAt(0).isFirstPage,
           isLoading: false,
         );
       }
@@ -215,11 +229,12 @@ mixin ReaderViewModelMixin {
 
     // Current chapter page
     var localIndex = flatIndex - offset;
+    final pageRange = currentChapterLayout.value.pageRangeAt(localIndex);
     return (
-      content: currentChapterPages.value[localIndex],
+      content: currentChapterLayout.value.pageTextAt(localIndex),
       header: getHeaderText(localIndex),
       footer: getFooterText(localIndex),
-      isFirstPage: localIndex == 0,
+      isFirstPage: pageRange.isFirstPage,
       isLoading: false,
     );
   }
@@ -233,7 +248,7 @@ mixin ReaderViewModelMixin {
   }
 
   String getFooterText(int index) {
-    var totalPagesInChapter = currentChapterPages.value.length;
+    var totalPagesInChapter = currentChapterLayout.value.pageCount;
     var totalChapters = totalChapterCount;
     if (totalChapters == 0 || totalPagesInChapter == 0) {
       return '${index + 1}/$totalPagesInChapter 0.00%';
@@ -268,26 +283,21 @@ mixin ReaderViewModelMixin {
   }
 
   void turnPage(TapUpDetails details) {
+    if (isSelectionMode.value) return;
     final screenSize =
         GetIt.instance.get<SourceParserViewModel>().screenSize.value;
     final horizontalTapArea = details.globalPosition.dx / screenSize.width;
     final verticalTapArea = details.globalPosition.dy / screenSize.height;
-    debugPrint('[turnPage] globalPos=${details.globalPosition}, screenSize=$screenSize, hArea=$horizontalTapArea, vArea=$verticalTapArea');
     if (horizontalTapArea < 1 / 3) {
-      debugPrint('[turnPage] → previousPage');
       previousPage();
     } else if (horizontalTapArea > 2 / 3) {
-      debugPrint('[turnPage] → nextPage');
       nextPage();
     } else if (horizontalTapArea >= 1 / 3 && horizontalTapArea <= 2 / 3) {
       if (verticalTapArea > 2 / 3) {
-        debugPrint('[turnPage] → nextPage (bottom)');
         nextPage();
       } else if (verticalTapArea < 1 / 3) {
-        debugPrint('[turnPage] → previousPage (top)');
         previousPage();
       } else {
-        debugPrint('[turnPage] → showUiOverlays (center)');
         showUiOverlays();
       }
     }
@@ -299,11 +309,11 @@ mixin ReaderViewModelMixin {
       DialogUtil.snackBar(StringConfig.noMoreChapter);
       return;
     }
-    if (nextChapterPages.value.isNotEmpty) {
+    if (nextChapterLayout.value.isNotEmpty) {
       rotateToNextChapter();
     } else {
       var nextPlaceholderIndex =
-          currentChapterOffset.value + currentChapterPages.value.length;
+          currentChapterOffset.value + currentChapterLayout.value.pageCount;
       pageTurnController.jumpToPage(nextPlaceholderIndex);
     }
   }
@@ -324,7 +334,7 @@ mixin ReaderViewModelMixin {
       DialogUtil.snackBar(StringConfig.noChapterBefore);
       return;
     }
-    if (previousChapterPages.value.isNotEmpty) {
+    if (previousChapterLayout.value.isNotEmpty) {
       rotateToPreviousChapter(targetPage: 0);
     } else {
       pageTurnController.jumpToPage(0);
@@ -347,6 +357,7 @@ mixin ReaderViewModelMixin {
   }
 
   void showUiOverlays() {
+    exitSelectionMode();
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
       overlays: SystemUiOverlay.values,
@@ -357,6 +368,22 @@ mixin ReaderViewModelMixin {
   void toggleDarkMode() {
     GetIt.instance.get<SourceParserViewModel>().toggleDarkMode();
     theme.value = initTheme();
+    _recomputeViewport();
+  }
+
+  void enterSelectionMode() {
+    if (isSelectionMode.value) return;
+    isSelectionMode.value = true;
+    showOverlay.value = false;
+  }
+
+  void exitSelectionMode() {
+    if (!isSelectionMode.value) return;
+    isSelectionMode.value = false;
+  }
+
+  void clearLayoutCache() {
+    _layoutCache.clear();
   }
 
   Theme assembleTheme(Theme theme) {
@@ -389,21 +416,23 @@ mixin ReaderViewModelMixin {
   Size initSize(Theme theme) {
     var screenSize =
         GetIt.instance.get<SourceParserViewModel>().screenSize.value;
-    var pagePaddingHorizontal =
-        theme.contentPaddingLeft + theme.contentPaddingRight;
-    var pagePaddingVertical =
-        theme.contentPaddingTop + theme.contentPaddingBottom;
-    var width = screenSize.width - pagePaddingHorizontal;
-    var headerPaddingVertical =
-        theme.headerPaddingBottom + theme.headerPaddingTop;
-    var footerPaddingVertical =
-        theme.footerPaddingBottom + theme.footerPaddingTop;
-    var height = screenSize.height - pagePaddingVertical;
-    height -= headerPaddingVertical;
-    height -= (theme.headerFontSize * theme.headerHeight);
-    height -= footerPaddingVertical;
-    height -= (theme.footerFontSize * theme.footerHeight);
-    return Size(width, height);
+    _pageSize = screenSize;
+    return ReaderViewportCalculator.calculate(
+      pageSize: screenSize,
+      renderConfig: renderConfig,
+    ).contentSize;
+  }
+
+  void updateViewportSize(Size pageSize) {
+    if (_sameSize(_pageSize, pageSize)) return;
+    _pageSize = pageSize;
+    _recomputeViewport();
+  }
+
+  void updateLayoutConfig(ReaderLayoutConfig value) {
+    if (layoutConfig.value == value) return;
+    layoutConfig.value = value;
+    _recomputeViewport();
   }
 
   Future<void> getBattery() async {
@@ -416,7 +445,7 @@ mixin ReaderViewModelMixin {
 
   Future<void> forceRefresh() async {
     isRotating = true;
-    currentChapterPages.value = [];
+    currentChapterLayout.value = ChapterLayoutResult.empty();
     updatePageIndex(0);
     await loadCurrentChapter(reacquire: true);
     preloadPreviousChapter();
@@ -428,34 +457,43 @@ mixin ReaderViewModelMixin {
       chapterIndex.value,
       reacquire: reacquire,
     );
-    var splitter = Splitter(size: size.value, theme: theme.value);
     isRotating = true;
-    currentChapterPages.value = splitter.split(currentChapterContent.value);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      pageTurnController.jumpToPage(
-        currentChapterOffset.value + pageIndex.value,
-      );
-      isRotating = false;
-    });
+    currentChapterLayout.value = _paginateContent(
+      chapterIndex.value,
+      currentChapterContent.value,
+    );
+    final targetPage = currentChapterLayout.value.pageCount <= 0
+        ? 0
+        : pageIndex.value.clamp(0, currentChapterLayout.value.pageCount - 1);
+    if (targetPage != pageIndex.value) {
+      updatePageIndex(targetPage);
+    }
+    pageTurnController.updatePageCount(pageCount.value);
+    pageTurnController.confirmJump(
+      currentChapterOffset.value + pageIndex.value,
+    );
+    isRotating = false;
   }
 
   Future<void> preloadNextChapter() async {
     if (chapterIndex.value + 1 >= totalChapterCount) {
       nextChapterContent.value = '';
-      nextChapterPages.value = [];
+      nextChapterLayout.value = ChapterLayoutResult.empty();
       nextChapterLoading.value = false;
       return;
     }
     nextChapterLoading.value = true;
     nextChapterContent.value = await fetchContent(chapterIndex.value + 1);
-    var splitter = Splitter(size: size.value, theme: theme.value);
-    nextChapterPages.value = splitter.split(nextChapterContent.value);
+    nextChapterLayout.value = _paginateContent(
+      chapterIndex.value + 1,
+      nextChapterContent.value,
+    );
     nextChapterLoading.value = false;
     // Auto-rotate if user is already on the next placeholder
     if (!isRotating) {
       var flatIndex = pageTurnController.currentIndex;
       var offset = currentChapterOffset.value;
-      var currLen = currentChapterPages.value.length;
+      var currLen = currentChapterLayout.value.pageCount;
       if (flatIndex >= offset + currLen) {
         rotateToNextChapter();
       }
@@ -465,15 +503,16 @@ mixin ReaderViewModelMixin {
   Future<void> preloadPreviousChapter() async {
     if (chapterIndex.value - 1 < 0) {
       previousChapterContent.value = '';
-      previousChapterPages.value = [];
+      previousChapterLayout.value = ChapterLayoutResult.empty();
       previousChapterLoading.value = false;
       return;
     }
     previousChapterLoading.value = true;
-    previousChapterContent.value =
-        await fetchContent(chapterIndex.value - 1);
-    var splitter = Splitter(size: size.value, theme: theme.value);
-    previousChapterPages.value = splitter.split(previousChapterContent.value);
+    previousChapterContent.value = await fetchContent(chapterIndex.value - 1);
+    previousChapterLayout.value = _paginateContent(
+      chapterIndex.value - 1,
+      previousChapterContent.value,
+    );
     previousChapterLoading.value = false;
     // Auto-rotate if user is already on the previous placeholder
     if (!isRotating) {
@@ -488,4 +527,87 @@ mixin ReaderViewModelMixin {
     pageIndex.value = index;
     onPageIndexUpdated(chapterIndex.value, index);
   }
+
+  ChapterLayoutResult _paginateContent(int chapterIdx, String content) {
+    if (content.isEmpty) return ChapterLayoutResult.empty();
+    final cacheKey = ReaderLayoutCacheKey.fromContent(
+      chapterIndex: chapterIdx,
+      content: content,
+      contentSize: size.value,
+      renderConfig: renderConfig,
+    );
+    final cached = _layoutCache.remove(cacheKey);
+    if (cached != null) {
+      _layoutCache[cacheKey] = cached;
+      return cached;
+    }
+
+    final result = Splitter(
+      size: size.value,
+      renderConfig: renderConfig,
+    ).paginate(content);
+    _layoutCache[cacheKey] = result;
+    if (_layoutCache.length > _maxLayoutCacheEntries) {
+      _layoutCache.remove(_layoutCache.keys.first);
+    }
+    return result;
+  }
+
+  void _recomputeViewport() {
+    if (_pageSize == Size.zero) return;
+    final newContentSize = ReaderViewportCalculator.calculate(
+      pageSize: _pageSize,
+      renderConfig: renderConfig,
+    ).contentSize;
+    if (_sameSize(size.value, newContentSize)) return;
+    final oldPageCount = currentChapterLayout.value.pageCount;
+    final oldPageIndex = pageIndex.value;
+    size.value = newContentSize;
+    if (currentChapterContent.value.isNotEmpty) {
+      currentChapterLayout.value = _paginateContent(
+        chapterIndex.value,
+        currentChapterContent.value,
+      );
+      pageIndex.value = _remapPageIndex(
+        oldIndex: oldPageIndex,
+        oldCount: oldPageCount,
+        newCount: currentChapterLayout.value.pageCount,
+      );
+      onPageIndexUpdated(chapterIndex.value, pageIndex.value);
+    }
+    if (nextChapterContent.value.isNotEmpty) {
+      nextChapterLayout.value = _paginateContent(
+        chapterIndex.value + 1,
+        nextChapterContent.value,
+      );
+    }
+    if (previousChapterContent.value.isNotEmpty) {
+      previousChapterLayout.value = _paginateContent(
+        chapterIndex.value - 1,
+        previousChapterContent.value,
+      );
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!isRotating) {
+        pageTurnController
+            .jumpToPage(currentChapterOffset.value + pageIndex.value);
+      }
+    });
+  }
+
+  int _remapPageIndex({
+    required int oldIndex,
+    required int oldCount,
+    required int newCount,
+  }) {
+    if (newCount <= 0) return 0;
+    if (oldCount <= 1) return oldIndex.clamp(0, newCount - 1);
+    final progress = oldIndex / (oldCount - 1);
+    return (progress * (newCount - 1)).round().clamp(0, newCount - 1);
+  }
+
+  bool _sameSize(Size a, Size b) {
+    return (a.width - b.width).abs() < 0.5 && (a.height - b.height).abs() < 0.5;
+  }
+
 }

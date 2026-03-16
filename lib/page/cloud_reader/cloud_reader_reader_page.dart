@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' hide Theme;
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/component/reader/layout/reader_layout_config.dart';
 import 'package:source_parser/component/reader/reader_overlay_dark_mode_slot.dart';
 import 'package:source_parser/component/reader/reader_view.dart';
 import 'package:source_parser/config/string_config.dart';
@@ -35,6 +36,8 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
       var children = [
         _buildReaderView(),
         _buildOverlay(),
+        _buildSelectionEntryOverlay(),
+        _buildSelectionOverlay(),
       ];
       return Stack(children: children);
     });
@@ -64,7 +67,9 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
   }
 
   Widget _buildOverlay() {
-    if (!viewModel.showOverlay.value) return const SizedBox();
+    if (viewModel.isSelectionMode.value || !viewModel.showOverlay.value) {
+      return const SizedBox();
+    }
     return _CloudReaderOverlayView(
       book: widget.book,
       isDarkMode: viewModel.isDarkMode.value,
@@ -79,18 +84,73 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
   }
 
   Widget _buildReaderView() {
-    var error = viewModel.error.value;
-    return ReaderView(
-      errorText: error.isNotEmpty ? error : null,
-      isLoading: viewModel.currentChapterPages.value.isEmpty,
-      theme: viewModel.theme.value,
-      battery: viewModel.battery.value,
-      eInkMode: viewModel.eInkMode.value,
-      pageTurnMode: viewModel.pageTurnMode.value,
-      pageCount: viewModel.pageCount.value,
-      controller: viewModel.pageTurnController,
-      onTapUp: viewModel.turnPage,
-      getPageData: viewModel.getPageData,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          viewModel.updateLayoutConfig(
+            ReaderLayoutConfig(
+              locale: Localizations.maybeLocaleOf(context),
+              textDirection: Directionality.of(context),
+              textHeightBehavior: DefaultTextHeightBehavior.maybeOf(context),
+              textScaleFactor: MediaQuery.textScalerOf(context).scale(1),
+            ),
+          );
+          viewModel.updateViewportSize(constraints.biggest);
+        });
+        return Watch((context) {
+          var error = viewModel.error.value;
+          return ReaderView(
+            errorText: error.isNotEmpty ? error : null,
+            isLoading: viewModel.currentChapterLayout.value.isEmpty,
+            battery: viewModel.battery.value,
+            eInkMode: viewModel.eInkMode.value,
+            renderConfig: viewModel.renderConfig,
+            selectionEnabled: viewModel.isSelectionMode.value,
+            pageTurnMode: viewModel.pageTurnMode.value,
+            pageCount: viewModel.pageCount.value,
+            controller: viewModel.pageTurnController,
+            onLongPress: viewModel.enterSelectionMode,
+            onTapUp: viewModel.turnPage,
+            getPageData: viewModel.getPageData,
+          );
+        });
+      },
+    );
+  }
+
+  Widget _buildSelectionOverlay() {
+    if (!viewModel.isSelectionMode.value) return const SizedBox();
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.topRight,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: FilledButton.tonalIcon(
+            onPressed: viewModel.exitSelectionMode,
+            icon: const Icon(Icons.check),
+            label: const Text(StringConfig.exitSelection),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectionEntryOverlay() {
+    if (viewModel.isSelectionMode.value || !viewModel.showOverlay.value) {
+      return const SizedBox();
+    }
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.topRight,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: FilledButton.tonalIcon(
+            onPressed: viewModel.enterSelectionMode,
+            icon: const Icon(Icons.select_all),
+            label: const Text(StringConfig.enterSelection),
+          ),
+        ),
+      ),
     );
   }
 }

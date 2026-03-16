@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Theme;
+import 'package:source_parser/component/reader/layout/reader_render_config.dart';
 import 'package:source_parser/database/service.dart';
 import 'package:source_parser/schema/book.dart';
 import 'package:source_parser/schema/setting.dart';
@@ -198,7 +199,10 @@ class ReaderController extends ChangeNotifier {
         title: chapter.name,
         timeout: timeout,
       );
-      return Splitter(size: size, theme: theme).split(document);
+      return Splitter(
+        size: size,
+        renderConfig: ReaderRenderConfig(theme: theme),
+      ).split(document);
     } catch (e) {
       return [];
     }

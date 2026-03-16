@@ -80,19 +80,19 @@ class _AiSettingPageState extends State<AiSettingPage> {
   }
 
   Future<void> _save() async {
-    await SharedPreferenceUtil.setAiBaseUrl(baseUrlController.text);
-    await SharedPreferenceUtil.setAiApiKey(apiKeyController.text);
-    await SharedPreferenceUtil.setAiModel(modelController.text);
-    Config.baseUrl = baseUrlController.text;
-    Config.apiKey = apiKeyController.text;
-    Config.model = modelController.text;
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        behavior: SnackBarBehavior.floating,
-        content: Text('保存成功'),
-        duration: Duration(seconds: 1),
-      ),
-    );
+    // await SharedPreferenceUtil.setAiBaseUrl(baseUrlController.text);
+    // await SharedPreferenceUtil.setAiApiKey(apiKeyController.text);
+    // await SharedPreferenceUtil.setAiModel(modelController.text);
+    // Config.baseUrl = baseUrlController.text;
+    // Config.apiKey = apiKeyController.text;
+    // Config.model = modelController.text;
+    // if (!mounted) return;
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(
+    //     behavior: SnackBarBehavior.floating,
+    //     content: Text('保存成功'),
+    //     duration: Duration(seconds: 1),
+    //   ),
+    // );
   }
 }

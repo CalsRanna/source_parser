@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:source_parser/component/reader/layout/reader_page_text_builder.dart';
+import 'package:source_parser/component/reader/layout/reader_render_config.dart';
 import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/schema/theme.dart' as schema;
-import 'package:source_parser/util/merger.dart';
 import 'package:source_parser/util/string_extension.dart';
 import 'package:source_parser/widget/loading.dart';
 
@@ -12,44 +13,49 @@ class ReaderContentView extends StatelessWidget {
   final String pageProgressText;
   final bool isLoading;
   final bool isFirstPage;
-  final schema.Theme theme;
+  final bool selectionEnabled;
+  final ReaderRenderConfig renderConfig;
   final String? errorText;
 
   const ReaderContentView({
     super.key,
     this.battery,
     required this.contentText,
-    required this.theme,
     required this.headerText,
     required this.pageProgressText,
     required this.isFirstPage,
+    required this.renderConfig,
+    this.selectionEnabled = false,
   })  : isLoading = false,
         errorText = null;
 
   const ReaderContentView.loading({
     super.key,
-    required this.theme,
+    required this.renderConfig,
   })  : battery = null,
         contentText = '',
         headerText = StringConfig.loading,
         pageProgressText = '',
         isLoading = true,
         isFirstPage = false,
+        selectionEnabled = false,
         errorText = null;
 
   const ReaderContentView.error({
     super.key,
-    required this.theme,
+    required this.renderConfig,
     required this.errorText,
   })  : battery = null,
         contentText = '',
         headerText = StringConfig.loadingFailed,
         pageProgressText = '',
         isLoading = false,
-        isFirstPage = false;
+        isFirstPage = false,
+        selectionEnabled = false;
 
   @override
   Widget build(BuildContext context) {
+    var theme = renderConfig.theme;
     var background = _buildBackground(theme);
     var content = _buildContent(theme);
     return Scaffold(
@@ -83,17 +89,24 @@ class ReaderContentView extends StatelessWidget {
   }
 
   Widget _buildContent(schema.Theme theme) {
-    var header = _Header(text: headerText, theme: theme);
+    var header = _Header(
+      text: headerText,
+      renderConfig: renderConfig,
+      theme: theme,
+    );
     Widget contentWidget = _Content(
       content: contentText,
       theme: theme,
+      renderConfig: renderConfig,
       isLoading: isLoading,
       isFirstPage: isFirstPage,
+      selectionEnabled: selectionEnabled,
       errorMessage: errorText,
     );
     var footer = _Footer(
       battery: battery,
       pageProgressText: pageProgressText,
+      renderConfig: renderConfig,
       theme: theme,
     );
     return Column(
@@ -155,15 +168,19 @@ class _Battery extends StatelessWidget {
 class _Content extends StatelessWidget {
   final String content;
   final schema.Theme theme;
+  final ReaderRenderConfig renderConfig;
   final bool isFirstPage;
   final bool isLoading;
+  final bool selectionEnabled;
   final String? errorMessage;
 
   const _Content({
     required this.content,
     required this.theme,
+    required this.renderConfig,
     required this.isFirstPage,
     required this.isLoading,
+    required this.selectionEnabled,
     this.errorMessage,
   });
 
@@ -181,6 +198,11 @@ class _Content extends StatelessWidget {
       var text = Text(
         errorMessage!.isEmpty ? StringConfig.loadingFailed : errorMessage!,
         style: textStyle,
+        locale: renderConfig.locale,
+        textDirection: renderConfig.textDirection,
+        textHeightBehavior: renderConfig.textHeightBehavior,
+        textScaler: renderConfig.textScaler,
+        textWidthBasis: renderConfig.textWidthBasis,
       );
       return Center(child: text);
     }
@@ -189,12 +211,33 @@ class _Content extends StatelessWidget {
       return const SizedBox();
     }
 
-    final merger = Merger(theme: theme);
-    return Container(
+    final textBuilder = ReaderPageTextBuilder(renderConfig: renderConfig);
+    final richText = Builder(
+      builder: (context) {
+        return RichText(
+          overflow: TextOverflow.clip,
+          textAlign: TextAlign.start,
+          textDirection: renderConfig.textDirection,
+          locale: renderConfig.locale,
+          textScaler: renderConfig.textScaler,
+          textWidthBasis: renderConfig.textWidthBasis,
+          textHeightBehavior: renderConfig.textHeightBehavior,
+          selectionColor: Theme.of(context).textSelectionTheme.selectionColor ??
+              const Color(0x666694E8),
+          selectionRegistrar:
+              selectionEnabled ? SelectionContainer.maybeOf(context) : null,
+          text: textBuilder.buildTextSpan(
+            content,
+            isFirstPage: isFirstPage,
+          ),
+        );
+      },
+    );
+    final contentView =
+        selectionEnabled ? SelectionArea(child: richText) : richText;
+    return Padding(
       padding: _getPadding(),
-      width: double.infinity,
-      child:
-          SelectableText.rich(merger.merge(content, isFirstPage: isFirstPage)),
+      child: SizedBox.expand(child: contentView),
     );
   }
 
@@ -211,18 +254,30 @@ class _Content extends StatelessWidget {
 class _Footer extends StatelessWidget {
   final int? battery;
   final String pageProgressText;
+  final ReaderRenderConfig renderConfig;
   final schema.Theme theme;
 
   const _Footer({
     this.battery,
     required this.pageProgressText,
+    required this.renderConfig,
     required this.theme,
   });
 
   @override
   Widget build(BuildContext context) {
     var children = [
-      Text(pageProgressText, style: _getStyle()),
+      Text(
+        pageProgressText,
+        maxLines: 1,
+        softWrap: false,
+        style: _getStyle(),
+        locale: renderConfig.locale,
+        textDirection: renderConfig.textDirection,
+        textHeightBehavior: renderConfig.textHeightBehavior,
+        textScaler: renderConfig.textScaler,
+        textWidthBasis: renderConfig.textWidthBasis,
+      ),
       const Spacer(),
       _buildTime(),
       const SizedBox(width: 4),
@@ -244,7 +299,17 @@ class _Footer extends StatelessWidget {
 
   Widget _buildTime() {
     var time = DateTime.now().toString().substring(11, 16);
-    return Text(time, style: _getStyle());
+    return Text(
+      time,
+      maxLines: 1,
+      softWrap: false,
+      style: _getStyle(),
+      locale: renderConfig.locale,
+      textDirection: renderConfig.textDirection,
+      textHeightBehavior: renderConfig.textHeightBehavior,
+      textScaler: renderConfig.textScaler,
+      textWidthBasis: renderConfig.textWidthBasis,
+    );
   }
 
   EdgeInsets _getPadding() {
@@ -271,15 +336,32 @@ class _Footer extends StatelessWidget {
 
 class _Header extends StatelessWidget {
   final String text;
+  final ReaderRenderConfig renderConfig;
   final schema.Theme theme;
 
-  const _Header({required this.text, required this.theme});
+  const _Header({
+    required this.text,
+    required this.renderConfig,
+    required this.theme,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: _getPadding(),
-      child: Text(text, style: _getStyle(), textAlign: TextAlign.start),
+      child: Text(
+        text,
+        style: _getStyle(),
+        textAlign: TextAlign.start,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        locale: renderConfig.locale,
+        textDirection: renderConfig.textDirection,
+        textHeightBehavior: renderConfig.textHeightBehavior,
+        textScaler: renderConfig.textScaler,
+        textWidthBasis: renderConfig.textWidthBasis,
+      ),
     );
   }
 

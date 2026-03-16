@@ -2,10 +2,7 @@ import 'package:flutter/material.dart' hide Theme;
 import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/string_extension.dart';
 
-/// Shared text styles and TextSpan building for the reader.
-///
-/// Used by both [Splitter] (for layout measurement) and [Merger] (for rendering)
-/// to ensure consistent text styling.
+/// Shared text styles and span building for reader pagination and rendering.
 class ReaderTextStyle {
   final TextStyle chapterStyle;
   final TextStyle contentStyle;

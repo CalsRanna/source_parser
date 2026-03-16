@@ -11,6 +11,8 @@ import 'package:source_parser/component/reader/reader_turning_mode.dart';
 class ShaderPageTurnView extends StatefulWidget {
   final String shaderAsset;
   final PageTurnController controller;
+  final bool gesturesEnabled;
+  final VoidCallback onLongPress;
   final Widget Function(int) pageBuilder;
   final void Function(TapUpDetails) onTapUp;
   final PageTurnMode mode;
@@ -19,6 +21,8 @@ class ShaderPageTurnView extends StatefulWidget {
     super.key,
     required this.shaderAsset,
     required this.controller,
+    required this.gesturesEnabled,
+    required this.onLongPress,
     required this.pageBuilder,
     required this.onTapUp,
     required this.mode,
@@ -60,7 +64,6 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
   @override
   void initState() {
     super.initState();
-    debugPrint('[ShaderPTView] initState, asset=${widget.shaderAsset}');
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -80,28 +83,27 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
     try {
       final program = await ui.FragmentProgram.fromAsset(widget.shaderAsset);
       _shader = program.fragmentShader();
-      debugPrint('[ShaderPTView] shader loaded OK');
       if (mounted) setState(() {});
-    } catch (e) {
-      debugPrint('[ShaderPTView] shader load FAILED: $e');
-    }
+    } catch (_) {}
   }
 
   @override
   void didUpdateWidget(covariant ShaderPageTurnView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    debugPrint('[ShaderPTView] didUpdateWidget, shaderChanged=${oldWidget.shaderAsset != widget.shaderAsset}, controllerChanged=${oldWidget.controller != widget.controller}');
     if (oldWidget.shaderAsset != widget.shaderAsset) {
       _loadShader();
     }
     if (oldWidget.controller != widget.controller) {
       _bindController();
     }
+    if (oldWidget.gesturesEnabled && !widget.gesturesEnabled && _isAnimating) {
+      _animationController.stop();
+      _cleanUpAnimation();
+    }
   }
 
   @override
   void dispose() {
-    debugPrint('[ShaderPTView] dispose');
     widget.controller.onAnimateRequest = null;
     widget.controller.onJumpRequest = null;
     _animationController.dispose();
@@ -114,7 +116,6 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
   // --- Controller callbacks ---
 
   void _handleAnimateRequest(bool forward) {
-    debugPrint('[ShaderPTView] _handleAnimateRequest: forward=$forward, _isAnimating=$_isAnimating, currentIndex=$currentIndex, pageCount=${widget.controller.pageCount}');
     if (_isAnimating) return;
     final targetIndex = forward ? currentIndex + 1 : currentIndex - 1;
     if (targetIndex < 0 || targetIndex >= widget.controller.pageCount) return;
@@ -122,7 +123,6 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
   }
 
   void _handleJumpRequest(int index) {
-    debugPrint('[ShaderPTView] _handleJumpRequest: index=$index, _isAnimating=$_isAnimating');
     if (_isAnimating) {
       _animationController.stop();
       _cleanUpAnimation();
@@ -142,7 +142,6 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      debugPrint('[ShaderPTView] _startAnimation PFC: _isAnimating=$_isAnimating, _targetIndex=$_targetIndex');
       _tryCaptureImagesSync();
       if (_currentImage != null && _targetImage != null) {
         // 临时移除 status listener：直接设置 value=0.0 会使 status
@@ -154,7 +153,6 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
         _animationController.forward();
         setState(() {});
       } else {
-        debugPrint('[ShaderPTView] _startAnimation PFC: capture FAILED, falling back to jump');
         // shader 或截图不可用，直接跳转
         final target = _targetIndex;
         _cleanUpAnimation();
@@ -171,10 +169,8 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
   void _tryCaptureImagesSync() {
     _currentImage?.dispose();
     _targetImage?.dispose();
-    debugPrint('[ShaderPTView] capture: currentKey.ctx=${_currentPageKey.currentContext != null}, targetKey.ctx=${_targetPageKey.currentContext != null}');
     _currentImage = _captureBoundarySync(_currentPageKey);
     _targetImage = _captureBoundarySync(_targetPageKey);
-    debugPrint('[ShaderPTView] capture result: current=${_currentImage != null}, target=${_targetImage != null}');
   }
 
   ui.Image? _captureBoundarySync(GlobalKey key) {
@@ -233,7 +229,6 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
 
   @override
   void onDragProgress(double progress) {
-    debugPrint('[ShaderPTView] onDragProgress: $progress, isAnimating=$_isAnimating, targetIndex=$_targetIndex');
     if (!_isAnimating && _targetIndex == null) {
       _animatingForward = isForward;
       _targetIndex = isForward ? currentIndex + 1 : currentIndex - 1;
@@ -306,7 +301,6 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
 
   void _handlePointerUp(PointerUpEvent event) {
     if (_pointerDownPosition != null && _maxPointerDisplacement < kTouchSlop) {
-      debugPrint('[ShaderPTView] Listener tap at ${event.position}');
       widget.onTapUp(TapUpDetails(
         globalPosition: event.position,
         localPosition: event.localPosition,
@@ -320,8 +314,8 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
 
   @override
   Widget build(BuildContext context) {
-    final isAnim = _isAnimating && _currentImage != null && _targetImage != null;
-    debugPrint('[ShaderPTView] build: isAnimating=$_isAnimating, hasCurrentImg=${_currentImage != null}, hasTargetImg=${_targetImage != null}, hasShader=${_shader != null}, currentIdx=${widget.controller.currentIndex}, pageCount=${widget.controller.pageCount}');
+    final isAnim =
+        _isAnimating && _currentImage != null && _targetImage != null;
     if (isAnim) {
       return _buildAnimatingView();
     }
@@ -329,6 +323,9 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
   }
 
   Widget _buildStaticView() {
+    if (!widget.gesturesEnabled) {
+      return widget.pageBuilder(widget.controller.currentIndex);
+    }
     Widget current = RepaintBoundary(
       key: _currentPageKey,
       child: widget.pageBuilder(widget.controller.currentIndex),
@@ -353,6 +350,7 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
       onPointerUp: _handlePointerUp,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
+        onLongPress: widget.onLongPress,
         onHorizontalDragStart: handleDragStart,
         onHorizontalDragUpdate: handleDragUpdate,
         onHorizontalDragEnd: handleDragEnd,
@@ -362,6 +360,9 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
   }
 
   Widget _buildAnimatingView() {
+    if (!widget.gesturesEnabled) {
+      return widget.pageBuilder(widget.controller.currentIndex);
+    }
     // 向后翻页时反转进度，让 shader 动画方向正确
     final effectiveProgress = _animatingForward ? _progress : 1.0 - _progress;
 
@@ -371,6 +372,7 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
       onPointerUp: _handlePointerUp,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
+        onLongPress: widget.onLongPress,
         onHorizontalDragStart: handleDragStart,
         onHorizontalDragUpdate: handleDragUpdate,
         onHorizontalDragEnd: handleDragEnd,
@@ -390,7 +392,8 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
               painter: _ShaderPainter(
                 shader: _shader,
                 progress: effectiveProgress,
-                currentImage: _animatingForward ? _currentImage! : _targetImage!,
+                currentImage:
+                    _animatingForward ? _currentImage! : _targetImage!,
                 nextImage: _animatingForward ? _targetImage! : _currentImage!,
                 size: MediaQuery.of(context).size,
                 mode: widget.mode,

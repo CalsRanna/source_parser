@@ -13,6 +13,7 @@ class PageTurnController extends ChangeNotifier {
 
   /// 页面变更回调，View 层设置，通知 ViewModel 执行章节轮转等逻辑
   void Function(int flatIndex)? onPageChanged;
+  int Function(int flatIndex)? onResolvePageChange;
 
   /// View 层注册的动画执行器，Controller 调用 animate* 时委托给 View 执行
   void Function(bool forward)? onAnimateRequest;
@@ -43,9 +44,7 @@ class PageTurnController extends ChangeNotifier {
     } else {
       // 无 View 绑定时直接跳转
       if (_currentIndex + 1 < _pageCount) {
-        _currentIndex++;
-        notifyListeners();
-        onPageChanged?.call(_currentIndex);
+        confirmPageChange(_currentIndex + 1);
       }
     }
   }
@@ -56,18 +55,19 @@ class PageTurnController extends ChangeNotifier {
       onAnimateRequest!(false);
     } else {
       if (_currentIndex > 0) {
-        _currentIndex--;
-        notifyListeners();
-        onPageChanged?.call(_currentIndex);
+        confirmPageChange(_currentIndex - 1);
       }
     }
   }
 
   /// View 层在动画/拖拽完成后调用，更新当前索引并通知 ViewModel
   void confirmPageChange(int newIndex) {
-    _currentIndex = newIndex.clamp(0, _pageCount > 0 ? _pageCount - 1 : 0);
+    final resolvedIndex = onResolvePageChange?.call(newIndex) ?? newIndex;
+    _currentIndex = resolvedIndex.clamp(0, _pageCount > 0 ? _pageCount - 1 : 0);
     notifyListeners();
-    onPageChanged?.call(_currentIndex);
+    if (onResolvePageChange == null) {
+      onPageChanged?.call(_currentIndex);
+    }
   }
 
   /// View 层在无动画跳转完成后调用

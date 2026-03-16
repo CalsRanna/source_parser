@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart' hide Theme;
 import 'package:get_it/get_it.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/component/reader/layout/chapter_layout_result.dart';
 import 'package:source_parser/component/reader/page_turn/page_turn_controller.dart';
 import 'package:source_parser/component/reader/reader_exception.dart';
 import 'package:source_parser/component/reader/reader_turning_mode.dart';
@@ -29,7 +30,9 @@ import 'package:source_parser/util/shared_preference_util.dart';
 import 'package:source_parser/util/string_extension.dart';
 import 'package:source_parser/view_model/app_theme_view_model.dart';
 
-class ReaderViewModel with ReaderViewModelMixin implements ReaderViewModelInterface {
+class ReaderViewModel
+    with ReaderViewModelMixin
+    implements ReaderViewModelInterface {
   final BookEntity book;
   final catalogueUrl = signal('');
   final chapters = signal<List<ChapterEntity>>([]);
@@ -67,7 +70,8 @@ class ReaderViewModel with ReaderViewModelMixin implements ReaderViewModelInterf
   String getChapterName(int index) => chapters.value.elementAt(index).name;
 
   @override
-  Future<String> fetchContent(int chapterIndex, {bool reacquire = false}) async {
+  Future<String> fetchContent(int chapterIndex,
+      {bool reacquire = false}) async {
     try {
       return await _getContent(chapterIndex, reacquire: reacquire);
     } on ReaderException catch (e) {
@@ -156,6 +160,7 @@ class ReaderViewModel with ReaderViewModelMixin implements ReaderViewModelInterf
     ).push<AvailableSourceEntity>(context);
     availableSources.value = await _initAvailableSources();
     if (availableSource == null) return;
+    clearLayoutCache();
     DialogUtil.loading();
     isRotating = true;
     var sourceId = availableSource.sourceId;
@@ -174,12 +179,12 @@ class ReaderViewModel with ReaderViewModelMixin implements ReaderViewModelInterf
     chapterIndex.value = min(chapterIndex.value, updatedChapters.length - 1);
     pageIndex.value = 0;
     currentChapterContent.value = '';
-    currentChapterPages.value = [];
+    currentChapterLayout.value = ChapterLayoutResult.empty();
     previousChapterContent.value = '';
-    previousChapterPages.value = [];
+    previousChapterLayout.value = ChapterLayoutResult.empty();
     previousChapterLoading.value = false;
     nextChapterContent.value = '';
-    nextChapterPages.value = [];
+    nextChapterLayout.value = ChapterLayoutResult.empty();
     nextChapterLoading.value = false;
     loadCurrentChapter();
     preloadPreviousChapter();
@@ -207,12 +212,12 @@ class ReaderViewModel with ReaderViewModelMixin implements ReaderViewModelInterf
     isRotating = true;
     chapterIndex.value = index;
     updatePageIndex(0);
-    currentChapterPages.value = [];
+    currentChapterLayout.value = ChapterLayoutResult.empty();
     previousChapterContent.value = '';
-    previousChapterPages.value = [];
+    previousChapterLayout.value = ChapterLayoutResult.empty();
     previousChapterLoading.value = false;
     nextChapterContent.value = '';
-    nextChapterPages.value = [];
+    nextChapterLayout.value = ChapterLayoutResult.empty();
     nextChapterLoading.value = false;
     await loadCurrentChapter();
     preloadPreviousChapter();

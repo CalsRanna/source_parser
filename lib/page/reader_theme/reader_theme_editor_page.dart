@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:source_parser/component/reader/layout/reader_layout_config.dart';
+import 'package:source_parser/component/reader/layout/reader_render_config.dart';
 import 'package:source_parser/component/reader/reader_content_view.dart';
 import 'package:source_parser/page/reader_theme/reader_theme_editor_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
@@ -274,10 +276,18 @@ class _ReaderThemeEditorPageState extends State<ReaderThemeEditorPage> {
     var readerView = Watch(
       (_) => ReaderContentView(
         pageProgressText: '1/10 25.25%',
-        theme: viewModel.theme.value,
         headerText: '小说名称',
         contentText: contentText,
         isFirstPage: true,
+        renderConfig: ReaderRenderConfig(
+          theme: viewModel.theme.value,
+          layout: ReaderLayoutConfig(
+            locale: Localizations.maybeLocaleOf(context),
+            textDirection: Directionality.of(context),
+            textHeightBehavior: DefaultTextHeightBehavior.maybeOf(context),
+            textScaleFactor: MediaQuery.textScalerOf(context).scale(1),
+          ),
+        ),
       ),
     );
     var children = [
@@ -682,7 +692,10 @@ class _ReaderThemeEditorPageState extends State<ReaderThemeEditorPage> {
     setState(() {
       size = Size(width, height);
     });
-    var pages = Splitter(size: size, theme: viewModel.theme.value).split(text);
+    var pages = Splitter(
+      size: size,
+      renderConfig: ReaderRenderConfig(theme: viewModel.theme.value),
+    ).split(text);
     setState(() {
       contentText = pages.first;
     });
