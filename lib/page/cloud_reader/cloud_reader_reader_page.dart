@@ -9,7 +9,6 @@ import 'package:source_parser/component/reader/reader_view.dart';
 import 'package:source_parser/config/string_config.dart';
 import 'package:source_parser/model/cloud_book_entity.dart';
 import 'package:source_parser/page/cloud_reader/cloud_reader_reader_view_model.dart';
-import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 import 'package:source_parser/router/router.gr.dart';
 import 'package:source_parser/schema/layout.dart';
 import 'package:source_parser/view_model/layout_view_model.dart';
@@ -27,7 +26,6 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
   late final viewModel = GetIt.instance.get<CloudReaderReaderViewModel>(
     param1: widget.book,
   );
-  final sourceParserViewModel = GetIt.instance.get<SourceParserViewModel>();
   final layoutViewModel = GetIt.instance.get<LayoutViewModel>();
 
   @override
@@ -46,13 +44,14 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
   @override
   void deactivate() {
     viewModel.syncProgress();
-    viewModel.showUiOverlays();
+    viewModel.controller.showUiOverlays();
     super.deactivate();
   }
 
   @override
   void dispose() {
-    viewModel.pageTurnController.dispose();
+    viewModel.controller.pageTurnController.dispose();
+    viewModel.controller.dispose();
     super.dispose();
   }
 
@@ -62,32 +61,34 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       layoutViewModel.initSignals();
       viewModel.initSignals();
-      viewModel.hideUiOverlays();
+      viewModel.controller.hideUiOverlays();
     });
   }
 
   Widget _buildOverlay() {
-    if (viewModel.isSelectionMode.value || !viewModel.showOverlay.value) {
+    final c = viewModel.controller;
+    if (c.isSelectionMode.value || !c.showOverlay.value) {
       return const SizedBox();
     }
     return _CloudReaderOverlayView(
       book: widget.book,
-      isDarkMode: viewModel.isDarkMode.value,
-      onBarrierTap: viewModel.hideUiOverlays,
+      isDarkMode: c.isDarkMode.value,
+      onBarrierTap: c.hideUiOverlays,
       onCatalogue: () => viewModel.navigateCataloguePage(context),
-      onDarkMode: () => viewModel.toggleDarkMode(),
-      onNext: viewModel.nextChapter,
-      onPrevious: viewModel.previousChapter,
+      onDarkMode: () => c.toggleDarkMode(),
+      onNext: c.nextChapter,
+      onPrevious: c.previousChapter,
       onSource: () => viewModel.navigateSourcePage(context),
-      onRefresh: viewModel.forceRefresh,
+      onRefresh: c.forceRefresh,
     );
   }
 
   Widget _buildReaderView() {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final c = viewModel.controller;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          viewModel.updateLayoutConfig(
+          c.updateLayoutConfig(
             ReaderLayoutConfig(
               locale: Localizations.maybeLocaleOf(context),
               textDirection: Directionality.of(context),
@@ -95,23 +96,23 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
               textScaleFactor: MediaQuery.textScalerOf(context).scale(1),
             ),
           );
-          viewModel.updateViewportSize(constraints.biggest);
+          c.updateViewportSize(constraints.biggest);
         });
         return Watch((context) {
-          var error = viewModel.error.value;
+          var error = c.error.value;
           return ReaderView(
             errorText: error.isNotEmpty ? error : null,
-            isLoading: viewModel.currentChapterLayout.value.isEmpty,
-            battery: viewModel.battery.value,
-            eInkMode: viewModel.eInkMode.value,
-            renderConfig: viewModel.renderConfig,
-            selectionEnabled: viewModel.isSelectionMode.value,
-            pageTurnMode: viewModel.pageTurnMode.value,
-            pageCount: viewModel.pageCount.value,
-            controller: viewModel.pageTurnController,
-            onLongPress: viewModel.enterSelectionMode,
-            onTapUp: viewModel.turnPage,
-            getPageData: viewModel.getPageData,
+            isLoading: c.currentChapterLayout.value.isEmpty,
+            battery: c.battery.value,
+            eInkMode: c.eInkMode.value,
+            renderConfig: c.renderConfig,
+            selectionEnabled: c.isSelectionMode.value,
+            pageTurnMode: c.pageTurnMode.value,
+            pageCount: c.pageCount.value,
+            controller: c.pageTurnController,
+            onLongPress: c.enterSelectionMode,
+            onTapUp: c.turnPage,
+            getPageData: c.getPageData,
           );
         });
       },
@@ -119,14 +120,15 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
   }
 
   Widget _buildSelectionOverlay() {
-    if (!viewModel.isSelectionMode.value) return const SizedBox();
+    final c = viewModel.controller;
+    if (!c.isSelectionMode.value) return const SizedBox();
     return SafeArea(
       child: Align(
         alignment: Alignment.topRight,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: FilledButton.tonalIcon(
-            onPressed: viewModel.exitSelectionMode,
+            onPressed: c.exitSelectionMode,
             icon: const Icon(Icons.check),
             label: const Text(StringConfig.exitSelection),
           ),
@@ -136,7 +138,8 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
   }
 
   Widget _buildSelectionEntryOverlay() {
-    if (viewModel.isSelectionMode.value || !viewModel.showOverlay.value) {
+    final c = viewModel.controller;
+    if (c.isSelectionMode.value || !c.showOverlay.value) {
       return const SizedBox();
     }
     return SafeArea(
@@ -145,7 +148,7 @@ class _CloudReaderReaderPageState extends State<CloudReaderReaderPage> {
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: FilledButton.tonalIcon(
-            onPressed: viewModel.enterSelectionMode,
+            onPressed: c.enterSelectionMode,
             icon: const Icon(Icons.select_all),
             label: const Text(StringConfig.enterSelection),
           ),

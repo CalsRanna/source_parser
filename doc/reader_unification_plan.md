@@ -507,7 +507,127 @@ lib/page/cloud_reader/
 - 每一步都容易回滚
 - 不会在一个提交里同时改页面、状态、宿主委托、路由
 
-## 12. 结论
+## 12. 代码审查补充（基于实际代码分析）
+
+以下是对照实际代码后发现的补充点和修订建议。
+
+### 12.1 `initSignals()` 编排流程需要统一
+
+两个 ViewModel 的 `initSignals()` 约 80% 重复，都执行：初始化主题 → 设置 size → 恢复进度 → 加载章节 → 加载书源 → 读 e-ink/翻页模式 → 绑定 pageTurnController → 获取电量 → 300ms 延迟 → 加载当前章 → 预加载前后章。
+
+原方案的 `ReaderDelegate` 只定义了 `loadInitialState()`、`fetchContent()`、`saveProgress()`，没有覆盖初始化编排的统一。
+
+**修订**：`ReaderController` 内置统一的 `init()` 方法编排整个初始化流程，delegate 只负责提供数据（初始状态、章节列表、内容）。
+
+### 12.2 章节缓冲区重置逻辑需要提取
+
+`navigateCataloguePage` 和换源操作中都有一段一样的"清空三章缓冲区"代码（7 行重复）。
+
+**修订**：`ReaderController` 提供 `resetChapterBuffer()` 方法，并提供 `jumpToChapter(int index)` 方法封装"重置 + 跳转 + 加载 + 预加载"的完整流程。
+
+### 12.3 导航行为不应放在 delegate 中
+
+`navigateCataloguePage`、`navigateAvailableSourcePage` 等方法需要 `BuildContext` 做路由跳转。delegate 是纯数据层抽象，不应持有 `BuildContext`。
+
+**修订**：导航行为留在宿主页面（Page）层。Page 负责导航，拿到结果后调用 controller 的方法（如 `jumpToChapter(index)`）。delegate 不涉及任何路由操作。
+
+### 12.4 Overlay 复杂度高于预期
+
+实际代码中 overlay 基于 `LayoutViewModel` 的 7 个 slot 动态配置，有些 action 不是简单的 `VoidCallback`（如"缓存"需要弹 BottomSheet 选数量，"暗色模式"是切换状态的专用组件）。
+
+**修订**：overlay 不做配置化抽象，仍由宿主页面各自构建。阅读器组件层只提供 `showOverlay` 信号和 `hideUiOverlays()`/`showUiOverlays()` 方法，overlay 的具体 UI 由宿主页面自行叠加在 `ReaderView` 之上。这样既保持了灵活性，又避免过度抽象。
+
+### 12.5 去掉泛型 `TChapter`
+
+controller 内部不需要知道 chapter 的具体类型，只需要索引、名称、内容。章节列表的管理完全留在 delegate 内部。泛型增加复杂度但没有收益。
+
+**修订**：`ReaderDelegate` 和 `ReaderInitialState` 不使用泛型。
+
+### 12.6 进度持久化防抖策略
+
+本地是 1 秒防抖，云端是 3 秒防抖。
+
+**修订**：防抖逻辑放在 `ReaderController` 内部，防抖时长可配置（构造参数或 delegate 提供）。delegate 的 `saveProgress` 只负责实际写入。
+
+### 12.7 离开页面时的同步差异
+
+本地 `deactivate` 调用 `syncBookshelf()`，云端调用 `syncProgress()`（本地 DB + 远程 API）。
+
+**修订**：`ReaderDelegate` 增加 `onLeave()` 方法，由 controller 的 `dispose` 调用。各 delegate 实现各自的离场逻辑。
+
+### 12.8 错误处理策略统一
+
+本地捕获 `ReaderException` 返回 message，云端 catch 后返回错误文本。
+
+**修订**：delegate 的 `fetchContent` 统一抛异常，controller 统一 catch 并设置 `error` 信号。delegate 不应吃掉错误。
+
+### 12.9 `ReaderViewModelInterface` 的去留
+
+统一 controller 后，这个 interface 可以删除，controller 本身就是契约。
+
+### 12.10 修订后的 `ReaderDelegate` 目标接口
+
+```dart
+class ReaderInitialState {
+  final String bookName;
+  final int totalChapterCount;
+  final int initialChapterIndex;
+  final int initialPageIndex;
+
+  const ReaderInitialState({
+    required this.bookName,
+    required this.totalChapterCount,
+    required this.initialChapterIndex,
+    required this.initialPageIndex,
+  });
+}
+
+abstract class ReaderDelegate {
+  /// 加载初始状态（书名、章节数、初始位置）。
+  Future<ReaderInitialState> loadInitialState();
+
+  /// 获取章节名称。
+  String getChapterName(int index);
+
+  /// 获取章节总数（可能在换源后变化）。
+  int get totalChapterCount;
+
+  /// 获取章节正文。失败时应抛异常，由 controller 统一处理。
+  Future<String> fetchContent(int chapterIndex, {bool reacquire = false});
+
+  /// 持久化阅读进度。由 controller 防抖后调用。
+  Future<void> saveProgress({
+    required int chapterIndex,
+    required int pageIndex,
+  });
+
+  /// 页面离开时的清理工作（如同步书架、远程同步进度）。
+  Future<void> onLeave();
+}
+```
+
+### 12.11 缓存下载功能完全属于本地
+
+`downloadChapters`、`showCacheIndicator`、`downloadAmount/Succeed/Failed`、`progress` 只存在于本地。这部分逻辑完全留在本地宿主页面，不进入 controller 或 delegate。
+
+### 12.12 修订后的迁移阶段
+
+在原四阶段前增加第零阶段（准备工作），并合并第三、四阶段：
+
+- **第零阶段**：提取 mixin 中可复用的方法（`resetChapterBuffer`、`jumpToChapter`），减少后续改动量
+- **第一阶段**：抽 `ReaderDelegate` + 两个实现
+- **第二阶段**：mixin 升级为 `ReaderController`，内置统一 `init()` 编排
+- **第三阶段**：统一页面结构，裁剪旧 VM，清理 `ReaderViewModelInterface`
+
+## 13. 实施进度
+
+- [x] 第零阶段：提取 mixin 公共方法（`resetChapterBuffer`、`jumpToChapter`）
+- [x] 第一阶段：抽 `ReaderDelegate`（`LocalReaderDelegate`、`CloudReaderDelegate`），两个 ViewModel 改为委托调用
+- [x] 第二阶段：统一 `ReaderController`，两个 ViewModel 改为持有 controller，Page 通过 controller 访问核心状态
+- [x] 第三阶段：删除旧 `ReaderViewModelMixin` 和 `ReaderViewModelInterface`
+- [x] 补充：Delegate 中的 signal 替换为普通可变字段（signal 仅用于 controller 层驱动 UI）
+
+## 14. 结论
 
 当前项目完全可以统一为一个阅读器，而且应该统一。
 

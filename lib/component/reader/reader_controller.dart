@@ -10,6 +10,7 @@ import 'package:source_parser/component/reader/layout/reader_layout_cache_key.da
 import 'package:source_parser/component/reader/layout/reader_layout_config.dart';
 import 'package:source_parser/component/reader/layout/reader_render_config.dart';
 import 'package:source_parser/component/reader/page_turn/page_turn_controller.dart';
+import 'package:source_parser/component/reader/reader_delegate.dart';
 import 'package:source_parser/component/reader/reader_turning_mode.dart';
 import 'package:source_parser/component/reader/reader_viewport.dart';
 import 'package:source_parser/config/string_config.dart';
@@ -18,12 +19,29 @@ import 'package:source_parser/schema/theme.dart';
 import 'package:source_parser/util/color_extension.dart';
 import 'package:source_parser/util/dialog_util.dart';
 import 'package:source_parser/util/logger.dart';
+import 'package:source_parser/util/shared_preference_util.dart';
 import 'package:source_parser/util/splitter.dart';
 import 'package:source_parser/util/volume_util.dart';
 import 'package:source_parser/view_model/app_theme_view_model.dart';
 
-mixin ReaderViewModelMixin {
-  // --- Shared Signals ---
+/// 统一的阅读器控制器，管理阅读核心状态和逻辑。
+///
+/// 不直接依赖本地数据库或云 API，通过 [ReaderDelegate] 获取数据。
+class ReaderController {
+  final ReaderDelegate delegate;
+
+  /// 进度保存防抖时长，本地默认 1 秒，云端可设为 3 秒。
+  final Duration progressDebounceDuration;
+
+  ReaderController({
+    required this.delegate,
+    required int initialPageIndex,
+    this.progressDebounceDuration = const Duration(seconds: 1),
+  }) {
+    pageTurnController = PageTurnController(initialIndex: initialPageIndex);
+  }
+
+  // --- Signals ---
   final previousChapterContent = signal('');
   final previousChapterLayout = signal(ChapterLayoutResult.empty());
   final currentChapterContent = signal('');
@@ -50,14 +68,14 @@ mixin ReaderViewModelMixin {
   });
 
   late final pageCount = computed(() {
-    return computePageCount();
+    return _computePageCount();
   });
 
   late final currentChapterOffset = computed(() {
-    return computeCurrentChapterOffset();
+    return chapterIndex.value > 0 ? 1 : 0;
   });
 
-  late final subscription = VolumeUtil.stream.listen((event) {
+  late final _volumeSubscription = VolumeUtil.stream.listen((event) {
     if (event == 'volume_up') {
       previousPage();
     } else if (event == 'volume_down') {
@@ -65,38 +83,54 @@ mixin ReaderViewModelMixin {
     }
   });
 
+  late final PageTurnController pageTurnController;
+
   bool isRotating = false;
   Size _pageSize = Size.zero;
   final _layoutCache = <ReaderLayoutCacheKey, ChapterLayoutResult>{};
   static const _maxLayoutCacheEntries = 12;
+  Timer? _progressDebounce;
 
-  // --- Abstract members that subclasses must implement ---
-  String get bookName;
-  int get totalChapterCount;
-  PageTurnController get pageTurnController;
+  String _bookName = '';
+  String get bookName => _bookName;
 
-  String getChapterName(int index);
-  Future<String> fetchContent(int chapterIndex, {bool reacquire = false});
-  void onPageIndexUpdated(int chapterIndex, int pageIndex);
+  int get totalChapterCount => delegate.totalChapterCount;
 
   ReaderRenderConfig get renderConfig {
     return ReaderRenderConfig(theme: theme.value, layout: layoutConfig.value);
   }
 
-  // --- Shared Computed helpers ---
-  int computePageCount() {
-    var prev = chapterIndex.value > 0 ? 1 : 0;
-    var hasChapters = totalChapterCount > 0;
-    var next =
-        hasChapters && chapterIndex.value < totalChapterCount - 1 ? 1 : 0;
-    return prev + currentChapterLayout.value.pageCount + next;
+  // --- 统一初始化编排 ---
+
+  Future<void> init() async {
+    await GetIt.instance.get<AppThemeViewModel>().initSignals();
+    theme.value = _initTheme();
+    size.value = _initSize(theme.value);
+    var initialState = await delegate.loadInitialState();
+    _bookName = initialState.bookName;
+    chapterIndex.value = initialState.initialChapterIndex;
+    pageIndex.value = initialState.initialPageIndex;
+    eInkMode.value = await SharedPreferenceUtil.getEInkMode();
+    var modeStr = await SharedPreferenceUtil.getPageTurnMode();
+    pageTurnMode.value = PageTurnMode.fromString(modeStr);
+    pageTurnController.onPageChanged = handlePageChanged;
+    await getBattery();
+    if (initialState.totalChapterCount == 0) {
+      error.value = StringConfig.chapterNotFound;
+      return;
+    }
+    await Future.delayed(const Duration(milliseconds: 300));
+    await loadCurrentChapter();
+    preloadPreviousChapter();
+    preloadNextChapter();
   }
 
-  int computeCurrentChapterOffset() {
-    return chapterIndex.value > 0 ? 1 : 0;
+  void dispose() {
+    _progressDebounce?.cancel();
+    _volumeSubscription.cancel();
   }
 
-  // --- Shared Methods ---
+  // --- 翻页与章节轮转 ---
 
   void handlePageChanged(int flatIndex) {
     if (isRotating) return;
@@ -112,7 +146,7 @@ mixin ReaderViewModelMixin {
         rotateToNextChapter();
       }
     } else {
-      updatePageIndex(flatIndex - offset);
+      _updatePageIndex(flatIndex - offset);
     }
   }
 
@@ -128,7 +162,7 @@ mixin ReaderViewModelMixin {
     nextChapterLayout.value = ChapterLayoutResult.empty();
     nextChapterLoading.value = false;
     var page = targetPage ?? 0;
-    updatePageIndex(page);
+    _updatePageIndex(page);
     if (currentChapterLayout.value.isEmpty) {
       loadCurrentChapter();
     } else {
@@ -154,7 +188,7 @@ mixin ReaderViewModelMixin {
         (currentChapterLayout.value.isNotEmpty
             ? currentChapterLayout.value.pageCount - 1
             : 0);
-    updatePageIndex(page);
+    _updatePageIndex(page);
     if (currentChapterLayout.value.isEmpty) {
       loadCurrentChapter();
     } else {
@@ -164,6 +198,8 @@ mixin ReaderViewModelMixin {
     }
     preloadPreviousChapter();
   }
+
+  // --- 页面数据 ---
 
   ({
     String content,
@@ -175,15 +211,14 @@ mixin ReaderViewModelMixin {
     var offset = currentChapterOffset.value;
     var currLen = currentChapterLayout.value.pageCount;
 
-    // Previous chapter placeholder
     if (flatIndex < offset) {
       if (previousChapterLayout.value.isNotEmpty) {
         var lastIndex = previousChapterLayout.value.pageCount - 1;
         var prevChapterIdx = chapterIndex.value - 1;
         return (
           content: previousChapterLayout.value.pageTextAt(lastIndex),
-          header: getHeaderForChapter(prevChapterIdx, lastIndex),
-          footer: getFooterForChapter(
+          header: _getHeaderForChapter(prevChapterIdx, lastIndex),
+          footer: _getFooterForChapter(
             prevChapterIdx,
             lastIndex,
             previousChapterLayout.value.pageCount,
@@ -202,14 +237,13 @@ mixin ReaderViewModelMixin {
       );
     }
 
-    // Next chapter placeholder
     if (flatIndex >= offset + currLen) {
       if (nextChapterLayout.value.isNotEmpty) {
         var nextChapterIdx = chapterIndex.value + 1;
         return (
           content: nextChapterLayout.value.pageTextAt(0),
-          header: getHeaderForChapter(nextChapterIdx, 0),
-          footer: getFooterForChapter(
+          header: _getHeaderForChapter(nextChapterIdx, 0),
+          footer: _getFooterForChapter(
             nextChapterIdx,
             0,
             nextChapterLayout.value.pageCount,
@@ -227,60 +261,18 @@ mixin ReaderViewModelMixin {
       );
     }
 
-    // Current chapter page
     var localIndex = flatIndex - offset;
     final pageRange = currentChapterLayout.value.pageRangeAt(localIndex);
     return (
       content: currentChapterLayout.value.pageTextAt(localIndex),
-      header: getHeaderText(localIndex),
-      footer: getFooterText(localIndex),
+      header: _getHeaderText(localIndex),
+      footer: _getFooterText(localIndex),
       isFirstPage: pageRange.isFirstPage,
       isLoading: false,
     );
   }
 
-  String getHeaderText(int index) {
-    if (index == 0) return bookName;
-    if (chapterIndex.value < totalChapterCount) {
-      return getChapterName(chapterIndex.value);
-    }
-    return bookName;
-  }
-
-  String getFooterText(int index) {
-    var totalPagesInChapter = currentChapterLayout.value.pageCount;
-    var totalChapters = totalChapterCount;
-    if (totalChapters == 0 || totalPagesInChapter == 0) {
-      return '${index + 1}/$totalPagesInChapter 0.00%';
-    }
-    var pageProgress = '${index + 1}/$totalPagesInChapter';
-    var progressInChapter = (index + 1) / totalPagesInChapter;
-    var progress = (chapterIndex.value + progressInChapter) / totalChapters;
-    var percent = (progress.clamp(0.0, 1.0) * 100).toStringAsFixed(2);
-    return '$pageProgress $percent%';
-  }
-
-  String getHeaderForChapter(int chapterIdx, int localIndex) {
-    if (chapterIdx < 0 || chapterIdx >= totalChapterCount) return '';
-    if (localIndex == 0) return bookName;
-    return getChapterName(chapterIdx);
-  }
-
-  String getFooterForChapter(
-    int chapterIdx,
-    int localIndex,
-    int totalPagesInChapter,
-  ) {
-    var totalChapters = totalChapterCount;
-    if (totalChapters == 0 || totalPagesInChapter == 0) {
-      return '${localIndex + 1}/$totalPagesInChapter 0.00%';
-    }
-    var pageProgress = '${localIndex + 1}/$totalPagesInChapter';
-    var progressInChapter = (localIndex + 1) / totalPagesInChapter;
-    var progress = (chapterIdx + progressInChapter) / totalChapters;
-    var percent = (progress.clamp(0.0, 1.0) * 100).toStringAsFixed(2);
-    return '$pageProgress $percent%';
-  }
+  // --- 用户交互 ---
 
   void turnPage(TapUpDetails details) {
     if (isSelectionMode.value) return;
@@ -351,6 +343,8 @@ mixin ReaderViewModelMixin {
     }
   }
 
+  // --- UI 控制 ---
+
   void hideUiOverlays() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     showOverlay.value = false;
@@ -367,7 +361,7 @@ mixin ReaderViewModelMixin {
 
   void toggleDarkMode() {
     GetIt.instance.get<SourceParserViewModel>().toggleDarkMode();
-    theme.value = initTheme();
+    theme.value = _initTheme();
     _recomputeViewport();
   }
 
@@ -382,46 +376,115 @@ mixin ReaderViewModelMixin {
     isSelectionMode.value = false;
   }
 
+  // --- 章节加载 ---
+
+  Future<void> loadCurrentChapter({bool reacquire = false}) async {
+    currentChapterContent.value = await delegate.fetchContent(
+      chapterIndex.value,
+      reacquire: reacquire,
+    );
+    isRotating = true;
+    currentChapterLayout.value = _paginateContent(
+      chapterIndex.value,
+      currentChapterContent.value,
+    );
+    final targetPage = currentChapterLayout.value.pageCount <= 0
+        ? 0
+        : pageIndex.value.clamp(0, currentChapterLayout.value.pageCount - 1);
+    if (targetPage != pageIndex.value) {
+      _updatePageIndex(targetPage);
+    }
+    pageTurnController.updatePageCount(pageCount.value);
+    pageTurnController.confirmJump(
+      currentChapterOffset.value + pageIndex.value,
+    );
+    isRotating = false;
+  }
+
+  Future<void> preloadNextChapter() async {
+    if (chapterIndex.value + 1 >= totalChapterCount) {
+      nextChapterContent.value = '';
+      nextChapterLayout.value = ChapterLayoutResult.empty();
+      nextChapterLoading.value = false;
+      return;
+    }
+    nextChapterLoading.value = true;
+    nextChapterContent.value =
+        await delegate.fetchContent(chapterIndex.value + 1);
+    nextChapterLayout.value = _paginateContent(
+      chapterIndex.value + 1,
+      nextChapterContent.value,
+    );
+    nextChapterLoading.value = false;
+    if (!isRotating) {
+      var flatIndex = pageTurnController.currentIndex;
+      var offset = currentChapterOffset.value;
+      var currLen = currentChapterLayout.value.pageCount;
+      if (flatIndex >= offset + currLen) {
+        rotateToNextChapter();
+      }
+    }
+  }
+
+  Future<void> preloadPreviousChapter() async {
+    if (chapterIndex.value - 1 < 0) {
+      previousChapterContent.value = '';
+      previousChapterLayout.value = ChapterLayoutResult.empty();
+      previousChapterLoading.value = false;
+      return;
+    }
+    previousChapterLoading.value = true;
+    previousChapterContent.value =
+        await delegate.fetchContent(chapterIndex.value - 1);
+    previousChapterLayout.value = _paginateContent(
+      chapterIndex.value - 1,
+      previousChapterContent.value,
+    );
+    previousChapterLoading.value = false;
+    if (!isRotating) {
+      var flatIndex = pageTurnController.currentIndex;
+      if (flatIndex < currentChapterOffset.value) {
+        rotateToPreviousChapter();
+      }
+    }
+  }
+
+  Future<void> forceRefresh() async {
+    isRotating = true;
+    currentChapterLayout.value = ChapterLayoutResult.empty();
+    _updatePageIndex(0);
+    await loadCurrentChapter(reacquire: true);
+    preloadPreviousChapter();
+    preloadNextChapter();
+  }
+
+  // --- 缓冲区与跳转 ---
+
   void clearLayoutCache() {
     _layoutCache.clear();
   }
 
-  Theme assembleTheme(Theme theme) {
-    var backgroundColor = theme.backgroundColor;
-    var contentColor = theme.contentColor;
-    var footerColor = theme.footerColor;
-    var headerColor = theme.headerColor;
-    var darkModel =
-        GetIt.instance.get<SourceParserViewModel>().isDarkMode.value;
-    if (darkModel) {
-      backgroundColor = Colors.black.toHex()!;
-      contentColor = Colors.white.withValues(alpha: 0.75).toHex()!;
-      footerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
-      headerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
-    }
-    return theme.copyWith(
-      backgroundColor: backgroundColor,
-      contentColor: contentColor,
-      footerColor: footerColor,
-      headerColor: headerColor,
-    );
+  void resetChapterBuffer() {
+    currentChapterLayout.value = ChapterLayoutResult.empty();
+    previousChapterContent.value = '';
+    previousChapterLayout.value = ChapterLayoutResult.empty();
+    previousChapterLoading.value = false;
+    nextChapterContent.value = '';
+    nextChapterLayout.value = ChapterLayoutResult.empty();
+    nextChapterLoading.value = false;
   }
 
-  Theme initTheme() {
-    var appThemeViewModel = GetIt.instance.get<AppThemeViewModel>();
-    var savedTheme = appThemeViewModel.currentTheme.value;
-    return assembleTheme(savedTheme);
+  Future<void> jumpToChapter(int index, {int page = 0}) async {
+    isRotating = true;
+    chapterIndex.value = index;
+    _updatePageIndex(page);
+    resetChapterBuffer();
+    await loadCurrentChapter();
+    preloadPreviousChapter();
+    preloadNextChapter();
   }
 
-  Size initSize(Theme theme) {
-    var screenSize =
-        GetIt.instance.get<SourceParserViewModel>().screenSize.value;
-    _pageSize = screenSize;
-    return ReaderViewportCalculator.calculate(
-      pageSize: screenSize,
-      renderConfig: renderConfig,
-    ).contentSize;
-  }
+  // --- 视口与主题 ---
 
   void updateViewportSize(Size pageSize) {
     if (_sameSize(_pageSize, pageSize)) return;
@@ -443,89 +506,109 @@ mixin ReaderViewModelMixin {
     }
   }
 
-  Future<void> forceRefresh() async {
-    isRotating = true;
-    currentChapterLayout.value = ChapterLayoutResult.empty();
-    updatePageIndex(0);
-    await loadCurrentChapter(reacquire: true);
-    preloadPreviousChapter();
-    preloadNextChapter();
-  }
+  // --- Private helpers ---
 
-  Future<void> loadCurrentChapter({bool reacquire = false}) async {
-    currentChapterContent.value = await fetchContent(
-      chapterIndex.value,
-      reacquire: reacquire,
-    );
-    isRotating = true;
-    currentChapterLayout.value = _paginateContent(
-      chapterIndex.value,
-      currentChapterContent.value,
-    );
-    final targetPage = currentChapterLayout.value.pageCount <= 0
-        ? 0
-        : pageIndex.value.clamp(0, currentChapterLayout.value.pageCount - 1);
-    if (targetPage != pageIndex.value) {
-      updatePageIndex(targetPage);
-    }
-    pageTurnController.updatePageCount(pageCount.value);
-    pageTurnController.confirmJump(
-      currentChapterOffset.value + pageIndex.value,
-    );
-    isRotating = false;
-  }
-
-  Future<void> preloadNextChapter() async {
-    if (chapterIndex.value + 1 >= totalChapterCount) {
-      nextChapterContent.value = '';
-      nextChapterLayout.value = ChapterLayoutResult.empty();
-      nextChapterLoading.value = false;
-      return;
-    }
-    nextChapterLoading.value = true;
-    nextChapterContent.value = await fetchContent(chapterIndex.value + 1);
-    nextChapterLayout.value = _paginateContent(
-      chapterIndex.value + 1,
-      nextChapterContent.value,
-    );
-    nextChapterLoading.value = false;
-    // Auto-rotate if user is already on the next placeholder
-    if (!isRotating) {
-      var flatIndex = pageTurnController.currentIndex;
-      var offset = currentChapterOffset.value;
-      var currLen = currentChapterLayout.value.pageCount;
-      if (flatIndex >= offset + currLen) {
-        rotateToNextChapter();
-      }
-    }
-  }
-
-  Future<void> preloadPreviousChapter() async {
-    if (chapterIndex.value - 1 < 0) {
-      previousChapterContent.value = '';
-      previousChapterLayout.value = ChapterLayoutResult.empty();
-      previousChapterLoading.value = false;
-      return;
-    }
-    previousChapterLoading.value = true;
-    previousChapterContent.value = await fetchContent(chapterIndex.value - 1);
-    previousChapterLayout.value = _paginateContent(
-      chapterIndex.value - 1,
-      previousChapterContent.value,
-    );
-    previousChapterLoading.value = false;
-    // Auto-rotate if user is already on the previous placeholder
-    if (!isRotating) {
-      var flatIndex = pageTurnController.currentIndex;
-      if (flatIndex < currentChapterOffset.value) {
-        rotateToPreviousChapter();
-      }
-    }
-  }
-
-  void updatePageIndex(int index) {
+  void _updatePageIndex(int index) {
     pageIndex.value = index;
-    onPageIndexUpdated(chapterIndex.value, index);
+    _debounceSaveProgress();
+  }
+
+  void _debounceSaveProgress() {
+    _progressDebounce?.cancel();
+    _progressDebounce = Timer(progressDebounceDuration, () {
+      delegate.saveProgress(
+        chapterIndex: chapterIndex.value,
+        pageIndex: pageIndex.value,
+      );
+    });
+  }
+
+  int _computePageCount() {
+    var prev = chapterIndex.value > 0 ? 1 : 0;
+    var hasChapters = totalChapterCount > 0;
+    var next =
+        hasChapters && chapterIndex.value < totalChapterCount - 1 ? 1 : 0;
+    return prev + currentChapterLayout.value.pageCount + next;
+  }
+
+  String _getHeaderText(int index) {
+    if (index == 0) return _bookName;
+    if (chapterIndex.value < totalChapterCount) {
+      return delegate.getChapterName(chapterIndex.value);
+    }
+    return _bookName;
+  }
+
+  String _getFooterText(int index) {
+    var totalPagesInChapter = currentChapterLayout.value.pageCount;
+    var totalChapters = totalChapterCount;
+    if (totalChapters == 0 || totalPagesInChapter == 0) {
+      return '${index + 1}/$totalPagesInChapter 0.00%';
+    }
+    var pageProgress = '${index + 1}/$totalPagesInChapter';
+    var progressInChapter = (index + 1) / totalPagesInChapter;
+    var progress = (chapterIndex.value + progressInChapter) / totalChapters;
+    var percent = (progress.clamp(0.0, 1.0) * 100).toStringAsFixed(2);
+    return '$pageProgress $percent%';
+  }
+
+  String _getHeaderForChapter(int chapterIdx, int localIndex) {
+    if (chapterIdx < 0 || chapterIdx >= totalChapterCount) return '';
+    if (localIndex == 0) return _bookName;
+    return delegate.getChapterName(chapterIdx);
+  }
+
+  String _getFooterForChapter(
+    int chapterIdx,
+    int localIndex,
+    int totalPagesInChapter,
+  ) {
+    var totalChapters = totalChapterCount;
+    if (totalChapters == 0 || totalPagesInChapter == 0) {
+      return '${localIndex + 1}/$totalPagesInChapter 0.00%';
+    }
+    var pageProgress = '${localIndex + 1}/$totalPagesInChapter';
+    var progressInChapter = (localIndex + 1) / totalPagesInChapter;
+    var progress = (chapterIdx + progressInChapter) / totalChapters;
+    var percent = (progress.clamp(0.0, 1.0) * 100).toStringAsFixed(2);
+    return '$pageProgress $percent%';
+  }
+
+  Theme _assembleTheme(Theme theme) {
+    var backgroundColor = theme.backgroundColor;
+    var contentColor = theme.contentColor;
+    var footerColor = theme.footerColor;
+    var headerColor = theme.headerColor;
+    var darkModel =
+        GetIt.instance.get<SourceParserViewModel>().isDarkMode.value;
+    if (darkModel) {
+      backgroundColor = Colors.black.toHex()!;
+      contentColor = Colors.white.withValues(alpha: 0.75).toHex()!;
+      footerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
+      headerColor = Colors.white.withValues(alpha: 0.5).toHex()!;
+    }
+    return theme.copyWith(
+      backgroundColor: backgroundColor,
+      contentColor: contentColor,
+      footerColor: footerColor,
+      headerColor: headerColor,
+    );
+  }
+
+  Theme _initTheme() {
+    var appThemeViewModel = GetIt.instance.get<AppThemeViewModel>();
+    var savedTheme = appThemeViewModel.currentTheme.value;
+    return _assembleTheme(savedTheme);
+  }
+
+  Size _initSize(Theme theme) {
+    var screenSize =
+        GetIt.instance.get<SourceParserViewModel>().screenSize.value;
+    _pageSize = screenSize;
+    return ReaderViewportCalculator.calculate(
+      pageSize: screenSize,
+      renderConfig: renderConfig,
+    ).contentSize;
   }
 
   ChapterLayoutResult _paginateContent(int chapterIdx, String content) {
@@ -573,7 +656,7 @@ mixin ReaderViewModelMixin {
         oldCount: oldPageCount,
         newCount: currentChapterLayout.value.pageCount,
       );
-      onPageIndexUpdated(chapterIndex.value, pageIndex.value);
+      _debounceSaveProgress();
     }
     if (nextChapterContent.value.isNotEmpty) {
       nextChapterLayout.value = _paginateContent(
@@ -607,7 +690,7 @@ mixin ReaderViewModelMixin {
   }
 
   bool _sameSize(Size a, Size b) {
-    return (a.width - b.width).abs() < 0.5 && (a.height - b.height).abs() < 0.5;
+    return (a.width - b.width).abs() < 0.5 &&
+        (a.height - b.height).abs() < 0.5;
   }
-
 }

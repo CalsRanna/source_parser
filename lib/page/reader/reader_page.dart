@@ -9,7 +9,6 @@ import 'package:source_parser/model/book_entity.dart';
 import 'package:source_parser/page/reader/reader_cache_indicator_view.dart';
 import 'package:source_parser/page/reader/reader_overlay_view.dart';
 import 'package:source_parser/page/reader/reader_view_model.dart';
-import 'package:source_parser/page/source_parser/source_parser_view_model.dart';
 
 @RoutePage()
 class ReaderPage extends StatefulWidget {
@@ -24,7 +23,6 @@ class _ReaderPageState extends State<ReaderPage> {
   late final viewModel = GetIt.instance.get<ReaderViewModel>(
     param1: widget.book,
   );
-  final sourceParserViewModel = GetIt.instance.get<SourceParserViewModel>();
 
   @override
   Widget build(BuildContext context) {
@@ -43,13 +41,14 @@ class _ReaderPageState extends State<ReaderPage> {
   @override
   void deactivate() {
     viewModel.syncBookshelf();
-    viewModel.showUiOverlays();
+    viewModel.controller.showUiOverlays();
     super.deactivate();
   }
 
   @override
   void dispose() {
-    viewModel.pageTurnController.dispose();
+    viewModel.controller.pageTurnController.dispose();
+    viewModel.controller.dispose();
     super.dispose();
   }
 
@@ -58,7 +57,7 @@ class _ReaderPageState extends State<ReaderPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       viewModel.initSignals();
-      viewModel.hideUiOverlays();
+      viewModel.controller.hideUiOverlays();
     });
   }
 
@@ -72,20 +71,21 @@ class _ReaderPageState extends State<ReaderPage> {
   }
 
   Widget _buildReaderOverlay() {
-    if (viewModel.isSelectionMode.value || !viewModel.showOverlay.value) {
+    final c = viewModel.controller;
+    if (c.isSelectionMode.value || !c.showOverlay.value) {
       return const SizedBox();
     }
     return ReaderOverlayView(
       book: widget.book,
-      isDarkMode: viewModel.isDarkMode.value,
-      onBarrierTap: viewModel.hideUiOverlays,
+      isDarkMode: c.isDarkMode.value,
+      onBarrierTap: c.hideUiOverlays,
       onCached: (amount) => viewModel.downloadChapters(context, amount),
       onCatalogue: () => viewModel.navigateCataloguePage(context),
-      onDarkMode: () => viewModel.toggleDarkMode(),
-      onNext: viewModel.nextChapter,
-      onPrevious: viewModel.previousChapter,
+      onDarkMode: () => c.toggleDarkMode(),
+      onNext: c.nextChapter,
+      onPrevious: c.previousChapter,
       onAvailableSource: () => viewModel.navigateAvailableSourcePage(context),
-      onRefresh: viewModel.forceRefresh,
+      onRefresh: c.forceRefresh,
       onReplacement: () => viewModel.navigateReplacementPage(context),
     );
   }
@@ -93,8 +93,9 @@ class _ReaderPageState extends State<ReaderPage> {
   Widget _buildReaderView() {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final c = viewModel.controller;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          viewModel.updateLayoutConfig(
+          c.updateLayoutConfig(
             ReaderLayoutConfig(
               locale: Localizations.maybeLocaleOf(context),
               textDirection: Directionality.of(context),
@@ -102,23 +103,23 @@ class _ReaderPageState extends State<ReaderPage> {
               textScaleFactor: MediaQuery.textScalerOf(context).scale(1),
             ),
           );
-          viewModel.updateViewportSize(constraints.biggest);
+          c.updateViewportSize(constraints.biggest);
         });
         return Watch((context) {
-          var error = viewModel.error.value;
+          var error = c.error.value;
           return ReaderView(
             errorText: error.isNotEmpty ? error : null,
-            isLoading: viewModel.currentChapterLayout.value.isEmpty,
-            battery: viewModel.battery.value,
-            eInkMode: viewModel.eInkMode.value,
-            renderConfig: viewModel.renderConfig,
-            selectionEnabled: viewModel.isSelectionMode.value,
-            pageTurnMode: viewModel.pageTurnMode.value,
-            pageCount: viewModel.pageCount.value,
-            controller: viewModel.pageTurnController,
-            onLongPress: viewModel.enterSelectionMode,
-            onTapUp: viewModel.turnPage,
-            getPageData: viewModel.getPageData,
+            isLoading: c.currentChapterLayout.value.isEmpty,
+            battery: c.battery.value,
+            eInkMode: c.eInkMode.value,
+            renderConfig: c.renderConfig,
+            selectionEnabled: c.isSelectionMode.value,
+            pageTurnMode: c.pageTurnMode.value,
+            pageCount: c.pageCount.value,
+            controller: c.pageTurnController,
+            onLongPress: c.enterSelectionMode,
+            onTapUp: c.turnPage,
+            getPageData: c.getPageData,
           );
         });
       },
@@ -126,14 +127,15 @@ class _ReaderPageState extends State<ReaderPage> {
   }
 
   Widget _buildSelectionOverlay() {
-    if (!viewModel.isSelectionMode.value) return const SizedBox();
+    final c = viewModel.controller;
+    if (!c.isSelectionMode.value) return const SizedBox();
     return SafeArea(
       child: Align(
         alignment: Alignment.topRight,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: FilledButton.tonalIcon(
-            onPressed: viewModel.exitSelectionMode,
+            onPressed: c.exitSelectionMode,
             icon: const Icon(Icons.check),
             label: const Text(StringConfig.exitSelection),
           ),
@@ -143,7 +145,8 @@ class _ReaderPageState extends State<ReaderPage> {
   }
 
   Widget _buildSelectionEntryOverlay() {
-    if (viewModel.isSelectionMode.value || !viewModel.showOverlay.value) {
+    final c = viewModel.controller;
+    if (c.isSelectionMode.value || !c.showOverlay.value) {
       return const SizedBox();
     }
     return SafeArea(
@@ -152,7 +155,7 @@ class _ReaderPageState extends State<ReaderPage> {
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: FilledButton.tonalIcon(
-            onPressed: viewModel.enterSelectionMode,
+            onPressed: c.enterSelectionMode,
             icon: const Icon(Icons.select_all),
             label: const Text(StringConfig.enterSelection),
           ),
