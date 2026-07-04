@@ -48,6 +48,12 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
   int? _targetIndex;
   double _progress = 0.0;
 
+  // Curl mode: finger-following positions
+  Offset? _curlTouchDown;
+  Offset? _curlDragPos;
+  Offset? _curlAnimStart;
+  Offset? _curlAnimEnd;
+
   // 用于通过 Listener 检测点击（绕过手势竞争）
   Offset? _pointerDownPosition;
   double _maxPointerDisplacement = 0;
@@ -119,7 +125,51 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
     if (_isAnimating) return;
     final targetIndex = forward ? currentIndex + 1 : currentIndex - 1;
     if (targetIndex < 0 || targetIndex >= widget.controller.pageCount) return;
-    _startAnimation(forward, targetIndex);
+    if (widget.mode == PageTurnMode.curl) {
+      _startCurlAnimation(forward, targetIndex);
+    } else {
+      _startAnimation(forward, targetIndex);
+    }
+  }
+
+  void _startCurlAnimation(bool forward, int targetIndex) {
+    _animatingForward = forward;
+    _targetIndex = targetIndex;
+    _isAnimating = true;
+
+    final size = MediaQuery.of(context).size;
+    if (forward) {
+      _curlTouchDown = Offset(size.width, size.height * 0.8);
+      _curlDragPos = Offset(size.width, size.height * 0.8);
+      _curlAnimStart = _curlDragPos;
+      _curlAnimEnd = Offset(-size.width * 0.3, size.height * 0.5);
+    } else {
+      _curlTouchDown = Offset(0, size.height * 0.8);
+      _curlDragPos = Offset(0, size.height * 0.8);
+      _curlAnimStart = _curlDragPos;
+      _curlAnimEnd = Offset(size.width * 1.3, size.height * 0.5);
+    }
+
+    setState(() {});
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _tryCaptureImagesSync();
+      if (_currentImage != null && _targetImage != null) {
+        _animationController.removeStatusListener(_onAnimationStatus);
+        _animationController.value = 0.0;
+        _animationController.addStatusListener(_onAnimationStatus);
+        _animationController.forward();
+        setState(() {});
+      } else {
+        final target = _targetIndex;
+        _cleanUpAnimation();
+        if (target != null) {
+          widget.controller.confirmPageChange(target);
+        }
+        setState(() {});
+      }
+    });
   }
 
   void _handleJumpRequest(int index) {
@@ -188,9 +238,17 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
   // --- Animation callbacks ---
 
   void _onAnimationTick() {
-    setState(() {
-      _progress = _animationController.value;
-    });
+    if (widget.mode == PageTurnMode.curl && _curlAnimStart != null && _curlAnimEnd != null) {
+      final t = _animationController.value;
+      setState(() {
+        _curlDragPos = Offset.lerp(_curlAnimStart, _curlAnimEnd, t);
+        _progress = t;
+      });
+    } else {
+      setState(() {
+        _progress = _animationController.value;
+      });
+    }
   }
 
   void _onAnimationStatus(AnimationStatus status) {
@@ -219,6 +277,10 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
     _isAnimating = false;
     _targetIndex = null;
     _progress = 0.0;
+    _curlTouchDown = null;
+    _curlDragPos = null;
+    _curlAnimStart = null;
+    _curlAnimEnd = null;
     _currentImage?.dispose();
     _targetImage?.dispose();
     _currentImage = null;
@@ -229,12 +291,45 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
 
   @override
   void onDragProgress(double progress) {
+    if (widget.mode == PageTurnMode.curl) {
+      // Curl mode: use actual finger positions for natural following
+      if (!_isAnimating && _targetIndex == null) {
+        _animatingForward = isForward;
+        _targetIndex = isForward ? currentIndex + 1 : currentIndex - 1;
+        _isAnimating = true;
+        _curlTouchDown = touchDownPosition ?? dragPosition;
+        _curlDragPos = dragPosition;
+        _curlAnimStart = null;
+        _curlAnimEnd = null;
+        _progress = progress;
+        setState(() {});
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _tryCaptureImagesSync();
+          setState(() {});
+        });
+        return;
+      }
+
+      // Update finger position each frame during drag
+      _curlDragPos = dragPosition ?? _curlDragPos;
+      _progress = progress;
+
+      if (_currentImage == null || _targetImage == null) {
+        _tryCaptureImagesSync();
+      }
+
+      setState(() {});
+      return;
+    }
+
+    // Non-curl modes: progress-based
     if (!_isAnimating && _targetIndex == null) {
       _animatingForward = isForward;
       _targetIndex = isForward ? currentIndex + 1 : currentIndex - 1;
       _isAnimating = true;
 
-      // 先渲染 target 到 Offstage，下一帧再同步截图
       setState(() {});
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -247,7 +342,6 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
       return;
     }
 
-    // 第二帧起尝试补截（首帧 PostFrameCallback 还没跑的情况）
     if (_currentImage == null || _targetImage == null) {
       _tryCaptureImagesSync();
     }
@@ -268,6 +362,10 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
       setState(() {});
       return;
     }
+    if (widget.mode == PageTurnMode.curl) {
+      _startCurlAnimFromDrag(commit: true);
+      return;
+    }
     _animationController.value = _progress;
     _animationController.forward();
   }
@@ -279,8 +377,30 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
       setState(() {});
       return;
     }
+    if (widget.mode == PageTurnMode.curl) {
+      _startCurlAnimFromDrag(commit: false);
+      return;
+    }
     _animationController.value = _progress;
     _animationController.reverse();
+  }
+
+  void _startCurlAnimFromDrag({required bool commit}) {
+    final size = MediaQuery.of(context).size;
+    _curlAnimStart = _curlDragPos ?? _curlTouchDown;
+    if (commit) {
+      // Animate finger off-screen in the drag direction
+      if (isForward) {
+        _curlAnimEnd = Offset(-size.width * 0.3, _curlAnimStart!.dy);
+      } else {
+        _curlAnimEnd = Offset(size.width * 1.3, _curlAnimStart!.dy);
+      }
+    } else {
+      // Snap back to touch-down position
+      _curlAnimEnd = _curlTouchDown ?? _curlAnimStart;
+    }
+    _animationController.value = _progress;
+    _animationController.forward();
   }
 
   // --- Pointer-based tap detection ---
@@ -366,6 +486,8 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
     // 向后翻页时反转进度，让 shader 动画方向正确
     final effectiveProgress = _animatingForward ? _progress : 1.0 - _progress;
 
+    final isCurl = widget.mode == PageTurnMode.curl;
+
     return Listener(
       onPointerDown: _handlePointerDown,
       onPointerMove: _handlePointerMove,
@@ -378,8 +500,6 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
         onHorizontalDragEnd: handleDragEnd,
         child: Stack(
           children: [
-            // 将两个 RepaintBoundary 放在 CustomPaint 下面，
-            // 保持 GlobalKey 有效并确保被绘制
             RepaintBoundary(
               key: _targetPageKey,
               child: widget.pageBuilder(_targetIndex!),
@@ -394,9 +514,12 @@ class _ShaderPageTurnViewState extends State<ShaderPageTurnView>
                 progress: effectiveProgress,
                 currentImage:
                     _animatingForward ? _currentImage! : _targetImage!,
-                nextImage: _animatingForward ? _targetImage! : _currentImage!,
+                nextImage:
+                    _animatingForward ? _targetImage! : _currentImage!,
                 size: MediaQuery.of(context).size,
                 mode: widget.mode,
+                mousePosition: isCurl ? _curlDragPos : null,
+                touchDownPosition: isCurl ? _curlTouchDown : null,
               ),
               size: MediaQuery.of(context).size,
             ),
@@ -415,6 +538,12 @@ class _ShaderPainter extends CustomPainter {
   final Size size;
   final PageTurnMode mode;
 
+  /// Curl mode: current finger position (if null, falls back to progress-based).
+  final Offset? mousePosition;
+
+  /// Curl mode: where the finger first touched down (for corner detection).
+  final Offset? touchDownPosition;
+
   _ShaderPainter({
     required this.shader,
     required this.progress,
@@ -422,6 +551,8 @@ class _ShaderPainter extends CustomPainter {
     required this.nextImage,
     required this.size,
     required this.mode,
+    this.mousePosition,
+    this.touchDownPosition,
   });
 
   @override
@@ -431,17 +562,30 @@ class _ShaderPainter extends CustomPainter {
     final s = shader!;
     int idx = 0;
 
-    // uResolution (vec2)
+    // uResolution (vec2) — always first
     s.setFloat(idx++, this.size.width);
     s.setFloat(idx++, this.size.height);
 
-    // uProgress (float)
-    s.setFloat(idx++, progress);
+    if (mode == PageTurnMode.curl && mousePosition != null && touchDownPosition != null) {
+      // Curl mode: pass finger positions as iMouse (vec4)
+      // Clamp to page bounds like leaf does
+      final mx = mousePosition!.dx.clamp(0.0, this.size.width);
+      final my = mousePosition!.dy.clamp(0.0, this.size.height);
+      final tdx = touchDownPosition!.dx.clamp(0.0, this.size.width);
+      final tdy = touchDownPosition!.dy.clamp(0.0, this.size.height);
+      s.setFloat(idx++, mx);
+      s.setFloat(idx++, my);
+      s.setFloat(idx++, tdx);
+      s.setFloat(idx++, tdy);
+    } else {
+      // Non-curl modes: pass progress (float)
+      s.setFloat(idx++, progress);
 
-    // page_curl.frag 额外参数
-    if (mode == PageTurnMode.curl) {
-      s.setFloat(idx++, this.size.width * 0.08);
-      s.setFloat(idx++, this.size.width * 0.05);
+      // Legacy curl extra params (unused by new shader, kept for compatibility)
+      if (mode == PageTurnMode.curl) {
+        s.setFloat(idx++, this.size.width * 0.08);
+        s.setFloat(idx++, this.size.width * 0.05);
+      }
     }
 
     s.setImageSampler(0, currentImage);
@@ -457,6 +601,8 @@ class _ShaderPainter extends CustomPainter {
   bool shouldRepaint(covariant _ShaderPainter oldDelegate) {
     return oldDelegate.progress != progress ||
         oldDelegate.currentImage != currentImage ||
-        oldDelegate.nextImage != nextImage;
+        oldDelegate.nextImage != nextImage ||
+        oldDelegate.mousePosition != mousePosition ||
+        oldDelegate.touchDownPosition != touchDownPosition;
   }
 }

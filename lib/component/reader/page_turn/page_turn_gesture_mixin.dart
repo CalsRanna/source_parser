@@ -5,8 +5,14 @@ mixin PageTurnGestureMixin {
   bool _isDragging = false;
   bool _isForward = false;
 
+  /// Position tracking for curl (finger-following) mode.
+  Offset? _touchDownPosition;
+  Offset? _dragPosition;
+
   bool get isDragging => _isDragging;
   bool get isForward => _isForward;
+  Offset? get touchDownPosition => _touchDownPosition;
+  Offset? get dragPosition => _dragPosition;
 
   /// 子类提供屏幕宽度
   double get screenWidth;
@@ -29,11 +35,14 @@ mixin PageTurnGestureMixin {
   void handleDragStart(DragStartDetails details) {
     _dragDistance = 0.0;
     _isDragging = false;
+    _touchDownPosition = details.localPosition;
+    _dragPosition = details.localPosition;
   }
 
   void handleDragUpdate(DragUpdateDetails details) {
     final delta = details.primaryDelta ?? 0;
     _dragDistance += delta;
+    _dragPosition = details.localPosition;
 
     _isForward = _dragDistance < 0;
 
