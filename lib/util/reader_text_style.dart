@@ -14,6 +14,7 @@ class ReaderTextStyle {
           fontSize: theme.chapterFontSize,
           fontWeight: FontWeight.values[theme.chapterFontWeight],
           height: theme.chapterHeight,
+          leadingDistribution: TextLeadingDistribution.even,
           letterSpacing: theme.chapterLetterSpacing,
           wordSpacing: theme.chapterWordSpacing,
         ),
@@ -23,6 +24,7 @@ class ReaderTextStyle {
           fontSize: theme.contentFontSize,
           fontWeight: FontWeight.values[theme.contentFontWeight],
           height: theme.contentHeight,
+          leadingDistribution: TextLeadingDistribution.even,
           letterSpacing: theme.contentLetterSpacing,
           wordSpacing: theme.contentWordSpacing,
         );

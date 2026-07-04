@@ -91,6 +91,7 @@ class ReaderViewportCalculator {
       fontSize: theme.footerFontSize,
       fontWeight: FontWeight.values[theme.footerFontWeight],
       height: theme.footerHeight,
+      leadingDistribution: TextLeadingDistribution.even,
       letterSpacing: theme.footerLetterSpacing,
       wordSpacing: theme.footerWordSpacing,
     );
@@ -103,6 +104,7 @@ class ReaderViewportCalculator {
       fontSize: theme.headerFontSize,
       fontWeight: FontWeight.values[theme.headerFontWeight],
       height: theme.headerHeight,
+      leadingDistribution: TextLeadingDistribution.even,
       letterSpacing: theme.headerLetterSpacing,
       wordSpacing: theme.headerWordSpacing,
     );

@@ -194,6 +194,7 @@ class _Content extends StatelessWidget {
       var textStyle = TextStyle(
         color: theme.contentColor.toColor(),
         fontSize: theme.contentFontSize,
+        leadingDistribution: TextLeadingDistribution.even,
       );
       var text = Text(
         errorMessage!.isEmpty ? StringConfig.loadingFailed : errorMessage!,
@@ -328,6 +329,7 @@ class _Footer extends StatelessWidget {
       fontSize: theme.footerFontSize,
       fontWeight: FontWeight.values[theme.footerFontWeight],
       height: theme.footerHeight,
+      leadingDistribution: TextLeadingDistribution.even,
       letterSpacing: theme.footerLetterSpacing,
       wordSpacing: theme.footerWordSpacing,
     );
@@ -381,6 +383,7 @@ class _Header extends StatelessWidget {
       fontSize: theme.headerFontSize,
       fontWeight: FontWeight.values[theme.headerFontWeight],
       height: theme.headerHeight,
+      leadingDistribution: TextLeadingDistribution.even,
       letterSpacing: theme.headerLetterSpacing,
       wordSpacing: theme.headerWordSpacing,
     );
